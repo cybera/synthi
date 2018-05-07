@@ -16,7 +16,7 @@ app.use('/graphql', graphqlHTTP({
 app.get('/', (req, res) => res.send("Hello world !"))
 
 // run server on port 3000
-app.listen('3000', _ => console.log('Server is listening on port 3000...'))
+const server = app.listen('3000', _ => console.log('Server is listening on port 3000...'))
 
 // Close all connections on shutdown
 const shutdown = function () {
