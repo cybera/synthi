@@ -4,9 +4,11 @@
   "description": "server for adi",
   "main": "index.js",
   "dependencies": {
+    "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "express-graphql": "^0.6.12",
-    "graphql": "^0.13.2"
+    "graphql": "^0.13.2",
+    "neo4j-driver": "^1.6.0"
   },
   "devDependencies": {},
   "scripts": {

@@ -1,27 +1,5 @@
 const graphql = require('graphql')
-
-class Dataset {
-  /**
-  * Dataset constructor
-  * @param {String} name Text that describes the name of the dataset
-  */
-  constructor(name) {
-    this.id = ++Dataset.counter;
-    this.name = name;
-  }
-}
-// counter of instances
-Dataset.counter = 0;
-
-const fakeDatabase = {};
-// fill the fakeDatabase with some datasets
-(function() {
-  const datasets = ["weather", "crime", "demographics"];
-  datasets.map(dataset => {
-    const newDataset = new Dataset(dataset);
-    fakeDatabase[newDataset.id] = newDataset
-  });
-})()
+const neo4j = require('../../neo4j/connection')
 
 // define the Dataset type for graphql
 const DatasetType = new graphql.GraphQLObjectType({
@@ -45,8 +23,26 @@ const query = new graphql.GraphQLObjectType({
         }
       },
       resolve: (_, {id}) => {
-        if (id) return [fakeDatabase[id]];
-        return Object.values(fakeDatabase);
+        const session = neo4j.session()
+
+        var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id`]
+        if (id) {
+          query = [`MATCH (n:Dataset) 
+                    WHERE ID(n) = $id 
+                    RETURN 
+                      n.name AS name, 
+                      ID(n) AS id`, { id: id }]
+        }
+        
+        return session.run(...query).then(result => {
+          const datasets = result.records.map(record => record.toObject())
+          return datasets
+        }).catch(e => {
+          return []
+        }).then(result => {
+          session.close()
+          return result
+        })
       }
     }
   }
@@ -64,9 +60,18 @@ const mutation = new graphql.GraphQLObjectType({
         }
       },
       resolve: (_, {name}) => {
-        const newDataset = new Dataset(name);
-        fakeDatabase[newDataset.id] = newDataset;
-        return Object.values(fakeDatabase);
+        const session = neo4j.session()
+
+        return session.run(`CREATE (d:Dataset { name: $name }) 
+                            RETURN ID(d) AS id, d.name AS name`, 
+                           { name: name }).then(result => {
+          return result.records.map(record => record.toObject())
+        }).catch(e => {
+          return []
+        }).then(result => {
+          session.close()
+          return result
+        })
       }
     },
     deleteDataset: {
@@ -77,8 +82,21 @@ const mutation = new graphql.GraphQLObjectType({
         }
       },
       resolve: (_, {id}) => {
-        delete fakeDatabase[id];
-        return Object.values(fakeDatabase);
+        const session = neo4j.session()
+
+        return session.run(`MATCH (d:Dataset)
+                            WHERE ID(d) = $id
+                            WITH d, ID(d) AS id, d.name AS name
+                            DETACH DELETE d
+                            RETURN id, name`, 
+                           { id: id }).then(result => {
+          return result.records.map(record => record.toObject())
+        }).catch(e => {
+          return []
+        }).then(result => {
+          session.close()
+          return result
+        })
       }
     }
   }
