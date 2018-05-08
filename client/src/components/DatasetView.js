@@ -4,7 +4,7 @@ import gql from "graphql-tag";
 
 class DatasetView extends React.Component {
   render() {
-    if (!this.props.id) return <div></div>
+    if (this.props.id == null) return <div></div>
 
     return <Query
       query={gql`

@@ -15,12 +15,23 @@ import DatasetView from "./components/DatasetView"
 import DatasetList from "./components/DatasetList"
 
 class App extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { selectedDataset: null }
+  }
+
+  handleDatasetSelection = (id, e) => {
+    this.setState({
+      selectedDataset: id
+    })
+  }
+
   render() {
     return (
       <ApolloProvider client={client}>
         <div>
-          <DatasetList/>
-          <DatasetView id="1"/>
+          <DatasetList selectDataset={this.handleDatasetSelection}/>
+          <DatasetView id={this.state.selectedDataset}/>
         </div>
       </ApolloProvider>
     )

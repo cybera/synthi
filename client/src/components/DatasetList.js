@@ -4,6 +4,8 @@ import gql from "graphql-tag";
 
 class DatasetList extends React.Component {
   render() {
+    const { selectDataset } = this.props
+
     return <Query
       query={gql`
         {
@@ -20,7 +22,7 @@ class DatasetList extends React.Component {
 
         return <ul>
           {data.dataset.map(({ id, name }) => (
-            <li key={id}>{`${name}`}</li>
+            <li key={id} onClick={(e) => selectDataset(id, e)}>{`${name}`}</li>
           ))}
         </ul>
       }}
