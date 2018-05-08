@@ -6,7 +6,11 @@ const graphqlHTTP = require('express-graphql')
 const neo4j = require('./neo4j/connection')
 const schema = require('./graphql/schema/Schema')
 
+const cors = require('cors')
+
 const app = express()
+
+app.use(cors())
 
 app.use('/graphql', graphqlHTTP({
   schema,
