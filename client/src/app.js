@@ -14,6 +14,20 @@ const client = new ApolloClient({
 import DatasetView from "./components/DatasetView"
 import DatasetList from "./components/DatasetList"
 
+import Grid from 'material-ui/Grid'
+import { withStyles } from 'material-ui/styles'
+
+const styles = theme => ({
+  root: {
+    flexGrow: 1,
+  },
+  paper: {
+    padding: theme.spacing.unit * 2,
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  },
+})
+
 class App extends React.Component {
   constructor(props) {
     super(props)
@@ -27,16 +41,26 @@ class App extends React.Component {
   }
 
   render() {
+    const { classes } = this.props
+
     return (
       <ApolloProvider client={client}>
-        <div>
-          <DatasetList selectDataset={this.handleDatasetSelection}/>
-          <DatasetView id={this.state.selectedDataset}/>
+        <div className={classes.root}>
+          <Grid container spacing={24}>
+            <Grid item xs={3}>
+              <DatasetList selectDataset={this.handleDatasetSelection}/>
+            </Grid>
+            <Grid item xs={9}>
+              <DatasetView id={this.state.selectedDataset}/>
+            </Grid>
+          </Grid>
         </div>
       </ApolloProvider>
     )
   }
 }
 
+const StyledApp = withStyles(styles)(App)
+
 var mountNode = document.getElementById("app");
-ReactDOM.render(<App/>, mountNode);
+ReactDOM.render(<StyledApp/>, mountNode);

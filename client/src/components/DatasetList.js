@@ -1,6 +1,7 @@
 import React from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
+import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
 
 class DatasetList extends React.Component {
   render() {
@@ -20,11 +21,11 @@ class DatasetList extends React.Component {
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error!</p>;
 
-        return <ul>
+        return <List component="nav">
           {data.dataset.map(({ id, name }) => (
-            <li key={id} onClick={(e) => selectDataset(id, e)}>{`${name}`}</li>
+            <ListItem button key={id} onClick={(e) => selectDataset(id, e)}>{`${name}`}</ListItem>
           ))}
-        </ul>
+        </List>
       }}
     </Query>
   }

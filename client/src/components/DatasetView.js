@@ -2,14 +2,27 @@ import React from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
 
+import Paper from 'material-ui/Paper';
+import { withStyles } from 'material-ui/styles'
+
+const styles = theme => ({
+  root: theme.mixins.gutters({
+    paddingTop: 16,
+    paddingBottom: 16,
+    marginTop: theme.spacing.unit * 3,
+  }),
+});
+
 class DatasetView extends React.Component {
   render() {
-    if (this.props.id == null) return <div></div>
+    const { classes, id } = this.props
+
+    if (id == null) return <div></div>
 
     return <Query
       query={gql`
         {
-          dataset(id: ${this.props.id}) {
+          dataset(id: ${id}) {
             id,
             name
           }
@@ -22,13 +35,13 @@ class DatasetView extends React.Component {
 
         const { id, name } = data.dataset[0]
 
-        return <div>
+        return <Paper className={classes.root} elevation={4}>
           <p>Dataset: {name}</p>
           <p>ID: {id}</p>
-        </div>
+        </Paper>
       }}
     </Query>
   }
 }
 
-export default DatasetView
+export default withStyles(styles)(DatasetView)
