@@ -1,21 +1,38 @@
-const { makeExecutableSchema } = require('graphql-tools')
+import { makeExecutableSchema } from 'graphql-tools'
+import { GraphQLUpload } from 'apollo-upload-server'
+import mkdirp from 'mkdirp'
+import shortid from 'shortid'
+import fs from 'fs'
 
 const graphql = require('graphql')
 const neo4j = require('../../neo4j/connection')
 
 const typeDefs = `
+scalar Upload
+
+type File {
+  id: ID!
+  path: String!
+  filename: String!
+  mimetype: String!
+  encoding: String!
+}
+
 type Dataset {
   id: Int!
   name: String!
+  file: File
 }
 
 type Query {
   dataset(id: Int): [Dataset]
+  uploads: [File]
 }
 
 type Mutation {
   createDataset(name: String!): Dataset
   deleteDataset(id: Int!): Dataset
+  uploadFile(file: Upload!): File!
 }
 
 schema {
@@ -23,8 +40,38 @@ schema {
   mutation: Mutation
 }
 `
+const uploadDir = process.env.UPLOADS_FOLDER
+// Ensure upload directory exists
+mkdirp.sync(uploadDir)
+
+const storeFS = ({ stream, filename }) => {
+  const id = shortid.generate()
+  const path = `${uploadDir}/${id}-${filename}`
+  return new Promise((resolve, reject) =>
+    stream
+      .on('error', error => {
+        console.log(error)
+        if (stream.truncated)
+          // Delete the truncated file
+          fs.unlinkSync(path)
+        reject(error)
+      })
+      .pipe(fs.createWriteStream(path))
+      .on('error', error => reject(error))
+      .on('finish', () => resolve({ id, path }))
+  )
+}
+
+const processUpload = async upload => {
+  const { stream, filename, mimetype, encoding } = await upload
+  const { id, path } = await storeFS({ stream, filename })
+
+  //return storeDB({ id, filename, mimetype, encoding, path })
+  return { id, filename, mimetype, encoding, path }
+}
 
 const resolvers = {
+  Upload: GraphQLUpload,
   Query: {
     dataset(_, { id }) {
       const session = neo4j.session()
@@ -80,7 +127,8 @@ const resolvers = {
         session.close()
         return result
       })
-    }
+    },
+    uploadFile: (_, { file }) => processUpload(file)
   }
 }
 

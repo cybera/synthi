@@ -1,18 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import ApolloClient from "apollo-boost";
+import ApolloClient from "apollo-client";
+import { HttpLink, InMemoryCache, ApolloLink } from 'apollo-boost';
 import { ApolloProvider } from "react-apollo";
 
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
 
+import { createUploadLink } from 'apollo-upload-client'
+
 const client = new ApolloClient({
-  uri: "http://127.0.0.1:3000/graphql"
+  cache: new InMemoryCache(),
+  link: ApolloLink.from([createUploadLink({ uri: "http://127.0.0.1:3000/graphql" }), new HttpLink()])
 })
 
 import DatasetView from "./components/DatasetView"
 import DatasetList from "./components/DatasetList"
+import UploadFile from "./components/UploadFile"
 
 import Grid from 'material-ui/Grid'
 import { withStyles } from 'material-ui/styles'
@@ -52,6 +57,9 @@ class App extends React.Component {
             </Grid>
             <Grid item xs={9}>
               <DatasetView id={this.state.selectedDataset}/>
+              <div>
+                <UploadFile/>
+              </div>
             </Grid>
           </Grid>
         </div>

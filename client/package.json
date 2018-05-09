@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "apollo-boost": "^0.1.6",
+    "apollo-link": "^1.2.2",
+    "apollo-upload-client": "^8.0.0",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
     "material-ui": "^1.0.0-beta.45",

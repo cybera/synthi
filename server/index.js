@@ -1,5 +1,8 @@
 require('dotenv').config()
 
+import { apolloUploadExpress } from 'apollo-upload-server'
+import bodyParser from 'body-parser'
+import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
 const express = require('express')
 
 const graphqlHTTP = require('express-graphql')
@@ -12,10 +15,14 @@ const app = express()
 
 app.use(cors())
 
-app.use('/graphql', graphqlHTTP({
-  schema,
-  graphiql: true
-}))
+app.use(
+  '/graphql', 
+  bodyParser.json(),
+  apolloUploadExpress(), 
+  graphqlExpress({schema})
+)
+
+app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
 app.get('/', (req, res) => res.send("Hello world !"))
 
