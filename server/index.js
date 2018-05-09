@@ -1,15 +1,13 @@
-require('dotenv').config()
+import 'dotenv/config'
 
 import { apolloUploadExpress } from 'apollo-upload-server'
 import bodyParser from 'body-parser'
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
-const express = require('express')
 
-const graphqlHTTP = require('express-graphql')
-const neo4j = require('./neo4j/connection')
-const schema = require('./graphql/schema/Schema')
+import express from 'express'
 
-const cors = require('cors')
+import schema from './graphql/schema'
+import cors from 'cors'
 
 const app = express()
 

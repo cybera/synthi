@@ -1,45 +1,11 @@
-import { makeExecutableSchema } from 'graphql-tools'
 import { GraphQLUpload } from 'apollo-upload-server'
 import mkdirp from 'mkdirp'
 import shortid from 'shortid'
 import fs from 'fs'
 
 const graphql = require('graphql')
-const neo4j = require('../../neo4j/connection')
+const neo4j = require('../neo4j/connection')
 
-const typeDefs = `
-scalar Upload
-
-type File {
-  id: ID!
-  path: String!
-  filename: String!
-  mimetype: String!
-  encoding: String!
-}
-
-type Dataset {
-  id: Int!
-  name: String!
-  file: File
-}
-
-type Query {
-  dataset(id: Int): [Dataset]
-  uploads: [File]
-}
-
-type Mutation {
-  createDataset(name: String!): Dataset
-  deleteDataset(id: Int!): Dataset
-  uploadFile(file: Upload!): File!
-}
-
-schema {
-  query: Query
-  mutation: Mutation
-}
-`
 const uploadDir = process.env.UPLOADS_FOLDER
 // Ensure upload directory exists
 mkdirp.sync(uploadDir)
@@ -70,7 +36,7 @@ const processUpload = async upload => {
   return { id, filename, mimetype, encoding, path }
 }
 
-const resolvers = {
+export default {
   Upload: GraphQLUpload,
   Query: {
     dataset(_, { id }) {
@@ -131,10 +97,3 @@ const resolvers = {
     uploadFile: (_, { file }) => processUpload(file)
   }
 }
-
-const executableSchema = makeExecutableSchema({
-  typeDefs,
-  resolvers,
-})
-
-module.exports = executableSchema
