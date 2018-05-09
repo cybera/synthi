@@ -36,14 +36,25 @@ const processUpload = async upload => {
   return { id, filename, mimetype, encoding, path }
 }
 
+const safeQuery = (query, params) => {
+  const session = neo4j.session()
+
+  return session.run(query, params).then(result => {
+    return result.records.map(record => record.toObject())
+  }).catch(e => {
+    return []
+  }).then(result => {
+    session.close()
+    return result
+  })
+}
+
 export default {
   Upload: GraphQLUpload,
   Query: {
     dataset(_, { id }) {
-      const session = neo4j.session()
-
       var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id`]
-      if (id) {
+      if (id != null) {
         query = [`MATCH (n:Dataset) 
                   WHERE ID(n) = $id 
                   RETURN 
@@ -51,48 +62,30 @@ export default {
                     ID(n) AS id`, { id: id }]
       }
       
-      return session.run(...query).then(result => {
-        const datasets = result.records.map(record => record.toObject())
-        return datasets
-      }).catch(e => {
-        return []
-      }).then(result => {
-        session.close()
-        return result
-      }) 
+      return safeQuery(...query)
+    }
+  },
+  Dataset: {
+    columns(dataset) {
+      return safeQuery(`MATCH (d:Dataset)<--(c:Column)
+                        WHERE ID(d) = $id
+                        RETURN ID(c) AS id, c.name AS name`,
+                        { id: dataset.id })
     }
   },
   Mutation: {
     createDataset(_, {name}) {
-      const session = neo4j.session()
-
-      return session.run(`CREATE (d:Dataset { name: $name }) 
-                          RETURN ID(d) AS id, d.name AS name`, 
-                         { name: name }).then(result => {
-        return result.records.map(record => record.toObject())[0]
-      }).catch(e => {
-        return []
-      }).then(result => {
-        session.close()
-        return result
-      })
+      return safeQuery(`CREATE (d:Dataset { name: $name }) 
+                        RETURN ID(d) AS id, d.name AS name`, 
+                        { name: name }).then(results => results[0])
     },
     deleteDataset(_, {id}) {
-      const session = neo4j.session()
-
-      return session.run(`MATCH (d:Dataset)
-                          WHERE ID(d) = $id
-                          WITH d, ID(d) AS id, d.name AS name
-                          DETACH DELETE d
-                          RETURN id, name`, 
-                        { id: id }).then(result => {
-        return result.records.map(record => record.toObject())[0]
-      }).catch(e => {
-        return []
-      }).then(result => {
-        session.close()
-        return result
-      })
+      return safeQuery(`MATCH (d:Dataset)
+                        WHERE ID(d) = $id
+                        WITH d, ID(d) AS id, d.name AS name
+                        DETACH DELETE d
+                        RETURN id, name`, 
+                        { id: id }).then(results => results[0])
     },
     uploadFile: (_, { file }) => processUpload(file)
   }

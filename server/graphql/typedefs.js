@@ -9,9 +9,15 @@ type File {
   encoding: String!
 }
 
+type Column {
+  id: Int!
+  name: String!
+}
+
 type Dataset {
   id: Int!
   name: String!
+  columns: [Column]
   file: File
 }
 
