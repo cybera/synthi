@@ -32,6 +32,7 @@ class DatasetView extends React.Component {
             columns {
               id
               name
+              order
             }
           }
         }
@@ -49,7 +50,10 @@ class DatasetView extends React.Component {
             <TableHead>
               <TableRow>
                 {
-                  columns.map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
+                  columns
+                    .slice(0) // dup the array to avoid modification error during sort
+                    .sort((a,b) => { return a.order - b.order })
+                    .map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
                 }                
               </TableRow>
             </TableHead>

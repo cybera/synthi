@@ -69,7 +69,7 @@ export default {
     columns(dataset) {
       return safeQuery(`MATCH (d:Dataset)<--(c:Column)
                         WHERE ID(d) = $id
-                        RETURN ID(c) AS id, c.name AS name`,
+                        RETURN ID(c) AS id, c.name AS name, c.order AS order`,
                         { id: dataset.id })
     }
   },

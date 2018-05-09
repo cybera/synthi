@@ -12,6 +12,7 @@ type File {
 type Column {
   id: Int!
   name: String!
+  order: Int
 }
 
 type Dataset {
