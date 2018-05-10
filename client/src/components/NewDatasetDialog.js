@@ -11,14 +11,7 @@ import UploadFile from "./UploadFile"
 import gql from 'graphql-tag'
 import { graphql } from 'react-apollo'
 
-const uploadDatasetMutation = gql`
-mutation UploadDataset($name: String!, $file: Upload!) {
-  uploadDataset(name: $name, file: $file) {
-    id
-    name
-  }
-}
-`
+import { datasetListQuery, uploadDatasetMutation } from '../queries'
 
 class NewDatasetDialog extends React.Component {
   state = {
@@ -39,7 +32,8 @@ class NewDatasetDialog extends React.Component {
     this.setState({ open: false });
     const { mutate } = this.props
 
-    mutate({ variables: { name: this.state.name, file: this.state.file } })
+    mutate({ variables: { name: this.state.name, file: this.state.file },
+             refetchQueries: [{ query: datasetListQuery }] })
   };
 
   handleFileChange = (file) => {

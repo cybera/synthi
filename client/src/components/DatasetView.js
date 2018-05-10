@@ -9,6 +9,8 @@ import DescriptionIcon from '@material-ui/icons/Description';
 
 import { withStyles } from 'material-ui/styles'
 
+import { datasetViewQuery } from '../queries'
+
 const styles = theme => ({
   root: theme.mixins.gutters({
     paddingTop: 16,
@@ -23,22 +25,7 @@ class DatasetView extends React.Component {
 
     if (id == null) return <div></div>
 
-    return <Query
-      query={gql`
-        {
-          dataset(id: ${id}) {
-            id
-            name
-            columns {
-              id
-              name
-              order
-            }
-            samples
-          }
-        }
-      `}
-    >
+    return <Query query={datasetViewQuery} variables={ { id: id } }>
       {({ loading, error, data }) => {
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error!</p>;

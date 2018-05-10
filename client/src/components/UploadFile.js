@@ -16,26 +16,14 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
 
-const uploadFileMutation = gql`
-mutation($file: Upload!) {
-  uploadFile(file: $file) {
-    id
-    filename
-    encoding
-    mimetype
-    path
-  }
-}
-`
-
 class UploadFile extends React.Component {
-  handleChange = (mutate, event) => {
+  handleChange = (event) => {
     const { target: { validity, files: [file] } } = event
     validity.valid && this.props.handleFileChange(file)
   }
 
   render() {
-    const { mutate, classes, text } = this.props
+    const { classes, text } = this.props
     const buttonText = text || "Choose File..."
 
     return (
@@ -46,7 +34,7 @@ class UploadFile extends React.Component {
               id="raised-button-file"
               multiple
               type="file"
-              onChange={e => this.handleChange(mutate, e)}
+              onChange={this.handleChange}
             />
         <Button variant="raised" component="span" className={classes.button}>
           { buttonText }
@@ -56,4 +44,4 @@ class UploadFile extends React.Component {
   }
 }
 
-export default withStyles(styles)(graphql(uploadFileMutation)(UploadFile))
+export default withStyles(styles)(UploadFile)
