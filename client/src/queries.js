@@ -18,6 +18,15 @@ mutation UploadDataset($name: String!, $file: Upload!) {
 }
 `
 
+export const deleteDatasetMutation = gql`
+mutation DeleteDataset($id: Int!) {
+  deleteDataset(id: $id) {
+    id
+    name
+  }
+}
+`
+
 export const datasetViewQuery = gql`
 query($id: Int) {
   dataset(id: $id) {

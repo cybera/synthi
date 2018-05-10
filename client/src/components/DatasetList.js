@@ -1,10 +1,20 @@
 import React from "react";
-import { Query } from "react-apollo";
+import { Query, graphql } from "react-apollo";
+import gql from 'graphql-tag'
+import List, { ListItem, 
+               ListItemIcon, 
+               ListItemSecondaryAction, 
+               ListItemText } from 'material-ui/List'
+import IconButton from 'material-ui/IconButton'
+import DeleteIcon from '@material-ui/icons/Delete'
 
-import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
-import { datasetListQuery } from '../queries'
+import { datasetListQuery, deleteDatasetMutation } from '../queries'
 
 class DatasetList extends React.Component {
+  handleDelete = (id, event) => {
+    this.props.mutate({ variables: { id: id }, refetchQueries: [{ query: datasetListQuery }]})
+  }
+
   render() {
     const { selectDataset } = this.props
 
@@ -15,7 +25,14 @@ class DatasetList extends React.Component {
 
         return <List component="nav">
           {data.dataset.map(({ id, name }) => (
-            <ListItem button key={id} onClick={(e) => selectDataset(id, e)}>{`${name}`}</ListItem>
+            <ListItem button key={id} onClick={(e) => selectDataset(id, e)}>
+              <ListItemText primary={name}/>
+              <ListItemSecondaryAction>
+                <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, e)}>
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
           ))}
         </List>
       }}
@@ -23,4 +40,4 @@ class DatasetList extends React.Component {
   }
 }
 
-export default DatasetList
+export default graphql(deleteDatasetMutation)(DatasetList)

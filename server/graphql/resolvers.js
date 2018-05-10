@@ -124,10 +124,17 @@ export default {
     deleteDataset(_, {id}) {
       return safeQuery(`MATCH (d:Dataset)
                         WHERE ID(d) = $id
-                        WITH d, ID(d) AS id, d.name AS name
-                        DETACH DELETE d
-                        RETURN id, name`, 
-                        { id: id }).then(results => results[0])
+                        OPTIONAL MATCH (d)<--(c:Column)
+                        WITH d, d.name AS name, ID(d) AS id, d.path as path, c
+                        DETACH DELETE d,c
+                        RETURN name, id, path
+                        LIMIT 1`, 
+                        { id: id })
+                        .then(results => results[0])
+                        .then(result => {
+                          fs.unlinkSync(result.path)
+                          return result
+                        })
     },
     uploadFile: (_, { file }) => processUpload(file),
     uploadDataset: (_, { name, file }) => processDatasetUpload(name, file)
