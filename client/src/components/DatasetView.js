@@ -5,7 +5,6 @@ import gql from "graphql-tag";
 import Paper from 'material-ui/Paper';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Typography from 'material-ui/Typography';
-import DescriptionIcon from '@material-ui/icons/Description';
 
 import { withStyles } from 'material-ui/styles'
 
@@ -15,8 +14,11 @@ const styles = theme => ({
   root: theme.mixins.gutters({
     paddingTop: 16,
     paddingBottom: 16,
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing.unit
   }),
+  rightIcon: {
+    marginLeft: theme.spacing.unit,
+  }
 });
 
 class DatasetView extends React.Component {
@@ -42,7 +44,7 @@ class DatasetView extends React.Component {
         })
 
         return <Paper className={classes.root} elevation={4}>
-          <Typography variant="headline"><DescriptionIcon/>{name}</Typography>
+          <Typography variant="headline">{name}</Typography>
           <Table>
             <TableHead>
               <TableRow>

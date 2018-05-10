@@ -12,6 +12,18 @@ import gql from 'graphql-tag'
 import { graphql } from 'react-apollo'
 
 import { datasetListQuery, uploadDatasetMutation } from '../queries'
+import DescriptionIcon from '@material-ui/icons/Description';
+
+import { withStyles } from 'material-ui/styles'
+
+const styles = theme => ({
+  button: {
+    margin: theme.spacing.unit,
+  },
+  rightIcon: {
+    marginLeft: 10
+  }
+});
 
 class NewDatasetDialog extends React.Component {
   state = {
@@ -45,11 +57,16 @@ class NewDatasetDialog extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
     const buttonText = this.state.file ? `File: ${this.state.file.name}` : null
 
     return (
       <div>
-        <Button onClick={this.handleClickOpen}>New Dataset</Button>
+        <Button onClick={this.handleClickOpen} className={classes.button} 
+                variant="raised" color="primary" fullWidth={true}>
+          New Dataset
+          <DescriptionIcon className={classes.rightIcon}/>
+        </Button>
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}
@@ -85,4 +102,4 @@ class NewDatasetDialog extends React.Component {
   }
 }
 
-export default graphql(uploadDatasetMutation)(NewDatasetDialog)
+export default withStyles(styles)(graphql(uploadDatasetMutation)(NewDatasetDialog))
