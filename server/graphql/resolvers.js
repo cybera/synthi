@@ -2,6 +2,7 @@ import { GraphQLUpload } from 'apollo-upload-server'
 import mkdirp from 'mkdirp'
 import shortid from 'shortid'
 import fs from 'fs'
+import csvParse from 'csv-parse/lib/sync'
 
 const graphql = require('graphql')
 const neo4j = require('../neo4j/connection')
@@ -49,6 +50,35 @@ const safeQuery = (query, params) => {
   })
 }
 
+const processDatasetUpload = async (name, upload) => {
+  const { stream, filename, mimetype, encoding } = await upload
+  const { id, path } = await storeFS({ stream, filename })
+
+  // This would have to be modified to only read the first few lines in case the file was
+  // really large...
+  const fileString = fs.readFileSync(path, "utf8")
+  const csv = csvParse(fileString, { columns: true })
+
+  var column_names = []
+  if (csv && csv.length > 0) {
+    column_names = Object.keys(csv[0])
+  }
+
+  const query = `
+    CREATE (dataset:Dataset { name: $name })
+    WITH dataset
+    UNWIND $columns AS column
+    MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
+    SET dataset.filepath = $path
+    WITH dataset
+    RETURN ID(dataset) AS id, dataset.name AS name
+  `
+
+  const columns = column_names.map((column_name, index) => ({ name: column_name, order: index + 1 }))
+
+  return safeQuery(query, { name: name, columns: columns, path: path }).then(results => results[0])
+}
+
 export default {
   Upload: GraphQLUpload,
   Query: {
@@ -69,7 +99,8 @@ export default {
     columns(dataset) {
       return safeQuery(`MATCH (d:Dataset)<--(c:Column)
                         WHERE ID(d) = $id
-                        RETURN ID(c) AS id, c.name AS name, c.order AS order`,
+                        RETURN ID(c) AS id, c.name AS name, c.order AS order
+                        ORDER BY order`,
                         { id: dataset.id })
     }
   },
@@ -87,6 +118,7 @@ export default {
                         RETURN id, name`, 
                         { id: id }).then(results => results[0])
     },
-    uploadFile: (_, { file }) => processUpload(file)
+    uploadFile: (_, { file }) => processUpload(file),
+    uploadDataset: (_, { name, file }) => processDatasetUpload(name, file)
   }
 }

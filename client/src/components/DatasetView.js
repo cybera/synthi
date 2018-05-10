@@ -51,7 +51,7 @@ class DatasetView extends React.Component {
               <TableRow>
                 {
                   columns
-                    .slice(0) // dup the array to avoid modification error during sort
+                    .slice(0,6) // dup the array to avoid modification error during sort
                     .sort((a,b) => { return a.order - b.order })
                     .map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
                 }                

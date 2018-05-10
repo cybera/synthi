@@ -1,23 +1,59 @@
 import React from "react";
 import gql from 'graphql-tag'
 import { graphql } from 'react-apollo'
+import Upload from 'material-ui-next-upload/Upload';
 
-export default graphql(gql`
-  mutation($file: Upload!) {
-    uploadFile(file: $file) {
-      id
-      filename
-      encoding
-      mimetype
-      path
-    }
+const styles = theme => ({
+  button: {
+    margin: theme.spacing.unit,
+  },
+  input: {
+    display: 'none',
+  },
+});
+
+import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
+import Button from 'material-ui/Button';
+
+const uploadFileMutation = gql`
+mutation($file: Upload!) {
+  uploadFile(file: $file) {
+    id
+    filename
+    encoding
+    mimetype
+    path
   }
-`)(({ mutate }) => (
-  <input
-    type="file"
-    required
-    onChange={({ target: { validity, files: [file] } }) =>
-      validity.valid && mutate({ variables: { file } })
-    }
-  />
-))
+}
+`
+
+class UploadFile extends React.Component {
+  handleChange = (mutate, event) => {
+    const { target: { validity, files: [file] } } = event
+    validity.valid && this.props.handleFileChange(file)
+  }
+
+  render() {
+    const { mutate, classes, text } = this.props
+    const buttonText = text || "Choose File..."
+
+    return (
+      <label htmlFor="raised-button-file">
+        <input
+              accept=".csv"
+              className={classes.input}
+              id="raised-button-file"
+              multiple
+              type="file"
+              onChange={e => this.handleChange(mutate, e)}
+            />
+        <Button variant="raised" component="span" className={classes.button}>
+          { buttonText }
+        </Button>
+      </label>
+    )
+  }
+}
+
+export default withStyles(styles)(graphql(uploadFileMutation)(UploadFile))

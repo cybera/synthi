@@ -17,7 +17,7 @@ const client = new ApolloClient({
 
 import DatasetView from "./components/DatasetView"
 import DatasetList from "./components/DatasetList"
-import UploadFile from "./components/UploadFile"
+import NewDatasetDialog from "./components/NewDatasetDialog"
 
 import Grid from 'material-ui/Grid'
 import { withStyles } from 'material-ui/styles'
@@ -53,13 +53,11 @@ class App extends React.Component {
         <div className={classes.root}>
           <Grid container spacing={24}>
             <Grid item xs={3}>
+              <NewDatasetDialog/>
               <DatasetList selectDataset={this.handleDatasetSelection}/>
             </Grid>
             <Grid item xs={9}>
               <DatasetView id={this.state.selectedDataset}/>
-              <div>
-                <UploadFile/>
-              </div>
             </Grid>
           </Grid>
         </div>
