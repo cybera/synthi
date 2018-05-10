@@ -69,7 +69,7 @@ const processDatasetUpload = async (name, upload) => {
     WITH dataset
     UNWIND $columns AS column
     MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
-    SET dataset.filepath = $path
+    SET dataset.path = $path
     WITH dataset
     RETURN ID(dataset) AS id, dataset.name AS name
   `
@@ -83,13 +83,14 @@ export default {
   Upload: GraphQLUpload,
   Query: {
     dataset(_, { id }) {
-      var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id`]
+      var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id, n.path AS path`]
       if (id != null) {
         query = [`MATCH (n:Dataset) 
                   WHERE ID(n) = $id 
                   RETURN 
                     n.name AS name, 
-                    ID(n) AS id`, { id: id }]
+                    ID(n) AS id,
+                    n.path AS path`, { id: id }]
       }
       
       return safeQuery(...query)
@@ -102,6 +103,16 @@ export default {
                         RETURN ID(c) AS id, c.name AS name, c.order AS order
                         ORDER BY order`,
                         { id: dataset.id })
+    },
+    samples(dataset) {
+      if (dataset.path) {
+        const fileString = fs.readFileSync(dataset.path, "utf8")
+        const csv = csvParse(fileString, { columns: true })
+        const jsonStrings = csv.slice(0,10).map(r => JSON.stringify(r))
+        return jsonStrings
+      } else { 
+        return []
+      }
     }
   },
   Mutation: {

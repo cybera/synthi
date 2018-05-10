@@ -19,7 +19,8 @@ type Dataset {
   id: Int!
   name: String!
   columns: [Column]
-  file: File
+  samples: [String]
+  path: String
 }
 
 type Query {

@@ -34,6 +34,7 @@ class DatasetView extends React.Component {
               name
               order
             }
+            samples
           }
         }
       `}
@@ -42,7 +43,16 @@ class DatasetView extends React.Component {
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error!</p>;
 
-        const { id, name, columns } = data.dataset[0]
+        const { id, name, columns, samples } = data.dataset[0]
+
+        const selected_columns = columns
+          .slice(0) // dup the array to avoid modification error during sort
+          .sort((a,b) => { return a.order - b.order })
+          .slice(0,8)
+        const sample_rows = samples.map(s => {
+          const record = JSON.parse(s)
+          return selected_columns.map(c => record[c.name])
+        })
 
         return <Paper className={classes.root} elevation={4}>
           <Typography variant="headline"><DescriptionIcon/>{name}</Typography>
@@ -50,15 +60,24 @@ class DatasetView extends React.Component {
             <TableHead>
               <TableRow>
                 {
-                  columns
-                    .slice(0,6) // dup the array to avoid modification error during sort
-                    .sort((a,b) => { return a.order - b.order })
-                    .map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
+                  selected_columns.map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
                 }                
               </TableRow>
             </TableHead>
+            <TableBody>
+              {
+                sample_rows.map((values, row_index) => (
+                  <TableRow key={row_index}>
+                    { 
+                      values.map((value, column_index) => ( 
+                        <TableCell key={column_index}>{ value }</TableCell>
+                      )) 
+                    }
+                  </TableRow>
+                ))
+              }
+            </TableBody>
           </Table>
-          <Typography variant="subheading">ID: {id}</Typography>
         </Paper>
       }}
     </Query>
