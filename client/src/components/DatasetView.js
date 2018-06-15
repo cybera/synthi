@@ -10,6 +10,9 @@ import { withStyles } from 'material-ui/styles'
 
 import { datasetViewQuery } from '../queries'
 
+import IconButton from 'material-ui/IconButton'
+import ChartIcon from '@material-ui/icons/ShowChart'
+
 const styles = theme => ({
   root: theme.mixins.gutters({
     paddingTop: 16,
@@ -44,7 +47,12 @@ class DatasetView extends React.Component {
         })
 
         return <Paper className={classes.root} elevation={4}>
-          <Typography variant="headline">{name}</Typography>
+          <Typography variant="headline">
+            {`Dataset: ${name}`}
+            <IconButton aria-label="Chart" onClick={e => this.handleDelete(id, e)}>
+              <ChartIcon />
+            </IconButton>
+          </Typography>
           <Table>
             <TableHead>
               <TableRow>

@@ -22,6 +22,8 @@ import NewDatasetDialog from "./components/NewDatasetDialog"
 import Grid from 'material-ui/Grid'
 import { withStyles } from 'material-ui/styles'
 
+import { hot } from 'react-hot-loader'
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -68,5 +70,4 @@ class App extends React.Component {
 
 const StyledApp = withStyles(styles)(App)
 
-var mountNode = document.getElementById("app");
-ReactDOM.render(<StyledApp/>, mountNode);
+export default hot(module)(StyledApp);
