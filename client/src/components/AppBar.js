@@ -26,6 +26,17 @@ const styles = {
   }
 };
 
+function handleLogin() {
+  fetch('/login', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "username=test&password=password"
+  }).then(response => console.log(response))
+}
+
 function ButtonAppBar(props) {
   const { classes } = props;
   return (
@@ -47,7 +58,7 @@ function ButtonAppBar(props) {
               <Button color="inherit" disabled={currentMode == 'chart-editor'} 
                       onClick={ e => switchMode('chart-editor')}>Chart Editor</Button>
               <span className={classes.flex}/>
-              <Button color="inherit">Login</Button>
+              <Button color="inherit" onClick={ e => handleLogin() }>Login</Button>
             </Toolbar>
           </AppBar>
         }
