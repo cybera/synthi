@@ -14,7 +14,7 @@ import NavigationContext from './context/NavigationContext'
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: ApolloLink.from([createUploadLink({ uri: "http://127.0.0.1:3000/graphql" }), new HttpLink()])
+  link: ApolloLink.from([createUploadLink({ uri: "/graphql" }), new HttpLink()])
 })
 
 import { hot } from 'react-hot-loader'

@@ -15,7 +15,12 @@ const config = {
     devtool: 'inline-source-map',
     devServer: {
         contentBase: './dist',
-        hot: true
+        hot: true,
+        proxy: {
+          '/login': 'http://localhost:3000',
+          '/graphql': 'http://localhost:3000',
+          '/testing': 'http://localhost:3000'
+        }
     },
     plugins: [
         new CleanWebpackPlugin('dist'),
