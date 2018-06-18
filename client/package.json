@@ -38,6 +38,7 @@
     "react": "^16.4.1",
     "react-apollo": "^2.1.5",
     "react-chart-editor": "^0.17.1",
-    "react-dom": "^16.4.1"
+    "react-dom": "^16.4.1",
+    "react-plotly.js": "^2.2.0"
   }
 }

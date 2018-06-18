@@ -94,6 +94,19 @@ export default {
       }
       
       return safeQuery(...query)
+    },
+    plots(_, { id }) {
+      console.log("plots: ")
+      var query = [`MATCH (p:Plot) RETURN p.data AS data, p.layout AS layout, ID(p) as id`]
+      if (id != null) {
+        query = [`MATCH (p:Plot) 
+                  WHERE ID(p) = $id 
+                  RETURN 
+                    p.data AS data,
+                    p.layout AS layout, 
+                    ID(p) AS id`, { id: id }]
+      }
+      return safeQuery(...query)
     }
   },
   Dataset: {
@@ -109,6 +122,16 @@ export default {
         const fileString = fs.readFileSync(dataset.path, "utf8")
         const csv = csvParse(fileString, { columns: true })
         const jsonStrings = csv.slice(0,10).map(r => JSON.stringify(r))
+        return jsonStrings
+      } else { 
+        return []
+      }
+    },
+    rows(dataset) {
+      if (dataset.path) {
+        const fileString = fs.readFileSync(dataset.path, "utf8")
+        const csv = csvParse(fileString, { columns: true })
+        const jsonStrings = csv.map(r => JSON.stringify(r))
         return jsonStrings
       } else { 
         return []
@@ -137,6 +160,11 @@ export default {
                         })
     },
     uploadFile: (_, { file }) => processUpload(file),
-    uploadDataset: (_, { name, file }) => processDatasetUpload(name, file)
+    uploadDataset: (_, { name, file }) => processDatasetUpload(name, file),
+    createPlot(_, {data, layout}) {
+      return safeQuery(`CREATE (p:Plot { data: $data, layout: $layout }) 
+                        RETURN ID(p) AS id, p.data AS data, p.layout AS layout`, 
+                        { data: data, layout: layout }).then(results => results[0])
+    }
   }
 }

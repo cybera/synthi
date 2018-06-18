@@ -20,12 +20,20 @@ type Dataset {
   name: String!
   columns: [Column]
   samples: [String]
+  rows: [String]
   path: String
 }
 
 type Query {
   dataset(id: Int): [Dataset]
+  plots(id: Int): [Plot]
   uploads: [File]
+}
+
+type Plot {
+  id: Int!
+  layout: String
+  data: String
 }
 
 type Mutation {
@@ -33,6 +41,7 @@ type Mutation {
   deleteDataset(id: Int!): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
+  createPlot(data:String, layout:String): Plot
 }
 
 schema {
