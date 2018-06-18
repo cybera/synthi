@@ -18,7 +18,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
   link: ApolloLink.from([createUploadLink({ uri: "/graphql" }), new HttpLink()])
 })
-window.apolloClient = client
+
 import { hot } from 'react-hot-loader'
 
 function MainComponent(props) {
