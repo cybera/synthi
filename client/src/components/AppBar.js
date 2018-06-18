@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 
+import LoginDialog from './LoginDialog'
 import NavigationContext from '../context/NavigationContext';
 
 const styles = {
@@ -53,12 +54,15 @@ function ButtonAppBar(props) {
                 ADI
               </Typography>
               <span className={classes.spacer}/>
-              <Button color="inherit" disabled={currentMode == 'browser'}
-                      onClick={ e => switchMode('browser')}>Datasets</Button>
+              <Button color="inherit" disabled={currentMode == 'datasets'}
+                      onClick={ e => switchMode('datasets')}>Datasets</Button>
               <Button color="inherit" disabled={currentMode == 'chart-editor'} 
                       onClick={ e => switchMode('chart-editor')}>Chart Editor</Button>
+              <Button color="inherit" disabled={currentMode == 'scenarios'} 
+                      onClick={ e => switchMode('scenarios')}>Scenarios</Button>
               <span className={classes.flex}/>
-              <Button color="inherit" onClick={ e => handleLogin() }>Login</Button>
+              <LoginDialog/>
+              {/* <Button color="inherit" onClick={ e => handleLogin() }>Login</Button> */}
             </Toolbar>
           </AppBar>
         }

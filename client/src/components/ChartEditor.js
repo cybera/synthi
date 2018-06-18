@@ -4,6 +4,13 @@ import PlotlyEditor from 'react-chart-editor';
 import 'react-chart-editor/lib/react-chart-editor.css';
 import gql from "graphql-tag";
 
+import Button from 'material-ui/Button';
+import { createPlotMutation, plotsRetrieveQuery } from '../queries'
+
+import { graphql } from 'react-apollo'
+const savePlot = graphql(createPlotMutation)
+import { Mutation } from "react-apollo";
+
 // TODO: Should do better data parsing on the way in
 function toRealType(x) {
   if (isNaN(x)) {
@@ -55,11 +62,33 @@ class ChartEditor extends Component {
     this.apolloClient = apolloClient;
   }
 
+  handleSave = () => {
+    console.log(this.state.data)
+    console.log(this.state.layout)
+    savePlot({variables: {
+      data: JSON.stringify(this.state.data),
+      layout: JSON.stringify(this.state.layout)
+    }})
+  }
+
   componentWillMount() {
     this.apolloClient.query({
-      query: gql`{ dataset(id:$id) { id, name, columns { id, name, order }, samples } }`, 
+      query: gql`
+      query($id: Int) {
+        dataset(id:$id) { 
+          id
+          name 
+          columns { 
+            id 
+            name 
+            order 
+          }
+          rows
+        } 
+      }`, 
       variables:{id:this.props.dataset}
     }).then(r => {
+      console.log(r)
       const currentDataset = r.data.dataset[0]
 
       let columns = {}
@@ -69,7 +98,7 @@ class ChartEditor extends Component {
         .sort((a,b) => a.order - b.order)
         .forEach(c => columns[c.name] = [])
 
-      currentDataset.samples.forEach(s => {
+      currentDataset.rows.forEach(s => {
         const record = JSON.parse(s)
         Object.keys(record).forEach(k => columns[k].push(toRealType(record[k])))
       })
@@ -114,23 +143,33 @@ class ChartEditor extends Component {
 
   render() {
     return (
-      <div className="app">
-        <PlotlyEditor
-          data={this.state.data}
-          layout={this.state.layout}
-          config={config}
-          frames={this.state.frames}
-          dataSources={this.state.dataSources}
-          dataSourceOptions={this.state.dataSourceOptions}
-          plotly={plotly}
-          onUpdate={(data, layout, frames) =>
-            this.setState({data, layout, frames})
-          }
-          useResizeHandler
-          debug
-          advancedTraceTypeSelector
-        />
-      </div>
+      <Mutation mutation={createPlotMutation} refetchQueries={[{ query: plotsRetrieveQuery }]}>
+        { createPlot => (
+        <div className="app">
+          <PlotlyEditor
+            data={this.state.data}
+            layout={this.state.layout}
+            config={config}
+            frames={this.state.frames}
+            dataSources={this.state.dataSources}
+            dataSourceOptions={this.state.dataSourceOptions}
+            plotly={plotly}
+            onUpdate={(data, layout, frames) =>
+              this.setState({data, layout, frames})
+            }
+            useResizeHandler
+            debug
+            advancedTraceTypeSelector
+          />
+          <Button type='submit' color="primary" onClick={
+            e => createPlot({variables: { data: JSON.stringify(this.state.data), 
+                                          layout: JSON.stringify(this.state.layout) }})
+          }>
+            Save Plot
+          </Button>
+        </div>
+        )}
+      </Mutation>
     );
   }
 }

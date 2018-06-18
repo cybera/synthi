@@ -41,3 +41,23 @@ query($id: Int) {
   }
 }
 `
+
+export const createPlotMutation = gql`
+mutation CreatePlot($data: String!, $layout: String!) {
+  createPlot(data: $data, layout: $layout) {
+    id
+    data
+    layout
+  }
+}
+`
+
+export const plotsRetrieveQuery = gql`
+{
+  plots {
+    id
+    data
+    layout
+  }
+}
+`

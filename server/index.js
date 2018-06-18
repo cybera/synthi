@@ -70,7 +70,7 @@ app.use(passport.session())
 
 app.post('/login',
   passport.authenticate('local'),
-  (req, res) => res.send("")
+  (req, res) => res.send(JSON.stringify({ user: req.user }))
 );
 
 app.get('/testing', (req, res) => { 

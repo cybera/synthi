@@ -1,8 +1,10 @@
 import React from 'react'
 
 export default React.createContext({
-  currentMode: 'browser',
+  currentMode: 'datasets',
   currentDataset: null,
+  user: null,
   switchMode: (mode) => {},
-  selectDataset: (id) => {}
+  selectDataset: (id) => {},
+  setUser: (user) => {}
 });
