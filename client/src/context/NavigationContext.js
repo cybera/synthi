@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default React.createContext({
+const NavigationContext = React.createContext({
   currentMode: 'datasets',
   currentDataset: null,
   user: null,
@@ -8,3 +8,16 @@ export default React.createContext({
   selectDataset: (id) => {},
   setUser: (user) => {}
 });
+
+function withNavigation(Component) {
+  return function NavigationContextComponent(props) {
+    return (
+      <NavigationContext.Consumer>
+        { navigation => <Component {...props} navigation={navigation}/> }
+      </NavigationContext.Consumer>
+    )
+  }
+}
+
+export { withNavigation }
+export default NavigationContext

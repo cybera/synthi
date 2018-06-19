@@ -46,7 +46,7 @@ class App extends React.Component {
 
   switchMode = (mode) => this.setState({currentMode:mode})
   selectDataset = (id) => this.setState({currentDataset:id})
-  setUser = (user) =>  { console.log(`user: ${user}`); this.setState({user:user}) }
+  setUser = (user) =>  { this.setState({user:user}) }
 
   render() {
     return (

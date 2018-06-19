@@ -13,7 +13,8 @@ import { datasetViewQuery } from '../queries'
 import IconButton from 'material-ui/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
 
-import NavigationContext from '../context/NavigationContext'
+import { withNavigation } from '../context/NavigationContext'
+import { compose } from '../lib/common'
 
 const styles = theme => ({
   root: theme.mixins.gutters({
@@ -28,7 +29,7 @@ const styles = theme => ({
 
 class DatasetView extends React.Component {
   render() {
-    const { classes, id } = this.props
+    const { classes, id, navigation } = this.props
 
     if (id == null) return <div></div>
 
@@ -51,13 +52,9 @@ class DatasetView extends React.Component {
         return <Paper className={classes.root} elevation={4}>
           <Typography variant="headline">
             {`Dataset: ${name}`}
-            <NavigationContext.Consumer>
-              { ({ switchMode }) => 
-                <IconButton aria-label="Chart" onClick={e => switchMode('chart-editor')}>
-                  <ChartIcon />
-                </IconButton>
-              }
-            </NavigationContext.Consumer>
+            <IconButton aria-label="Chart" onClick={e => navigation.switchMode('chart-editor')}>
+              <ChartIcon />
+            </IconButton>
           </Typography>
           <Table>
             <TableHead>
@@ -87,4 +84,7 @@ class DatasetView extends React.Component {
   }
 }
 
-export default withStyles(styles)(DatasetView)
+export default compose(
+  withStyles(styles),
+  withNavigation
+)(DatasetView)
