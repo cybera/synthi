@@ -11,6 +11,7 @@ import { compose } from '../lib/common'
 
 import { datasetListQuery, deleteDatasetMutation } from '../queries'
 
+import { withDatasets } from '../containers/DatasetList'
 import { withNavigation } from '../context/NavigationContext'
 
 class DatasetList extends React.Component {
@@ -19,32 +20,27 @@ class DatasetList extends React.Component {
   }
 
   render() {
-    const { navigation } = this.props
-    return <Query query={datasetListQuery}>
-      {({ loading, error, data }) => {
-        if (loading) return <p>Loading...</p>;
-        if (error) return <p>Error!</p>;
+    const { navigation, datasets } = this.props
 
-        return (
-          <List component="nav">
-            {data.dataset.map(({ id, name }) => (
-              <ListItem button key={id} onClick={(e) => navigation.selectDataset(id)}>
-                <ListItemText primary={name}/>
-                <ListItemSecondaryAction>
-                  <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, e)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        )
-      }}
-    </Query>
+    return (
+      <List component="nav">
+        {datasets.map(({ id, name }) => (
+          <ListItem button key={id} onClick={(e) => navigation.selectDataset(id)}>
+            <ListItemText primary={name}/>
+            <ListItemSecondaryAction>
+              <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, e)}>
+                <DeleteIcon />
+              </IconButton>
+            </ListItemSecondaryAction>
+          </ListItem>
+        ))}
+      </List>
+    )
   }
 }
 
 export default compose(
+  withDatasets,
   graphql(deleteDatasetMutation, { name: 'deleteDataset' }),
   withNavigation
 )(DatasetList)
