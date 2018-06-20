@@ -2,10 +2,8 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const config = {
-    mode: 'development',
     entry: {
         app: './src/index.js'
     },
@@ -13,25 +11,13 @@ const config = {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].bundle.js'
     },
-    devtool: 'inline-source-map',
-    devServer: {
-        contentBase: './dist',
-        hot: true,
-        proxy: {
-          '/login': 'http://localhost:3000',
-          '/graphql': 'http://localhost:3000',
-          '/testing': 'http://localhost:3000'
-        }
-    },
     plugins: [
         //new CleanWebpackPlugin('dist'),
         new HtmlWebpackPlugin({
-            title: 'Development',
+            title: 'Alberta Data Institute',
             template: './src/index.html'
         }),
-        new webpack.NamedModulesPlugin(),
-        new webpack.HotModuleReplacementPlugin(),
-        new BundleAnalyzerPlugin({openAnalyzer: false})
+        new webpack.NamedModulesPlugin()
     ],
     module: {
         rules: [
