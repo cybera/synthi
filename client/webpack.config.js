@@ -24,7 +24,7 @@ const config = {
         }
     },
     plugins: [
-        new CleanWebpackPlugin('dist'),
+        //new CleanWebpackPlugin('dist'),
         new HtmlWebpackPlugin({
             title: 'Development',
             template: './src/index.html'
@@ -45,6 +45,25 @@ const config = {
                 use: [ 'style-loader', 'css-loader' ] 
             }
         ]
-    }
+    },
+    optimization: {
+		splitChunks: {
+			cacheGroups: {
+				commons: {
+					chunks: "initial",
+					minChunks: 2,
+					maxInitialRequests: 5,
+					minSize: 0
+				},
+				vendor: {
+					test: /node_modules/,
+					chunks: "initial",
+					name: "vendor",
+					priority: 10,
+					enforce: true
+				}
+			}
+		}
+	}
 };
 module.exports = config;
