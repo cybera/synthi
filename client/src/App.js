@@ -7,7 +7,7 @@ import { ApolloProvider } from "react-apollo";
 import { createUploadLink } from 'apollo-upload-client'
 
 import DatasetBrowser from './components/DatasetBrowser'
-import ChartEditor from './components/ChartEditor'
+import ChartEditor from './containers/ChartEditor'
 import Scenarios from './components/Scenarios'
 
 import AppBar from './components/AppBar'
@@ -27,7 +27,7 @@ function MainComponent(props) {
   if (mode == 'datasets') {
     return <DatasetBrowser selectedDataset={dataset}/>
   } else if (mode == 'chart-editor') {
-    return <ChartEditor dataset={dataset} apolloClient={client}/>
+    return <ChartEditor datasetID={dataset}/>
   } else if (mode == 'scenarios') {
     return <Scenarios />
   } else {
