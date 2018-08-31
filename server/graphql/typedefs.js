@@ -32,8 +32,7 @@ type Query {
 
 type Plot {
   id: Int!
-  layout: String
-  data: String
+  jsondef: String!
 }
 
 type Mutation {
@@ -41,7 +40,7 @@ type Mutation {
   deleteDataset(id: Int!): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
-  createPlot(data:String, layout:String): Plot
+  createPlot(jsondef:String!): Plot
 }
 
 schema {

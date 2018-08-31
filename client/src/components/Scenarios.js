@@ -21,9 +21,10 @@ class Scenarios extends React.Component {
 
           return(
             <div>
-              {result.plots.map(({ id, data, layout }) => 
-                <Plot data={JSON.parse(data)} layout={JSON.parse(layout)} key={id}/> 
-              )}
+              {result.plots.map(({ id, jsondef }) => {
+                const jsonobj = JSON.parse(jsondef)
+                return <Plot {...jsonobj} key={id}/> 
+              })}
             </div>
           )
         }}

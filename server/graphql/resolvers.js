@@ -97,13 +97,12 @@ export default {
     },
     plots(_, { id }) {
       console.log("plots: ")
-      var query = [`MATCH (p:Plot) RETURN p.data AS data, p.layout AS layout, ID(p) as id`]
+      var query = [`MATCH (p:Plot) RETURN p.jsondef AS jsondef, ID(p) as id`]
       if (id != null) {
         query = [`MATCH (p:Plot) 
                   WHERE ID(p) = $id 
                   RETURN 
-                    p.data AS data,
-                    p.layout AS layout, 
+                    p.jsondef AS jsondef, 
                     ID(p) AS id`, { id: id }]
       }
       return safeQuery(...query)
@@ -161,10 +160,10 @@ export default {
     },
     uploadFile: (_, { file }) => processUpload(file),
     uploadDataset: (_, { name, file }) => processDatasetUpload(name, file),
-    createPlot(_, {data, layout}) {
-      return safeQuery(`CREATE (p:Plot { data: $data, layout: $layout }) 
-                        RETURN ID(p) AS id, p.data AS data, p.layout AS layout`, 
-                        { data: data, layout: layout }).then(results => results[0])
+    createPlot(_, { jsondef }) {
+      return safeQuery(`CREATE (p:Plot { jsondef: $jsondef }) 
+                        RETURN ID(p) AS id, p.jsondef AS jsondef`, 
+                        { jsondef: jsondef }).then(results => results[0])
     }
   }
 }
