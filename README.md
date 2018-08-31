@@ -12,6 +12,15 @@
 - [Material UI](https://material-ui.com) is a UI framework of ready made React components for common UI elements.
 - [Webpack](https://webpack.js.org) and [Babel](https://babeljs.io) are used mainly behind the scenes to compile and bundle client side code in a way that is compatible with most modern browsers.
 
+### First time setup
+
+You'll need to install [NPM](https://www.npmjs.com/get-npm) and then install necessary libraries in your local environment:
+
+```bash
+cd server && npm install
+cd client && npm install
+```
+
 ### Running a Development Environment
 
 You'll need 3 things to get going on development: Neo4J running (API on port 7687, front end on port 7878), the ExpressJS server running (accessible on port 3000), and a development server serving up the client code (accessible on port 8080).
