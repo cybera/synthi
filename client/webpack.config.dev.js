@@ -8,12 +8,13 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
+    host: '0.0.0.0',
     contentBase: './dist',
     hot: true,
     proxy: {
-      '/login': 'http://localhost:3000',
-      '/graphql': 'http://localhost:3000',
-      '/testing': 'http://localhost:3000'
+      '/login': 'http://server:3000',
+      '/graphql': 'http://server:3000',
+      '/testing': 'http://server:3000'
     }
   },
   plugins: [

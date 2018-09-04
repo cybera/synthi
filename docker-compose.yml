@@ -1,0 +1,31 @@
+version: '3'
+services:
+  neo4j:
+    image: neo4j:3.3
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ./data/neo4j/data:/data
+      - ./data/neo4j/logs:/logs
+    networks:
+      - default
+    environment:
+      NEO4J_dbms_memory_heap_maxSize: 2048
+      NEO4J_dbms_memory_pagecache_size: 1048576
+  server:
+    build: ./server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server:/usr/src/app
+    networks:
+      - default
+  client:
+    build: ./client
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./client:/usr/src/app
+    networks:
+      - default
