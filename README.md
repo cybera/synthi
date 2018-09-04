@@ -17,7 +17,7 @@
 You'll need to install [NPM](https://www.npmjs.com/get-npm) and then install necessary libraries in your local environment:
 
 ```bash
-cd server && npm install
+cd server && npm install && cp .env.example .env
 cd client && npm install
 ```
 
