@@ -90,6 +90,7 @@ export default {
                   RETURN 
                     n.name AS name, 
                     ID(n) AS id,
+                    n.computed AS computed,
                     n.path AS path`, { id: id }]
       }
       

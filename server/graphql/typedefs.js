@@ -22,6 +22,7 @@ type Dataset {
   samples: [String]
   rows: [String]
   path: String
+  computed: Boolean
 }
 
 type Query {

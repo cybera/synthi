@@ -9,6 +9,7 @@ import { withStyles } from 'material-ui/styles'
 
 import { datasetViewQuery } from '../queries'
 
+import Button from 'material-ui/Button'
 import IconButton from 'material-ui/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
 
@@ -39,7 +40,7 @@ class DatasetView extends React.Component {
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error!</p>;
 
-        const { id, name, columns, samples } = data.dataset[0]
+        const { id, name, columns, computed, samples } = data.dataset[0]
 
         const selected_columns = columns
           .slice(0) // dup the array to avoid modification error during sort
@@ -57,6 +58,7 @@ class DatasetView extends React.Component {
               <ChartIcon />
             </IconButton>
           </Typography>
+          { computed && <Button>Generate!</Button> }
           <DataTableView columns={selected_columns} rows={sample_rows}/>
         </Paper>
       }}

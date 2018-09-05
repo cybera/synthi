@@ -37,6 +37,7 @@ query($id: Int) {
       name
       order
     }
+    computed
     samples
   }
 }
