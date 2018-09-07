@@ -18,7 +18,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
   // Apparently "new HttpLink()" isn't necessary anymore:
   // https://stackoverflow.com/questions/49507035/how-to-use-apollo-link-http-with-apollo-upload-client
-  link: ApolloLink.from([createUploadLink({ uri: "/graphql" })])
+  link: ApolloLink.from([createUploadLink({ uri: "/graphql", credentials: 'include' })])
 })
 
 import { hot } from 'react-hot-loader'

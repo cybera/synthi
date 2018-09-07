@@ -4,10 +4,11 @@ import shortid from 'shortid'
 import fs from 'fs'
 import csvParse from 'csv-parse/lib/sync'
 
-const graphql = require('graphql')
-
 import neo4j, { safeQuery } from '../neo4j/connection'
 import { runTransformation } from '../lib/util'
+import DatasetRepository from '../model/datasetRepository'
+
+const graphql = require('graphql')
 
 const uploadDir = process.env.UPLOADS_FOLDER
 // Ensure upload directory exists
@@ -39,33 +40,19 @@ const processUpload = async upload => {
   return { id, filename, mimetype, encoding, path }
 }
 
-const processDatasetUpload = async (name, upload) => {
-  const { stream, filename, mimetype, encoding } = await upload
-  const { id, path } = await storeFS({ stream, filename })
+const processDatasetUpload = async (name, upload, owner) => {
+  const { stream, filename } = await upload
+  const { path } = await storeFS({ stream, filename })
+  let dataset
 
-  // This would have to be modified to only read the first few lines in case the file was
-  // really large...
-  const fileString = fs.readFileSync(path, "utf8")
-  const csv = csvParse(fileString, { columns: true })
-
-  var column_names = []
-  if (csv && csv.length > 0) {
-    column_names = Object.keys(csv[0])
+  try {
+    dataset = await DatasetRepository.create({ name, path, owner })
+  } catch (e) {
+    // TODO: What should we do here?
+    console.log(e.message)
   }
 
-  const query = `
-    CREATE (dataset:Dataset { name: $name })
-    WITH dataset
-    UNWIND $columns AS column
-    MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
-    SET dataset.path = $path
-    WITH dataset
-    RETURN ID(dataset) AS id, dataset.name AS name
-  `
-
-  const columns = column_names.map((column_name, index) => ({ name: column_name, order: index + 1 }))
-
-  return safeQuery(query, { name: name, columns: columns, path: path }).then(results => results[0])
+  return dataset
 }
 
 export default {
@@ -149,7 +136,7 @@ export default {
                         })
     },
     uploadFile: (_, { file }) => processUpload(file),
-    uploadDataset: (_, { name, file }) => processDatasetUpload(name, file),
+    uploadDataset: (_, { name, file }, context) => processDatasetUpload(name, file, context.user),
     createPlot(_, { jsondef }) {
       return safeQuery(`CREATE (p:Plot { jsondef: $jsondef }) 
                         RETURN ID(p) AS id, p.jsondef AS jsondef`, 

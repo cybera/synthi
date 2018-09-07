@@ -16,62 +16,79 @@ import flash from 'connect-flash'
 import session from 'express-session'
 
 import morgan from 'morgan'
-import cookieParser from 'cookie-parser'
 
 import waitOn from 'wait-on'
 
 import { safeQuery } from './neo4j/connection'
 import { ensureDatasetExists } from './lib/util'
+import UserRepository from './model/userRepository'
 
 const app = express()
 
 app.use(cors())
 
-app.use(
-  '/graphql', 
-  bodyParser.json(),
-  apolloUploadExpress(), 
-  graphqlExpress({schema})
-)
-
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
-
 app.get('/', (req, res) => res.send("Hello world !"))
 
 // Authentication w/ passportjs
 passport.use(new LocalStrategy(
-  function(username, password, done) {
+  async (username, password, done) => {
     console.log(`here: ${username}/${password}`)
-    if(username == "test" && password == "password") {
-      console.log("verified")
-      done(null, username);
+    let user;
+    try {
+      user = await UserRepository.getByUsername(username)
+      if (!user) {
+        return done(null, false)
+      }
+    } catch (err) {
+      return done(err)
     }
+    if (password !== 'password') {
+      done(null, false);
+    }
+    console.log('verified')
+    return done(null, user)
   }
 ));
 
-passport.serializeUser(function(user, cb) {
-  console.log("serializeUser: " + user)
-//  cb(null, user.id);
-  cb(null, user)
+passport.serializeUser((user, done) => {
+  console.log(`serializeUser: ${user.id}`)
+  // done(null, user.id);
+  done(null, user.id)
 });
 
-passport.deserializeUser(function(id, cb) {
-  console.log("deserializeUser: " + id)
-  // db.users.findById(id, function (err, user) {
-  //   if (err) { return cb(err); }
-  //   cb(null, user);
-  // });
-  cb(null, id)
+passport.deserializeUser(async (id, done) => {
+  console.log(`deserializeUser: ${id}`)
+  let user
+  try {
+    user = await UserRepository.get(id)
+    if (!user) {
+      return done(new Error('User not found'))
+    }
+  } catch (err) {
+    return done(err)
+  }
+  return done(null, user)
 })
 
 app.use(morgan('combined'))
-app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(session({ secret: 'secret-token-123456',
-                  resave: false, 
-                  saveUninitialized: false }))
+app.use(session({ secret: 'secret-token-123456' }))
 app.use(passport.initialize())
 app.use(passport.session())
+
+app.use(
+  '/graphql',
+  bodyParser.json(),
+  apolloUploadExpress(),
+  graphqlExpress(req => ({
+    schema,
+    context: {
+      user: req.user
+    }
+  }))
+)
+
+app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
 app.post('/login',
   passport.authenticate('local'),
