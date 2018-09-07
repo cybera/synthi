@@ -171,7 +171,7 @@ export default {
     generateDataset(_, { id }) {
       const transform_script = path.resolve(__dirname, '..', 'scripts', 'engine.py')
       console.log(transform_script)
-      exec(transform_script, (error, stdout, stderr) => {
+      exec(`${transform_script} ${id}`, (error, stdout, stderr) => {
         console.log('stdout: ' + stdout);
         console.log('stderr: ' + stderr);
         if (error !== null) {
