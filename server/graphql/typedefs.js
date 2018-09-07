@@ -42,6 +42,7 @@ type Mutation {
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
   createPlot(jsondef:String!): Plot
+  generateDataset(id: Int!): Dataset
 }
 
 schema {

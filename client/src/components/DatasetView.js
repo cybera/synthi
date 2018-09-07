@@ -17,6 +17,7 @@ import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 
 import DataTableView from './DataTableView'
+import DatasetGenerator from './DatasetGenerator'
 
 const styles = theme => ({
   root: theme.mixins.gutters({
@@ -58,7 +59,9 @@ class DatasetView extends React.Component {
               <ChartIcon />
             </IconButton>
           </Typography>
-          { computed && <Button>Generate!</Button> }
+          <DatasetGenerator>
+            {({generateDataset}) => computed && <Button onClick={e => generateDataset(id)}>Generate!</Button> }
+          </DatasetGenerator>
           <DataTableView columns={selected_columns} rows={sample_rows}/>
         </Paper>
       }}

@@ -3,6 +3,8 @@ import mkdirp from 'mkdirp'
 import shortid from 'shortid'
 import fs from 'fs'
 import csvParse from 'csv-parse/lib/sync'
+import { exec } from 'child_process';
+import path from 'path'
 
 const graphql = require('graphql')
 const neo4j = require('../neo4j/connection')
@@ -165,6 +167,25 @@ export default {
       return safeQuery(`CREATE (p:Plot { jsondef: $jsondef }) 
                         RETURN ID(p) AS id, p.jsondef AS jsondef`, 
                         { jsondef: jsondef }).then(results => results[0])
+    },
+    generateDataset(_, { id }) {
+      const transform_script = path.resolve(__dirname, '..', 'scripts', 'engine.py')
+      console.log(transform_script)
+      exec(transform_script, (error, stdout, stderr) => {
+        console.log('stdout: ' + stdout);
+        console.log('stderr: ' + stderr);
+        if (error !== null) {
+          console.log('exec error: ' + error);
+        }
+      })
+      return safeQuery(`MATCH(d:Dataset)
+                        WHERE ID(d) = $id
+                        RETURN d.name AS name, 
+                               ID(d) AS id,
+                               d.computed AS computed,
+                               d.path AS path
+      `, { id: id })
+      .then(results => results[0])
     }
   }
 }
