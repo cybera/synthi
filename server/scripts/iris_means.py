@@ -10,6 +10,9 @@ def transform(inputs, outputs):
   iris = inputs.fetch_df("iris")
   
   # do some aggregation of the iris dataset
-  iris_groups = iris.groupby(['species']).mean()
+  iris_groups = (iris.groupby(['species'])
+                     .mean()
+                     .reset_index())
+                 
 
   outputs.update_df("iris-virtual", iris_groups)

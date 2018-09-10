@@ -32,13 +32,15 @@ class DatasetsWrapper:
     global tx
 
     df.to_csv(self.dataset_meta[name]['path'])
-    columns = [dict(name=name,order=i) for i, name in enumerate(df.columns)]
+    columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
     update_dataset_query = '''
       MATCH (dataset:Dataset)
       WHERE ID(dataset) = $id
       WITH dataset
       UNWIND $columns AS column
       MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
+      WITH dataset
+      RETURN ID(dataset) AS id, dataset.name AS name
     '''
     tx.run(update_dataset_query, id=generate_id, columns=columns)
 
