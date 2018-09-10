@@ -16,7 +16,9 @@ import NavigationContext from './context/NavigationContext'
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: ApolloLink.from([createUploadLink({ uri: "/graphql" }), new HttpLink()])
+  // Apparently "new HttpLink()" isn't necessary anymore:
+  // https://stackoverflow.com/questions/49507035/how-to-use-apollo-link-http-with-apollo-upload-client
+  link: ApolloLink.from([createUploadLink({ uri: "/graphql" })])
 })
 
 import { hot } from 'react-hot-loader'
