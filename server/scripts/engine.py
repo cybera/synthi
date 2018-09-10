@@ -31,7 +31,7 @@ class DatasetsWrapper:
     global generate_id
     global tx
 
-    df.to_csv(self.dataset_meta[name]['path'])
+    df.to_csv(self.dataset_meta[name]['path'], index=False)
     columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
     update_dataset_query = '''
       MATCH (dataset:Dataset)

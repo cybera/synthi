@@ -18,6 +18,11 @@ import session from 'express-session'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 
+import waitOn from 'wait-on'
+
+import { safeQuery } from './neo4j/connection'
+import { ensureDatasetExists } from './lib/util'
+
 const app = express()
 
 app.use(cors())
@@ -75,6 +80,38 @@ app.post('/login',
 
 app.get('/testing', (req, res) => { 
   res.send(`hello: ${req.user}`)
+})
+
+app.get('/dataset/:id', async (req, res) => {
+  let dataset = await safeQuery(`MATCH(d:Dataset)
+                                 WHERE ID(d) = $id
+                                 RETURN d.name AS name, 
+                                        ID(d) AS id,
+                                        d.computed AS computed,
+                                        d.path AS path
+                                `, { id: parseInt(req.params.id) })
+                      .then(result => result[0])
+                      
+  ensureDatasetExists(dataset)
+
+  const waitForDownload = (waitErr) => {
+    if(waitErr) {
+      res.send(waitErr)
+    } else {
+      res.download(dataset.path, `${dataset.name}.csv`, (err) => {
+        if(err) {
+          res.send(err)
+        }
+      })  
+    }
+  }
+
+  // TODO: This will need to change when using non-local storage
+  waitOn({ 
+    resources: [`file:${dataset.path}`],
+    interval: 1000,
+    timeout: 60000
+  }, waitForDownload)
 })
 
 // run server on port 3000

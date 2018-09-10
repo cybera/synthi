@@ -3,11 +3,11 @@ import mkdirp from 'mkdirp'
 import shortid from 'shortid'
 import fs from 'fs'
 import csvParse from 'csv-parse/lib/sync'
-import { exec } from 'child_process';
-import path from 'path'
 
 const graphql = require('graphql')
-const neo4j = require('../neo4j/connection')
+
+import neo4j, { safeQuery } from '../neo4j/connection'
+import { runTransformation } from '../lib/util'
 
 const uploadDir = process.env.UPLOADS_FOLDER
 // Ensure upload directory exists
@@ -37,19 +37,6 @@ const processUpload = async upload => {
 
   //return storeDB({ id, filename, mimetype, encoding, path })
   return { id, filename, mimetype, encoding, path }
-}
-
-const safeQuery = (query, params) => {
-  const session = neo4j.session()
-
-  return session.run(query, params).then(result => {
-    return result.records.map(record => record.toObject())
-  }).catch(e => {
-    return []
-  }).then(result => {
-    session.close()
-    return result
-  })
 }
 
 const processDatasetUpload = async (name, upload) => {
@@ -120,7 +107,7 @@ export default {
                         { id: dataset.id })
     },
     samples(dataset) {
-      if (dataset.path) {
+      if (dataset.path && fs.existsSync(dataset.path)) {
         const fileString = fs.readFileSync(dataset.path, "utf8")
         const csv = csvParse(fileString, { columns: true })
         const jsonStrings = csv.slice(0,10).map(r => JSON.stringify(r))
@@ -169,15 +156,8 @@ export default {
                         { jsondef: jsondef }).then(results => results[0])
     },
     generateDataset(_, { id }) {
-      const transform_script = path.resolve(__dirname, '..', 'scripts', 'engine.py')
-      console.log(transform_script)
-      exec(`${transform_script} ${id}`, (error, stdout, stderr) => {
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
-        if (error !== null) {
-          console.log('exec error: ' + error);
-        }
-      })
+      runTransformation(id)
+
       return safeQuery(`MATCH(d:Dataset)
                         WHERE ID(d) = $id
                         RETURN d.name AS name, 
