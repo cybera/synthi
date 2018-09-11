@@ -72,25 +72,19 @@ export default {
   Upload: GraphQLUpload,
   Query: {
     dataset(_, { id, name }) {
-      var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id, n.computed as computed, n.path AS path`]
-      if (id != null && name == null ) {
-        query = [`MATCH (n:Dataset) 
-                  WHERE ID(n) = $id 
-                  RETURN 
-                    n.name AS name, 
-                    ID(n) AS id,
-                    n.computed AS computed,
-                    n.path AS path`, { id: id }]
-      } else if (id == null && name != null) {
-        query = [`MATCH (n:Dataset) 
-                  WHERE n.name = $name 
-                  RETURN 
-                    n.name AS name, 
-                    ID(n) AS id,
-                    n.computed AS computed,
-                    n.path AS path`, { name: name }]
-      }
-      
+      let conditions = []
+      if (id != null) { conditions.push("ID(n) = $id") }
+      if (name != null) { conditions.push("n.name = $name") }
+      let conditionString = conditions.join(" AND ")
+      if (conditions.length > 0) { conditionString = `WHERE ${conditionString}` }
+
+      var query = [`MATCH (n:Dataset) 
+                    ${conditionString} 
+                    RETURN n.name AS name, 
+                           ID(n) AS id, 
+                           n.computed as computed, 
+                           n.path AS path`, { id: id, name: name }]
+
       return safeQuery(...query)
     },
     plots(_, { id }) {
