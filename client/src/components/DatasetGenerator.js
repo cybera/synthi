@@ -3,6 +3,8 @@ import React from 'react'
 
 import gql from "graphql-tag";
 
+import { datasetViewQuery } from '../queries'
+
 const generateDatasetGQL = gql`
   mutation Generate($id:Int!) {
     generateDataset(id:$id) {
@@ -16,9 +18,9 @@ const DatasetGenerator = ({children}) => {
     const generateDataset = (id) => {
       return mutation({ 
         variables: { id: id },
-        // refetchQueries: [
-        //   { query: plotsRetrieveQuery }
-        // ]
+        refetchQueries: [
+           { query: datasetViewQuery }
+        ]
       })
     }
     return generateDataset

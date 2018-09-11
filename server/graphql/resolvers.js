@@ -7,7 +7,7 @@ import csvParse from 'csv-parse/lib/sync'
 const graphql = require('graphql')
 
 import neo4j, { safeQuery } from '../neo4j/connection'
-import { runTransformation } from '../lib/util'
+import { runTransformation, waitForFile } from '../lib/util'
 
 const uploadDir = process.env.UPLOADS_FOLDER
 // Ensure upload directory exists
@@ -72,8 +72,8 @@ export default {
   Upload: GraphQLUpload,
   Query: {
     dataset(_, { id, name }) {
-      var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id, n.path AS path`]
-      if (id != null && name == null )  {
+      var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id, n.computed as computed, n.path AS path`]
+      if (id != null && name == null ) {
         query = [`MATCH (n:Dataset) 
                   WHERE ID(n) = $id 
                   RETURN 
@@ -163,17 +163,21 @@ export default {
                         RETURN ID(p) AS id, p.jsondef AS jsondef`, 
                         { jsondef: jsondef }).then(results => results[0])
     },
-    generateDataset(_, { id }) {
-      runTransformation(id)
+    async generateDataset(_, { id }) {
+      let dataset = await safeQuery(`MATCH(d:Dataset)
+                                     WHERE ID(d) = $id
+                                     RETURN d.name AS name, 
+                                            ID(d) AS id,
+                                            d.computed AS computed,
+                                            d.path AS path
+                                    `, { id: id })
+                            .then(results => results[0])
 
-      return safeQuery(`MATCH(d:Dataset)
-                        WHERE ID(d) = $id
-                        RETURN d.name AS name, 
-                               ID(d) AS id,
-                               d.computed AS computed,
-                               d.path AS path
-      `, { id: id })
-      .then(results => results[0])
+      runTransformation(dataset)
+
+      await waitForFile(dataset.path)
+
+      return dataset
     }
   }
 }
