@@ -5,4 +5,18 @@ const neo4jConnection = new neo4j.driver(
   neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD),
   { disableLosslessIntegers: true })
 
-module.exports = neo4jConnection
+const safeQuery = (query, params) => {
+  const session = neo4jConnection.session()
+
+  return session.run(query, params).then(result => {
+    return result.records.map(record => record.toObject())
+  }).catch(e => {
+    return []
+  }).then(result => {
+    session.close()
+    return result
+  })
+}
+
+export { safeQuery }
+export default neo4jConnection

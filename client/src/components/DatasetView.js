@@ -3,18 +3,21 @@ import { Query } from "react-apollo";
 import gql from "graphql-tag";
 
 import Paper from 'material-ui/Paper';
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Typography from 'material-ui/Typography';
 
 import { withStyles } from 'material-ui/styles'
 
 import { datasetViewQuery } from '../queries'
 
+import Button from 'material-ui/Button'
 import IconButton from 'material-ui/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
 
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
+
+import DataTableView from './DataTableView'
+import DatasetGenerator from './DatasetGenerator'
 
 const styles = theme => ({
   root: theme.mixins.gutters({
@@ -38,7 +41,7 @@ class DatasetView extends React.Component {
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error!</p>;
 
-        const { id, name, columns, samples } = data.dataset[0]
+        const { id, name, columns, computed, samples } = data.dataset[0]
 
         const selected_columns = columns
           .slice(0) // dup the array to avoid modification error during sort
@@ -56,28 +59,10 @@ class DatasetView extends React.Component {
               <ChartIcon />
             </IconButton>
           </Typography>
-          <Table>
-            <TableHead>
-              <TableRow>
-                {
-                  selected_columns.map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
-                }                
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {
-                sample_rows.map((values, row_index) => (
-                  <TableRow key={row_index}>
-                    { 
-                      values.map((value, column_index) => ( 
-                        <TableCell key={column_index}>{ value }</TableCell>
-                      )) 
-                    }
-                  </TableRow>
-                ))
-              }
-            </TableBody>
-          </Table>
+          <DatasetGenerator>
+            {({generateDataset}) => computed && <Button onClick={e => generateDataset(id)}>Generate!</Button> }
+          </DatasetGenerator>
+          <DataTableView columns={selected_columns} rows={sample_rows}/>
         </Paper>
       }}
     </Query>
