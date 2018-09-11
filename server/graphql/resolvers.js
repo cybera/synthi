@@ -71,9 +71,9 @@ const processDatasetUpload = async (name, upload) => {
 export default {
   Upload: GraphQLUpload,
   Query: {
-    dataset(_, { id }) {
+    dataset(_, { id, name }) {
       var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id, n.path AS path`]
-      if (id != null) {
+      if (id != null && name == null )  {
         query = [`MATCH (n:Dataset) 
                   WHERE ID(n) = $id 
                   RETURN 
@@ -81,6 +81,14 @@ export default {
                     ID(n) AS id,
                     n.computed AS computed,
                     n.path AS path`, { id: id }]
+      } else if (id == null && name != null) {
+        query = [`MATCH (n:Dataset) 
+                  WHERE n.name = $name 
+                  RETURN 
+                    n.name AS name, 
+                    ID(n) AS id,
+                    n.computed AS computed,
+                    n.path AS path`, { name: name }]
       }
       
       return safeQuery(...query)
