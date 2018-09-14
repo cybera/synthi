@@ -8,7 +8,8 @@ from importlib.machinery import SourceFileLoader
 from neo4j.v1 import GraphDatabase
 
 # TODO: Make this more configurable. Eventually, we'll want to support object storage
-OUTPUT_ROOT = "/tmp"
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+OUTPUT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", "data", "uploads"))
 
 neo4j_uri = "bolt://localhost:7687"
 neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))

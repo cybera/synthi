@@ -8,8 +8,10 @@ const graphql = require('graphql')
 
 import neo4j, { safeQuery } from '../neo4j/connection'
 import { runTransformation, waitForFile } from '../lib/util'
+import path from 'path'
 
-const uploadDir = process.env.UPLOADS_FOLDER
+const uploadDir = path.resolve(process.env.UPLOADS_FOLDER)
+
 // Ensure upload directory exists
 mkdirp.sync(uploadDir)
 
