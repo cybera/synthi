@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 
-# get neo4j connection
-# get ID of dataset to generate
-# find transformation
-# find transformation inputs
-# collect and send to transformation function
-
 import sys
+import os
 import pandas as pd
+import importlib
 from importlib.machinery import SourceFileLoader
 from neo4j.v1 import GraphDatabase
 
@@ -18,46 +14,76 @@ tx = session.begin_transaction()
 
 generate_id = int(sys.argv[1])
 
-class DatasetsWrapper:
-  def __init__(self, transform_info):
-    self.dataset_meta = dict()
-    self.dataset_meta[transform_info['name']] = dict()
-    self.dataset_meta[transform_info['name']]['path'] = transform_info['path']
+def dataset_path(name):
+  dataset_by_name_query = '''
+  MATCH (d:Dataset { name: $name })
+  RETURN d.path AS path
+  '''
+  results = tx.run(dataset_by_name_query, name=name)
+  # TODO: more checking here
+  dataset = results.single()
+  return dataset['path']
+
+def dataset_input(name):
+  return pd.read_csv(dataset_path(name))
+
+outputs = dict()
+
+def dataset_output(name):
+  # TODO: This, and the code in load_transform combine to make something pretty brittle. We want
+  # to keep the lack of boilerplate a data scientist has to do to define a transformation, but
+  # there are probably better ways...
+  outputs[current_loading_transform] = name
+
+def write_output(df, output_name):
+  columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
+
+  update_dataset_query = '''
+    MATCH (dataset:Dataset { name: $name })
+    WITH dataset
+    UNWIND $columns AS column
+    MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
+    WITH dataset
+    RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
+  '''
+  dataset = tx.run(update_dataset_query, name=output_name, columns=columns).single()
+
+  df.to_csv(dataset['path'], index=False)
   
-  def fetch_df(self, name):
-    return pd.read_csv(self.dataset_meta[name]['path'])
 
-  def update_df(self, name, df):
-    global generate_id
-    global tx
+current_loading_transform = None
 
-    df.to_csv(self.dataset_meta[name]['path'], index=False)
-    columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
-    update_dataset_query = '''
-      MATCH (dataset:Dataset)
-      WHERE ID(dataset) = $id
-      WITH dataset
-      UNWIND $columns AS column
-      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
-      WITH dataset
-      RETURN ID(dataset) AS id, dataset.name AS name
-    '''
-    tx.run(update_dataset_query, id=generate_id, columns=columns)
+def load_transform(script_path):
+  global current_loading_transform
 
-query = '''
-MATCH (output:Dataset)<-[:OUTPUT]-(transformation:Transformation)<-[:INPUT]-(input:Dataset)
-WHERE ID(output) = $id
-RETURN output, transformation, input
+  transform_spec = importlib.util.spec_from_file_location("transform", script_path)
+  transform_mod = importlib.util.module_from_spec(transform_spec)
+
+  transform_mod.dataset_input = dataset_input
+  transform_mod.dataset_output = dataset_output
+
+  current_loading_transform = script_path
+  transform_spec.loader.exec_module(transform_mod)
+
+  return transform_mod
+
+find_transforms_query = '''
+MATCH full_path = (output:Dataset)<-[*]-(input:Dataset { computed: false })
+WHERE ID(output) = $output_id
+WITH full_path, output
+MATCH (t:Transformation)
+MATCH individual_path = (output)<-[*]-(t)
+WHERE t IN nodes(full_path)
+WITH DISTINCT(individual_path), t
+RETURN t.name AS name, t.script AS script, length(individual_path) AS distance
+ORDER BY distance DESC
 '''
 
-result = tx.run(query, id=generate_id)
-r = result.single()
-
-wrapped_inputs = DatasetsWrapper(r['input'])
-wrapped_outputs = DatasetsWrapper(r['output'])
-
-# Call the actual transformation script
-transform = SourceFileLoader("transform", r['transformation']['script']).load_module()
-transform.transform(wrapped_inputs, wrapped_outputs)
+transforms = tx.run(find_transforms_query, output_id=generate_id)
+for t in transforms:
+  transform_script = t['script']
+  transform_mod = load_transform(transform_script)
+  transform_result = transform_mod.transform()
+  write_output(transform_result, outputs[transform_script])
 
 tx.commit()
