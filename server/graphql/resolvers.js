@@ -58,7 +58,7 @@ const processDatasetUpload = async (name, upload) => {
     WITH dataset
     UNWIND $columns AS column
     MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
-    SET dataset.path = $path
+    SET dataset.path = $path, dataset.computed = false
     WITH dataset
     RETURN ID(dataset) AS id, dataset.name AS name
   `
