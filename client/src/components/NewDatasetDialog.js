@@ -15,6 +15,7 @@ import { datasetListQuery, uploadDatasetMutation } from '../queries'
 import DescriptionIcon from '@material-ui/icons/Description';
 
 import { withStyles } from 'material-ui/styles'
+import ADIButton from "./ADIButton"
 
 const styles = theme => ({
   button: {
@@ -62,11 +63,11 @@ class NewDatasetDialog extends React.Component {
 
     return (
       <div>
-        <Button onClick={this.handleClickOpen} className={classes.button} 
-                variant="raised" color="primary" fullWidth={true}>
+        <ADIButton onClick={this.handleClickOpen} className={classes.button}
+                   variant="raised" color="primary" fullWidth={true}>
           New Dataset
           <DescriptionIcon className={classes.rightIcon}/>
-        </Button>
+        </ADIButton>
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}

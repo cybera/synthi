@@ -3,18 +3,19 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 
 import LoginDialog from './LoginDialog'
+import ADIButton from './ADIButton'
+
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 
 const styles = {
   root: {
     flexGrow: 1,
+  },
+  appBar: {
+    backgroundColor: '#ffffff'
   },
   flex: {
     flex: 1,
@@ -32,21 +33,19 @@ function ButtonAppBar(props) {
   const { classes, navigation } = props;
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position="static" className={classes.appBar}>
         <Toolbar>
-          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="title" color="inherit">
-            ADI
-          </Typography>
+          <img src={require('../images/ckan-logo.png')} />
           <span className={classes.spacer}/>
-          <Button color="inherit" disabled={navigation.currentMode == 'datasets'}
-                  onClick={ e => navigation.switchMode('datasets')}>Datasets</Button>
-          <Button color="inherit" disabled={navigation.currentMode == 'chart-editor'} 
-                  onClick={ e => navigation.switchMode('chart-editor')}>Chart Editor</Button>
-          <Button color="inherit" disabled={navigation.currentMode == 'scenarios'} 
-                  onClick={ e => navigation.switchMode('scenarios')}>Scenarios</Button>
+          <ADIButton color="inherit" className={classes.menuButton}
+                     disabled={navigation.currentMode == 'datasets'} 
+                     onClick={ e => navigation.switchMode('datasets')}>Datasets</ADIButton>
+          <ADIButton color="inherit" className={classes.menuButton}
+                     disabled={navigation.currentMode == 'chart-editor'} 
+                     onClick={ e => navigation.switchMode('chart-editor')}>Chart Editor</ADIButton>
+          <ADIButton color="inherit" className={classes.menuButton}
+                     disabled={navigation.currentMode == 'scenarios'} 
+                     onClick={ e => navigation.switchMode('scenarios')}>Scenarios</ADIButton>
           <span className={classes.flex}/>
           <LoginDialog/>
         </Toolbar>

@@ -8,6 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { withNavigation } from '../context/NavigationContext'
+import ADIButton from './ADIButton'
 
 class LoginDialog extends React.Component {
   state = {
@@ -54,7 +55,7 @@ class LoginDialog extends React.Component {
 
     return (
       <div>
-        <Button color="inherit" onClick={this.handleClickOpen}>{navigation.user ? 'Logout' : 'Login'}</Button>
+        <ADIButton onClick={this.handleClickOpen}>{navigation.user ? 'Logout' : 'Login'}</ADIButton>
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}

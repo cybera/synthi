@@ -14,6 +14,8 @@ import AppBar from './components/AppBar'
 
 import NavigationContext from './context/NavigationContext'
 
+import { withStyles } from 'material-ui/styles'
+
 const client = new ApolloClient({
   cache: new InMemoryCache(),
   // Apparently "new HttpLink()" isn't necessary anymore:
@@ -23,19 +25,30 @@ const client = new ApolloClient({
 
 import { hot } from 'react-hot-loader'
 
+const styles = theme => ({
+  root: {
+    marginTop: 10
+  }
+});
+
 function MainComponent(props) {
-  const { mode, dataset } = props
+  const { mode, dataset, classes } = props
 
   if (mode == 'datasets') {
     return <DatasetBrowser selectedDataset={dataset}/>
   } else if (mode == 'chart-editor') {
     return <ChartEditor datasetID={dataset}/>
   } else if (mode == 'scenarios') {
-    return <Scenarios />
+    return <Scenarios/>
   } else {
     return <div>Empty</div>
   }
 }
+
+const StyledMainComponent = withStyles(styles)(props => <div className={props.classes.root}>
+  <MainComponent {...props} />
+</div>)
+
 class App extends React.Component {
   constructor(props) {
     super(props)
@@ -62,8 +75,8 @@ class App extends React.Component {
           setUser: this.setUser
         }}>
           <AppBar/>
-          <MainComponent mode={this.state.currentMode} 
-                         dataset={this.state.currentDataset}/>
+          <StyledMainComponent mode={this.state.currentMode} 
+                               dataset={this.state.currentDataset}/>
         </NavigationContext.Provider>
       </ApolloProvider>
     )
