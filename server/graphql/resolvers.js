@@ -5,7 +5,7 @@ import fs from 'fs'
 import csvParse from 'csv-parse/lib/sync'
 
 import neo4j, { safeQuery } from '../neo4j/connection'
-import { runTransformation } from '../lib/util'
+import { runTransformation, waitForFile } from '../lib/util'
 import DatasetRepository from '../model/datasetRepository'
 
 const graphql = require('graphql')
@@ -58,18 +58,20 @@ const processDatasetUpload = async (name, upload, owner) => {
 export default {
   Upload: GraphQLUpload,
   Query: {
-    dataset(_, { id }) {
-      var query = [`MATCH (n:Dataset) RETURN n.name AS name, ID(n) AS id, n.path AS path`]
-      if (id != null) {
-        query = [`MATCH (n:Dataset) 
-                  WHERE ID(n) = $id 
-                  RETURN 
-                    n.name AS name, 
-                    ID(n) AS id,
-                    n.computed AS computed,
-                    n.path AS path`, { id: id }]
-      }
-      
+    dataset(_, { id, name }) {
+      let conditions = []
+      if (id != null) { conditions.push("ID(n) = $id") }
+      if (name != null) { conditions.push("n.name = $name") }
+      let conditionString = conditions.join(" AND ")
+      if (conditions.length > 0) { conditionString = `WHERE ${conditionString}` }
+
+      var query = [`MATCH (n:Dataset) 
+                    ${conditionString} 
+                    RETURN n.name AS name, 
+                           ID(n) AS id, 
+                           n.computed as computed, 
+                           n.path AS path`, { id: id, name: name }]
+
       return safeQuery(...query)
     },
     plots(_, { id }) {
@@ -142,17 +144,21 @@ export default {
                         RETURN ID(p) AS id, p.jsondef AS jsondef`, 
                         { jsondef: jsondef }).then(results => results[0])
     },
-    generateDataset(_, { id }) {
-      runTransformation(id)
+    async generateDataset(_, { id }) {
+      let dataset = await safeQuery(`MATCH(d:Dataset)
+                                     WHERE ID(d) = $id
+                                     RETURN d.name AS name, 
+                                            ID(d) AS id,
+                                            d.computed AS computed,
+                                            d.path AS path
+                                    `, { id: id })
+                            .then(results => results[0])
 
-      return safeQuery(`MATCH(d:Dataset)
-                        WHERE ID(d) = $id
-                        RETURN d.name AS name, 
-                               ID(d) AS id,
-                               d.computed AS computed,
-                               d.path AS path
-      `, { id: id })
-      .then(results => results[0])
+      runTransformation(dataset)
+
+      await waitForFile(dataset.path)
+
+      return dataset
     }
   }
 }

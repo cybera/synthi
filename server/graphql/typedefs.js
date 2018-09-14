@@ -26,7 +26,7 @@ type Dataset {
 }
 
 type Query {
-  dataset(id: Int): [Dataset]
+  dataset(id: Int, name: String): [Dataset]
   plots(id: Int): [Plot]
   uploads: [File]
 }
