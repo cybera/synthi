@@ -29,3 +29,20 @@ services:
       - ./client:/usr/src/app
     networks:
       - default
+  queue:
+    image: rabbitmq
+    networks:
+      - default
+  python-worker:
+    build: ./services/python-worker
+    networks:
+      - default
+    volumes:
+      - ./services/python-worker:/usr/src/app
+    command: /usr/src/app/main.py
+  python-shell:
+    build: ./services/python-worker
+    networks:
+      - default
+    stdin_open: true
+    tty: true
