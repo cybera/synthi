@@ -4,6 +4,7 @@
   "description": "server for adi",
   "main": "index.js",
   "dependencies": {
+    "amqplib": "^0.5.2",
     "apollo-server-express": "^1.4.0",
     "apollo-upload-server": "^5.0.0",
     "body-parser": "^1.18.3",
