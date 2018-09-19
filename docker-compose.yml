@@ -19,6 +19,7 @@ services:
       - "3000:3000"
     volumes:
       - ./server:/usr/src/app
+      - ./data/uploads:/mnt/data
     networks:
       - default
   client:
@@ -39,6 +40,11 @@ services:
       - default
     volumes:
       - ./services/python-worker:/usr/src/app
+      - ./data/uploads:/mnt/data
+      - ./server/scripts:/mnt/scripts
+    environment:
+      - SCRIPT_ROOT=/mnt/scripts
+      - DATA_ROOT=/mnt/data
     command: /usr/src/app/main.py
   python-shell:
     build: ./services/python-worker

@@ -3,34 +3,38 @@ import mkdirp from 'mkdirp'
 import shortid from 'shortid'
 import fs from 'fs'
 import csvParse from 'csv-parse/lib/sync'
-import path from 'path'
+import pathlib from 'path'
 
 import neo4j, { safeQuery } from '../neo4j/connection'
 import { runTransformation, waitForFile } from '../lib/util'
 import DatasetRepository from '../model/datasetRepository'
 
+import { fullDatasetPath } from '../lib/util'
+
 const graphql = require('graphql')
 
-const uploadDir = path.resolve(process.env.UPLOADS_FOLDER)
+const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
 
 // Ensure upload directory exists
 mkdirp.sync(uploadDir)
 
 const storeFS = ({ stream, filename }) => {
   const id = shortid.generate()
-  const path = `${uploadDir}/${id}-${filename}`
+  const uniqueFilename = `${id}-${filename}`
+  const fullPath = fullDatasetPath(uniqueFilename)
+
   return new Promise((resolve, reject) =>
     stream
       .on('error', error => {
         console.log(error)
         if (stream.truncated)
           // Delete the truncated file
-          fs.unlinkSync(path)
+          fs.unlinkSync(fullPath)
         reject(error)
       })
-      .pipe(fs.createWriteStream(path))
+      .pipe(fs.createWriteStream(fullPath))
       .on('error', error => reject(error))
-      .on('finish', () => resolve({ id, path }))
+      .on('finish', () => resolve({ id, path: uniqueFilename }))
   )
 }
 
@@ -98,8 +102,10 @@ export default {
                         { id: dataset.id })
     },
     samples(dataset) {
-      if (dataset.path && fs.existsSync(dataset.path)) {
-        const fileString = fs.readFileSync(dataset.path, "utf8")
+      const path = fullDatasetPath(dataset.path)
+
+      if (dataset.path && fs.existsSync(path)) {
+        const fileString = fs.readFileSync(path, "utf8")
         const csv = csvParse(fileString, { columns: true })
         const jsonStrings = csv.slice(0,10).map(r => JSON.stringify(r))
         return jsonStrings
@@ -109,7 +115,8 @@ export default {
     },
     rows(dataset) {
       if (dataset.path) {
-        const fileString = fs.readFileSync(dataset.path, "utf8")
+        const path = fullDatasetPath(dataset.path)
+        const fileString = fs.readFileSync(path, "utf8")
         const csv = csvParse(fileString, { columns: true })
         const jsonStrings = csv.map(r => JSON.stringify(r))
         return jsonStrings

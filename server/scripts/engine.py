@@ -7,25 +7,29 @@ import importlib
 from importlib.machinery import SourceFileLoader
 from neo4j.v1 import GraphDatabase
 
-neo4j_uri = "bolt://localhost:7687"
+SCRIPT_ROOT=os.environ['SCRIPT_ROOT']
+DATA_ROOT=os.environ['DATA_ROOT']
+
+neo4j_uri = "bolt://neo4j:7687"
 neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
 generate_id = int(sys.argv[1])
 
-def dataset_path(name):
+def dataset_abspath(dataset):
+  return os.path.join(DATA_ROOT, dataset['path'])
+
+def dataset_input(name):
   dataset_by_name_query = '''
   MATCH (d:Dataset { name: $name })
   RETURN d.path AS path
   '''
+  print(f"Finding '{name}' dataset.")
   results = tx.run(dataset_by_name_query, name=name)
   # TODO: more checking here
   dataset = results.single()
-  return dataset['path']
-
-def dataset_input(name):
-  return pd.read_csv(dataset_path(name))
+  return pd.read_csv(dataset_abspath(dataset))
 
 outputs = dict()
 
@@ -47,16 +51,16 @@ def write_output(df, output_name):
     RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
   '''
   dataset = tx.run(update_dataset_query, name=output_name, columns=columns).single()
-
-  df.to_csv(dataset['path'], index=False)
+  print(f"Updating calculated '{output_name}' dataset.")
+  df.to_csv(dataset_abspath(dataset), index=False)
   
 
 current_loading_transform = None
 
 def load_transform(script_path):
   global current_loading_transform
-
-  transform_spec = importlib.util.spec_from_file_location("transform", script_path)
+  full_path = os.path.join(SCRIPT_ROOT, script_path)
+  transform_spec = importlib.util.spec_from_file_location("transform", full_path)
   transform_mod = importlib.util.module_from_spec(transform_spec)
 
   transform_mod.dataset_input = dataset_input
@@ -78,10 +82,11 @@ WITH DISTINCT(individual_path), t
 RETURN t.name AS name, t.script AS script, length(individual_path) AS distance
 ORDER BY distance DESC
 '''
-
+print(f"Finding and ordering transforms for ID: {generate_id}.")
 transforms = tx.run(find_transforms_query, output_id=generate_id)
 for t in transforms:
   transform_script = t['script']
+  print(f"Running {transform_script}")
   transform_mod = load_transform(transform_script)
   transform_result = transform_mod.transform()
   write_output(transform_result, outputs[transform_script])

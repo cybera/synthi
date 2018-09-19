@@ -8,8 +8,8 @@ from importlib.machinery import SourceFileLoader
 from neo4j.v1 import GraphDatabase
 
 # TODO: Make this more configurable. Eventually, we'll want to support object storage
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-OUTPUT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", "data", "uploads"))
+SCRIPT_ROOT = os.path.dirname(os.path.realpath(__file__))
+DATA_ROOT = os.path.abspath(os.path.join(SCRIPT_ROOT, "..", "..", "data", "uploads"))
 
 neo4j_uri = "bolt://localhost:7687"
 neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))
@@ -19,6 +19,7 @@ tx = session.begin_transaction()
 script = sys.argv[1]
 
 script_path = os.path.abspath(script)
+script_relpath = os.path.relpath(script_path, SCRIPT_ROOT)
 transform_name = os.path.splitext(os.path.basename(script_path))[0]
 
 print(script_path)
@@ -49,7 +50,7 @@ MERGE(t:Transformation { script: $script })
 ON CREATE SET t.name = $transform_name
 '''
 
-results = tx.run(transform_query, script=script_path, transform_name=transform_name)
+results = tx.run(transform_query, script=script_relpath, transform_name=transform_name)
 for r in results:
   print(r)
 
@@ -67,13 +68,13 @@ ON CREATE SET output.computed = true, output.path = $output_path
 ''' 
 
 for i in inputs:
-  results = tx.run(input_query, name=i, script=script_path)
+  results = tx.run(input_query, name=i, script=script_relpath)
   for r in results:
     print(r)
 
 for o in outputs:
-  output_path = os.path.join(OUTPUT_ROOT, f"{o}.csv")
-  results = tx.run(output_query, name=o, script=script_path, output_path=output_path)
+  output_path = os.path.join(f"{o}.csv")
+  results = tx.run(output_query, name=o, script=script_relpath, output_path=output_path)
   for r in results:
     print(r)
 

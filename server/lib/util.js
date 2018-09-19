@@ -1,19 +1,13 @@
-import path from 'path'
-import { exec } from 'child_process'
+import pathlib from 'path'
 import fs from 'fs'
 import waitOn from 'wait-on'
+import AMQP from 'amqplib'
 
-const runTransformation = (dataset) => {
-  if(dataset.path && fs.exists(dataset.path)) {
-    fs.unlink(dataset.path)
-  }
-  const transform_script = path.resolve(__dirname, '..', 'scripts', 'engine.py')
-  const transform_cmd = [transform_script, dataset.id].join(" ")
-  exec(transform_cmd, (error, stdout, stderr) => {
-    if (error !== null) {
-      console.log('exec error: ' + error);
-    }
-  })
+const runTransformation = async (dataset) => {
+  const conn = await AMQP.connect('amqp://queue')
+  const ch = await conn.createChannel()
+  const ok = await ch.assertQueue('python-worker', { durable: false })
+  ch.sendToQueue('python-worker', Buffer.from(`engine.py ${dataset.id}`))
 }
 
 const datasetExists = (dataset) => {
@@ -26,15 +20,21 @@ const ensureDatasetExists = (dataset) => {
   }
 }
 
-const waitForFile = (path) => {
+const waitForFile = (relPath) => {
   return new Promise((resolve, reject) => {
     // TODO: This will need to change when using non-local storage
     waitOn({ 
-      resources: [`file:${path}`],
+      resources: [`file:${fullDatasetPath(relPath)}`],
       interval: 1000,
       timeout: 60000
     }, err => err ? reject(err) : resolve() )
   })
 }
 
-export { runTransformation, datasetExists, ensureDatasetExists, waitForFile }
+const fullDatasetPath = (relPath) => {
+  const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
+  const fullPath = pathlib.join(uploadDir, relPath)
+  return fullPath
+}
+
+export { runTransformation, datasetExists, ensureDatasetExists, waitForFile, fullDatasetPath }

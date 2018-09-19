@@ -1,5 +1,6 @@
 import csvParse from 'csv-parse/lib/sync'
 import fs from 'fs'
+import { fullDatasetPath } from '../lib/util'
 
 export default class Dataset {
   constructor(name, path, owner, computed) {
@@ -8,7 +9,7 @@ export default class Dataset {
     this.owner = owner
     this.computed = computed
 
-    const fileString = fs.readFileSync(path, 'utf8')
+    const fileString = fs.readFileSync(fullDatasetPath(path), 'utf8')
     const csv = csvParse(fileString, { columns: true })
 
     let columnNames = []
