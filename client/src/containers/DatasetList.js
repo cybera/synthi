@@ -5,7 +5,9 @@ import { datasetListQuery } from '../queries'
 function withDatasets(Component) {
   return function WithDatasetsComponent(props) {
     return (
-      <Query query={datasetListQuery}>
+      <Query 
+        query={datasetListQuery}
+        pollInterval={10000}>
         {({ loading, error, data }) => {
           if (loading) return <p>Loading...</p>;
           if (error) return <p>Error!</p>;
