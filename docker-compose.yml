@@ -20,6 +20,8 @@ services:
     volumes:
       - ./server:/usr/src/app
       - ./data/uploads:/mnt/data
+    environment:
+      - UPLOADS_FOLDER=/mnt/data
     networks:
       - default
   client:
