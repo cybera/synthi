@@ -11,6 +11,7 @@ const safeQuery = (query, params) => {
   return session.run(query, params).then(result => {
     return result.records.map(record => record.toObject())
   }).catch(e => {
+    console.log(e)
     return []
   }).then(result => {
     session.close()
