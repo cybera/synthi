@@ -1,12 +1,14 @@
 import 'dotenv/config'
 
-import { apolloUploadExpress } from 'apollo-upload-server'
 import bodyParser from 'body-parser'
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express'
 
 import express from 'express'
 
-import schema from './graphql/schema'
+import { ApolloServer, gql } from 'apollo-server-express'
+
+import resolvers from './graphql/resolvers'
+import typeDefs from './graphql/typedefs'
+
 import cors from 'cors'
 
 import passport from 'passport'
@@ -22,10 +24,10 @@ import { ensureDatasetExists, waitForFile } from './lib/util'
 import UserRepository from './model/userRepository'
 
 const app = express()
+const apolloServer = new ApolloServer({ typeDefs, resolvers })
+apolloServer.applyMiddleware({ app })
 
 app.use(cors())
-
-app.get('/', (req, res) => res.send("Hello world !"))
 
 // Authentication w/ passportjs
 passport.use(new LocalStrategy(
@@ -69,24 +71,12 @@ passport.deserializeUser(async (id, done) => {
 })
 
 app.use(morgan('combined'))
+// Apollo doesn't need bodyParser anymore, but this seems like it's still needed for 
+// logging in.
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(session({ secret: 'secret-token-123456' }))
 app.use(passport.initialize())
 app.use(passport.session())
-
-app.use(
-  '/graphql',
-  bodyParser.json(),
-  apolloUploadExpress(),
-  graphqlExpress(req => ({
-    schema,
-    context: {
-      user: req.user
-    }
-  }))
-)
-
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
 app.post('/login',
   passport.authenticate('local'),

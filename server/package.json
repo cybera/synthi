@@ -5,8 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "amqplib": "^0.5.2",
-    "apollo-server-express": "^1.4.0",
-    "apollo-upload-server": "^5.0.0",
+    "apollo-server-express": "^2.1.0",
     "body-parser": "^1.18.3",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.3",
@@ -14,10 +13,8 @@
     "csv-parse": "^2.5.0",
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
-    "express-graphql": "^0.6.12",
     "express-session": "^1.15.6",
     "graphql": "^0.13.2",
-    "graphql-tools": "^3.1.1",
     "morgan": "^1.9.0",
     "neo4j-driver": "^1.6.3",
     "passport": "^0.4.0",
@@ -39,5 +36,6 @@
     "start": "babel-node index.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "private": true
 }

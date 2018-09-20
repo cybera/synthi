@@ -1,4 +1,3 @@
-import { GraphQLUpload } from 'apollo-upload-server'
 import mkdirp from 'mkdirp'
 import shortid from 'shortid'
 import fs from 'fs'
@@ -62,7 +61,6 @@ const processDatasetUpload = async (name, upload, owner) => {
 }
 
 export default {
-  Upload: GraphQLUpload,
   Query: {
     dataset(_, { id, name }) {
       let conditions = []

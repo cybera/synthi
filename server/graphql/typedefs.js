@@ -1,5 +1,4 @@
 export default /* GraphQL */ `
-scalar Upload
 
 type File {
   id: ID!
