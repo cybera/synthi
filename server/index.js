@@ -1,5 +1,7 @@
 import 'dotenv/config'
 
+import http from 'http'
+
 import bodyParser from 'body-parser'
 
 import express from 'express'
@@ -104,8 +106,18 @@ app.get('/dataset/:id', async (req, res) => {
   res.download(dataset.path, `${dataset.name}.csv`, (err) => res.send(err))
 })
 
+const httpServer = http.createServer(app)
+apolloServer.installSubscriptionHandlers(httpServer)
+
 // run server on port 3000
-const server = app.listen('3000', _ => console.log('Server is listening on port 3000...'))
+const PORT = 3000
+const server = httpServer.listen(PORT, err => {
+  if (err) {
+    console.log(err)
+  }
+  console.log(`Server ready at http://server:${PORT}${apolloServer.graphqlPath}`)
+  console.log(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
+})
 
 // Close all connections on shutdown
 const shutdown = function () {

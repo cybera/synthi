@@ -14,6 +14,11 @@ const graphql = require('graphql')
 
 const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
 
+import { PubSub, withFilter } from 'apollo-server-express'
+
+const pubsub = new PubSub();
+const DATASET_REGENERATED = 'DATASET_REGENERATED';
+
 // Ensure upload directory exists
 mkdirp.sync(uploadDir)
 
@@ -166,6 +171,22 @@ export default {
       await waitForFile(dataset.path)
 
       return dataset
+    },
+    // TODO: Should be able to publish directly from a message queue listener
+    //       Need to hook up to that and use it instead of the mutation.
+    async updateFromQueue(_, { id }) {
+      pubsub.publish(DATASET_REGENERATED, { datasetRegenerated: { id: id } });
+      return true
     }
+  },
+  Subscription: {
+    datasetRegenerated: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([DATASET_REGENERATED]),
+        (payload, variables) => {
+          return payload.datasetRegenerated.id === variables.id
+        }
+      )
+    },
   }
 }

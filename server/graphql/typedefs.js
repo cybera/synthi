@@ -24,15 +24,15 @@ type Dataset {
   computed: Boolean
 }
 
+type Plot {
+  id: Int!
+  jsondef: String!
+}
+
 type Query {
   dataset(id: Int, name: String): [Dataset]
   plots(id: Int): [Plot]
   uploads: [File]
-}
-
-type Plot {
-  id: Int!
-  jsondef: String!
 }
 
 type Mutation {
@@ -42,10 +42,16 @@ type Mutation {
   uploadDataset(name: String!, file:Upload!): Dataset
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
+  updateFromQueue(id: Int!): Boolean
+}
+
+type Subscription {
+  datasetRegenerated(id: Int!): Dataset
 }
 
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 `

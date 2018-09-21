@@ -16,11 +16,37 @@ import NavigationContext from './context/NavigationContext'
 
 import { withStyles } from 'material-ui/styles'
 
+import { WebSocketLink } from 'apollo-link-ws';
+import { split } from 'apollo-link';
+import { getMainDefinition } from 'apollo-utilities';
+
+// TODO: this will need to be somewhat configurable
+const wsLink = new WebSocketLink({
+  uri: `ws://localhost:3000/graphql`,
+  options: {
+    reconnect: true
+  }
+});
+
+const httpLink = ApolloLink.from([createUploadLink({ uri: "/graphql", credentials: 'include' })])
+
+// using the ability to split links, you can send data to each link
+// depending on what kind of operation is being sent
+const link = split(
+  // split based on operation type
+  ({ query }) => {
+    const { kind, operation } = getMainDefinition(query);
+    return kind === 'OperationDefinition' && operation === 'subscription';
+  },
+  wsLink,
+  httpLink,
+);
+
 const client = new ApolloClient({
   cache: new InMemoryCache(),
   // Apparently "new HttpLink()" isn't necessary anymore:
   // https://stackoverflow.com/questions/49507035/how-to-use-apollo-link-http-with-apollo-upload-client
-  link: ApolloLink.from([createUploadLink({ uri: "/graphql", credentials: 'include' })])
+  link: link
 })
 
 import { hot } from 'react-hot-loader'
