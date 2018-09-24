@@ -13,8 +13,8 @@ module.exports = merge(common, {
     hot: true,
     proxy: {
       '/login': 'http://server:3000',
-      '/graphql': 'http://server:3000',
-      '/testing': 'http://server:3000'
+      '/logout': 'http://server:3000',
+      '/graphql': 'http://server:3000'
     }
   },
   plugins: [

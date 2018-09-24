@@ -7,14 +7,13 @@ export default class UserRepository {
       WHERE ID(n) = $id
       RETURN
         n.username AS username,
+        n.password AS password,
         ID(n) AS id`, { id }]
-    const result = await safeQuery(...query)
-    if (!result[0]) {
+    const result = (await safeQuery(...query))[0]
+    if (!result) {
       return null
     }
-    const user = new User(result[0].username)
-    user.id = result[0].id
-    return user
+    return new User(result.username, result)
   }
 
   static async getByUsername(username) {
@@ -22,22 +21,24 @@ export default class UserRepository {
       WHERE n.username = $username
       RETURN
         n.username AS username,
+        n.password AS password,
         ID(n) AS id`, { username }]
-    const result = await safeQuery(...query)
-    if (!result[0]) {
+    const result = (await safeQuery(...query))[0]
+    if (!result) {
       return null
     }
-    const user = new User(result[0].username)
-    user.id = result[0].id
-    return user
+    return new User(result.username, result)
   }
 
-  static async create(data) {
-    const user = new User(data.username)
-    const query = [`CREATE (user:User { username: $user.username })
-      RETURN ID(user) AS id`, { user }]
+  /* static async create(data) {
+    const user = this.createUser(data.username, data)
+    const query = [`CREATE (n:User { username: $user.username, password: $user.password })
+      RETURN
+        n.username AS username,
+        n.password AS password,
+        ID(n) AS id`, { user }]
     const { id } = await safeQuery(...query)
     user.id = id
     return user
-  }
+  } */
 }

@@ -18,7 +18,19 @@ class LoginDialog extends React.Component {
   };
 
   handleClickOpen = () => {
-    this.setState({ open: true });
+    const { navigation } = this.props
+
+    if (navigation.user) {
+      fetch('/logout', { method: 'GET' })
+        .then(response => {
+          if (response.ok) {
+            navigation.setUser(null)
+            localStorage.removeItem('user')
+          }
+        })
+    } else {
+      this.setState({ open: true });
+    }
   };
 
   handleClose = () => {
@@ -31,13 +43,19 @@ class LoginDialog extends React.Component {
     fetch('/login', {
       method: 'POST',
       credentials: 'include',
-      headers: { 
+      headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       },
       body: `username=${this.state.username}&password=${this.state.password}`
-    })
-    .then(response => response.json())
-    .then(obj => this.props.navigation.setUser(obj.user))
+    }).then(response => {
+      if (!response.ok) {
+        throw "Login failed"
+      }
+      return response.json()
+    }).then(obj => {
+      this.props.navigation.setUser(obj.user)
+      localStorage.setItem('user', obj.user)
+    }).catch(err => null)
 
     this.handleClose()
   }
