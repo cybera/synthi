@@ -7,7 +7,7 @@ import re
 
 SCRIPT_ROOT = os.environ['SCRIPT_ROOT']
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=0))
 channel = connection.channel()
 
 
