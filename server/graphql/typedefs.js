@@ -22,6 +22,7 @@ type Dataset {
   rows: [String]
   path: String
   computed: Boolean
+  generating: Boolean
 }
 
 type Plot {
@@ -46,7 +47,7 @@ type Mutation {
 }
 
 type Subscription {
-  datasetRegenerated(id: Int!): Dataset
+  datasetGenerated(id: Int!): Dataset
 }
 
 schema {

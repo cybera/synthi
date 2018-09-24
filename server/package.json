@@ -21,6 +21,7 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "shortid": "^2.2.13",
+    "signal-exit": "^3.0.2",
     "wait-on": "^3.0.1"
   },
   "devDependencies": {

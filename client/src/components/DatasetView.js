@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
 
@@ -12,16 +12,18 @@ import { datasetViewQuery } from '../queries'
 import Button from 'material-ui/Button'
 import IconButton from 'material-ui/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
+import ToggleVisibility from './ToggleVisibility'
 
 import DataTableView from './DataTableView'
 import DatasetGenerator from './DatasetGenerator'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
-  subscription onDatasetRegenerated($id: Int!) {
-    datasetRegenerated(id: $id) {
+  subscription onDatasetGenerated($id: Int!) {
+    datasetGenerated(id: $id) {
       id
     }
   }
@@ -35,7 +37,16 @@ const styles = theme => ({
   }),
   rightIcon: {
     marginLeft: theme.spacing.unit,
-  }
+  },
+  colorPrimary: {
+    backgroundColor: '#000000',
+  },
+  barColorPrimary: {
+    backgroundColor: '#0000FF',
+  },
+  // colorPrimary: {
+  //   backgroundColor: '#00B289',
+  // }
 });
 
 class DatasetView extends React.Component {
@@ -58,7 +69,7 @@ class DatasetView extends React.Component {
 
     return <Paper className={classes.root} elevation={4}>
              <Typography variant="headline">
-               {`Dataset: ${name}`}
+               {`Dataset: ${dataset.name}`}
                <IconButton aria-label="Chart" onClick={e => navigation.switchMode('chart-editor')}>
                  <ChartIcon />
                </IconButton>
@@ -68,7 +79,12 @@ class DatasetView extends React.Component {
                  return dataset.computed && <Button onClick={e => generateDataset(dataset.id)}>Generate!</Button>
                }}
              </DatasetGenerator>
-             <DataTableView columns={selected_columns} rows={sample_rows}/>
+             <ToggleVisibility visible={dataset.generating}>
+               <LinearProgress color="primary" classes={{ colorPrimary: classes.colorPrimary, barColorPrimary: classes.barColorPrimary }} />
+             </ToggleVisibility>
+             <ToggleVisibility visible={!dataset.generating}>
+               <DataTableView columns={selected_columns} rows={sample_rows}/>
+            </ToggleVisibility>
            </Paper>
   }
 }
@@ -80,7 +96,7 @@ const StyledDatasetView = compose(
 
 const ConnectedDatasetView = (props) => (
   <Query query={datasetViewQuery} variables={ { id: props.id } }>
-    {({ subscribeToMore, loading, error, data }) => {
+    {({ subscribeToMore, refetch, loading, error, data }) => {
       if (loading) return <p>Loading...</p>;
       if (error) return <p>Error!</p>;
 
@@ -90,9 +106,9 @@ const ConnectedDatasetView = (props) => (
         document: DATASET_GENERATION_SUBSCRIPTION,
         variables: { id: props.id },
         updateQuery: (prev, { subscriptionData }) => {
-          // TODO: Actually refetch the dataset here
-          console.log(prev)
-          console.log(subscriptionData)
+          // Actually kick off a refetch of the data, but until that's finished, return
+          // the current data.
+          refetch()
           return prev
         }
       })

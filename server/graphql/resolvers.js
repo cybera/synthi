@@ -14,10 +14,9 @@ const graphql = require('graphql')
 
 const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
 
-import { PubSub, withFilter } from 'apollo-server-express'
+import { pubsub, withFilter } from './pubsub'
 
-const pubsub = new PubSub();
-const DATASET_REGENERATED = 'DATASET_REGENERATED';
+const DATASET_GENERATED = 'DATASET_GENERATED';
 
 // Ensure upload directory exists
 mkdirp.sync(uploadDir)
@@ -79,6 +78,7 @@ export default {
                     RETURN n.name AS name, 
                            ID(n) AS id, 
                            n.computed as computed, 
+                           COALESCE(n.generating, false) AS generating,
                            n.path AS path`, { id: id, name: name }]
 
       return safeQuery(...query)
@@ -159,8 +159,10 @@ export default {
     async generateDataset(_, { id }) {
       let dataset = await safeQuery(`MATCH(d:Dataset)
                                      WHERE ID(d) = $id
+                                     SET d.generating = true
                                      RETURN d.name AS name, 
                                             ID(d) AS id,
+                                            COALESCE(d.generating, false) AS generating,
                                             d.computed AS computed,
                                             d.path AS path
                                     `, { id: id })
@@ -168,23 +170,23 @@ export default {
 
       runTransformation(dataset)
 
-      await waitForFile(dataset.path)
+      // await waitForFile(dataset.path)
 
       return dataset
     },
     // TODO: Should be able to publish directly from a message queue listener
     //       Need to hook up to that and use it instead of the mutation.
     async updateFromQueue(_, { id }) {
-      pubsub.publish(DATASET_REGENERATED, { datasetRegenerated: { id: id } });
+      pubsub.publish(DATASET_GENERATED, { datasetGenerated: { id: id } });
       return true
     }
   },
   Subscription: {
-    datasetRegenerated: {
+    datasetGenerated: {
       subscribe: withFilter(
-        () => pubsub.asyncIterator([DATASET_REGENERATED]),
+        () => pubsub.asyncIterator([DATASET_GENERATED]),
         (payload, variables) => {
-          return payload.datasetRegenerated.id === variables.id
+          return payload.datasetGenerated.id === variables.id
         }
       )
     },

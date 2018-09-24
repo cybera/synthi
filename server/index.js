@@ -23,7 +23,9 @@ import morgan from 'morgan'
 
 import { safeQuery } from './neo4j/connection'
 import { ensureDatasetExists, waitForFile } from './lib/util'
+import { startDatasetStatusConsumer } from './lib/queue'
 import UserRepository from './model/userRepository'
+import onExit from 'signal-exit'
 
 const app = express()
 const apolloServer = new ApolloServer({ typeDefs, resolvers })
@@ -119,12 +121,12 @@ const server = httpServer.listen(PORT, err => {
   console.log(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
 })
 
+const queueConnection = startDatasetStatusConsumer()
+console.log('after')
 // Close all connections on shutdown
-const shutdown = function () {
+onExit(function (code, signal) {
   console.log("Shutting down...")
   neo4j.close()
   server.close()
-  process.exit(0)
-}
-
-process.on('SIGINT', shutdown)
+  queueConnection.close()
+}, { alwaysLast: true })

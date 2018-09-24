@@ -38,6 +38,7 @@ query($id: Int) {
       order
     }
     computed
+    generating
     samples
   }
 }

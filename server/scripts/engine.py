@@ -7,6 +7,13 @@ import importlib
 from importlib.machinery import SourceFileLoader
 from neo4j.v1 import GraphDatabase
 
+import pika
+import json
+
+queue_conn = pika.BlockingConnection(pika.ConnectionParameters(host='queue'))
+status_channel = queue_conn.channel()
+status_channel.exchange_declare(exchange='dataset-status', exchange_type='fanout')
+
 SCRIPT_ROOT=os.environ['SCRIPT_ROOT']
 DATA_ROOT=os.environ['DATA_ROOT']
 
@@ -48,6 +55,7 @@ def write_output(df, output_name):
     UNWIND $columns AS column
     MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
     WITH dataset
+    SET dataset.generating = false
     RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
   '''
   dataset = tx.run(update_dataset_query, name=output_name, columns=columns).single()
@@ -92,3 +100,12 @@ for t in transforms:
   write_output(transform_result, outputs[transform_script])
 
 tx.commit()
+
+body = {
+  "type": "transformation_complete",
+  "id": generate_id
+}
+
+status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
+
+queue_conn.close()
