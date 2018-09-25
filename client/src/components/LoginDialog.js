@@ -55,7 +55,7 @@ class LoginDialog extends React.Component {
 
     return (
       <div>
-        <ADIButton onClick={this.handleClickOpen}>{navigation.user ? 'Logout' : 'Login'}</ADIButton>
+        <ADIButton variant='outlined' onClick={this.handleClickOpen}>{navigation.user ? 'Logout' : 'Login'}</ADIButton>
         <Dialog
           open={this.state.open}
           onClose={this.handleClose}

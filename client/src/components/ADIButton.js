@@ -1,20 +1,17 @@
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles'
+import React from 'react'
 
-const styles = {
+const styles = (theme) => ({
   root: {
-    backgroundColor: '#eeeeee',
-    color: '#003a70',
-    
     '&:hover': {
-      backgroundColor: '#00b289',
-      color: '#ffffff'
-    },
-    '&:disabled': {
-      backgroundColor: '#00b289',
-      color: '#003a70'
+      backgroundColor: theme.palette.primary.dark,
+      color: theme.palette.primary.contrastText
     }
   }
-};
+})
 
-export default withStyles(styles)(Button)
+const ADIButton = props => <Button variant={props.variant || 'contained'} color='primary' {...props}/>
+
+
+export default withStyles(styles)(ADIButton)

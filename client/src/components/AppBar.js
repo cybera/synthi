@@ -37,14 +37,14 @@ function ButtonAppBar(props) {
         <Toolbar>
           <img src={require('../images/ckan-logo.png')} />
           <span className={classes.spacer}/>
-          <ADIButton color="inherit" className={classes.menuButton}
-                     disabled={navigation.currentMode == 'datasets'} 
+          <ADIButton variant={ navigation.currentMode == 'datasets' ? "contained" : "outlined" } 
+                     className={classes.menuButton}
                      onClick={ e => navigation.switchMode('datasets')}>Datasets</ADIButton>
-          <ADIButton color="inherit" className={classes.menuButton}
-                     disabled={navigation.currentMode == 'chart-editor'} 
+          <ADIButton variant={ navigation.currentMode == 'chart-editor' ? "contained" : "outlined" }
+                     className={classes.menuButton}
                      onClick={ e => navigation.switchMode('chart-editor')}>Chart Editor</ADIButton>
-          <ADIButton color="inherit" className={classes.menuButton}
-                     disabled={navigation.currentMode == 'scenarios'} 
+          <ADIButton variant={ navigation.currentMode == 'scenarios' ? "contained" : "outlined" }
+                     className={classes.menuButton}
                      onClick={ e => navigation.switchMode('scenarios')}>Scenarios</ADIButton>
           <span className={classes.flex}/>
           <LoginDialog/>

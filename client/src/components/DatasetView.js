@@ -9,13 +9,13 @@ import { withStyles } from 'material-ui/styles'
 
 import { datasetViewQuery } from '../queries'
 
-import Button from 'material-ui/Button'
 import IconButton from 'material-ui/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
 import LinearProgress from '@material-ui/core/LinearProgress';
 
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
+import ADIButton from './ADIButton'
 import ToggleVisibility from './ToggleVisibility'
 
 import DataTableView from './DataTableView'
@@ -30,23 +30,15 @@ const DATASET_GENERATION_SUBSCRIPTION = gql`
 `;
 
 const styles = theme => ({
-  root: theme.mixins.gutters({
+  root: {
+    ...theme.mixins.gutters(),
     paddingTop: 16,
     paddingBottom: 16,
     marginTop: theme.spacing.unit
-  }),
+  },
   rightIcon: {
     marginLeft: theme.spacing.unit,
-  },
-  colorPrimary: {
-    backgroundColor: '#000000',
-  },
-  barColorPrimary: {
-    backgroundColor: '#0000FF',
-  },
-  // colorPrimary: {
-  //   backgroundColor: '#00B289',
-  // }
+  }
 });
 
 class DatasetView extends React.Component {
@@ -76,11 +68,11 @@ class DatasetView extends React.Component {
              </Typography>
              <DatasetGenerator>
                {({generateDataset}) => {
-                 return dataset.computed && <Button onClick={e => generateDataset(dataset.id)}>Generate!</Button>
+                 return dataset.computed && <ADIButton disabled={dataset.generating} onClick={e => generateDataset(dataset.id)}>Generate!</ADIButton>
                }}
              </DatasetGenerator>
              <ToggleVisibility visible={dataset.generating}>
-               <LinearProgress color="primary" classes={{ colorPrimary: classes.colorPrimary, barColorPrimary: classes.barColorPrimary }} />
+               <LinearProgress/>
              </ToggleVisibility>
              <ToggleVisibility visible={!dataset.generating}>
                <DataTableView columns={selected_columns} rows={sample_rows}/>

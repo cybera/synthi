@@ -15,6 +15,7 @@ import AppBar from './components/AppBar'
 import NavigationContext from './context/NavigationContext'
 
 import { withStyles } from 'material-ui/styles'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
 import { WebSocketLink } from 'apollo-link-ws';
 import { split } from 'apollo-link';
@@ -50,6 +51,17 @@ const client = new ApolloClient({
 })
 
 import { hot } from 'react-hot-loader'
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: '#26a69a',
+    },
+    secondary: {
+      main: '#303f9f',
+    },
+  },
+})
 
 const styles = theme => ({
   root: {
@@ -100,9 +112,11 @@ class App extends React.Component {
           selectDataset: this.selectDataset,
           setUser: this.setUser
         }}>
-          <AppBar/>
-          <StyledMainComponent mode={this.state.currentMode} 
-                               dataset={this.state.currentDataset}/>
+          <MuiThemeProvider theme={theme}>
+            <AppBar/>
+            <StyledMainComponent mode={this.state.currentMode} 
+                                dataset={this.state.currentDataset}/>
+          </MuiThemeProvider>
         </NavigationContext.Provider>
       </ApolloProvider>
     )
