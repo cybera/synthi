@@ -14,7 +14,7 @@ function startDatasetStatusConsumer() {
       await ch.consume('dataset-status', (msg) => {
         const msgJSON = JSON.parse(msg.content.toString())
         pubsub.publish(DATASET_GENERATED, { datasetGenerated: msgJSON });
-        console.log(" [x] Received '%s'", msgJSON);
+        // console.log(" [x] Received '%s'", msgJSON);
       }, {noAck: true})
       
       console.log(' [*] Waiting for messages. To exit press CTRL+C');

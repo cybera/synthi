@@ -4,7 +4,9 @@ import sys
 import os
 from subprocess import call
 import re
+import json
 
+ENGINE_ROOT = os.path.dirname(os.path.realpath(__file__))
 SCRIPT_ROOT = os.environ['SCRIPT_ROOT']
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=0))
@@ -14,11 +16,12 @@ channel = connection.channel()
 channel.queue_declare(queue='python-worker')
 
 def callback(ch, method, properties, body):
-    print(f"{SCRIPT_ROOT}/{body.decode('utf8')}")
+    msg = body.decode('utf8')
+    print(f"Received: {msg}")
     sys.stdout.flush()
-    message = re.split('\s+', body.decode('utf8'))
-    engine_path = os.path.join(SCRIPT_ROOT, message[0])
-    call([engine_path, message[1]])
+    params = json.loads(msg)
+    engine_path = os.path.join(ENGINE_ROOT, 'engine.py')
+    call([engine_path, str(params['id'])])
     print("Done")
     sys.stdout.flush()
 

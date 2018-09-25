@@ -170,15 +170,7 @@ export default {
 
       runTransformation(dataset)
 
-      // await waitForFile(dataset.path)
-
       return dataset
-    },
-    // TODO: Should be able to publish directly from a message queue listener
-    //       Need to hook up to that and use it instead of the mutation.
-    async updateFromQueue(_, { id }) {
-      pubsub.publish(DATASET_GENERATED, { datasetGenerated: { id: id } });
-      return true
     }
   },
   Subscription: {

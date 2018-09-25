@@ -43,7 +43,6 @@ type Mutation {
   uploadDataset(name: String!, file:Upload!): Dataset
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
-  updateFromQueue(id: Int!): Boolean
 }
 
 type Subscription {

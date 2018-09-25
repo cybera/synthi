@@ -7,7 +7,12 @@ const runTransformation = async (dataset) => {
   const conn = await AMQP.connect('amqp://queue')
   const ch = await conn.createChannel()
   const ok = await ch.assertQueue('python-worker', { durable: false })
-  ch.sendToQueue('python-worker', Buffer.from(`engine.py ${dataset.id}`))
+
+  const msg = {
+    id: dataset.id
+  }
+
+  ch.sendToQueue('python-worker', Buffer.from(JSON.stringify(msg)))
 }
 
 const datasetExists = (dataset) => {
