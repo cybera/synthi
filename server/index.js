@@ -25,6 +25,7 @@ import neo4j, { safeQuery } from './neo4j/connection'
 import { ensureDatasetExists, waitForFile } from './lib/util'
 import { startDatasetStatusConsumer } from './lib/queue'
 import UserRepository from './model/userRepository'
+import DatasetRepository from './model/datasetRepository'
 import onExit from 'signal-exit'
 
 const app = express()
@@ -92,20 +93,13 @@ app.get('/testing', (req, res) => {
 })
 
 app.get('/dataset/:id', async (req, res) => {
-  let dataset = await safeQuery(`MATCH(d:Dataset)
-                                 WHERE ID(d) = $id
-                                 RETURN d.name AS name, 
-                                        ID(d) AS id,
-                                        d.computed AS computed,
-                                        d.path AS path
-                                `, { id: parseInt(req.params.id) })
-                      .then(result => result[0])
-                      
+  let dataset =  await DatasetRepository.get(req.params.id)
+
   ensureDatasetExists(dataset)
-  
+
   await waitForFile(dataset.path).catch(err => console.log(err))
 
-  res.download(dataset.path, `${dataset.name}.csv`, (err) => res.send(err))
+  res.download(dataset.fullPath(), `${dataset.name}.csv`, (err) => res.send(err))
 })
 
 const httpServer = http.createServer(app)

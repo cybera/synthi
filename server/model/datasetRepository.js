@@ -4,6 +4,7 @@ import UserRepository from './userRepository'
 
 export default class DatasetRepository {
   static async get(id) {
+    id = parseInt(id)
     const query = [`MATCH (n:Dataset)
       WHERE ID(n) = $id
       RETURN

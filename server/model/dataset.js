@@ -8,8 +8,9 @@ export default class Dataset {
     this.path = path
     this.owner = owner
     this.computed = computed
-    }
+  }
 
-    this.columns = columnNames.map((columnName, index) => ({ name: columnName, order: index + 1 }))
+  fullPath() {
+    return fullDatasetPath(this.path)
   }
 }

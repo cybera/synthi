@@ -17,7 +17,7 @@ const runTransformation = async (dataset) => {
 }
 
 const datasetExists = (dataset) => {
-  return (dataset.path && fs.existsSync(dataset.path))
+  return (dataset.path && fs.existsSync(dataset.fullPath()))
 }
 
 const ensureDatasetExists = (dataset) => {
