@@ -145,7 +145,7 @@ export default {
                         { id: id })
                         .then(results => results[0])
                         .then(result => {
-                          fs.unlinkSync(result.path)
+                          fs.unlinkSync(fullDatasetPath(result.path))
                           return result
                         })
     },
