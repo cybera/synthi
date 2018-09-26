@@ -21,7 +21,7 @@ import session from 'express-session'
 
 import morgan from 'morgan'
 
-import { safeQuery } from './neo4j/connection'
+import neo4j, { safeQuery } from './neo4j/connection'
 import { ensureDatasetExists, waitForFile } from './lib/util'
 import { startDatasetStatusConsumer } from './lib/queue'
 import UserRepository from './model/userRepository'
