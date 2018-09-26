@@ -24,13 +24,9 @@ export default class DatasetRepository {
     const dataset = new Dataset(data.name, data.path, data.owner, data.computed)
     const query = [`
       CREATE (n:Dataset { name: $dataset.name })
-      WITH n
-      UNWIND $dataset.columns AS column
-      MERGE (n)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
       SET n.path = $dataset.path,
         n.owner_id = toInteger($dataset.owner.id),
         n.computed = $dataset.computed
-      WITH n
       RETURN ID(n) AS id
     `, { dataset }]
     const result = await safeQuery(...query)

@@ -6,7 +6,7 @@ from subprocess import call
 import re
 import json
 
-ENGINE_ROOT = os.path.dirname(os.path.realpath(__file__))
+WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
 SCRIPT_ROOT = os.environ['SCRIPT_ROOT']
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=0))
@@ -19,9 +19,15 @@ def callback(ch, method, properties, body):
     msg = body.decode('utf8')
     print(f"Received: {msg}")
     sys.stdout.flush()
+
     params = json.loads(msg)
-    engine_path = os.path.join(ENGINE_ROOT, 'engine.py')
-    call([engine_path, str(params['id'])])
+
+    if params['task'] == 'generate':
+        process_path = os.path.join(WORKER_ROOT, 'engine.py')
+    elif params['task'] == 'import_csv':
+        process_path = os.path.join(WORKER_ROOT, 'import_csv.py')
+
+    call([process_path, str(params['id'])])
     print("Done")
     sys.stdout.flush()
 

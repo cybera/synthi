@@ -2,23 +2,12 @@
 
 import sys
 import os
-import pandas as pd
 import importlib
-from importlib.machinery import SourceFileLoader
-from neo4j.v1 import GraphDatabase
-
-import pika
 import json
+import pandas as pd
 
-queue_conn = pika.BlockingConnection(pika.ConnectionParameters(host='queue'))
-status_channel = queue_conn.channel()
-status_channel.exchange_declare(exchange='dataset-status', exchange_type='fanout')
+from common import neo4j_driver, status_channel, queue_conn, SCRIPT_ROOT, DATA_ROOT
 
-SCRIPT_ROOT=os.environ['SCRIPT_ROOT']
-DATA_ROOT=os.environ['DATA_ROOT']
-
-neo4j_uri = "bolt://neo4j:7687"
-neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
@@ -102,7 +91,7 @@ for t in transforms:
 tx.commit()
 
 body = {
-  "type": "transformation_complete",
+  "type": "dataset-updated",
   "id": generate_id
 }
 

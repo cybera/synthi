@@ -15,8 +15,9 @@ const graphql = require('graphql')
 const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
 
 import { pubsub, withFilter } from './pubsub'
+import { sendToWorkerQueue } from '../lib/queue'
 
-const DATASET_GENERATED = 'DATASET_GENERATED';
+const DATASET_UPDATED = 'DATASET_UPDATED';
 
 // Ensure upload directory exists
 mkdirp.sync(uploadDir)
@@ -56,6 +57,11 @@ const processDatasetUpload = async (name, upload, owner) => {
 
   try {
     dataset = await DatasetRepository.create({ name, path, owner, 'computed': false })
+
+    sendToWorkerQueue({
+      task: 'import_csv',
+      id: dataset.id
+    })
   } catch (e) {
     // TODO: What should we do here?
     console.log(e.message)
@@ -176,7 +182,7 @@ export default {
   Subscription: {
     datasetGenerated: {
       subscribe: withFilter(
-        () => pubsub.asyncIterator([DATASET_GENERATED]),
+        () => pubsub.asyncIterator([DATASET_UPDATED]),
         (payload, variables) => {
           return payload.datasetGenerated.id === variables.id
         }

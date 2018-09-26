@@ -9,6 +9,7 @@ const runTransformation = async (dataset) => {
   const ok = await ch.assertQueue('python-worker', { durable: false })
 
   const msg = {
+    task: 'generate',
     id: dataset.id
   }
 
