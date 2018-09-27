@@ -6,7 +6,7 @@ import bodyParser from 'body-parser'
 
 import express from 'express'
 
-import { ApolloServer, gql } from 'apollo-server-express'
+import { ApolloServer, gql, ForbiddenError } from 'apollo-server-express'
 
 import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
@@ -24,8 +24,8 @@ import morgan from 'morgan'
 import neo4j, { safeQuery } from './neo4j/connection'
 import { ensureDatasetExists, waitForFile } from './lib/util'
 import { startDatasetStatusConsumer } from './lib/queue'
-import UserRepository from './model/userRepository'
-import DatasetRepository from './model/datasetRepository'
+import UserRepository from './domain/repositories/userRepository'
+import DatasetRepository from './domain/repositories/datasetRepository'
 import onExit from 'signal-exit'
 
 const bcrypt = require('bcrypt')
@@ -87,9 +87,14 @@ const apolloServer = new ApolloServer({
     // TODO: Actual websocket authentication
     if (req) {
       const { user } = req
+      if (!user) throw new ForbiddenError('Not logged in')
       return { user }
     }
     return ({})
+  },
+  formatError: (error) => {
+    console.log(error)
+    return error
   }
 })
 

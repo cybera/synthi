@@ -1,5 +1,5 @@
-import { safeQuery } from '../neo4j/connection'
-import User from './user'
+import { safeQuery } from '../../neo4j/connection'
+import User from '../models/user'
 
 export default class UserRepository {
   static async get(id) {
