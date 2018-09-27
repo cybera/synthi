@@ -15,7 +15,8 @@ neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
-script = os.path.join(SCRIPT_ROOT, sys.argv[1])
+username = sys.argv[1]
+script = os.path.join(SCRIPT_ROOT, sys.argv[2])
 
 script_path = os.path.abspath(script)
 script_relpath = os.path.relpath(script_path, SCRIPT_ROOT)
@@ -44,6 +45,12 @@ transform_mod.dataset_output = dataset_output
 
 transform_spec.loader.exec_module(transform_mod)
 
+user_query = '''
+MATCH (user:User { username: $username })
+RETURN user
+'''
+user = tx.run(user_query, username=username).single()['user']
+
 transform_query = '''
 MERGE(t:Transformation { script: $script })
 ON CREATE SET t.name = $transform_name
@@ -70,7 +77,9 @@ WITH t
 UNWIND t.outputs AS output_name
 MERGE (output:Dataset { name: output_name })
 MERGE (output)<-[:OUTPUT]-(t)
-SET output.computed = true, output.path = (output_name + ".csv")
+SET output.computed = true, 
+    output.path = (output_name + ".csv"),
+    output.owner_id = $userid
 ''' 
 
 results = tx.run(input_query, script=script_relpath, inputs=inputs)
@@ -79,7 +88,7 @@ results = tx.run(input_query, script=script_relpath, inputs=inputs)
 #  for r in results:
 #    print(r)
 
-results = tx.run(output_query, script=script_relpath, outputs=outputs)
+results = tx.run(output_query, script=script_relpath, outputs=outputs, userid=user.id)
 
 # for o in outputs:
 #   output_path = os.path.join(f"{o}.csv")

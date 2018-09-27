@@ -3,6 +3,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 
-SCRIPT_NAME=$(basename $1)
+USERNAME=$1
+SCRIPT_NAME=$(basename $2)
 
-docker-compose run python-worker /usr/src/app/register.py $SCRIPT_NAME
+docker-compose run python-worker /usr/src/app/register.py $USERNAME $SCRIPT_NAME
