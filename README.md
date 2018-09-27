@@ -21,6 +21,24 @@ cd server && npm install && cp .env.example .env
 cd client && npm install
 ```
 
+```
+docker-compose build
+docker-compose run server bash
+```
+
+On the server:
+
+```
+npm uninstall bcrypt
+npm install bcrypt
+```
+
+```
+docker-compose stop
+docker-compose up
+docker-compose logs python-worker
+```
+
 ### Running a Development Environment
 
 You'll need 3 things to get going on development: Neo4J running (API on port 7687, front end on port 7878), the ExpressJS server running (accessible on port 3000), and a development server serving up the client code (accessible on port 8080).
@@ -39,8 +57,7 @@ docker-compose up -d
 
 ### Creating a User
 
-First go to <https://passwordhashing.com/BCrypt> and generate a hash for whatever you want the user's password to be. Then access the Neo4J web interface at <http://localhost:7474> and run the following query, replacing `<username>` and `<hashed_password`> accordingly:
+```
+bin/create-user USERNAME
+```
 
-```
-CREATE (n:User { username: '<username>', password: '<hashed_password>' })
-```
