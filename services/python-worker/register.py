@@ -8,15 +8,14 @@ from importlib.machinery import SourceFileLoader
 from neo4j.v1 import GraphDatabase
 
 # TODO: Make this more configurable. Eventually, we'll want to support object storage
-SCRIPT_ROOT = os.path.dirname(os.path.realpath(__file__))
-DATA_ROOT = os.path.abspath(os.path.join(SCRIPT_ROOT, "..", "..", "data", "uploads"))
+from common import neo4j_driver, SCRIPT_ROOT, DATA_ROOT
 
-neo4j_uri = "bolt://localhost:7687"
+neo4j_uri = "bolt://neo4j:7687"
 neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
-script = sys.argv[1]
+script = os.path.join(SCRIPT_ROOT, sys.argv[1])
 
 script_path = os.path.abspath(script)
 script_relpath = os.path.relpath(script_path, SCRIPT_ROOT)
@@ -56,26 +55,36 @@ for r in results:
 
 input_query = '''
 MATCH (t:Transformation { script: $script })
-MATCH (input:Dataset { name: $name })
+SET t.inputs = $inputs
+WITH t
+UNWIND t.inputs AS input_name
+WITH t, input_name
+MATCH (input:Dataset { name: input_name })
 MERGE (input)-[:INPUT]->(t)
 '''
 
 output_query = '''
 MATCH (t:Transformation { script: $script })
-MERGE (output:Dataset { name: $name })
+SET t.outputs = $outputs
+WITH t
+UNWIND t.outputs AS output_name
+MERGE (output:Dataset { name: output_name })
 MERGE (output)<-[:OUTPUT]-(t)
-ON CREATE SET output.computed = true, output.path = $output_path
+SET output.computed = true, output.path = (output_name + ".csv")
 ''' 
 
-for i in inputs:
-  results = tx.run(input_query, name=i, script=script_relpath)
-  for r in results:
-    print(r)
+results = tx.run(input_query, script=script_relpath, inputs=inputs)
+#for i in inputs:
+#  results = tx.run(input_query, name=i, script=script_relpath, inputs=inputs)
+#  for r in results:
+#    print(r)
 
-for o in outputs:
-  output_path = os.path.join(f"{o}.csv")
-  results = tx.run(output_query, name=o, script=script_relpath, output_path=output_path)
-  for r in results:
-    print(r)
+results = tx.run(output_query, script=script_relpath, outputs=outputs)
+
+# for o in outputs:
+#   output_path = os.path.join(f"{o}.csv")
+#   results = tx.run(output_query, name=o, script=script_relpath, output_path=output_path, outputs=outputs)
+#   for r in results:
+#     print(r)
 
 tx.commit()
