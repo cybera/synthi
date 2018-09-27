@@ -84,8 +84,12 @@ const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req }) => {
-    const { user } = req
-    return { user }
+    // TODO: Actual websocket authentication
+    if (req) {
+      const { user } = req
+      return { user }
+    }
+    return ({})
   }
 })
 
