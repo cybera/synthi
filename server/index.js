@@ -28,36 +28,33 @@ import UserRepository from './model/userRepository'
 import DatasetRepository from './model/datasetRepository'
 import onExit from 'signal-exit'
 
+const bcrypt = require('bcrypt')
+
 const app = express()
-const apolloServer = new ApolloServer({ typeDefs, resolvers })
-apolloServer.applyMiddleware({ app })
 
 app.use(cors())
 
+const authenticateUser = async (username, password) => {
+  const user = await UserRepository.getByUsername(username)
+  if (!user) {
+    return false
+  }
+  const valid = await user.validPassword(password)
+  return valid ? user : false
+}
+
 // Authentication w/ passportjs
 passport.use(new LocalStrategy(
-  async (username, password, done) => {
+  (username, password, done) => {
     console.log(`here: ${username}/${password}`)
-    let user;
-    try {
-      user = await UserRepository.getByUsername(username)
-      if (!user) {
-        return done(null, false)
-      }
-    } catch (err) {
-      return done(err)
-    }
-    if (password !== 'password') {
-      done(null, false);
-    }
-    console.log('verified')
-    return done(null, user)
+    authenticateUser(username, password)
+      .then(result => done(null, result))
+      .catch((err) => { console.log(err.message); done(err) })
   }
 ));
 
 passport.serializeUser((user, done) => {
   console.log(`serializeUser: ${user.id}`)
-  // done(null, user.id);
   done(null, user.id)
 });
 
@@ -76,20 +73,37 @@ passport.deserializeUser(async (id, done) => {
 })
 
 app.use(morgan('combined'))
-// Apollo doesn't need bodyParser anymore, but this seems like it's still needed for 
+// Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
 // logging in.
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(session({ secret: 'secret-token-123456' }))
 app.use(passport.initialize())
 app.use(passport.session())
 
+const apolloServer = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: ({ req }) => {
+    const { user } = req
+    return { user }
+  }
+})
+
+// This needs to come after the passport middleware
+apolloServer.applyMiddleware({ app })
+
 app.post('/login',
   passport.authenticate('local'),
-  (req, res) => res.json({ user: req.user })
-);
+  (req, res) => res.json({ user: req.user.username }))
 
-app.get('/testing', (req, res) => { 
-  res.send(`hello: ${req.user}`)
+app.get('/logout', (req, res) => { req.logout(); res.send('Logged out') })
+
+app.get('/whoami', (req, res) => {
+  if (req.user) {
+    res.send(req.user.username)
+  } else {
+    res.send('not logged in')
+  }
 })
 
 app.get('/dataset/:id', async (req, res) => {
@@ -120,7 +134,6 @@ console.log('after')
 // Close all connections on shutdown
 onExit(function (code, signal) {
   console.log("Shutting down...")
-  neo4j.close()
   server.close()
   queueConnection.close()
 }, { alwaysLast: true })

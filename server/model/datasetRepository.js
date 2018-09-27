@@ -18,7 +18,9 @@ export default class DatasetRepository {
       return null
     }
     const owner = UserRepository.get(result[0].owner_id)
-    return new Dataset(result[0].name, result[0].path, owner, result[0].computed)
+    dataset = new Dataset(result[0].name, result[0].path, owner, result[0].computed)
+    dataset.id = reuslts[0].id
+    return dataset
   }
 
   static async create(data) {

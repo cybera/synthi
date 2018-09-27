@@ -30,3 +30,17 @@ bin/neo4j start
 bin/server
 bin/dev-client
 ```
+
+Or launch everything with docker:
+
+```bash
+docker-compose up -d
+```
+
+### Creating a User
+
+First go to <https://passwordhashing.com/BCrypt> and generate a hash for whatever you want the user's password to be. Then access the Neo4J web interface at <http://localhost:7474> and run the following query, replacing `<username>` and `<hashed_password`> accordingly:
+
+```
+CREATE (n:User { username: '<username>', password: '<hashed_password>' })
+```

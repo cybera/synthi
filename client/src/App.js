@@ -90,8 +90,11 @@ const StyledMainComponent = withStyles(styles)(props => <div className={props.cl
 class App extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { 
-      user: null,
+
+    const user = localStorage.getItem('user')
+
+    this.state = {
+      user: user,
       currentDataset: null,
       currentMode: "datasets"
     }
@@ -99,7 +102,7 @@ class App extends React.Component {
 
   switchMode = (mode) => this.setState({currentMode:mode})
   selectDataset = (id) => this.setState({currentDataset:id})
-  setUser = (user) =>  { this.setState({user:user}) }
+  setUser = (user) => { this.setState({user:user}) }
 
   render() {
     return (
