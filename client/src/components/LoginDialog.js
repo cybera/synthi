@@ -26,6 +26,8 @@ class LoginDialog extends React.Component {
           if (response.ok) {
             navigation.setUser(null)
             localStorage.removeItem('user')
+            navigation.selectDataset(null)
+            this.forceUpdate()
           }
         })
     } else {
@@ -55,6 +57,7 @@ class LoginDialog extends React.Component {
     }).then(obj => {
       this.props.navigation.setUser(obj.user)
       localStorage.setItem('user', obj.user)
+      this.forceUpdate()
     }).catch(err => null)
 
     this.handleClose()

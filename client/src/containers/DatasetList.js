@@ -7,7 +7,7 @@ function withDatasets(Component) {
     return (
       <Query 
         query={datasetListQuery}
-        pollInterval={10000}>
+        pollInterval={1000}>
         {({ loading, error, data }) => {
           if (loading) return <p>Loading...</p>;
           if (error) return <p>Error!</p>;
