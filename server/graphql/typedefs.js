@@ -12,6 +12,7 @@ type Column {
   id: Int!
   name: String!
   order: Int
+  visible: Boolean
 }
 
 type Dataset {
@@ -43,6 +44,7 @@ type Mutation {
   uploadDataset(name: String!, file:Upload!): Dataset
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
+  toggleColumnVisibility(id: Int!): Boolean
 }
 
 type Subscription {

@@ -70,6 +70,19 @@ const processDatasetUpload = async (name, upload, owner) => {
   return dataset
 }
 
+// TODO: Move this to a real memcached or similar service and actually tie it to the
+// current user
+const visibleColumnCache = {
+  
+}
+
+const columnVisible = ({id, order}) => {
+  if(!visibleColumnCache[id]) {
+    visibleColumnCache[id] = { visible: order ? order < 5 : false }
+  }
+  return visibleColumnCache[id].visible
+}
+
 export default {
   Query: {
     dataset(_, { id, name }) {
@@ -103,12 +116,14 @@ export default {
     }
   },
   Dataset: {
-    columns(dataset) {
-      return safeQuery(`MATCH (d:Dataset)<--(c:Column)
-                        WHERE ID(d) = $id
-                        RETURN ID(c) AS id, c.name AS name, c.order AS order
-                        ORDER BY order`,
-                        { id: dataset.id })
+    async columns(dataset) {
+      let columns = await safeQuery(`MATCH (d:Dataset)<--(c:Column)
+                                     WHERE ID(d) = $id
+                                     RETURN ID(c) AS id, c.name AS name, c.order AS order
+                                     ORDER BY order`,
+                                     { id: dataset.id })
+      columns = columns.map(c => ({...c, visible: columnVisible(c)}))
+      return columns
     },
     samples(dataset) {
       const path = fullDatasetPath(dataset.path)
@@ -177,6 +192,11 @@ export default {
       runTransformation(dataset)
 
       return dataset
+    },
+    toggleColumnVisibility(_, { id }) {
+      const isVisible = columnVisible({id})
+      visibleColumnCache[id].visible = !isVisible
+      return visibleColumnCache[id].visible
     }
   },
   Subscription: {

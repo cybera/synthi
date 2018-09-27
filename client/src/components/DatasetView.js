@@ -20,6 +20,7 @@ import ToggleVisibility from './ToggleVisibility'
 
 import DataTableView from './DataTableView'
 import DatasetGenerator from './DatasetGenerator'
+import DatasetColumnChips from './DatasetColumnChips'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -42,21 +43,46 @@ const styles = theme => ({
 });
 
 class DatasetView extends React.Component {
+  // state = {
+
+  // }
+
+  constructor(props) {
+    super(props)
+  }
+
+  // static getDerivedStateFromProps(props, state) {
+  //   const { dataset } = props
+
+  //   // Add a selected state to all of the column objects
+  //   const displayColumns = dataset.columns.map(c => ({...c, selected: c.order < 5 }))
+
+  //   return { ...state, displayColumns }
+  // }
+
   componentDidMount() {
     this.props.subscribeToMore()
   }
 
+  // toggleColumnVisibility(name) {
+  //   console.log(name)
+  //   let { displayColumns } = this.state
+  //   displayColumns = displayColumns.sort((a,b) => a.order - b.order)
+  //   const column = displayColumns.find(c => c.name == name)
+  //   column.selected = !column.selected
+  //   console.log(displayColumns)
+  //   this.setState({ displayColumns })
+  // }
+
   render() {
     const { classes, navigation, dataset } = this.props
 
-    const selected_columns = dataset.columns
-      .slice(0) // dup the array to avoid modification error during sort
-      .sort((a,b) => { return a.order - b.order })
-      .slice(0,8)
+    const displayColumns = dataset.columns
+    const selectedColumns = displayColumns.filter(c => c.visible)
 
     const sample_rows = dataset.samples.map(s => {
       const record = JSON.parse(s)
-      return selected_columns.map(c => record[c.name])
+      return selectedColumns.map(c => record[c.name])
     })
 
     return <Paper className={classes.root} elevation={4}>
@@ -66,6 +92,7 @@ class DatasetView extends React.Component {
                  <ChartIcon />
                </IconButton>
              </Typography>
+             <DatasetColumnChips columns={displayColumns}/>
              <DatasetGenerator>
                {({generateDataset}) => {
                  return dataset.computed && <ADIButton disabled={dataset.generating} onClick={e => generateDataset(dataset.id)}>Generate!</ADIButton>
@@ -75,7 +102,7 @@ class DatasetView extends React.Component {
                <LinearProgress/>
              </ToggleVisibility>
              <ToggleVisibility visible={!dataset.generating}>
-               <DataTableView columns={selected_columns} rows={sample_rows}/>
+               <DataTableView columns={selectedColumns} rows={sample_rows}/>
             </ToggleVisibility>
            </Paper>
   }

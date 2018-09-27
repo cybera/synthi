@@ -36,6 +36,7 @@ query($id: Int) {
       id
       name
       order
+      visible
     }
     computed
     generating
