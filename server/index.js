@@ -6,29 +6,27 @@ import bodyParser from 'body-parser'
 
 import express from 'express'
 
-import { ApolloServer, gql, ForbiddenError } from 'apollo-server-express'
-
-import resolvers from './graphql/resolvers'
-import typeDefs from './graphql/typedefs'
+import { ApolloServer, ForbiddenError } from 'apollo-server-express'
 
 import cors from 'cors'
 
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 
-import flash from 'connect-flash'
 import session from 'express-session'
 
 import morgan from 'morgan'
 
-import neo4j, { safeQuery } from './neo4j/connection'
+import onExit from 'signal-exit'
+
+import resolvers from './graphql/resolvers'
+import typeDefs from './graphql/typedefs'
 import { ensureDatasetExists, waitForFile } from './lib/util'
 import { startDatasetStatusConsumer } from './lib/queue'
 import UserRepository from './domain/repositories/userRepository'
 import DatasetRepository from './domain/repositories/datasetRepository'
-import onExit from 'signal-exit'
 
-const bcrypt = require('bcrypt')
+const RedisStore = require('connect-redis')(session)
 
 const app = express()
 
@@ -76,7 +74,11 @@ app.use(morgan('combined'))
 // Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
 // logging in.
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(session({ secret: 'secret-token-123456' }))
+app.use(session({
+  store: new RedisStore({ host: 'redis', port: 6379 }),
+  secret: 'secret-token-123456',
+  resave: false
+}))
 app.use(passport.initialize())
 app.use(passport.session())
 

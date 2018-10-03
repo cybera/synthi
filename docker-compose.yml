@@ -62,3 +62,7 @@ services:
       - default
     stdin_open: true
     tty: true
+  redis:
+    image: redis:4.0
+    networks:
+      - default
