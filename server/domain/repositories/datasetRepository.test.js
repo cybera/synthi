@@ -12,7 +12,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await UserRepository.delete(context.user.id)
-  neo4jConnection.close()
+  return neo4jConnection.close()
 })
 
 test('create dataset', async () => {
@@ -26,12 +26,14 @@ test('create dataset', async () => {
   const dataset = await DatasetRepository.create(context, data)
 
   expect(dataset).not.toBeNull()
+  expect(dataset).not.toBeUndefined()
   expect(dataset.id).toBeGreaterThanOrEqual(0)
   expect(dataset.name).toEqual('test')
   expect(dataset.path).toEqual('file.csv')
   expect(dataset.computed).toEqual(false)
   expect(dataset.generating).toEqual(false)
   expect(dataset.owner).not.toBeNull()
+  expect(dataset.owner).not.toBeUndefined()
   expect(dataset.owner.id).toEqual(context.user.id)
 
   return DatasetRepository.delete(context, dataset)
