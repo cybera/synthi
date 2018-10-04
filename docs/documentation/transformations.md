@@ -6,14 +6,14 @@ This document will guide you through the process of creating your own transforma
 TODO
 ## Immediate Vision vs. Long Term Vision
 TODO
-## Uploading Data
+### Uploading Via the Web Interface
 From the "Datasets" tab in the top menu, click "New Dataset" on the left of the screen. Once the window opens, enter a name for the data set you'd like to upload and select a csv file. When ready, press create and your CSV will have been uploaded.
 
 INCLUDE SCREENSHOTS WHEN INTERFACE IS FINALIZED
 
 ### Uploading Via an API
 Is this something we'll have?
-### Uploading Via the Web Interface
+
 
 ## Defining a Transformation
 
