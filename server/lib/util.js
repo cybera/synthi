@@ -2,6 +2,7 @@ import pathlib from 'path'
 import fs from 'fs'
 import waitOn from 'wait-on'
 import AMQP from 'amqplib'
+import shortid from 'shortid'
 
 const runTransformation = async (dataset) => {
   const conn = await AMQP.connect('amqp://queue')
@@ -26,21 +27,49 @@ const ensureDatasetExists = (dataset) => {
   }
 }
 
-const waitForFile = (relPath) => {
-  return new Promise((resolve, reject) => {
-    // TODO: This will need to change when using non-local storage
-    waitOn({ 
-      resources: [`file:${fullDatasetPath(relPath)}`],
-      interval: 1000,
-      timeout: 60000
-    }, err => err ? reject(err) : resolve() )
-  })
-}
-
 const fullDatasetPath = (relPath) => {
   const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
   const fullPath = pathlib.join(uploadDir, relPath)
   return fullPath
 }
 
-export { runTransformation, datasetExists, ensureDatasetExists, waitForFile, fullDatasetPath }
+const waitForFile = (relPath) => {
+  return new Promise((resolve, reject) => {
+    // TODO: This will need to change when using non-local storage
+    waitOn({
+      resources: [`file:${fullDatasetPath(relPath)}`],
+      interval: 1000,
+      timeout: 60000
+    }, err => (err ? reject(err) : resolve()))
+  })
+}
+
+const storeFS = ({ stream, filename }) => {
+  const id = shortid.generate()
+  const uniqueFilename = `${id}-${filename}`
+  const fullPath = fullDatasetPath(uniqueFilename)
+
+  return new Promise(
+    (resolve, reject) => stream
+      .on('error', (error) => {
+        console.log(error)
+        if (stream.truncated) {
+          // Delete the truncated file
+          fs.unlinkSync(fullPath)
+        }
+        reject(error)
+      })
+      .pipe(fs.createWriteStream(fullPath))
+      .on('error', error => reject(error))
+      .on('finish', () => resolve({ id, path: uniqueFilename }))
+  )
+}
+
+export {
+  runTransformation,
+  datasetExists,
+  ensureDatasetExists,
+  waitForFile,
+  fullDatasetPath,
+  storeFS
+}
