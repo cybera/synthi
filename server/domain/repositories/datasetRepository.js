@@ -68,8 +68,10 @@ export default class DatasetRepository {
     safeQuery(...query)
   }
 
-  static async delete(context, id) {
-    const dataset = await this.get(context, id)
+  static async delete(context, dataset) {
+    if (typeof (dataset) === 'number') {
+      dataset = await this.get(context, dataset)
+    }
 
     if (!canDeleteDataset(context.user, dataset)) {
       throw new Error('Not authorized')
@@ -79,10 +81,14 @@ export default class DatasetRepository {
       MATCH (d:Dataset)
       WHERE ID(d) = $dataset.id
       OPTIONAL MATCH (d)<--(c:Column)
-      DETACH DELETE d, c
-      LIMIT 1`, { dataset }]
+      DETACH DELETE d, c`, { dataset }]
     safeQuery(...query)
-    dataset.deleteDataset()
+
+    try {
+      dataset.deleteDataset()
+    } catch (e) {
+      console.log(e.message)
+    }
   }
 
   static buildQuery(where) {

@@ -1,10 +1,9 @@
 const bcrypt = require('bcrypt')
 
 export default class User {
-  constructor(username, data = {}) {
+  constructor(id, username) {
+    this.id = id
     this.username = username
-    this.id = data.id
-    this.password = data.password
   }
 
   async hashPassword(password) {

@@ -30,15 +30,20 @@ export default class UserRepository {
     return new User(result.username, result)
   }
 
-  /* static async create(data) {
-    const user = this.createUser(data.username, data)
+  static async create(data) {
+    const user = new User(null, data.username)
+    await user.hashPassword(data.password)
     const query = [`CREATE (n:User { username: $user.username, password: $user.password })
-      RETURN
-        n.username AS username,
-        n.password AS password,
-        ID(n) AS id`, { user }]
-    const { id } = await safeQuery(...query)
-    user.id = id
+      RETURN ID(n) AS id`, { user }]
+    const result = await safeQuery(...query)
+    user.id = result[0].id
     return user
-  } */
+  }
+
+  static delete(id) {
+    const query = [`MATCH (u:User)
+      WHERE ID(u) = $id
+      DETACH DELETE u`, { id }]
+    safeQuery(...query)
+  }
 }
