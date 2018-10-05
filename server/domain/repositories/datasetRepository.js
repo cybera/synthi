@@ -86,8 +86,9 @@ export default class DatasetRepository {
   }
 
   static buildQuery(where) {
-    return `MATCH (d:Dataset)<--(c:Column)
+    return `MATCH (d:Dataset)
       ${where}
+      OPTIONAL MATCH (d)<--(c:Column)
       RETURN
         ID(d) AS id,
         d.name AS name,
