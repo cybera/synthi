@@ -38,7 +38,7 @@ type Query {
 }
 
 type Mutation {
-  createDataset(name: String!): Dataset
+  createDataset(name: String): Dataset
   deleteDataset(id: Int!): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset

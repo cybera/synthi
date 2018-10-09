@@ -35,6 +35,9 @@ export default class DatasetRepository {
   }
 
   static async create(context, data) {
+    if (!data.name) {
+      data.name = await this.uniqueDefaultName(context.user)
+    }
     const dataset = new Dataset(null, data.name, data.path, context.user, data.computed,
       data.generating, [])
     const query = [`
@@ -105,5 +108,23 @@ export default class DatasetRepository {
       .sort((a, b) => a.order > b.order)
     return new Dataset(result.id, result.name, result.path, owner, result.computed,
       result.generating, columns)
+  }
+
+  static async uniqueDefaultName(owner) {
+    const query = `
+      MATCH (d:Dataset { owner_id: $owner_id })
+      WHERE d.name STARTS WITH 'New Dataset '
+      RETURN d.name AS name
+    `
+    const names = await safeQuery(query, { owner_id: owner.id })
+    const defaultNameRE = /^New Dataset (\d+)$/
+    const extractIndex = (str) => {
+      let matches = str.match(defaultNameRE)
+      return matches && matches[1] ? parseInt(matches[1]) : 0
+    }
+    const indices = names.map(n => extractIndex(n.name))
+    const maxIndex = Math.max(...indices, 0)
+    
+    return `New Dataset ${maxIndex + 1}`
   }
 }
