@@ -40,6 +40,7 @@ query($id: Int) {
     }
     computed
     generating
+    genSuccess
     samples
   }
 }

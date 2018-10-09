@@ -4,13 +4,14 @@ import csvParse from 'csv-parse/lib/sync'
 import { fullDatasetPath } from '../../lib/util'
 
 export default class Dataset {
-  constructor(id, name, path, owner, computed, generating = false, columns = []) {
+  constructor(id, name, path, owner, computed, generating = false, genSuccess=true, columns = []) {
     this.id = id
     this.name = name
     this.path = path
     this.owner = owner
     this.computed = computed
     this.generating = generating
+    this.genSuccess = genSuccess
     this.columns = columns
   }
 

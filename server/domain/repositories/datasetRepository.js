@@ -36,13 +36,14 @@ export default class DatasetRepository {
 
   static async create(context, data) {
     const dataset = new Dataset(null, data.name, data.path, context.user, data.computed,
-      data.generating, [])
+      data.generating, data.genSuccess, [])
     const query = [`
-      CREATE (n:Dataset { name: $dataset.name })
+      CREATE (n:Dataset { name: $dataset.name }) 
       SET n.path = $dataset.path,
         n.owner_id = toInteger($dataset.owner.id),
         n.computed = $dataset.computed,
-        n.generating = $dataset.generating
+        n.generating = $dataset.generating,
+        n.genSuccess = $dataset.genSuccess
       RETURN ID(n) AS id
     `, { dataset }]
     const result = await safeQuery(...query)
@@ -54,15 +55,16 @@ export default class DatasetRepository {
     if (!canEditDataset(context.user, dataset)) {
       throw new Error('Not authorized')
     }
-
+    // Added comma so things would be happy 
     const query = [`
-      MATCH (n:Dataset)
-      WHERE ID(n) = $dataset.id
-      SET n.name = $dataset.name
+      MATCH (n:Dataset) 
+      WHERE ID(n) = $dataset.id 
+      SET n.name = $dataset.name,
         n.path = $dataset.path,
         n.owner_id = toInteger($dataset.owner.id),
         n.computed = $dataset.computed,
-        n.generating = $dataset.generating
+        n.generating = $dataset.generating,
+        n.genSuccess = $dataset.genSuccess
     `, { dataset }]
 
     safeQuery(...query)
@@ -75,12 +77,16 @@ export default class DatasetRepository {
       throw new Error('Not authorized')
     }
 
+    // I had to remove the LIMIT 1 statement because it was preventing this from running
+    // is there a smarter way than just removing the limit? That said, this is going by
+    // ID, so in principle it should be safe without the limit here provided columns are
+    // only ever associated with a single data set 
     const query = [`
       MATCH (d:Dataset)
       WHERE ID(d) = $dataset.id
       OPTIONAL MATCH (d)<--(c:Column)
       DETACH DELETE d, c
-      LIMIT 1`, { dataset }]
+      `, { dataset }]
     safeQuery(...query)
     dataset.deleteDataset()
   }
@@ -95,6 +101,7 @@ export default class DatasetRepository {
         d.owner_id AS owner_id,
         d.computed AS computed,
         COALESCE(d.generating, false) AS generating,
+        COALESCE(d.genSuccess, true) as genSuccess,
         d.path AS path,
         collect(c) AS columns`
   }
@@ -103,7 +110,8 @@ export default class DatasetRepository {
     const owner = await UserRepository.get(result.owner_id)
     const columns = result.columns.map(c => ({ id: c.identity, ...c.properties }))
       .sort((a, b) => a.order > b.order)
+  
     return new Dataset(result.id, result.name, result.path, owner, result.computed,
-      result.generating, columns)
+      result.generating, result.genSuccess, columns)
   }
 }

@@ -78,6 +78,7 @@ export default {
     async generateDataset(_, { id }, context) {
       const dataset = await DatasetRepository.get(context, id)
       dataset.generating = true
+      dataset.genSuccess = true
       await DatasetRepository.save(context, dataset)
       runTransformation(dataset)
       return dataset

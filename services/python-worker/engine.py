@@ -32,24 +32,38 @@ outputs = dict()
 def dataset_output(name):
   # TODO: This, and the code in load_transform combine to make something pretty brittle. We want
   # to keep the lack of boilerplate a data scientist has to do to define a transformation, but
-  # there are probably better ways...
+  # there are probably better ways... dgdfgf
   outputs[current_loading_transform] = name
 
-def write_output(df, output_name):
-  columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
-
-  update_dataset_query = '''
+def write_output(df, output_name, Success):
+  if Success:
+    columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
+    print("YAS QUEEEEN")
+    update_dataset_query = '''
+      MATCH (dataset:Dataset { name: $name })
+      WITH dataset
+      UNWIND $columns AS column
+      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
+      WITH dataset
+      SET dataset.generating = false
+      SET dataset.genSuccess = true
+      RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
+      '''
+  else: 
+    print("NO QUEEEEN")
+    update_dataset_query = '''
     MATCH (dataset:Dataset { name: $name })
     WITH dataset
-    UNWIND $columns AS column
-    MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
-    WITH dataset
     SET dataset.generating = false
+    SET dataset.genSuccess = false
     RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
-  '''
+    '''
+    columns = []
+
   dataset = tx.run(update_dataset_query, name=output_name, columns=columns).single()
-  print(f"Updating calculated '{output_name}' dataset.")
-  df.to_csv(dataset_abspath(dataset), index=False)
+  if Success:
+    print(f"Updating calculated '{output_name}' dataset.")
+    df.to_csv(dataset_abspath(dataset), index=False)
   
 
 current_loading_transform = None
@@ -85,8 +99,14 @@ for t in transforms:
   transform_script = t['script']
   print(f"Running {transform_script}")
   transform_mod = load_transform(transform_script)
-  transform_result = transform_mod.transform()
-  write_output(transform_result, outputs[transform_script])
+  try:
+    transform_result = transform_mod.transform()
+    Success = True
+  except Exception as e:
+    print(e, "HI")
+    transform_result = None
+    Success = False
+  write_output(transform_result, outputs[transform_script], Success)
 
 tx.commit()
 

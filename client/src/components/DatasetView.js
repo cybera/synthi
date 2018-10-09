@@ -79,7 +79,7 @@ class DatasetView extends React.Component {
 
     const displayColumns = dataset.columns
     const selectedColumns = displayColumns.filter(c => c.visible)
-
+    console.log(dataset)
     const sample_rows = dataset.samples.map(s => {
       const record = JSON.parse(s)
       return selectedColumns.map(c => record[c.name])
@@ -99,11 +99,17 @@ class DatasetView extends React.Component {
                }}
              </DatasetGenerator>
              <ToggleVisibility visible={dataset.generating}>
+
                <LinearProgress/>
              </ToggleVisibility>
              <ToggleVisibility visible={!dataset.generating}>
                <DataTableView columns={selectedColumns} rows={sample_rows}/>
-            </ToggleVisibility>
+            </ToggleVisibility> 
+            
+            <ToggleVisibility visible={!dataset.genSuccess}> 
+            {console.log(dataset.genSuccess)}
+               Something went wrong with your transformation!
+            </ToggleVisibility> 
            </Paper>
   }
 }

@@ -24,6 +24,7 @@ type Dataset {
   path: String
   computed: Boolean
   generating: Boolean
+  genSuccess: Boolean
 }
 
 type Plot {
