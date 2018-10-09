@@ -13,7 +13,7 @@ export default class UserRepository {
     if (!result) {
       return null
     }
-    return new User(result.username, result)
+    return this.createUser(result)
   }
 
   static async getByUsername(username) {
@@ -27,7 +27,7 @@ export default class UserRepository {
     if (!result) {
       return null
     }
-    return new User(result.username, result)
+    return this.createUser(result)
   }
 
   static async create(data) {
@@ -45,5 +45,9 @@ export default class UserRepository {
       WHERE ID(u) = $id
       DETACH DELETE u`, { id }]
     safeQuery(...query)
+  }
+
+  static async createUser(result) {
+    return new User(result.id, result.username, result.password)
   }
 }

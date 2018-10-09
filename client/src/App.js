@@ -9,6 +9,8 @@ import { createUploadLink } from 'apollo-upload-client'
 import DatasetBrowser from './components/DatasetBrowser'
 import ChartEditor from './containers/ChartEditor'
 import Scenarios from './components/Scenarios'
+import StyledLogin from './components/Login'
+import Notifier from './components/Notifier'
 
 import AppBar from './components/AppBar'
 
@@ -100,25 +102,43 @@ class App extends React.Component {
     }
   }
 
-  switchMode = (mode) => this.setState({currentMode:mode})
-  selectDataset = (id) => this.setState({currentDataset:id})
-  setUser = (user) => { this.setState({user:user}) }
+  switchMode = mode => this.setState({ currentMode: mode })
+
+  selectDataset = id => this.setState({ currentDataset: id })
+
+  setUser = user => this.setState({ user })
 
   render() {
+    const { state } = this
+    let mainComponent
+    if (state.user) {
+      mainComponent = (
+        <div>
+          <AppBar />
+          <StyledMainComponent
+            mode={state.currentMode}
+            dataset={state.currentDataset}
+          />
+        </div>
+      )
+    } else {
+      mainComponent = <StyledLogin />
+    }
     return (
       <ApolloProvider client={client}>
-        <NavigationContext.Provider value={{ 
-          currentMode: this.state.currentMode,
-          currentDataset: this.state.currentDataset,
-          user: this.state.user,
-          switchMode: this.switchMode,
-          selectDataset: this.selectDataset,
-          setUser: this.setUser
-        }}>
+        <NavigationContext.Provider
+          value={{
+            currentMode: state.currentMode,
+            currentDataset: state.currentDataset,
+            user: state.user,
+            switchMode: this.switchMode,
+            selectDataset: this.selectDataset,
+            setUser: this.setUser
+          }}
+        >
           <MuiThemeProvider theme={theme}>
-            <AppBar/>
-            <StyledMainComponent mode={this.state.currentMode} 
-                                dataset={this.state.currentDataset}/>
+            <Notifier />
+            {mainComponent}
           </MuiThemeProvider>
         </NavigationContext.Provider>
       </ApolloProvider>

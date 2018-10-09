@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 
-import LoginDialog from './LoginDialog'
+import LogoutButton from './LogoutButton'
 import ADIButton from './ADIButton'
 
 import { withNavigation } from '../context/NavigationContext'
@@ -33,21 +33,33 @@ function ButtonAppBar(props) {
   const { classes, navigation } = props;
   return (
     <div className={classes.root}>
-      <AppBar position="static" className={classes.appBar}>
+      <AppBar position='static' className={classes.appBar}>
         <Toolbar>
           <img src={require('../images/ckan-logo.png')} />
-          <span className={classes.spacer}/>
-          <ADIButton variant={ navigation.currentMode == 'datasets' ? "contained" : "outlined" } 
-                     className={classes.menuButton}
-                     onClick={ e => navigation.switchMode('datasets')}>Datasets</ADIButton>
-          <ADIButton variant={ navigation.currentMode == 'chart-editor' ? "contained" : "outlined" }
-                     className={classes.menuButton}
-                     onClick={ e => navigation.switchMode('chart-editor')}>Chart Editor</ADIButton>
-          <ADIButton variant={ navigation.currentMode == 'scenarios' ? "contained" : "outlined" }
-                     className={classes.menuButton}
-                     onClick={ e => navigation.switchMode('scenarios')}>Scenarios</ADIButton>
-          <span className={classes.flex}/>
-          <LoginDialog/>
+          <span className={classes.spacer} />
+          <ADIButton
+            variant={navigation.currentMode === 'datasets' ? 'contained' : 'outlined'}
+            className={classes.menuButton}
+            onClick={() => navigation.switchMode('datasets')}
+          >
+            Datasets
+          </ADIButton>
+          <ADIButton
+            variant={navigation.currentMode === 'chart-editor' ? 'contained' : 'outlined'}
+            className={classes.menuButton}
+            onClick={() => navigation.switchMode('chart-editor')}
+          >
+            Chart Editor
+          </ADIButton>
+          <ADIButton
+            variant={navigation.currentMode === 'scenarios' ? 'contained' : 'outlined'}
+            className={classes.menuButton}
+            onClick={() => navigation.switchMode('scenarios')}
+          >
+            Scenarios
+          </ADIButton>
+          <span className={classes.flex} />
+          <LogoutButton />
         </Toolbar>
       </AppBar>
     </div>
