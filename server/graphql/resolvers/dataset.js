@@ -35,6 +35,28 @@ const processDatasetUpload = async (name, upload, context) => {
   return dataset
 }
 
+const processDatasetUpdate = async (datasetProps, context) => {
+  const { id, file } = datasetProps
+  const dataset = await DatasetRepository.get(context, id)
+
+  const { stream, filename } = await file
+  const { path } = await storeFS({ stream, filename })
+
+  try {
+    dataset.path = path
+    await DatasetRepository.save(context, dataset)
+    sendToWorkerQueue({
+      task: 'import_csv',
+      id: dataset.id
+    })
+  } catch (e) {
+    // TODO: What should we do here?
+    console.log(e.message)
+  }
+
+  return dataset
+} 
+
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
 export default {
@@ -68,6 +90,7 @@ export default {
       DatasetRepository.delete(context, id)
     },
     uploadDataset: (_, { name, file }, context) => processDatasetUpload(name, file, context),
+    updateDataset: (_, props, context) => processDatasetUpdate(props, context),
     createPlot(_, { jsondef }) {
       return safeQuery(`
         CREATE (p:Plot { jsondef: $jsondef }) 
