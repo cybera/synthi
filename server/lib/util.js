@@ -29,7 +29,7 @@ const ensureDatasetExists = (dataset) => {
 
 const fullDatasetPath = (relPath) => {
   const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
-  const fullPath = pathlib.join(uploadDir, relPath)
+  const fullPath = pathlib.join(uploadDir, relPath || "")
   return fullPath
 }
 
