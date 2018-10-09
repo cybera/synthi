@@ -3,6 +3,10 @@ import gql from 'graphql-tag'
 import { graphql } from 'react-apollo'
 import Upload from 'material-ui-next-upload/Upload';
 
+import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
+import ADIButton from './ADIButton';
+
 const styles = theme => ({
   button: {
     margin: theme.spacing.unit,
@@ -11,10 +15,6 @@ const styles = theme => ({
     display: 'none',
   },
 });
-
-import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Button from 'material-ui/Button';
 
 class UploadFile extends React.Component {
   handleChange = (event) => {
@@ -36,9 +36,9 @@ class UploadFile extends React.Component {
               type="file"
               onChange={this.handleChange}
             />
-        <Button variant="raised" component="span" className={classes.button}>
+        <ADIButton variant="raised" component="span" className={classes.button}>
           { buttonText }
-        </Button>
+        </ADIButton>
       </label>
     )
   }

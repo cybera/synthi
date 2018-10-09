@@ -21,6 +21,7 @@ import ToggleVisibility from './ToggleVisibility'
 import DataTableView from './DataTableView'
 import DatasetGenerator from './DatasetGenerator'
 import DatasetColumnChips from './DatasetColumnChips'
+import DatasetEditor from '../containers/DatasetEditor'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -43,36 +44,13 @@ const styles = theme => ({
 });
 
 class DatasetView extends React.Component {
-  // state = {
-
-  // }
-
   constructor(props) {
     super(props)
   }
 
-  // static getDerivedStateFromProps(props, state) {
-  //   const { dataset } = props
-
-  //   // Add a selected state to all of the column objects
-  //   const displayColumns = dataset.columns.map(c => ({...c, selected: c.order < 5 }))
-
-  //   return { ...state, displayColumns }
-  // }
-
   componentDidMount() {
     this.props.subscribeToMore()
   }
-
-  // toggleColumnVisibility(name) {
-  //   console.log(name)
-  //   let { displayColumns } = this.state
-  //   displayColumns = displayColumns.sort((a,b) => a.order - b.order)
-  //   const column = displayColumns.find(c => c.name == name)
-  //   column.selected = !column.selected
-  //   console.log(displayColumns)
-  //   this.setState({ displayColumns })
-  // }
 
   render() {
     const { classes, navigation, dataset } = this.props
@@ -92,12 +70,8 @@ class DatasetView extends React.Component {
                  <ChartIcon />
                </IconButton>
              </Typography>
+             <DatasetEditor dataset={dataset} />
              <DatasetColumnChips columns={displayColumns}/>
-             <DatasetGenerator>
-               {({generateDataset}) => {
-                 return dataset.computed && <ADIButton disabled={dataset.generating} onClick={e => generateDataset(dataset.id)}>Generate!</ADIButton>
-               }}
-             </DatasetGenerator>
              <ToggleVisibility visible={dataset.generating}>
                <LinearProgress/>
              </ToggleVisibility>

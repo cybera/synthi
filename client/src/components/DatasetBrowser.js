@@ -2,7 +2,7 @@ import React from 'react'
 
 import DatasetView from "./DatasetView"
 import DatasetList from "./DatasetList"
-import NewDatasetDialog from "./NewDatasetDialog"
+import NewDatasetButton from '../containers/NewDatasetButton'
 
 import Grid from 'material-ui/Grid'
 import { withStyles } from 'material-ui/styles'
@@ -32,7 +32,7 @@ class DatasetBrowser extends React.Component {
       <div className={classes.root}>
         <Grid container spacing={24}>
           <Grid item xs={3}>
-            <NewDatasetDialog/>
+            <NewDatasetButton/>
             <DatasetList/>
           </Grid>
           <Grid item xs={9}>
