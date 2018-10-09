@@ -61,7 +61,8 @@ export default class DatasetRepository {
     const query = [`
       MATCH (n:Dataset)
       WHERE ID(n) = $dataset.id
-      SET n.name = $dataset.name
+      SET 
+        n.name = $dataset.name,
         n.path = $dataset.path,
         n.owner_id = toInteger($dataset.owner.id),
         n.computed = $dataset.computed,
