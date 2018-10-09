@@ -38,7 +38,6 @@ def dataset_output(name):
 def write_output(df, output_name, Success):
   if Success:
     columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
-    print("YAS QUEEEEN")
     update_dataset_query = '''
       MATCH (dataset:Dataset { name: $name })
       WITH dataset
@@ -50,7 +49,6 @@ def write_output(df, output_name, Success):
       RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
       '''
   else: 
-    print("NO QUEEEEN")
     update_dataset_query = '''
     MATCH (dataset:Dataset { name: $name })
     WITH dataset
