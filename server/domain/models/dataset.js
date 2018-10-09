@@ -54,6 +54,12 @@ export default class Dataset {
 
   deleteDataset() {
     const path = this.fullPath()
-    fs.unlinkSync(path)
+    try {
+      if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {
+        fs.unlinkSync(path)
+      }
+    } catch(err) {
+      console.log(err)
+    }
   }
 }

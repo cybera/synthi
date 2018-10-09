@@ -83,6 +83,7 @@ export default class DatasetRepository {
       WHERE ID(d) = $dataset.id
       OPTIONAL MATCH (d)<--(c:Column)
       DETACH DELETE d, c
+      RETURN d
       LIMIT 1`, { dataset }]
     safeQuery(...query)
     dataset.deleteDataset()
