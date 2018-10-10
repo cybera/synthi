@@ -3,4 +3,17 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 
-cd $PROJECT_DIR/server && npm start
+action=${1:-development}
+
+if [[ $action == 'debug' ]]; then
+  docker-compose -f $PROJECT_DIR/docker-compose.yml \
+                 stop server
+  docker-compose -f $PROJECT_DIR/docker-compose.yml \
+                 -f $PROJECT_DIR/docker-compose.debug.yml \
+                 up -d server
+elif [[ $action == 'development' ]]; then
+  docker-compose -f $PROJECT_DIR/docker-compose.yml \
+                 stop server
+  docker-compose -f $PROJECT_DIR/docker-compose.yml \
+                 up -d server
+fi
