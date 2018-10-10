@@ -4,6 +4,7 @@ import { merge } from 'lodash'
 
 import datasetResolvers from './resolvers/dataset'
 import plotsResolvers from './resolvers/plots'
+import transformationsResolvers from './resolvers/transformations'
 
 import { storeFS } from '../lib/util'
 
@@ -38,4 +39,9 @@ const mainResolvers = {
   }
 }
 
-export default merge(mainResolvers, datasetResolvers, plotsResolvers)
+export default merge(
+  mainResolvers,
+  datasetResolvers,
+  plotsResolvers,
+  transformationsResolvers
+)

@@ -24,6 +24,16 @@ type Dataset {
   path: String
   computed: Boolean
   generating: Boolean
+  inputTransformation: Transformation
+}
+
+type Transformation {
+  id: Int!
+  name: String
+  script: String
+  inputs: [Dataset]
+  outputs: [Dataset]
+  code: String
 }
 
 type Plot {
@@ -46,6 +56,7 @@ type Mutation {
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean
+  saveInputTransformation(id: Int!, code:String): Transformation
 }
 
 type Subscription {

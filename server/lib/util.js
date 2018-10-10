@@ -4,7 +4,7 @@ import waitOn from 'wait-on'
 import AMQP from 'amqplib'
 import shortid from 'shortid'
 
-const runTransformation = async (dataset) => {
+export const runTransformation = async (dataset) => {
   const conn = await AMQP.connect('amqp://queue')
   const ch = await conn.createChannel()
   const ok = await ch.assertQueue('python-worker', { durable: false })
@@ -17,23 +17,29 @@ const runTransformation = async (dataset) => {
   ch.sendToQueue('python-worker', Buffer.from(JSON.stringify(msg)))
 }
 
-const datasetExists = (dataset) => {
+export const datasetExists = (dataset) => {
   return (dataset.path && fs.existsSync(dataset.fullPath()))
 }
 
-const ensureDatasetExists = (dataset) => {
+export const ensureDatasetExists = (dataset) => {
   if(!datasetExists(dataset) && dataset.computed) {
     runTransformation(dataset)
   }
 }
 
-const fullDatasetPath = (relPath) => {
+export const fullDatasetPath = (relPath) => {
   const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
   const fullPath = pathlib.join(uploadDir, relPath || "")
   return fullPath
 }
 
-const waitForFile = (relPath) => {
+export const fullScriptPath = (relPath) => {
+  const scriptsDir = pathlib.resolve(process.env.SCRIPTS_FOLDER)
+  const fullPath = pathlib.join(scriptsDir, relPath || "")
+  return fullPath
+}
+
+export const waitForFile = (relPath) => {
   return new Promise((resolve, reject) => {
     // TODO: This will need to change when using non-local storage
     waitOn({
@@ -44,7 +50,7 @@ const waitForFile = (relPath) => {
   })
 }
 
-const storeFS = ({ stream, filename }) => {
+export const storeFS = ({ stream, filename }) => {
   const id = shortid.generate()
   const uniqueFilename = `${id}-${filename}`
   const fullPath = fullDatasetPath(uniqueFilename)
@@ -63,13 +69,4 @@ const storeFS = ({ stream, filename }) => {
       .on('error', error => reject(error))
       .on('finish', () => resolve({ id, path: uniqueFilename }))
   )
-}
-
-export {
-  runTransformation,
-  datasetExists,
-  ensureDatasetExists,
-  waitForFile,
-  fullDatasetPath,
-  storeFS
 }

@@ -3,6 +3,7 @@ import { sendToWorkerQueue } from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import { storeFS, runTransformation } from '../../lib/util'
 import { pubsub, withFilter } from '../pubsub'
+import * as TransformationRepository from '../../domain/repositories/transformationRepository'
 
 // TODO: Move this to a real memcached or similar service and actually tie it to the
 // current user
@@ -80,6 +81,9 @@ export default {
     },
     rows(dataset) {
       return dataset.rows()
+    },
+    inputTransformation(dataset) {
+      return TransformationRepository.inputTransformation(dataset)
     }
   },
   Mutation: {
@@ -109,6 +113,10 @@ export default {
       const isVisible = columnVisible({ id })
       visibleColumnCache[id].visible = !isVisible
       return visibleColumnCache[id].visible
+    },
+    async saveInputTransformation(_, { id, code }, context) {
+      const dataset = await DatasetRepository.get(context, id)
+      return TransformationRepository.saveInputTransformation(dataset, code)
     }
   },
   Subscription: {
