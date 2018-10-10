@@ -3,6 +3,8 @@ import ADIButton from '../components/ADIButton'
 import DatasetGenerator from '../components/DatasetGenerator'
 import ToggleVisibility from '../components/ToggleVisibility'
 import DatasetUploadButton from './DatasetUploadButton'
+import TransformationEditor from './TransformationEditor'
+
 
 const DatasetEditor = (props) => {
   const { dataset } = props
@@ -16,6 +18,9 @@ const DatasetEditor = (props) => {
           return dataset.computed && <ADIButton disabled={dataset.generating} onClick={e => generateDataset(dataset.id)}>Generate!</ADIButton>
         }}
       </DatasetGenerator>
+      <ToggleVisibility visible={dataset.inputTransformation}>
+        <TransformationEditor dataset={dataset} />
+      </ToggleVisibility>
     </div>
   )
 }
