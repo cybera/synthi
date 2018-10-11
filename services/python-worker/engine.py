@@ -91,6 +91,14 @@ for t in transforms:
   transform_result = transform_mod.transform()
   write_output(transform_result, t['output_name'])
 
+# Just in case, we know we're done trying at this point and should
+# reset the dataset's generating status.
+tx.run('''
+MATCH (d:Dataset)
+WHERE ID(d) = $id
+SET d.generating = false
+''', id=generate_id)
+
 tx.commit()
 
 body = {
