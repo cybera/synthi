@@ -65,8 +65,9 @@ def load_transform(script_path):
   return transform_mod
 
 find_transforms_query = '''
-MATCH full_path = (output:Dataset)<-[*]-(input:Dataset { computed: false })
-WHERE ID(output) = $output_id
+MATCH full_path = (output:Dataset)<-[*]-(last)
+WHERE ID(output) = $output_id AND
+      ((last:Dataset AND last.computed = false) OR last:Transformation)
 WITH full_path, output
 MATCH (t:Transformation)
 MATCH individual_path = (output)<-[*]-(t)
