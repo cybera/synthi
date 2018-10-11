@@ -21,8 +21,10 @@ import ToggleVisibility from './ToggleVisibility'
 import DataTableView from './DataTableView'
 import DatasetGenerator from './DatasetGenerator'
 import DatasetColumnChips from './DatasetColumnChips'
+import DatasetNameEditor from '../containers/DatasetNameEditor'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetModeToggle from '../containers/DatasetModeToggle'
+
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
     datasetGenerated(id: $id) {
@@ -65,7 +67,7 @@ class DatasetView extends React.Component {
 
     return <Paper className={classes.root} elevation={4}>
              <Typography variant="headline">
-               {`Dataset: ${dataset.name}`}
+               <DatasetNameEditor dataset={dataset}/>
                <IconButton aria-label="Chart" onClick={e => navigation.switchMode('chart-editor')}>
                  <ChartIcon />
                </IconButton>

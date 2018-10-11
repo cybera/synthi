@@ -37,7 +37,7 @@ const processDatasetUpload = async (name, upload, context) => {
 }
 
 const processDatasetUpdate = async (datasetProps, context) => {
-  const { id, file, computed } = datasetProps
+  const { id, file, computed, name } = datasetProps
   let dataset = await DatasetRepository.get(context, id)
 
   if (file) {
@@ -62,6 +62,11 @@ const processDatasetUpdate = async (datasetProps, context) => {
   let changed = false
   if (computed != null) {
     dataset.computed = computed
+    changed = true
+  }
+
+  if (name != null) {
+    dataset.name = name
     changed = true
   }
 
