@@ -46,6 +46,8 @@ const processDatasetUpdate = async (datasetProps, context) => {
 
     try {
       dataset.path = path
+      dataset.computed = false
+
       await DatasetRepository.save(context, dataset)
       sendToWorkerQueue({
         task: 'import_csv',
