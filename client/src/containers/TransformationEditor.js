@@ -18,13 +18,8 @@ const styles = theme => ({
   }
 })
 
-
-function onChange(newValue) {
-  console.log('change',newValue);
-}
-
-const TransformationEditor = (props) => {
-  const { dataset, classes } = props
+const MUIEditor = (props) => {
+  const { dataset, classes, code, onChange } = props
 
   return (
     <Paper className={classes.root}>
@@ -40,7 +35,7 @@ const TransformationEditor = (props) => {
         highlightActiveLine={true}
         width="100%"
         height="200px"
-        value={dataset.inputTransformation.code}
+        value={code}
         setOptions={{
           enableBasicAutocompletion: true,
           enableLiveAutocompletion: true,
@@ -53,4 +48,52 @@ const TransformationEditor = (props) => {
   )
 }
 
-export default withStyles(styles)(TransformationEditor)
+const StyledMUIEditor = withStyles(styles)(MUIEditor)
+
+class TransformationEditor extends React.Component {
+  state = {
+    code: null
+  }
+
+  constructor(props) {
+    super()
+
+    this.handleSave = props.handleSave
+
+    if(!this.handleSave) {
+      this.handleSave = (code) => {
+        console.log("By default, this just logs code. Pass in a handleSave(code) function as a prop.")
+        console.log(code)
+      }
+    }
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const { dataset } = props
+    const { id } = dataset
+
+    if (state.id !== id || state.code == null) {
+      let code = ""
+      if (dataset.inputTransformation) {
+        code = dataset.inputTransformation.code
+      }
+      return { id, code }
+    } else {
+      return null
+    }
+  }
+
+  onChange = (newValue) => {
+    this.setState({ code: newValue })
+  }
+
+  save() {
+    this.handleSave(this.state.code)
+  }
+
+  render() {
+    return <StyledMUIEditor {...this.props} code={this.state.code} onChange={this.onChange}/>
+  }
+}
+
+export default TransformationEditor

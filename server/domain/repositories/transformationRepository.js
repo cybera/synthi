@@ -1,5 +1,7 @@
 import { safeQuery } from '../../neo4j/connection'
+import { sendToWorkerQueue } from '../../lib/queue'
 import Transformation from '../models/transformation'
+import shortid from 'shortid'
 
 export const inputTransformation = async (dataset) => {
   const query = [`
@@ -44,6 +46,21 @@ export const saveInputTransformation = async (dataset, code) => {
     `, { transformation }]
 
     await safeQuery(...saveQuery)
+
+    if (!dataset.path) {
+      dataset.path = `${shortid.generate()}-${dataset.name}.csv`.replace(/ /g, '_')
+      const setDefaultPathQuery = [`
+        MATCH (d:Dataset)
+        WHERE ID(d) = $dataset.id
+        SET d.path = $dataset.path
+      `, { dataset }]
+      await safeQuery(...setDefaultPathQuery)
+    }
+
+    sendToWorkerQueue({
+      task: 'register_transformation',
+      id: transformation.id
+    })
 
     return transformation
   } else {

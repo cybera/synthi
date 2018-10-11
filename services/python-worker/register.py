@@ -15,14 +15,15 @@ neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
-username = sys.argv[1]
-script = os.path.join(SCRIPT_ROOT, sys.argv[2])
+transformation_id = int(sys.argv[1])
 
-script_path = os.path.abspath(script)
-script_relpath = os.path.relpath(script_path, SCRIPT_ROOT)
-transform_name = os.path.splitext(os.path.basename(script_path))[0]
+transformation = tx.run('''
+  MATCH (t:Transformation)
+  WHERE ID(t) = $id
+  RETURN t
+''', id=transformation_id).single()['t']
 
-print(script_path)
+script_path = os.path.join(SCRIPT_ROOT, transformation['script'])
 
 inputs = []
 outputs = []
@@ -45,55 +46,31 @@ transform_mod.dataset_output = dataset_output
 
 transform_spec.loader.exec_module(transform_mod)
 
-user_query = '''
-MATCH (user:User { username: $username })
-RETURN user
-'''
-user = tx.run(user_query, username=username).single()['user']
-
-transform_query = '''
-MERGE(t:Transformation { script: $script })
-ON CREATE SET t.name = $transform_name
-'''
-
-results = tx.run(transform_query, script=script_relpath, transform_name=transform_name)
-for r in results:
-  print(r)
-
 input_query = '''
-MATCH (t:Transformation { script: $script })
-SET t.inputs = $inputs
-WITH t
-UNWIND t.inputs AS input_name
-WITH t, input_name
-MATCH (input:Dataset { name: input_name })
-MERGE (input)-[:INPUT]->(t)
+  MATCH (t:Transformation)
+  WHERE ID(t) = $id
+  SET t.inputs = $inputs
+  WITH t
+  UNWIND t.inputs AS input_name
+  WITH t, input_name
+  MATCH (input:Dataset { name: input_name })
+  MERGE (input)-[:INPUT]->(t)
 '''
 
 output_query = '''
-MATCH (t:Transformation { script: $script })
-SET t.outputs = $outputs
-WITH t
-UNWIND t.outputs AS output_name
-MERGE (output:Dataset { name: output_name })
-MERGE (output)<-[:OUTPUT]-(t)
-SET output.computed = true, 
-    output.path = (output_name + ".csv"),
-    output.owner_id = $userid
-''' 
+  MATCH (t:Transformation)
+  WHERE ID(t) = $id
+  SET t.outputs = $outputs
+  WITH t
+  UNWIND t.outputs AS output_name
+  MERGE (output:Dataset { name: output_name })
+  MERGE (output)<-[:OUTPUT]-(t)
+  SET 
+    output.computed = true, 
+    output.path = (output_name + ".csv")
+'''
 
-results = tx.run(input_query, script=script_relpath, inputs=inputs)
-#for i in inputs:
-#  results = tx.run(input_query, name=i, script=script_relpath, inputs=inputs)
-#  for r in results:
-#    print(r)
-
-results = tx.run(output_query, script=script_relpath, outputs=outputs, userid=user.id)
-
-# for o in outputs:
-#   output_path = os.path.join(f"{o}.csv")
-#   results = tx.run(output_query, name=o, script=script_relpath, output_path=output_path, outputs=outputs)
-#   for r in results:
-#     print(r)
+results = tx.run(input_query, id=transformation_id, inputs=inputs)
+results = tx.run(output_query, id=transformation_id, outputs=outputs)
 
 tx.commit()
