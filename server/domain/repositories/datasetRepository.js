@@ -83,11 +83,11 @@ export default class DatasetRepository {
       MATCH (d:Dataset)
       WHERE ID(d) = $dataset.id
       OPTIONAL MATCH (d)<--(c:Column)
-      DETACH DELETE d, c
-      RETURN d
-      LIMIT 1`, { dataset }]
+      OPTIONAL MATCH (t:Transformation)-[:OUTPUT]->(d)
+      DETACH DELETE d, c, t`, { dataset }]
     safeQuery(...query)
     dataset.deleteDataset()
+    return dataset
   }
 
   static buildQuery(where) {

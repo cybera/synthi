@@ -110,7 +110,7 @@ export default {
       return DatasetRepository.create(context, { name })
     },
     async deleteDataset(_, { id }, context) {
-      DatasetRepository.delete(context, id)
+      return DatasetRepository.delete(context, id)
     },
     uploadDataset: (_, { name, file }, context) => processDatasetUpload(name, file, context),
     updateDataset: (_, props, context) => processDatasetUpdate(props, context),
