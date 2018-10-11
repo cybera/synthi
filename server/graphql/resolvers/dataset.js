@@ -37,22 +37,34 @@ const processDatasetUpload = async (name, upload, context) => {
 }
 
 const processDatasetUpdate = async (datasetProps, context) => {
-  const { id, file } = datasetProps
-  const dataset = await DatasetRepository.get(context, id)
+  const { id, file, computed } = datasetProps
+  let dataset = await DatasetRepository.get(context, id)
 
-  const { stream, filename } = await file
-  const { path } = await storeFS({ stream, filename })
+  if (file) {
+    const { stream, filename } = await file
+    const { path } = await storeFS({ stream, filename })
 
-  try {
-    dataset.path = path
+    try {
+      dataset.path = path
+      await DatasetRepository.save(context, dataset)
+      sendToWorkerQueue({
+        task: 'import_csv',
+        id: dataset.id
+      })
+    } catch (e) {
+      // TODO: What should we do here?
+      console.log(e.message)
+    }
+  }
+
+  let changed = false
+  if (computed != null) {
+    dataset.computed = computed
+    changed = true
+  }
+
+  if (changed) {
     await DatasetRepository.save(context, dataset)
-    sendToWorkerQueue({
-      task: 'import_csv',
-      id: dataset.id
-    })
-  } catch (e) {
-    // TODO: What should we do here?
-    console.log(e.message)
   }
 
   return dataset

@@ -22,7 +22,7 @@ import DataTableView from './DataTableView'
 import DatasetGenerator from './DatasetGenerator'
 import DatasetColumnChips from './DatasetColumnChips'
 import DatasetEditor from '../containers/DatasetEditor'
-
+import DatasetModeToggle from '../containers/DatasetModeToggle'
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
     datasetGenerated(id: $id) {
@@ -69,6 +69,7 @@ class DatasetView extends React.Component {
                <IconButton aria-label="Chart" onClick={e => navigation.switchMode('chart-editor')}>
                  <ChartIcon />
                </IconButton>
+               <DatasetModeToggle dataset={dataset}/>
              </Typography>
              <DatasetEditor dataset={dataset} />
              <DatasetColumnChips columns={displayColumns}/>

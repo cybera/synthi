@@ -52,7 +52,7 @@ type Mutation {
   deleteDataset(id: Int!): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
-  updateDataset(id: Int!, file:Upload): Dataset
+  updateDataset(id: Int!, file:Upload, computed:Boolean): Dataset
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean
