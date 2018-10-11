@@ -35,6 +35,9 @@ export default class DatasetRepository {
   }
 
   static async create(context, data) {
+    if (!data.name) {
+      data.name = await this.uniqueDefaultName(context.user)
+    }
     const dataset = new Dataset(null, data.name, data.path, context.user, data.computed,
       data.generating, [])
     const query = [`
@@ -58,7 +61,8 @@ export default class DatasetRepository {
     const query = [`
       MATCH (n:Dataset)
       WHERE ID(n) = $dataset.id
-      SET n.name = $dataset.name
+      SET 
+        n.name = $dataset.name,
         n.path = $dataset.path,
         n.owner_id = toInteger($dataset.owner.id),
         n.computed = $dataset.computed,
@@ -81,7 +85,8 @@ export default class DatasetRepository {
       MATCH (d:Dataset)
       WHERE ID(d) = $dataset.id
       OPTIONAL MATCH (d)<--(c:Column)
-      DETACH DELETE d, c`, { dataset }]
+      OPTIONAL MATCH (t:Transformation)-[:OUTPUT]->(d)
+      DETACH DELETE d, c, t`, { dataset }]
     safeQuery(...query)
 
     try {
@@ -89,11 +94,14 @@ export default class DatasetRepository {
     } catch (e) {
       console.log(e.message)
     }
+
+    return dataset
   }
 
   static buildQuery(where) {
-    return `MATCH (d:Dataset)<--(c:Column)
+    return `MATCH (d:Dataset)
       ${where}
+      OPTIONAL MATCH (d)<--(c:Column)
       RETURN
         ID(d) AS id,
         d.name AS name,
@@ -110,5 +118,23 @@ export default class DatasetRepository {
       .sort((a, b) => a.order > b.order)
     return new Dataset(result.id, result.name, result.path, owner, result.computed,
       result.generating, columns)
+  }
+
+  static async uniqueDefaultName(owner) {
+    const query = `
+      MATCH (d:Dataset { owner_id: $owner_id })
+      WHERE d.name STARTS WITH 'New Dataset '
+      RETURN d.name AS name
+    `
+    const names = await safeQuery(query, { owner_id: owner.id })
+    const defaultNameRE = /^New Dataset (\d+)$/
+    const extractIndex = (str) => {
+      let matches = str.match(defaultNameRE)
+      return matches && matches[1] ? parseInt(matches[1]) : 0
+    }
+    const indices = names.map(n => extractIndex(n.name))
+    const maxIndex = Math.max(...indices, 0)
+    
+    return `New Dataset ${maxIndex + 1}`
   }
 }

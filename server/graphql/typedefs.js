@@ -24,6 +24,16 @@ type Dataset {
   path: String
   computed: Boolean
   generating: Boolean
+  inputTransformation: Transformation
+}
+
+type Transformation {
+  id: Int!
+  name: String
+  script: String
+  inputs: [Dataset]
+  outputs: [Dataset]
+  code: String
 }
 
 type Plot {
@@ -38,13 +48,15 @@ type Query {
 }
 
 type Mutation {
-  createDataset(name: String!): Dataset
+  createDataset(name: String): Dataset
   deleteDataset(id: Int!): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
+  updateDataset(id: Int!, file:Upload, computed:Boolean, name:String): Dataset
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean
+  saveInputTransformation(id: Int!, code:String): Transformation
 }
 
 type Subscription {

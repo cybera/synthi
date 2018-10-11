@@ -27,15 +27,15 @@ def dataset_input(name):
   dataset = results.single()
   return pd.read_csv(dataset_abspath(dataset))
 
-outputs = dict()
-
 def dataset_output(name):
-  # TODO: This, and the code in load_transform combine to make something pretty brittle. We want
-  # to keep the lack of boilerplate a data scientist has to do to define a transformation, but
-  # there are probably better ways...
-  outputs[current_loading_transform] = name
+  # This is only needed so things don't break if this function is in a transformation
+  # It's only really relevant when registering the transformation. By the time we get
+  # here, we have enough hooked up in the graph to figure out the output node.
+  pass
 
 def write_output(df, output_name):
+  # TODO: Since we can now figure out the exact path from the transformations query,
+  # it's not really necessary to figure that out again via the more brittle name lookup.
   columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
 
   update_dataset_query = '''
@@ -52,10 +52,7 @@ def write_output(df, output_name):
   df.to_csv(dataset_abspath(dataset), index=False)
   
 
-current_loading_transform = None
-
 def load_transform(script_path):
-  global current_loading_transform
   full_path = os.path.join(SCRIPT_ROOT, script_path)
   transform_spec = importlib.util.spec_from_file_location("transform", full_path)
   transform_mod = importlib.util.module_from_spec(transform_spec)
@@ -63,7 +60,6 @@ def load_transform(script_path):
   transform_mod.dataset_input = dataset_input
   transform_mod.dataset_output = dataset_output
 
-  current_loading_transform = script_path
   transform_spec.loader.exec_module(transform_mod)
 
   return transform_mod
@@ -76,7 +72,14 @@ MATCH (t:Transformation)
 MATCH individual_path = (output)<-[*]-(t)
 WHERE t IN nodes(full_path)
 WITH DISTINCT(individual_path), t
-RETURN t.name AS name, t.script AS script, length(individual_path) AS distance
+MATCH (t)-[:OUTPUT]->(individual_output:Dataset)
+RETURN 
+  t.name AS name, 
+  t.script AS script, 
+  length(individual_path) AS distance,
+  ID(individual_output) AS output_id,
+  individual_output.name AS output_name,
+  individual_output.path AS output_path
 ORDER BY distance DESC
 '''
 print(f"Finding and ordering transforms for ID: {generate_id}.")
@@ -86,7 +89,15 @@ for t in transforms:
   print(f"Running {transform_script}")
   transform_mod = load_transform(transform_script)
   transform_result = transform_mod.transform()
-  write_output(transform_result, outputs[transform_script])
+  write_output(transform_result, t['output_name'])
+
+# Just in case, we know we're done trying at this point and should
+# reset the dataset's generating status.
+tx.run('''
+MATCH (d:Dataset)
+WHERE ID(d) = $id
+SET d.generating = false
+''', id=generate_id)
 
 tx.commit()
 

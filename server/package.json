@@ -18,6 +18,8 @@
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "graphql": "^14.0.2",
+    "lodash": "^4.17.11",
+    "mkdirp": "^0.5.1",
     "morgan": "^1.9.0",
     "neo4j-driver": "^1.6.3",
     "passport": "^0.4.0",
@@ -43,7 +45,8 @@
   "scripts": {
     "test": "jest",
     "start": "babel-node index.js",
-    "devStart": "nodemon --exec npm run start -- ./index.js"
+    "devStart": "nodemon --exec npm run start -- ./index.js",
+    "debug": "nodemon --inspect-brk=0.0.0.0:9222 --nolazy --exec npm run start -- ./index.js"
   },
   "author": "",
   "license": "ISC",

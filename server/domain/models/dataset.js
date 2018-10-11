@@ -22,10 +22,14 @@ export default class Dataset {
     const path = this.fullPath()
     let rows = []
 
-    if (fs.existsSync(path)) {
-      const fileString = fs.readFileSync(path, 'utf8')
-      const csv = csvParse(fileString, { columns: true })
-      rows = csv.map(r => JSON.stringify(r))
+    try {
+      if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {
+        const fileString = fs.readFileSync(path, 'utf8')
+        const csv = csvParse(fileString, { columns: true })
+        rows = csv.map(r => JSON.stringify(r))
+      }
+    } catch(err) {
+      console.log(err)
     }
 
     return rows
@@ -35,10 +39,14 @@ export default class Dataset {
     const path = this.fullPath()
     let samples = []
 
-    if (fs.existsSync(path)) {
-      const fileString = fs.readFileSync(path, 'utf8')
-      const csv = csvParse(fileString, { columns: true })
-      samples = csv.slice(0, 10).map(r => JSON.stringify(r))
+    try {
+      if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {
+        const fileString = fs.readFileSync(path, 'utf8')
+        const csv = csvParse(fileString, { columns: true })
+        samples = csv.slice(0, 10).map(r => JSON.stringify(r))
+      }
+    } catch(err) {
+      console.log(err)
     }
 
     return samples
@@ -46,6 +54,12 @@ export default class Dataset {
 
   deleteDataset() {
     const path = this.fullPath()
-    fs.unlinkSync(path)
+    try {
+      if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {
+        fs.unlinkSync(path)
+      }
+    } catch(err) {
+      console.log(err)
+    }
   }
 }

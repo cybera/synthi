@@ -41,6 +41,10 @@ query($id: Int) {
     computed
     generating
     samples
+    inputTransformation {
+      id
+      code
+    }
   }
 }
 `
