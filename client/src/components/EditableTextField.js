@@ -1,4 +1,4 @@
-import React from 'React'
+import React from 'react'
 import TextField from '@material-ui/core/TextField'
 
 class EditableTextField extends React.Component
