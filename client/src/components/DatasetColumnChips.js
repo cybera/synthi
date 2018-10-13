@@ -1,9 +1,9 @@
 import React from 'react'
 import Chip from '@material-ui/core/Chip'
 import Paper from '@material-ui/core/Paper'
-import Typography from 'material-ui/Typography'
-import { withStyles } from 'material-ui/styles'
-import Grid from 'material-ui/Grid'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
 
 import { Mutation } from 'react-apollo'
 import gql from "graphql-tag";

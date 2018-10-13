@@ -1,6 +1,6 @@
 import React from 'react'
 import DescriptionIcon from '@material-ui/icons/Description'
-import { withStyles } from 'material-ui/styles'
+import { withStyles } from '@material-ui/core/styles'
 
 import gql from "graphql-tag"
 import { Mutation } from "react-apollo"

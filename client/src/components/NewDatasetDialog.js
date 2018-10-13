@@ -1,12 +1,12 @@
 import React from 'react';
-import Button from 'material-ui/Button';
-import TextField from 'material-ui/TextField';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 import Dialog, {
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from 'material-ui/Dialog';
+} from '@material-ui/core/Dialog';
 import UploadFile from "./UploadFile"
 import gql from 'graphql-tag'
 import { graphql } from 'react-apollo'
@@ -14,7 +14,7 @@ import { graphql } from 'react-apollo'
 import { datasetListQuery, uploadDatasetMutation } from '../queries'
 import DescriptionIcon from '@material-ui/icons/Description';
 
-import { withStyles } from 'material-ui/styles'
+import { withStyles } from '@material-ui/core/styles'
 import ADIButton from "./ADIButton"
 
 const styles = theme => ({

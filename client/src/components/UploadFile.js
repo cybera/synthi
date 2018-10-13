@@ -4,7 +4,7 @@ import { graphql } from 'react-apollo'
 import Upload from 'material-ui-next-upload/Upload';
 
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import ADIButton from './ADIButton';
 
 const styles = theme => ({

@@ -3,7 +3,7 @@ import StatelessChartEditor from '../components/ChartEditor'
 import FetchDataset from '../components/FetchDataset'
 import PlotlyDataConverter from '../components/PlotlyDataConverter'
 import PlotlySave from '../components/PlotlySave';
-import Button from 'material-ui/Button';
+import Button from '@material-ui/core/Button';
 
 class ChartEditor extends React.Component {
   constructor(props) {

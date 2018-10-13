@@ -2,14 +2,14 @@ import React, { Fragment } from "react";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
 
-import Paper from 'material-ui/Paper';
-import Typography from 'material-ui/Typography';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 
-import { withStyles } from 'material-ui/styles'
+import { withStyles } from '@material-ui/core/styles'
 
 import { datasetViewQuery } from '../queries'
 
-import IconButton from 'material-ui/IconButton'
+import IconButton from '@material-ui/core/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
 import LinearProgress from '@material-ui/core/LinearProgress';
 

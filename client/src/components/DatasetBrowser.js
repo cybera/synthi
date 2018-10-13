@@ -4,8 +4,8 @@ import DatasetView from "./DatasetView"
 import DatasetList from "./DatasetList"
 import NewDatasetButton from '../containers/NewDatasetButton'
 
-import Grid from 'material-ui/Grid'
-import { withStyles } from 'material-ui/styles'
+import Grid from '@material-ui/core/Grid'
+import { withStyles } from '@material-ui/core/styles'
 
 import NavigationContext from '../context/NavigationContext'
 

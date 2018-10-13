@@ -16,7 +16,7 @@ import AppBar from './components/AppBar'
 
 import NavigationContext from './context/NavigationContext'
 
-import { withStyles } from 'material-ui/styles'
+import { withStyles } from '@material-ui/core/styles'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
 import { WebSocketLink } from 'apollo-link-ws';
