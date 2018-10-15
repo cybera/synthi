@@ -1,22 +1,21 @@
 import React from 'react'
-import { Query } from "react-apollo"
+
+import { Query } from 'react-apollo'
+
 import { datasetListQuery } from '../queries'
 
-function withDatasets(Component) {
-  return function WithDatasetsComponent(props) {
-    return (
-      <Query 
-        query={datasetListQuery}
-        pollInterval={1000}>
-        {({ loading, error, data }) => {
-          if (loading) return <p>Loading...</p>;
-          if (error) return <p>Error!</p>;
+const withDatasets = Component => props => (
+  <Query
+    query={datasetListQuery}
+    pollInterval={1000}
+  >
+    {({ loading, error, data }) => {
+      if (loading) return <p>Loading...</p>;
+      if (error) return <p>Error!</p>;
 
-          return <Component {...props} datasets={data.dataset} />
-        }}
-      </Query>
-    )
-  }
-}
+      return <Component {...props} datasets={data.dataset} />
+    }}
+  </Query>
+)
 
-export { withDatasets }
+export { withDatasets } // eslint-disable-line import/prefer-default-export

@@ -1,4 +1,6 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+
 import ADIButton from '../components/ADIButton'
 import DatasetGenerator from '../components/DatasetGenerator'
 import ToggleVisibility from '../components/ToggleVisibility'
@@ -7,7 +9,15 @@ import TransformationEditor from './TransformationEditor'
 import SaveTransformationButton from './SaveTransformationButton'
 
 class DatasetEditor extends React.Component {
-  constructor(props) {
+  static propTypes = {
+    dataset: PropTypes.object // eslint-disable-line react/forbid-prop-types
+  }
+
+  static defaultProps = {
+    dataset: null
+  }
+
+  constructor() {
     super()
     this.transformationEditor = React.createRef()
   }
@@ -20,18 +30,23 @@ class DatasetEditor extends React.Component {
     return (
       <div>
         <ToggleVisibility visible={!dataset.computed}>
-          <DatasetUploadButton dataset={dataset}/>
+          <DatasetUploadButton dataset={dataset} />
         </ToggleVisibility>
         <ToggleVisibility visible={dataset.computed}>
-          <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode}/>
+          <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
         </ToggleVisibility>
         <DatasetGenerator>
-          {({generateDataset}) => {
-            return dataset.computed && <ADIButton disabled={dataset.generating} onClick={e => generateDataset(dataset.id)}>Generate!</ADIButton>
-          }}
+          {({ generateDataset }) => dataset.computed && (
+            <ADIButton
+              disabled={dataset.generating}
+              onClick={() => generateDataset(dataset.id)}
+            >
+              Generate!
+            </ADIButton>
+          )}
         </DatasetGenerator>
         <ToggleVisibility visible={dataset.computed}>
-          <TransformationEditor 
+          <TransformationEditor
             dataset={dataset}
             ref={this.transformationEditor}
           />
