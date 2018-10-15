@@ -1,36 +1,55 @@
-import React from "react"
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
 
-class DataTableView extends React.Component {
-  render() {
-    const { columns, rows } = this.props
+const DataTableView = (props) => {
+  const { columns, rows } = props
 
-    return (
-      <Table>
-        <TableHead>
-          <TableRow>
-            {
-              columns.map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
-            }                
-          </TableRow>
-        </TableHead>
-        <TableBody>
+  return (
+    <Table>
+      <TableHead>
+        <TableRow>
           {
-            rows.map((values, row_index) => (
-              <TableRow key={row_index}>
-                { 
-                  values.map((value, column_index) => ( 
-                    <TableCell key={column_index}>{ value }</TableCell>
-                  )) 
-                }
-              </TableRow>
-            ))
+            columns.map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
           }
-        </TableBody>
-      </Table>
-    )
-  }
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {
+          // Many datasets will have no appropriate ID values
+          /* eslint-disable react/no-array-index-key */
+          rows.map((values, rowIndex) => (
+            <TableRow key={rowIndex}>
+              {
+                values.map((value, columnIndex) => (
+                  <TableCell key={columnIndex}>{ value }</TableCell>
+                ))
+              }
+            </TableRow>
+          ))
+          /* eslint-enable react/no-array-index-key */
+        }
+      </TableBody>
+    </Table>
+  )
+}
+
+DataTableView.propTypes = {
+  columns: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string
+  })),
+  rows: PropTypes.arrayOf(PropTypes.array)
+}
+
+DataTableView.defaultProps = {
+  columns: [],
+  rows: []
 }
 
 export default DataTableView

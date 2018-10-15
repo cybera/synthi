@@ -2,7 +2,7 @@ import React from 'react'
 
 import ToggleButton from '@material-ui/lab/ToggleButton'
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup'
-import { withStyles } from 'material-ui/styles'
+import { withStyles } from '@material-ui/core/styles'
 
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'

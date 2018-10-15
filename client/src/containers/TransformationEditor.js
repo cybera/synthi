@@ -6,7 +6,7 @@ import 'brace/mode/python'
 import 'brace/theme/xcode'
 
 import Paper from '@material-ui/core/Paper'
-import { withStyles } from 'material-ui/styles'
+import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({
   root: {

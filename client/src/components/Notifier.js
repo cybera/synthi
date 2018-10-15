@@ -1,6 +1,5 @@
 import React from 'react'
 import Snackbar from '@material-ui/core/Snackbar'
-import Slide from '@material-ui/core/Slide'
 
 let openSnackbarFn
 

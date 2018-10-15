@@ -1,12 +1,15 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+
+import Button from '@material-ui/core/Button'
+
 import StatelessChartEditor from '../components/ChartEditor'
 import FetchDataset from '../components/FetchDataset'
 import PlotlyDataConverter from '../components/PlotlyDataConverter'
-import PlotlySave from '../components/PlotlySave';
-import Button from 'material-ui/Button';
+import PlotlySave from '../components/PlotlySave'
 
 class ChartEditor extends React.Component {
-  constructor(props) {
+  constructor() {
     super()
     this.editor = React.createRef()
   }
@@ -16,27 +19,37 @@ class ChartEditor extends React.Component {
 
     return (
       <FetchDataset datasetID={datasetID}>
-        {({dataset}) => (
+        {({ dataset }) => (
           <PlotlySave>
-            {({savePlot}) =>
+            {({ savePlot }) => (
               <PlotlyDataConverter dataset={dataset}>
-                {({columns, columnOptions}) => (
+                {({ columns, columnOptions }) => (
                   <div>
-                    <StatelessChartEditor dataSources={columns} 
-                                          dataSourceOptions={columnOptions}
-                                          ref={this.editor} />
-                    <Button type='submit' color="primary" onClick={e => savePlot(this.editor.current.state)}>
+                    <StatelessChartEditor
+                      dataSources={columns}
+                      dataSourceOptions={columnOptions}
+                      ref={this.editor}
+                    />
+                    <Button type="submit" color="primary" onClick={() => savePlot(this.editor.current.state)}>
                       Save Plot
                     </Button>
                   </div>
                 )}
               </PlotlyDataConverter>
-            }
+            )}
           </PlotlySave>
         )}
       </FetchDataset>
     )
   }
+}
+
+ChartEditor.propTypes = {
+  datasetID: PropTypes.number,
+}
+
+ChartEditor.defaultProps = {
+  datasetID: null
 }
 
 export default ChartEditor

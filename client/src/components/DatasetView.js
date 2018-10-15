@@ -11,11 +11,9 @@ import ChartIcon from '@material-ui/icons/ShowChart'
 import LinearProgress from '@material-ui/core/LinearProgress';
 
 import { datasetViewQuery } from '../queries'
-
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 import ToggleVisibility from './ToggleVisibility'
-
 import DataTableView from './DataTableView'
 import DatasetColumnChips from './DatasetColumnChips'
 import DatasetNameEditor from '../containers/DatasetNameEditor'

@@ -1,12 +1,14 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+import { Mutation } from 'react-apollo'
+import gql from 'graphql-tag'
+
 import Chip from '@material-ui/core/Chip'
 import Paper from '@material-ui/core/Paper'
-import Typography from 'material-ui/Typography'
-import { withStyles } from 'material-ui/styles'
-import Grid from 'material-ui/Grid'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
 
-import { Mutation } from 'react-apollo'
-import gql from "graphql-tag";
 import { datasetViewQuery } from '../queries'
 
 const styles = theme => ({
@@ -25,20 +27,40 @@ const styles = theme => ({
 const DatasetColumnChips = (props) => {
   const { classes, columns, toggleColumnVisibility } = props
 
-  return <Paper className={classes.root}>
-    <Grid container spacing={24}>
-      <Grid item xs={12}>
-        <Typography variant="subheading" gutterBottom>Columns:</Typography>
+  return (
+    <Paper className={classes.root}>
+      <Grid container spacing={24}>
+        <Grid item xs={12}>
+          <Typography variant="subheading" gutterBottom>Columns:</Typography>
+        </Grid>
+        <Grid item xs={12}>
+          {columns.map(({ id, name, visible }) => (
+            <Chip
+              clickable
+              color={visible ? 'primary' : 'default'}
+              onClick={() => toggleColumnVisibility(id)}
+              label={name}
+              key={id}
+            />
+          ))}
+        </Grid>
       </Grid>
-      <Grid item xs={12}>
-        {columns.map(({id,name,visible}) => <Chip clickable 
-                                                   color={visible ? 'primary' : 'default'} 
-                                                   onClick={e => toggleColumnVisibility(id)}
-                                                   label={name} 
-                                                   key={id}/>)}
-      </Grid>
-    </Grid>
-  </Paper>
+    </Paper>
+  )
+}
+
+DatasetColumnChips.propTypes = {
+  classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  columns: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    visible: PropTypes.bool
+  })),
+  toggleColumnVisibility: PropTypes.func.isRequired
+}
+
+DatasetColumnChips.defaultProps = {
+  columns: []
 }
 
 const toggleColumnVisibility = gql`
@@ -48,20 +70,18 @@ const toggleColumnVisibility = gql`
 `
 
 const DatasetColumnChipsWithToggle = (props) => {
-  const toggle = (mutation) => {
-    return (id) => {
-      return mutation({ 
-        variables: { id: id },
-        refetchQueries: [
-           { query: datasetViewQuery }
-        ]
-      })
-    }
-  }
+  const toggle = mutation => id => mutation({
+    variables: { id },
+    refetchQueries: [
+      { query: datasetViewQuery }
+    ]
+  })
 
-  return <Mutation mutation={toggleColumnVisibility}>
-    { mutation => <DatasetColumnChips toggleColumnVisibility={toggle(mutation)} {...props} />}
-  </Mutation>
+  return (
+    <Mutation mutation={toggleColumnVisibility}>
+      { mutation => <DatasetColumnChips toggleColumnVisibility={toggle(mutation)} {...props} />}
+    </Mutation>
+  )
 }
 
 export default withStyles(styles)(DatasetColumnChipsWithToggle)
