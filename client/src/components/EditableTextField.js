@@ -1,47 +1,47 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+
 import TextField from '@material-ui/core/TextField'
 
-class EditableTextField extends React.Component
-{
+class EditableTextField extends React.Component {
   state = {
     editing: false,
-    value: ""
+    value: ''
   }
 
-  constructor(props) {
-    super()
-  }
-  
   changeMode = (editing) => {
-    this.setState({ editing, value: this.props.text })
+    const { text, commit } = this.props
+    const { value } = this.state
+
+    this.setState({ editing, value: text })
     if (!editing) {
-      if (this.state.value != this.props.text) {
-        this.props.commit(this.state.value)
+      if (value !== text) {
+        commit(value)
       }
     }
   }
 
-  handleChange = name => event => {
+  handleChange = name => (event) => {
     this.setState({
       [name]: event.target.value,
     })
   }
 
   keyPress = (event) => {
-    if(event.keyCode == 13) {
+    if (event.keyCode === 13) {
       this.changeMode(false)
     }
   }
 
   render() {
     const { text } = this.props
-    const { editing } = this.state
+    const { editing, value } = this.state
     if (editing) {
       return (
         <TextField
           id="dataset-name"
           label="Dataset Name"
-          value={this.state.value}
+          value={value}
           onChange={this.handleChange('value')}
           margin="normal"
           variant="outlined"
@@ -50,12 +50,19 @@ class EditableTextField extends React.Component
           onBlur={() => this.changeMode(false)}
         />
       )
-    } else {
-      return  (
-        <span onClick={() => this.changeMode(true)}>{text}</span>
-      )
     }
+    // TODO: We should come up with a better way of editing here instead of silencing the warning
+    /* eslint-disable jsx-a11y/click-events-have-key-events,
+                      jsx-a11y/no-static-element-interactions */
+    return <span onClick={() => this.changeMode(true)}>{text}</span>
+    /* eslint-enable jsx-a11y/click-events-have-key-events,
+                     jsx-a11y/no-static-element-interactions */
   }
+}
+
+EditableTextField.propTypes = {
+  text: PropTypes.string.isRequired,
+  commit: PropTypes.func.isRequired
 }
 
 export default EditableTextField

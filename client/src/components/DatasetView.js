@@ -1,25 +1,20 @@
-import React, { Fragment } from "react";
-import { Query } from "react-apollo";
-import gql from "graphql-tag";
+import React from 'react'
+import PropTypes from 'prop-types'
+import { Query } from 'react-apollo'
+import gql from 'graphql-tag'
 
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-
 import { withStyles } from '@material-ui/core/styles'
-
-import { datasetViewQuery } from '../queries'
-
 import IconButton from '@material-ui/core/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
 import LinearProgress from '@material-ui/core/LinearProgress';
 
+import { datasetViewQuery } from '../queries'
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
-import ADIButton from './ADIButton'
 import ToggleVisibility from './ToggleVisibility'
-
 import DataTableView from './DataTableView'
-import DatasetGenerator from './DatasetGenerator'
 import DatasetColumnChips from './DatasetColumnChips'
 import DatasetNameEditor from '../containers/DatasetNameEditor'
 import DatasetEditor from '../containers/DatasetEditor'
@@ -46,12 +41,21 @@ const styles = theme => ({
 });
 
 class DatasetView extends React.Component {
-  constructor(props) {
-    super(props)
+  static propTypes = {
+    subscribeToMore: PropTypes.func.isRequired,
+    navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired,
+    classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    dataset: PropTypes.object // eslint-disable-line react/forbid-prop-types
+  }
+
+  static defaultProps = {
+    dataset: null
   }
 
   componentDidMount() {
-    this.props.subscribeToMore()
+    const { subscribeToMore } = this.props
+
+    subscribeToMore()
   }
 
   render() {
@@ -60,28 +64,30 @@ class DatasetView extends React.Component {
     const displayColumns = dataset.columns
     const selectedColumns = displayColumns.filter(c => c.visible)
 
-    const sample_rows = dataset.samples.map(s => {
+    const sampleRows = dataset.samples.map((s) => {
       const record = JSON.parse(s)
       return selectedColumns.map(c => record[c.name])
     })
 
-    return <Paper className={classes.root} elevation={4}>
-             <Typography variant="headline">
-               <DatasetNameEditor dataset={dataset}/>
-               <IconButton aria-label="Chart" onClick={e => navigation.switchMode('chart-editor')}>
-                 <ChartIcon />
-               </IconButton>
-               <DatasetModeToggle dataset={dataset}/>
-             </Typography>
-             <DatasetEditor dataset={dataset} />
-             <DatasetColumnChips columns={displayColumns}/>
-             <ToggleVisibility visible={dataset.generating}>
-               <LinearProgress/>
-             </ToggleVisibility>
-             <ToggleVisibility visible={!dataset.generating}>
-               <DataTableView columns={selectedColumns} rows={sample_rows}/>
-            </ToggleVisibility>
-           </Paper>
+    return (
+      <Paper className={classes.root} elevation={4}>
+        <Typography variant="headline">
+          <DatasetNameEditor dataset={dataset} />
+          <IconButton aria-label="Chart" onClick={() => navigation.switchMode('chart-editor')}>
+            <ChartIcon />
+          </IconButton>
+          <DatasetModeToggle dataset={dataset} />
+        </Typography>
+        <DatasetEditor dataset={dataset} />
+        <DatasetColumnChips columns={displayColumns} />
+        <ToggleVisibility visible={dataset.generating}>
+          <LinearProgress />
+        </ToggleVisibility>
+        <ToggleVisibility visible={!dataset.generating}>
+          <DataTableView columns={selectedColumns} rows={sampleRows} />
+        </ToggleVisibility>
+      </Paper>
+    )
   }
 }
 
@@ -90,28 +96,38 @@ const StyledDatasetView = compose(
   withNavigation
 )(DatasetView)
 
-const ConnectedDatasetView = (props) => (
-  <Query query={datasetViewQuery} variables={ { id: props.id } }>
-    {({ subscribeToMore, refetch, loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
-      if (error) return <p>Error!</p>;
+const ConnectedDatasetView = (props) => {
+  const { id } = props
 
-      if (props.id == null) return <div></div>
+  return (
+    <Query query={datasetViewQuery} variables={{ id }}>
+      {({
+        subscribeToMore,
+        refetch,
+        loading,
+        error,
+        data
+      }) => {
+        if (loading) return <p>Loading...</p>;
+        if (error) return <p>Error!</p>;
 
-      const more = () => subscribeToMore({
-        document: DATASET_GENERATION_SUBSCRIPTION,
-        variables: { id: props.id },
-        updateQuery: (prev, { subscriptionData }) => {
-          // Actually kick off a refetch of the data, but until that's finished, return
-          // the current data.
-          refetch()
-          return prev
-        }
-      })
+        if (props.id == null) return <div />
 
-      return <StyledDatasetView dataset={ data.dataset[0] } subscribeToMore={more} { ...props } />
-    }}
-  </Query>
-)
+        const more = () => subscribeToMore({
+          document: DATASET_GENERATION_SUBSCRIPTION,
+          variables: { id: props.id },
+          updateQuery: (prev) => {
+            // Actually kick off a refetch of the data, but until that's finished, return
+            // the current data.
+            refetch()
+            return prev
+          }
+        })
+
+        return <StyledDatasetView dataset={data.dataset[0]} subscribeToMore={more} {...props} />
+      }}
+    </Query>
+  )
+}
 
 export default ConnectedDatasetView

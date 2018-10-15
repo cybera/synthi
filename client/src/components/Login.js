@@ -14,6 +14,7 @@ import { compose } from '../lib/common'
 import { withNavigation } from '../context/NavigationContext'
 import { openSnackbar } from './Notifier'
 import ADIButton from './ADIButton'
+import ADILogo from '../images/ckan-logo.png'
 
 const styles = theme => ({
   layout: {
@@ -100,11 +101,11 @@ class Login extends React.Component {
         <main className={classes.layout}>
           <Paper className={classes.paper}>
             <img
-              src={require('../images/ckan-logo.png')}
+              src={ADILogo}
               alt=""
               className={classes.img}
             />
-            <Typography component="h1" variant="title" gutterBottom={true}>
+            <Typography component="h1" variant="title" gutterBottom>
               Welcome to the ADI Platform
             </Typography>
             <Typography component="h1" variant="body1">
@@ -152,6 +153,10 @@ class Login extends React.Component {
       </React.Fragment>
     )
   }
+}
+
+Login.propTypes = {
+  classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 }
 
 const StyledLogin = compose(
