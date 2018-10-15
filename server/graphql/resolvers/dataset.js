@@ -75,7 +75,7 @@ const processDatasetUpdate = async (datasetProps, context) => {
   }
 
   return dataset
-} 
+}
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
@@ -116,7 +116,7 @@ export default {
     updateDataset: (_, props, context) => processDatasetUpdate(props, context),
     createPlot(_, { jsondef }) {
       return safeQuery(`
-        CREATE (p:Plot { jsondef: $jsondef }) 
+        CREATE (p:Plot { jsondef: $jsondef })
         RETURN ID(p) AS id, p.jsondef AS jsondef
       `,
       { jsondef }).then(results => results[0])

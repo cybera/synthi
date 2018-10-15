@@ -1,25 +1,22 @@
-import React, { Fragment } from "react";
-import { Query } from "react-apollo";
-import gql from "graphql-tag";
+import React from 'react';
+import PropTypes from 'prop-types'
+import { Query } from 'react-apollo';
+import gql from 'graphql-tag';
 
-import Paper from 'material-ui/Paper';
-import Typography from 'material-ui/Typography';
-
-import { withStyles } from 'material-ui/styles'
-
-import { datasetViewQuery } from '../queries'
-
-import IconButton from 'material-ui/IconButton'
+import { withStyles } from '@material-ui/core/styles'
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
 import LinearProgress from '@material-ui/core/LinearProgress';
 
+import { datasetViewQuery } from '../queries'
+
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
-import ADIButton from './ADIButton'
 import ToggleVisibility from './ToggleVisibility'
 
 import DataTableView from './DataTableView'
-import DatasetGenerator from './DatasetGenerator'
 import DatasetColumnChips from './DatasetColumnChips'
 import DatasetNameEditor from '../containers/DatasetNameEditor'
 import DatasetEditor from '../containers/DatasetEditor'
@@ -29,6 +26,8 @@ const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
     datasetGenerated(id: $id) {
       id
+      status
+      message
     }
   }
 `;
@@ -42,46 +41,99 @@ const styles = theme => ({
   },
   rightIcon: {
     marginLeft: theme.spacing.unit,
+  },
+  error: {
+    color: '#F44336',
+    paddingBottom: theme.spacing.unit * 3
   }
 });
 
 class DatasetView extends React.Component {
-  constructor(props) {
-    super(props)
+  static propTypes = {
+    navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired,
+    id: PropTypes.number,
+    classes: PropTypes.object.isRequired // eslint-disable-line react/forbid-prop-types
   }
 
-  componentDidMount() {
-    this.props.subscribeToMore()
+  static defaultProps = {
+    id: null
+  }
+
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      errors: {}
+    }
+  }
+
+  subscribeToDatasetGenerated = (subscribeToMore, refetch) => {
+    const { id } = this.props
+
+    subscribeToMore({
+      document: DATASET_GENERATION_SUBSCRIPTION,
+      variables: { id },
+      updateQuery: (prev, { subscriptionData }) => {
+        const { status, message } = subscriptionData.data.datasetGenerated
+        const { errors } = this.state
+        if (status === 'failed') {
+          this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
+        } else {
+          this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
+        }
+        refetch()
+        return prev
+      }
+    })
   }
 
   render() {
-    const { classes, navigation, dataset } = this.props
+    const { id } = this.props
 
-    const displayColumns = dataset.columns
-    const selectedColumns = displayColumns.filter(c => c.visible)
+    return (
+      <Query query={datasetViewQuery} variables={{ id }}>
+        {({ data, subscribeToMore, loading, error, refetch }) => {
+          if (loading) return <p>Loading...</p>
+          if (error) return <p>Error!</p>
 
-    const sample_rows = dataset.samples.map(s => {
-      const record = JSON.parse(s)
-      return selectedColumns.map(c => record[c.name])
-    })
+          if (id == null) return <div />
 
-    return <Paper className={classes.root} elevation={4}>
-             <Typography variant="headline">
-               <DatasetNameEditor dataset={dataset}/>
-               <IconButton aria-label="Chart" onClick={e => navigation.switchMode('chart-editor')}>
-                 <ChartIcon />
-               </IconButton>
-               <DatasetModeToggle dataset={dataset}/>
-             </Typography>
-             <DatasetEditor dataset={dataset} />
-             <DatasetColumnChips columns={displayColumns}/>
-             <ToggleVisibility visible={dataset.generating}>
-               <LinearProgress/>
-             </ToggleVisibility>
-             <ToggleVisibility visible={!dataset.generating}>
-               <DataTableView columns={selectedColumns} rows={sample_rows}/>
-            </ToggleVisibility>
-           </Paper>
+          const { classes, navigation } = this.props
+          const { errors } = this.state
+          const dataset = data.dataset[0]
+          const displayColumns = dataset.columns
+          const selectedColumns = displayColumns.filter(c => c.visible)
+
+          const sampleRows = dataset.samples.map((s) => {
+            const record = JSON.parse(s)
+            return selectedColumns.map(c => record[c.name])
+          })
+
+          this.subscribeToDatasetGenerated(subscribeToMore, refetch)
+
+          return (
+            <Paper className={classes.root} elevation={4}>
+              <Typography variant="headline">
+                <DatasetNameEditor dataset={dataset} />
+                <IconButton aria-label="Chart" onClick={() => navigation.switchMode('chart-editor')}>
+                  <ChartIcon />
+                </IconButton>
+                <DatasetModeToggle dataset={dataset} />
+              </Typography>
+              <DatasetEditor dataset={dataset} />
+              <Typography className={classes.error}>{errors[id]}</Typography>
+              <DatasetColumnChips columns={displayColumns} />
+              <ToggleVisibility visible={dataset.generating}>
+                <LinearProgress />
+              </ToggleVisibility>
+              <ToggleVisibility visible={!dataset.generating}>
+                <DataTableView columns={selectedColumns} rows={sampleRows} />
+              </ToggleVisibility>
+            </Paper>
+          )
+        }}
+      </Query>
+    )
   }
 }
 
@@ -90,28 +142,4 @@ const StyledDatasetView = compose(
   withNavigation
 )(DatasetView)
 
-const ConnectedDatasetView = (props) => (
-  <Query query={datasetViewQuery} variables={ { id: props.id } }>
-    {({ subscribeToMore, refetch, loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
-      if (error) return <p>Error!</p>;
-
-      if (props.id == null) return <div></div>
-
-      const more = () => subscribeToMore({
-        document: DATASET_GENERATION_SUBSCRIPTION,
-        variables: { id: props.id },
-        updateQuery: (prev, { subscriptionData }) => {
-          // Actually kick off a refetch of the data, but until that's finished, return
-          // the current data.
-          refetch()
-          return prev
-        }
-      })
-
-      return <StyledDatasetView dataset={ data.dataset[0] } subscribeToMore={more} { ...props } />
-    }}
-  </Query>
-)
-
-export default ConnectedDatasetView
+export default StyledDatasetView

@@ -12,8 +12,8 @@ tx = session.begin_transaction()
 DATASET_ID = int(sys.argv[1])
 
 result = tx.run('''
-  MATCH(d: Dataset) 
-  WHERE ID(d) = $id 
+  MATCH(d: Dataset)
+  WHERE ID(d) = $id
   RETURN d
 ''', id=DATASET_ID).single()
 dataset = result['d']
@@ -46,7 +46,9 @@ tx.commit()
 
 body = {
   "type": "dataset-updated",
-  "id": DATASET_ID
+  "id": DATASET_ID,
+  "status": "success",
+  "message": ""
 }
 
 status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))

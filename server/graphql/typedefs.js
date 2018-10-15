@@ -60,7 +60,13 @@ type Mutation {
 }
 
 type Subscription {
-  datasetGenerated(id: Int!): Dataset
+  datasetGenerated(id: Int!): DatasetMessage
+}
+
+type DatasetMessage {
+  id: Int!
+  status: String!
+  message: String!
 }
 
 schema {

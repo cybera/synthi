@@ -50,7 +50,7 @@ def write_output(df, output_name):
   dataset = tx.run(update_dataset_query, name=output_name, columns=columns).single()
   print(f"Updating calculated '{output_name}' dataset.")
   df.to_csv(dataset_abspath(dataset), index=False)
-  
+
 
 def load_transform(script_path):
   full_path = os.path.join(SCRIPT_ROOT, script_path)
@@ -74,9 +74,9 @@ MATCH individual_path = (output)<-[*]-(t)
 WHERE t IN nodes(full_path)
 WITH DISTINCT(individual_path), t
 MATCH (t)-[:OUTPUT]->(individual_output:Dataset)
-RETURN 
-  t.name AS name, 
-  t.script AS script, 
+RETURN
+  t.name AS name,
+  t.script AS script,
   length(individual_path) AS distance,
   ID(individual_output) AS output_id,
   individual_output.name AS output_name,
@@ -85,12 +85,24 @@ ORDER BY distance DESC
 '''
 print(f"Finding and ordering transforms for ID: {generate_id}.")
 transforms = tx.run(find_transforms_query, output_id=generate_id)
-for t in transforms:
-  transform_script = t['script']
-  print(f"Running {transform_script}")
-  transform_mod = load_transform(transform_script)
-  transform_result = transform_mod.transform()
-  write_output(transform_result, t['output_name'])
+
+body = {
+  "type": "dataset-updated",
+  "id": generate_id,
+  "status": "success",
+  "message": ""
+}
+
+try:
+  for t in transforms:
+    transform_script = t['script']
+    print(f"Running {transform_script}")
+    transform_mod = load_transform(transform_script)
+    transform_result = transform_mod.transform()
+    write_output(transform_result, t['output_name'])
+except Exception as e:
+  body["status"] = "failed"
+  body["message"] = repr(e)
 
 # Just in case, we know we're done trying at this point and should
 # reset the dataset's generating status.
@@ -101,11 +113,6 @@ SET d.generating = false
 ''', id=generate_id)
 
 tx.commit()
-
-body = {
-  "type": "dataset-updated",
-  "id": generate_id
-}
 
 status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
 
