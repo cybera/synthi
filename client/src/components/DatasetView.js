@@ -19,6 +19,7 @@ import DatasetColumnChips from './DatasetColumnChips'
 import DatasetNameEditor from '../containers/DatasetNameEditor'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetModeToggle from '../containers/DatasetModeToggle'
+import DatasetConnections from './DatasetConnections.js'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -89,6 +90,7 @@ class DatasetView extends React.Component {
     const { id } = this.props
 
     return (
+     
       <Query query={datasetViewQuery} variables={{ id }}>
         {({ data, subscribeToMore, loading, error, refetch }) => {
           if (loading) return <p>Loading...</p>
@@ -108,8 +110,9 @@ class DatasetView extends React.Component {
           })
 
           this.subscribeToDatasetGenerated(subscribeToMore, refetch)
-
+          
           return (
+
             <Paper className={classes.root} elevation={4}>
               <Typography variant="headline">
                 <DatasetNameEditor dataset={dataset} />
@@ -119,6 +122,7 @@ class DatasetView extends React.Component {
                 <DatasetModeToggle dataset={dataset} />
               </Typography>
               <DatasetEditor dataset={dataset} />
+              <DatasetConnections dataset={dataset} /> 
               <Typography className={classes.error}>{errors[id]}</Typography>
               <DatasetColumnChips columns={displayColumns} />
               <ToggleVisibility visible={dataset.generating}>

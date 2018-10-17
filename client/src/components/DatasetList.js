@@ -52,6 +52,8 @@ class DatasetList extends React.Component {
     const { navigation, datasets, classes } = this.props
 
     return (
+
+
       <div className={classes.root}>
         <List component="nav">
           {datasets.map(({ id, name }) => (
@@ -61,7 +63,7 @@ class DatasetList extends React.Component {
               selected={navigation.currentDataset === id}
               onClick={() => navigation.selectDataset(id)}
             >
-              <ListItemText primary={name} />
+              <ListItemText primary={name}/>
               <ListItemSecondaryAction>
                 <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, e)}>
                   <DeleteIcon />

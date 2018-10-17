@@ -34,7 +34,7 @@ app.use(cors())
 
 // Serve compiled version of the client from the server app's
 // dist directory (if it exists)
-app.use(express.static("dist"))
+// app.use(express.static("dist"))
 
 const authenticateUser = async (username, password) => {
   const user = await UserRepository.getByUsername(username)

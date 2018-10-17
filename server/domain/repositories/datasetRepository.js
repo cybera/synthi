@@ -137,4 +137,30 @@ export default class DatasetRepository {
     
     return `New Dataset ${maxIndex + 1}`
   }
+
+  // Should we change this to an ID rather
+  static async datasetConnections(dataset) {
+    const query = `MATCH (root:Dataset)
+    WHERE ID(root) = $id
+    OPTIONAL MATCH p=(root)<-[*]-(a:Dataset)
+    WITH relationships(p) AS r, root
+    UNWIND CASE WHEN size(r) IS NULL THEN [NULL] ELSE r END AS rs
+    WITH CASE 
+      WHEN rs IS NULL THEN [ID(root)]
+        ELSE {start:{
+              node: ID(startNode(rs)), 
+              kind: labels(startNode(rs))[0]
+     		      }, 
+              type: type(rs), 
+              end:{
+                node: ID(endNode(rs)), 
+                kind: labels(endNode(rs))[0]
+              }}
+    END AS connection
+    RETURN connection`
+    console.log("SDFSDFSJDF:LKJSDF:LKJSDF:LKJSDF:LKJSD:FLKJSD:LKFJSD:LKFJS:DLKFJS:LDKFJS:LKDFJ:LKSDFJL:KSDFJ:LKSDFJL:SKDJFL:KSDJF:KLSDF")
+    console.log(dataset.id)
+    const connections = await safeQuery(query, {id: dataset.id})
+    return JSON.stringify(connections) 
+  }
 }

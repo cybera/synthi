@@ -25,7 +25,9 @@ type Dataset {
   computed: Boolean
   generating: Boolean
   inputTransformation: Transformation
+  connections: String
 }
+
 
 type Transformation {
   id: Int!

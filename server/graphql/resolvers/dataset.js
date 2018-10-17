@@ -103,8 +103,15 @@ export default {
     },
     inputTransformation(dataset) {
       return TransformationRepository.inputTransformation(dataset)
+    },
+    async connections(dataset) {
+      const results =  await DatasetRepository.datasetConnections(dataset)
+      console.log(results)
+      console.log("SDFSDFSDF")
+      return results
     }
-  },
+  }, 
+
   Mutation: {
     createDataset(_, { name }, context) {
       return DatasetRepository.create(context, { name })
