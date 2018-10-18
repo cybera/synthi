@@ -122,7 +122,7 @@ class DatasetView extends React.Component {
                 <DatasetModeToggle dataset={dataset} />
               </Typography>
               <DatasetEditor dataset={dataset} />
-              <DatasetConnections dataset={dataset} /> 
+              <DatasetConnections dataset={dataset} />
               <Typography className={classes.error}>{errors[id]}</Typography>
               <DatasetColumnChips columns={displayColumns} />
               <ToggleVisibility visible={dataset.generating}>

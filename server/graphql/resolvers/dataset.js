@@ -106,8 +106,6 @@ export default {
     },
     async connections(dataset) {
       const results =  await DatasetRepository.datasetConnections(dataset)
-      console.log(results)
-      console.log("SDFSDFSDF")
       return results
     }
   }, 
