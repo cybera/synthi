@@ -8,6 +8,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { datasetConnectionsQuery } from '../queries';
+import ToggleVisibility from './ToggleVisibility'
 
 
 // parent: {
@@ -73,7 +74,8 @@ function makeLinksAlternate(queryResult) {
         name: queryResult[i].connection.start.name,
         parent: queryResult[i].connection.end.node,
         kind: queryResult[i].connection.start.kind,
-        children: null
+        children: null,
+        origin:false
       })
     } else if (queryResult[i].connection.type == 'OUTPUT') {
       connected.push({
@@ -81,7 +83,8 @@ function makeLinksAlternate(queryResult) {
         name: queryResult[i].connection.start.name,
         parent: queryResult[i].connection.end.node,
         kind: queryResult[i].connection.start.kind,
-        children: null
+        children: null,
+        origin:false
       })
     } else {
       console.log('Unknown type')
@@ -94,12 +97,26 @@ function makeLinksAlternate(queryResult) {
       id: queryResult[0].connection.end.node,
       name: queryResult[0].connection.end.name,
       kind: queryResult[0].connection.end.kind,
+      origin:false,
       children: null
     }
     connected.unshift(root)
     connected = new Set(connected.map(item => JSON.stringify(item)));
     connected = [...connected].map(item => JSON.parse(item));
   }
+
+  // The final data set is always the terminating node, 
+  // however we also have to find if it's connected to anything
+  // else and make it clear that it is the origin. This is important
+  // for some of the messages that display in the expansion pannel 
+  
+  // TODO: Test this ( I'm 99% sure it will work all the time) 
+  // TODO: Is it possible to do this without looping? 
+  const originName = connected[connected.length-1].name
+  for (var i = 0; i<connected.length;i++) {
+    if (connected[i].name == originName) { connected[i].origin = true}
+  }
+  console.log(connected)
   return list_to_tree(connected)
 }
 
@@ -111,6 +128,19 @@ const RenderRelations = (props) => {
       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
         <Typography>{ node.kind }: { node.name } </Typography>
       </ExpansionPanelSummary> 
+      <ExpansionPanelDetails>
+        <ToggleVisibility visible={!node.origin}>
+          <Typography>
+            The  {node.kind} {node.name} is the result of the transformations and datasets below.
+          </Typography>
+        </ToggleVisibility>
+        <ToggleVisibility visible={node.origin}>
+          <Typography>
+            The {node.kind} {node.name} is the origin {node.kind} to the above branch of transformations, 
+            it has no contributing transformations.
+          </Typography>
+        </ToggleVisibility>
+      </ExpansionPanelDetails>
       { node.children.map(child => <RenderRelations node={child} key={child.id}/> )}
     </ExpansionPanel>
   )
