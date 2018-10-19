@@ -114,6 +114,7 @@ class DatasetView extends React.Component {
           return (
 
             <Paper className={classes.root} elevation={4}>
+           
               <Typography variant="headline">
                 <DatasetNameEditor dataset={dataset} />
                 <IconButton aria-label="Chart" onClick={() => navigation.switchMode('chart-editor')}>
@@ -122,16 +123,19 @@ class DatasetView extends React.Component {
                 <DatasetModeToggle dataset={dataset} />
               </Typography>
               <DatasetEditor dataset={dataset} />
-              <DatasetConnections dataset={dataset} />
               <Typography className={classes.error}>{errors[id]}</Typography>
               <DatasetColumnChips columns={displayColumns} />
+              <DatasetConnections dataset={dataset} />
               <ToggleVisibility visible={dataset.generating}>
                 <LinearProgress />
               </ToggleVisibility>
               <ToggleVisibility visible={!dataset.generating}>
                 <DataTableView columns={selectedColumns} rows={sampleRows} />
               </ToggleVisibility>
+             
             </Paper>
+
+             
           )
         }}
       </Query>

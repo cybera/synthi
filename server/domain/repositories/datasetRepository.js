@@ -145,7 +145,7 @@ export default class DatasetRepository {
     WITH relationships(p) AS r, root
     UNWIND CASE WHEN size(r) IS NULL THEN [NULL] ELSE r END AS rs
     WITH CASE 
-      WHEN rs IS NULL THEN {original:ID(root)}
+      WHEN rs IS NULL THEN {original:ID(root), name:root.name, kind:root.kind}
         ELSE {start:{
               node: ID(startNode(rs)), 
               kind: labels(startNode(rs))[0],
