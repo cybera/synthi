@@ -7,6 +7,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 
 import LogoutButton from './LogoutButton'
 import ADIButton from './ADIButton'
+import OrgSelector from './OrgSelector'
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 import ADILogo from '../images/ckan-logo.png'
@@ -60,6 +61,7 @@ function ButtonAppBar(props) {
             Scenarios
           </ADIButton>
           <span className={classes.flex} />
+          <OrgSelector />
           <LogoutButton />
         </Toolbar>
       </AppBar>

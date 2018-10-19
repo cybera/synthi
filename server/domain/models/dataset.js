@@ -4,7 +4,7 @@ import Storage from '../../storage'
 import { fullDatasetPath, csvFromStream } from '../../lib/util'
 
 export default class Dataset {
-  constructor(id, name, path, owner, computed, generating = false, columns = []) {
+  constructor(id, name, path, owner, computed = false, generating = false, columns = []) {
     this.id = id
     this.name = name
     this.path = path

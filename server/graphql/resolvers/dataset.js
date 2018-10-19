@@ -1,9 +1,10 @@
-import DatasetRepository from '../../domain/repositories/datasetRepository'
 import { sendToWorkerQueue } from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import { storeFS, runTransformation } from '../../lib/util'
 import { pubsub, withFilter } from '../pubsub'
 import * as TransformationRepository from '../../domain/repositories/transformationRepository'
+import DatasetRepository from '../../domain/repositories/datasetRepository'
+import OrganizationRepository from '../../domain/repositories/organizationRepository'
 
 // TODO: Move this to a real memcached or similar service and actually tie it to the
 // current user
@@ -81,12 +82,12 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 
 export default {
   Query: {
-    dataset(_, { id, name }, context) {
+    async dataset(_, { id, name }, context) {
       let datasets = []
 
-      if (id != null) datasets.push(DatasetRepository.get(context, id))
-      else if (name != null) datasets.push(DatasetRepository.getByName(context, name))
-      else datasets = DatasetRepository.getAll(context)
+      if (id != null) datasets.push(await DatasetRepository.get(context, id))
+      else if (name != null) datasets.push(await DatasetRepository.getByName(context, name))
+      else datasets = await DatasetRepository.getAll(context)
 
       return datasets
     },
@@ -106,8 +107,9 @@ export default {
     }
   },
   Mutation: {
-    createDataset(_, { name }, context) {
-      return DatasetRepository.create(context, { name })
+    async createDataset(_, { name, owner }, context) {
+      const org = await OrganizationRepository.get(owner)
+      return DatasetRepository.create(context, { name, owner: org })
     },
     async deleteDataset(_, { id }, context) {
       return DatasetRepository.delete(context, id)

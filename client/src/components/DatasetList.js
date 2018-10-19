@@ -54,21 +54,23 @@ class DatasetList extends React.Component {
     return (
       <div className={classes.root}>
         <List component="nav">
-          {datasets.map(({ id, name }) => (
-            <ListItem
-              button
-              key={id}
-              selected={navigation.currentDataset === id}
-              onClick={() => navigation.selectDataset(id)}
-            >
-              <ListItemText primary={name} />
-              <ListItemSecondaryAction>
-                <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, e)}>
-                  <DeleteIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
+          {datasets
+            .filter(d => d.owner.id === navigation.currentOrg)
+            .map(({ id, name }) => (
+              <ListItem
+                button
+                key={id}
+                selected={navigation.currentDataset === id}
+                onClick={() => navigation.selectDataset(id)}
+              >
+                <ListItemText primary={name} />
+                <ListItemSecondaryAction>
+                  <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, e)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </ListItem>
+            ))}
         </List>
       </div>
     )

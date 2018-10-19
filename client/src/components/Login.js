@@ -84,7 +84,7 @@ class Login extends React.Component {
       return response.json()
     }).then((obj) => {
       props.navigation.setUser(obj.user)
-      localStorage.setItem('user', obj.user)
+      localStorage.setItem('user', JSON.stringify(obj.user))
     }).catch((err) => {
       console.log(err)
       openSnackbar({ message: 'Login failed' })

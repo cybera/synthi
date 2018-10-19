@@ -8,11 +8,11 @@ import { compose } from '../lib/common'
 
 import { withNavigation } from '../context/NavigationContext'
 import ADIButton from '../components/ADIButton'
-import { datasetListQuery } from '../queries' 
+import { datasetListQuery } from '../queries'
 
 const CREATE_DATASET = gql`
-  mutation CreateDataset($name: String) {
-    createDataset(name: $name) {
+  mutation CreateDataset($name: String, $owner: Int) {
+    createDataset(name: $name, owner: $owner) {
       id
       name
     }
@@ -44,11 +44,12 @@ class NewDatasetButton extends React.Component
   }
   
   render() {
-    const { classes } = this.props
+    const { navigation, classes } = this.props
 
     return (
       <Mutation 
         mutation={CREATE_DATASET}
+        variables={{ owner: navigation.currentOrg }}
         refetchQueries={[{ query: datasetListQuery }]}>
         {(mutate, { data }) => (
           <ADIButton 

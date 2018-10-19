@@ -31,6 +31,6 @@ print(f"Creating user: {username}")
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 tx.run('''
-CREATE (:User { username: $username, password: $password })
+CREATE (:Organization { name: $username })<-[:MEMBER]-(:User { username: $username, password: $password })
 ''', username=username, password=hashed_password.decode('utf-8'))
 tx.commit()

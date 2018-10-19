@@ -1,10 +1,13 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const datasetListQuery = gql`
 {
   dataset {
     id,
-    name
+    name,
+    owner {
+      id
+    }
   }
 }
 `

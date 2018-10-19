@@ -18,6 +18,7 @@ type Column {
 type Dataset {
   id: Int!
   name: String!
+  owner: Organization!
   columns: [Column]
   samples: [String]
   rows: [String]
@@ -47,8 +48,20 @@ type Query {
   uploads: [File]
 }
 
+type Organization {
+  id: Int!
+  name: String!
+  members: [User]
+}
+
+type User {
+  id: Int!
+  username: String!
+  organizations: [Organization]
+}
+
 type Mutation {
-  createDataset(name: String): Dataset
+  createDataset(name: String, owner: Int): Dataset
   deleteDataset(id: Int!): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset

@@ -1,9 +1,7 @@
 import { safeQuery } from '../../neo4j/connection'
 import Dataset from '../models/dataset'
-import UserRepository from './userRepository'
-import canViewDataset from '../policies/canViewDataset'
-import canEditDataset from '../policies/canEditDataset'
-import canDeleteDataset from '../policies/canDeleteDataset'
+import canAccessDataset from '../policies/canAccessDataset'
+import utils from './utils'
 
 export default class DatasetRepository {
   static async get(context, id) {
@@ -13,8 +11,8 @@ export default class DatasetRepository {
     if (!result[0]) {
       return null
     }
-    const dataset = await this.createDataset(result[0])
-    return canViewDataset(context.user, dataset) ? dataset : null
+    const dataset = await utils.createDataset(result[0])
+    return canAccessDataset(context.user, dataset) ? dataset : null
   }
 
   static async getByName(context, name) {
@@ -23,53 +21,67 @@ export default class DatasetRepository {
     if (!result[0]) {
       return null
     }
-    const dataset = await this.createDataset(result[0])
-    return canViewDataset(context.user, dataset) ? dataset : null
+    const dataset = await utils.createDataset(result[0])
+    return canAccessDataset(context.user, dataset) ? dataset : null
   }
 
   static async getAll(context) {
     const query = this.buildQuery('')
     const results = await safeQuery(query)
-    const datasets = await Promise.all(results.map(d => this.createDataset(d)))
-    return datasets.filter(d => canViewDataset(context.user, d))
+    const datasets = await Promise.all(results.map(d => utils.createDataset(d)))
+    return datasets.filter(d => canAccessDataset(context.user, d))
   }
 
   static async create(context, data) {
-    if (!data.name) {
-      data.name = await this.uniqueDefaultName(context.user)
+    let { name } = data
+    if (!name) {
+      name = await this.uniqueDefaultName(data.owner)
     }
-    const dataset = new Dataset(null, data.name, data.path, context.user, data.computed,
+
+    const dataset = new Dataset(null, name, data.path, data.owner, data.computed,
       data.generating, [])
+
+    if (!canAccessDataset(context.user, dataset)) {
+      throw new Error('Not authorized')
+    }
+
     const query = [`
-      CREATE (n:Dataset { name: $dataset.name })
-      SET n.path = $dataset.path,
-        n.owner_id = toInteger($dataset.owner.id),
-        n.computed = $dataset.computed,
-        n.generating = $dataset.generating
-      RETURN ID(n) AS id
+      MATCH (o:Organization)
+      WHERE ID(o) = $dataset.owner.id
+      CREATE (d:Dataset { name: $dataset.name })
+      SET d.path = $dataset.path,
+        d.computed = $dataset.computed,
+        d.generating = $dataset.generating
+      CREATE (o)-[:OWNER]->(d)
+      RETURN ID(d) AS id
     `, { dataset }]
+
     const result = await safeQuery(...query)
     dataset.id = result[0].id
+
     return dataset
   }
 
-  static save(context, dataset) {
-    if (!canEditDataset(context.user, dataset)) {
+  static async save(context, dataset) {
+    if (!canAccessDataset(context.user, dataset)) {
       throw new Error('Not authorized')
+    }
+
+    if (!(await this.isUnique(dataset))) {
+      throw new Error('Name must be unique')
     }
 
     const query = [`
       MATCH (n:Dataset)
       WHERE ID(n) = toInteger($dataset.id)
-      SET 
+      SET
         n.name = $dataset.name,
         n.path = $dataset.path,
-        n.owner_id = toInteger($dataset.owner.id),
         n.computed = $dataset.computed,
         n.generating = $dataset.generating
     `, { dataset }]
 
-    safeQuery(...query)
+    await safeQuery(...query)
   }
 
   static async delete(context, dataset) {
@@ -77,7 +89,7 @@ export default class DatasetRepository {
       dataset = await this.get(context, dataset)
     }
 
-    if (!canDeleteDataset(context.user, dataset)) {
+    if (!canAccessDataset(context.user, dataset)) {
       throw new Error('Not authorized')
     }
 
@@ -99,42 +111,45 @@ export default class DatasetRepository {
   }
 
   static buildQuery(where) {
-    return `MATCH (d:Dataset)
+    return `MATCH (d:Dataset)<-[:OWNER]-(o:Organization)
       ${where}
       OPTIONAL MATCH (d)<--(c:Column)
       RETURN
         ID(d) AS id,
         d.name AS name,
-        d.owner_id AS owner_id,
         d.computed AS computed,
         COALESCE(d.generating, false) AS generating,
         d.path AS path,
-        collect(c) AS columns`
-  }
-
-  static async createDataset(result) {
-    const owner = await UserRepository.get(result.owner_id)
-    const columns = result.columns.map(c => ({ id: c.identity, ...c.properties }))
-      .sort((a, b) => a.order > b.order)
-    return new Dataset(result.id, result.name, result.path, owner, result.computed,
-      result.generating, columns)
+        COLLECT(c) AS columns,
+        o AS owner`
   }
 
   static async uniqueDefaultName(owner) {
     const query = `
-      MATCH (d:Dataset { owner_id: toInteger($owner_id) })
-      WHERE d.name STARTS WITH 'New Dataset '
+      MATCH (d:Dataset)<-[:OWNER]-(o:Organization)
+      WHERE ID(o) = toInteger($owner_id) AND d.name STARTS WITH 'New Dataset '
       RETURN d.name AS name
     `
     const names = await safeQuery(query, { owner_id: owner.id })
     const defaultNameRE = /^New Dataset (\d+)$/
     const extractIndex = (str) => {
-      let matches = str.match(defaultNameRE)
-      return matches && matches[1] ? parseInt(matches[1]) : 0
+      const matches = str.match(defaultNameRE)
+      return matches && matches[1] ? parseInt(matches[1], 10) : 0
     }
     const indices = names.map(n => extractIndex(n.name))
     const maxIndex = Math.max(...indices, 0)
-    
+
     return `New Dataset ${maxIndex + 1}`
+  }
+
+  static async isUnique(dataset) {
+    const query = [`
+      MATCH (d:Dataset { name: $dataset.name })<-[:OWNER]-(o:Organization)
+      WHERE ID(o) = $dataset.owner.id AND ID(d) <> $dataset.id
+      RETURN d`, { dataset }]
+
+    const results = await safeQuery(...query)
+
+    return results.length === 0
   }
 }

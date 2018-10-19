@@ -4,6 +4,7 @@ import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 
 import { datasetListQuery, datasetViewQuery } from '../queries'
+import { openSnackbar } from '../components/Notifier'
 import EditableTextField from '../components/EditableTextField'
 
 const updateDatasetGQL = gql`
@@ -18,15 +19,18 @@ const updateDatasetGQL = gql`
 const DatasetNameEditor = (props) => {
   const { dataset } = props
   return (
-    <Mutation 
+    <Mutation
       mutation={updateDatasetGQL}
-      refetchQueries={[{ query: datasetViewQuery }, { query: datasetListQuery }]}>
+      refetchQueries={[{ query: datasetViewQuery }, { query: datasetListQuery }]}
+    >
       { updateMutation => (
-        <EditableTextField 
-          text={dataset.name} 
-          commit={(value) => updateMutation({
-            variables: { id: dataset.id, name: value }
-          })} />
+        <EditableTextField
+          text={dataset.name}
+          commit={(value) => {
+            updateMutation({ variables: { id: dataset.id, name: value } })
+              .catch(e => openSnackbar({ message: e.message }))
+          }}
+        />
       )}
     </Mutation>
   )

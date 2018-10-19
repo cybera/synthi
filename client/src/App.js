@@ -93,12 +93,14 @@ class App extends React.Component {
   constructor(props) {
     super(props)
 
-    const user = localStorage.getItem('user')
+    const user = JSON.parse(localStorage.getItem('user'))
+    const org = user.orgs.find(org => org.name === user.username)
 
     this.state = {
-      user: user,
+      user,
       currentDataset: null,
-      currentMode: "datasets"
+      currentMode: 'datasets',
+      currentOrg: org.id
     }
   }
 
@@ -107,6 +109,8 @@ class App extends React.Component {
   selectDataset = id => this.setState({ currentDataset: id })
 
   setUser = user => this.setState({ user })
+
+  setOrg = org => this.setState({ currentOrg: org })
 
   render() {
     const { state } = this
@@ -130,10 +134,12 @@ class App extends React.Component {
           value={{
             currentMode: state.currentMode,
             currentDataset: state.currentDataset,
+            currentOrg: state.currentOrg,
             user: state.user,
             switchMode: this.switchMode,
             selectDataset: this.selectDataset,
-            setUser: this.setUser
+            setUser: this.setUser,
+            setOrg: this.setOrg
           }}
         >
           <MuiThemeProvider theme={theme}>

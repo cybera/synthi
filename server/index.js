@@ -114,7 +114,7 @@ apolloServer.applyMiddleware({ app })
 
 app.post('/login',
   passport.authenticate('local'),
-  (req, res) => res.json({ user: req.user.username }))
+  (req, res) => res.json({ user: req.user }))
 
 app.get('/logout', (req, res) => { req.logout(); res.send('Logged out') })
 
