@@ -50,13 +50,12 @@ function makeLinksAlternate(queryResult) {
   let connected = []
   if (len === 1) {
     return [{
- id: queryResult[0].connection.original,
+      id: queryResult[0].connection.original,
       name: queryResult[0].connection.name,
       kind: queryResult[0].connection.kind,
-      original: true 
-}]
+      original: true
+    }]
   }
-
 
   for (let i = 0; i < len; i++) {
     // Currently because everytthing is unidirectional
@@ -108,17 +107,12 @@ function makeLinksAlternate(queryResult) {
 const RenderRelations = (props) => {
   const { node } = props
   return (
-    <ul>
-      <li> 
-{' '}
-{node.kind}
-:
-{' '}
-{node.name}
-{' '}
- </li>
-      { node.children.map(child => <RenderRelations node={child} />)}
-    </ul>
+    <ExpansionPanel>
+      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography>{ node.kind }: { node.name } </Typography>
+      </ExpansionPanelSummary> 
+      { node.children.map(child => <RenderRelations node={child} key={child.id}/> )}
+    </ExpansionPanel>
   )
 }
 
@@ -132,7 +126,7 @@ const DatasetConnections = (props) => {
         const links = makeLinksAlternate(JSON.parse(data.dataset[0].connections))
         console.log(links[0])
         if ('original' in links[0]) {
-          // Placeholder only if no conncetions
+          // Placeholder only if no
           return (<h3> {links[0].name} is the source data </h3>)
         } 
         return <RenderRelations node={links[0]} />
