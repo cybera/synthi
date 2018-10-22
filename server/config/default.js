@@ -22,7 +22,7 @@ module.exports = {
     username: undefined,
     password: undefined,
     url: defer(function() { 
-      `${this.protocol}://${this.host}:${this.port}`
+      return `${this.neo4j.protocol}://${this.neo4j.host}:${this.neo4j.port}`
     })
   }
 }
