@@ -37,14 +37,8 @@ const styles = theme => ({
     paddingTop: 16,
     paddingBottom: 16,
     marginTop: theme.spacing.unit
-  },
-  rightIcon: {
-    marginLeft: theme.spacing.unit,
-  },
-  error: {
-    color: '#F44336',
-    paddingBottom: theme.spacing.unit * 3
   }
+
 });
 
 class DatasetView extends React.Component {
@@ -125,7 +119,7 @@ class DatasetView extends React.Component {
               <DatasetEditor dataset={dataset} />
               <Typography className={classes.error}>{errors[id]}</Typography>
               <DatasetColumnChips columns={displayColumns} />
-              <DatasetConnections dataset={dataset} />
+              <DatasetConnections dataset={dataset} classes={classes} id={id} navigation={navigation}/>
               <ToggleVisibility visible={dataset.generating}>
                 <LinearProgress />
               </ToggleVisibility>

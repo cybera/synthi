@@ -9,8 +9,30 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { datasetConnectionsQuery } from '../queries';
 import ToggleVisibility from './ToggleVisibility'
+import { withNavigation } from '../context/NavigationContext'
+import IconButton from '@material-ui/core/IconButton'
+import NavigationIcon from '@material-ui/icons/Navigation';
+import { compose } from '../lib/common'
+import { withDatasets } from '../containers/DatasetList'
 
 
+
+const styles = theme => ({
+  root: {
+    width: '100%',
+  },
+  icon: {
+    verticalAlign: 'bottom',
+    height: 20,
+    width: 20,
+  },
+  details: {
+    alignItems: 'center',
+  },
+  column: {
+    flexBasis: '33.33%',
+  },
+});
 // parent: {
 //     id: queryResult[i].connection.start.node,
 //     name: queryResult[i].connection.start.name,
@@ -43,7 +65,7 @@ function list_to_tree(list) {
     }
   }
   return roots;
-}
+};
 
 
 function makeLinksAlternate(queryResult) {
@@ -56,7 +78,7 @@ function makeLinksAlternate(queryResult) {
       kind: queryResult[0].connection.kind,
       original: true
     }]
-  }
+  };
 
   for (let i = 0; i < len; i++) {
     // Currently because everytthing is unidirectional
@@ -116,56 +138,88 @@ function makeLinksAlternate(queryResult) {
   for (var i = 0; i<connected.length;i++) {
     if (connected[i].name == originName) { connected[i].origin = true}
   }
-  console.log(connected)
   return list_to_tree(connected)
-}
+};
 
 
 const RenderRelations = (props) => {
-  const { node } = props
+  const { node } = props;
+  const { classes } = props;
+  const { navigation} = props;
+
   return (
     <ExpansionPanel>
       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography>{ node.kind }: { node.name } </Typography>
+        <Typography gutterBottom className ={classes.heading}> <b>{ node.kind.toUpperCase() }:</b> { node.name } </Typography>
       </ExpansionPanelSummary> 
       <ExpansionPanelDetails>
         <ToggleVisibility visible={!node.origin}>
           <Typography>
-            The  {node.kind} {node.name} is the result of the transformations and datasets below.
+            The  {node.kind.toLowerCase()} {node.name} is the result of the transformations and datasets below.
+            {/* TODO: Find a better navigation Icon */}
+            <ToggleVisibility visible={node.kind === "Dataset"}>
+              <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(node.id)}>
+                <NavigationIcon />
+              </IconButton>
+            </ToggleVisibility>
           </Typography>
         </ToggleVisibility>
         <ToggleVisibility visible={node.origin}>
           <Typography>
-            The {node.kind} {node.name} is the origin {node.kind} to the above branch of transformations, 
+            The {node.kind.toLowerCase()} {node.name} is the origin {node.kind.toLowerCase()} to the above branch of transformations, 
             it has no contributing transformations.
+            <ToggleVisibility visible={node.kind === "Dataset"}>
+              <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(node.id)}>
+                <NavigationIcon />
+              </IconButton>
+            </ToggleVisibility>
           </Typography>
         </ToggleVisibility>
       </ExpansionPanelDetails>
-      { node.children.map(child => <RenderRelations node={child} key={child.id}/> )}
+      { node.children.map(child => <RenderRelations node={child} key={child.id} classes={classes} navigation={navigation}/> )}
     </ExpansionPanel>
   )
-}
+};
 
 const DatasetConnections = (props) => {
   const { id } = props.dataset
+  const { classes} = props
+  const { navigation} = props;
+  
   return (
     <Query query={datasetConnectionsQuery} variables={{ id }}>
       {({ loading, error, data }) => {
         if (loading) return null
         if (error) return null
         const links = makeLinksAlternate(JSON.parse(data.dataset[0].connections))
-        console.log(links[0])
         if ('original' in links[0]) {
           // Placeholder only if no
-          return (<h3> {links[0].name} is the source data </h3>)
+
+          return ( 
+            <ExpansionPanel>
+              <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography gutterBottom className ={classes.heading}> <b> DATASET:</b> { links[0].name } </Typography>
+              </ExpansionPanelSummary> 
+              <ExpansionPanelDetails>
+              <Typography>
+              This is an uploaded data source and does not have any dependant transformations. 
+              </Typography>
+            </ExpansionPanelDetails>
+            </ExpansionPanel>)
         } 
-        return <RenderRelations node={links[0]} />
+        return <RenderRelations node={links[0]} classes={classes} navigation={navigation}/>
         
       }}
 
     </Query>
   )
-}
+};
+DatasetConnections.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
 
-
-export default DatasetConnections //
+export default compose(
+  withDatasets,
+  withNavigation,
+  withStyles(styles)
+)(DatasetConnections)
