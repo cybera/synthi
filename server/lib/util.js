@@ -3,6 +3,8 @@ import fs from 'fs'
 import waitOn from 'wait-on'
 import AMQP from 'amqplib'
 import shortid from 'shortid'
+import Storage from '../storage'
+import csvParse from 'csv-parse'
 
 export const runTransformation = async (dataset) => {
   const conn = await AMQP.connect('amqp://queue')
@@ -65,8 +67,40 @@ export const storeFS = ({ stream, filename }) => {
         }
         reject(error)
       })
-      .pipe(fs.createWriteStream(fullPath))
+      .pipe(Storage.createWriteStream(uniqueFilename))
       .on('error', error => reject(error))
       .on('finish', () => resolve({ id, path: uniqueFilename }))
   )
+}
+
+export const csvFromStream = async (stream, from, to) => {
+  const options = {
+    delimeter: ',',
+    columns: true,
+    cast: true,
+    from,
+    to
+  }
+
+  const parser = csvParse(options)
+
+  const output = []
+
+  const parseStream = new Promise((resolve, reject) => parser
+    .on('readable', () => {
+      try {
+        let record
+        while ((record = parser.read())) {
+          output.push(record)
+        }
+      } catch(err) {
+        console.log(err)
+      }
+    })
+    .on('end', resolve)
+    .on('error', reject))
+
+  stream.pipe(parser)
+
+  return parseStream.then(() => output)
 }
