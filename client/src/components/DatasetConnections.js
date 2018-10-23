@@ -166,7 +166,7 @@ const RenderRelations = (props) => {
         </ToggleVisibility>
         <ToggleVisibility visible={node.origin}>
           <Typography>
-            The {node.kind.toLowerCase()} {node.name} is the origin {node.kind.toLowerCase()} to the above branch of transformations, 
+            The {node.kind.toLowerCase()} {node.name} is the origin {node.kind.toLowerCase()} to the above branch of transformations; 
             it has no contributing transformations.
             <ToggleVisibility visible={node.kind === "Dataset"}>
               <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(node.id)}>
