@@ -33,18 +33,6 @@ const styles = theme => ({
     flexBasis: '33.33%',
   },
 });
-// parent: {
-//     id: queryResult[i].connection.start.node,
-//     name: queryResult[i].connection.start.name,
-//     kind: queryResult[i].connection.start.kind
-//   },
-//   node: {
-//     id: queryResult[i].connection.end.node,
-//     name: queryResult[i].connection.end.name,
-//     kind: queryResult[i].connection.end.kind
-//   },
-// }
-
 
 // This solution (from stack overflow, let's be honest)
 // assumes a sorted list. However, It always should be from
@@ -65,7 +53,7 @@ function list_to_tree(list) {
     }
   }
   return roots;
-};
+}
 
 
 function makeLinksAlternate(queryResult) {
@@ -76,9 +64,13 @@ function makeLinksAlternate(queryResult) {
       id: queryResult[0].connection.original,
       name: queryResult[0].connection.name,
       kind: queryResult[0].connection.kind,
-      original: true
+      original: true,
+      attributes:{id: queryResult[0].connection.original,
+        kind: "Dataset"}
     }]
-  };
+  }
+
+  
 
   for (let i = 0; i < len; i++) {
     // Currently because everytthing is unidirectional
@@ -97,7 +89,9 @@ function makeLinksAlternate(queryResult) {
         parent: queryResult[i].connection.end.node,
         kind: queryResult[i].connection.start.kind,
         children: null,
-        origin:false
+        origin:false,
+        attributes:{id: queryResult[i].connection.start.node,
+                   kind: queryResult[i].connection.start.kind}
       })
     } else if (queryResult[i].connection.type == 'OUTPUT') {
       connected.push({
@@ -106,7 +100,9 @@ function makeLinksAlternate(queryResult) {
         parent: queryResult[i].connection.end.node,
         kind: queryResult[i].connection.start.kind,
         children: null,
-        origin:false
+        origin:false,
+        attributes:{id: queryResult[i].connection.start.node,
+          kind: queryResult[i].connection.start.kind}
       })
     } else {
       console.log('Unknown type')
@@ -120,7 +116,10 @@ function makeLinksAlternate(queryResult) {
       name: queryResult[0].connection.end.name,
       kind: queryResult[0].connection.end.kind,
       origin:false,
-      children: null
+      children: null,
+      attributes:{id: queryResult[0].connection.end.node,
+      kind: queryResult[0].connection.end.kind}
+      
     }
     connected.unshift(root)
     connected = new Set(connected.map(item => JSON.stringify(item)));
@@ -133,13 +132,26 @@ function makeLinksAlternate(queryResult) {
   // for some of the messages that display in the expansion pannel 
   
   // TODO: Test this ( I'm 99% sure it will work all the time) 
-  // TODO: Is it possible to do this without looping? 
+  // TODO: Is it possible to do this without looping? Probably 
+  // just need to put the if in the above loop
   const originName = connected[connected.length-1].name
   for (var i = 0; i<connected.length;i++) {
-    if (connected[i].name == originName) { connected[i].origin = true}
+    if (connected[i].kind == "Transformation"){
+      connected[i].nodeSvgShape = {shape: 'circle', shapeProps: {fill: 'blue', 'r':10}}
+    } 
+    if (connected[i].kind == "Dataset"){
+      connected[i].nodeSvgShape = {shape: 'circle', shapeProps: {fill: 'green', 'r':10}}
+    }
+    // This is to change the color of the terminating data sets so it's clear they won't expand any more 
+    if (connected[i].name == originName) { 
+      connected[i].origin = true,
+      connected[i].nodeSvgShape = {shape: 'circle', shapeProps: {fill: 'white', 'r':10}}
+    }
   }
+
+  console.log(connected)
   return list_to_tree(connected)
-};
+}
 
 
 const RenderRelations = (props) => {
@@ -169,7 +181,7 @@ const RenderRelations = (props) => {
             The {node.kind.toLowerCase()} {node.name} is the origin {node.kind.toLowerCase()} to the above branch of transformations; 
             it has no contributing transformations.
             <ToggleVisibility visible={node.kind === "Dataset"}>
-              <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(node.id)}>
+              <IconButton aria-label="Navigate" onClick={() => navigation.selectDataset(node.id)}>
                 <NavigationIcon />
               </IconButton>
             </ToggleVisibility>
@@ -223,3 +235,6 @@ export default compose(
   withNavigation,
   withStyles(styles)
 )(DatasetConnections)
+
+export const listToTree = list_to_tree
+export const linkData = makeLinksAlternate
