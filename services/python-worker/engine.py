@@ -6,15 +6,13 @@ import importlib
 import json
 import pandas as pd
 
-from common import neo4j_driver, status_channel, queue_conn, SCRIPT_ROOT, DATA_ROOT
+from common import neo4j_driver, status_channel, queue_conn, SCRIPT_ROOT
+import storage
 
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
 generate_id = int(sys.argv[1])
-
-def dataset_abspath(dataset):
-  return os.path.join(DATA_ROOT, dataset['path'])
 
 def dataset_input(name):
   dataset_by_name_query = '''
@@ -25,7 +23,7 @@ def dataset_input(name):
   results = tx.run(dataset_by_name_query, name=name)
   # TODO: more checking here
   dataset = results.single()
-  return pd.read_csv(dataset_abspath(dataset))
+  return storage.read_csv(dataset['path'])
 
 def dataset_output(name):
   # This is only needed so things don't break if this function is in a transformation
@@ -49,8 +47,7 @@ def write_output(df, output_name):
   '''
   dataset = tx.run(update_dataset_query, name=output_name, columns=columns).single()
   print(f"Updating calculated '{output_name}' dataset.")
-  df.to_csv(dataset_abspath(dataset), index=False)
-
+  storage.write_csv(df, dataset['path'])
 
 def load_transform(script_path):
   full_path = os.path.join(SCRIPT_ROOT, script_path)

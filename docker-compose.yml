@@ -50,6 +50,7 @@ services:
     environment:
       - SCRIPT_ROOT=/mnt/scripts
       - DATA_ROOT=/mnt/data
+      - STORAGE_TYPE=object
     command: /usr/src/app/main.py
   python-shell:
     build: ./services/python-worker
@@ -62,6 +63,7 @@ services:
       - DATA_ROOT=/mnt/data
     networks:
       - default
+    working_dir: /usr/src/app
     stdin_open: true
     tty: true
   redis:
