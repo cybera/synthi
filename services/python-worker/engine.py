@@ -66,7 +66,7 @@ def load_transform(script_path):
 
 find_transforms_query = '''
 MATCH full_path = (output:Dataset)<-[*]-(last)
-WHERE ID(output) = $output_id AND
+WHERE ID(output) = toInteger($output_id) AND
       ((last:Dataset AND last.computed = false) OR last:Transformation)
 WITH full_path, output
 MATCH (t:Transformation)
@@ -108,7 +108,7 @@ except Exception as e:
 # reset the dataset's generating status.
 tx.run('''
 MATCH (d:Dataset)
-WHERE ID(d) = $id
+WHERE ID(d) = toInteger($id)
 SET d.generating = false
 ''', id=generate_id)
 

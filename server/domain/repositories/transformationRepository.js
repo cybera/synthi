@@ -6,7 +6,7 @@ import shortid from 'shortid'
 export const inputTransformation = async (dataset) => {
   const query = [`
     MATCH (d:Dataset)
-    WHERE ID(d) = $dataset.id
+    WHERE ID(d) = toInteger($dataset.id)
     OPTIONAL MATCH (t:Transformation)-[:OUTPUT]->(d)
     RETURN t
   `, { dataset }]
@@ -23,7 +23,7 @@ export const inputTransformation = async (dataset) => {
 export const saveInputTransformation = async (dataset, code) => {
   const query = [`
     MATCH (d:Dataset)
-    WHERE ID(d) = $dataset.id
+    WHERE ID(d) = toInteger($dataset.id)
     MERGE (t:Transformation)-[:OUTPUT]->(d)
     ON CREATE SET
       t.name = $dataset.name,
@@ -41,7 +41,7 @@ export const saveInputTransformation = async (dataset, code) => {
 
     const saveQuery = [`
       MATCH (t:Transformation)
-      WHERE ID(t) = $transformation.id
+      WHERE ID(t) = toInteger($transformation.id)
       SET t.script = $transformation.script
     `, { transformation }]
 
@@ -51,7 +51,7 @@ export const saveInputTransformation = async (dataset, code) => {
       dataset.path = `${shortid.generate()}-${dataset.name}.csv`.replace(/ /g, '_')
       const setDefaultPathQuery = [`
         MATCH (d:Dataset)
-        WHERE ID(d) = $dataset.id
+        WHERE ID(d) = toInteger($dataset.id)
         SET d.path = $dataset.path
       `, { dataset }]
       await safeQuery(...setDefaultPathQuery)
