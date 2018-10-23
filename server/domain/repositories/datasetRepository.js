@@ -8,7 +8,7 @@ import canDeleteDataset from '../policies/canDeleteDataset'
 export default class DatasetRepository {
   static async get(context, id) {
     id = parseInt(id, 10)
-    const query = this.buildQuery('WHERE ID(d) = $id')
+    const query = this.buildQuery('WHERE ID(d) = toInteger($id)')
     const result = await safeQuery(query, { id })
     if (!result[0]) {
       return null
@@ -60,7 +60,7 @@ export default class DatasetRepository {
 
     const query = [`
       MATCH (n:Dataset)
-      WHERE ID(n) = $dataset.id
+      WHERE ID(n) = toInteger($dataset.id)
       SET 
         n.name = $dataset.name,
         n.path = $dataset.path,
@@ -83,7 +83,7 @@ export default class DatasetRepository {
 
     const query = [`
       MATCH (d:Dataset)
-      WHERE ID(d) = $dataset.id
+      WHERE ID(d) = toInteger($dataset.id)
       OPTIONAL MATCH (d)<--(c:Column)
       OPTIONAL MATCH (t:Transformation)-[:OUTPUT]->(d)
       DETACH DELETE d, c, t`, { dataset }]
@@ -122,7 +122,7 @@ export default class DatasetRepository {
 
   static async uniqueDefaultName(owner) {
     const query = `
-      MATCH (d:Dataset { owner_id: $owner_id })
+      MATCH (d:Dataset { owner_id: toInteger($owner_id) })
       WHERE d.name STARTS WITH 'New Dataset '
       RETURN d.name AS name
     `

@@ -14,7 +14,7 @@ DATASET_ID = int(sys.argv[1])
 
 result = tx.run('''
   MATCH(d: Dataset)
-  WHERE ID(d) = $id
+  WHERE ID(d) = toInteger($id)
   RETURN d
 ''', id=DATASET_ID).single()
 dataset = result['d']
@@ -25,7 +25,7 @@ columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
 
 update_dataset_query = '''
   MATCH (dataset:Dataset)
-  WHERE ID(dataset) = $id
+  WHERE ID(dataset) = toInteger($id)
   WITH dataset
   UNWIND $columns AS column
   MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })

@@ -8,7 +8,7 @@ from importlib.machinery import SourceFileLoader
 from neo4j.v1 import GraphDatabase
 
 # TODO: Make this more configurable. Eventually, we'll want to support object storage
-from common import neo4j_driver, SCRIPT_ROOT, DATA_ROOT
+from common import neo4j_driver, SCRIPT_ROOT
 
 neo4j_uri = "bolt://neo4j:7687"
 neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))
@@ -19,7 +19,7 @@ transformation_id = int(sys.argv[1])
 
 transformation = tx.run('''
   MATCH (t:Transformation)
-  WHERE ID(t) = $id
+  WHERE ID(t) = toInteger($id)
   RETURN t
 ''', id=transformation_id).single()['t']
 
@@ -48,7 +48,7 @@ transform_spec.loader.exec_module(transform_mod)
 
 input_query = '''
   MATCH (t:Transformation)
-  WHERE ID(t) = $id
+  WHERE ID(t) = toInteger($id)
   SET t.inputs = $inputs
   WITH t
   UNWIND t.inputs AS input_name
@@ -59,7 +59,7 @@ input_query = '''
 
 output_query = '''
   MATCH (t:Transformation)
-  WHERE ID(t) = $id
+  WHERE ID(t) = toInteger($id)
   SET t.outputs = $outputs
   WITH t
   UNWIND t.outputs AS output_name

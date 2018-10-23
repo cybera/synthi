@@ -4,7 +4,7 @@ import User from '../models/user'
 export default class UserRepository {
   static async get(id) {
     const query = [`MATCH (n:User)
-      WHERE ID(n) = $id
+      WHERE ID(n) = toInteger($id)
       RETURN
         n.username AS username,
         n.password AS password,
@@ -42,7 +42,7 @@ export default class UserRepository {
 
   static delete(id) {
     const query = [`MATCH (u:User)
-      WHERE ID(u) = $id
+      WHERE ID(u) = toInteger($id)
       DETACH DELETE u`, { id }]
     safeQuery(...query)
   }
