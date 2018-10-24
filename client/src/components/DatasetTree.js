@@ -6,6 +6,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton'
 import NavigationIcon from '@material-ui/icons/Navigation';
 import { datasetViewQuery } from '../queries';
@@ -14,61 +15,101 @@ import { compose } from '../lib/common';
 import { listToTree, linkData } from './DatasetConnections.js';
 import { datasetConnectionsQuery } from '../queries';
 import ToggleVisibility from './ToggleVisibility'
-// import 'react-tree-graph/dist/style.css'
-// import './style.css'
+import MediaCard from './HoverCard.js'
+import './connectionStyle.css'
 
+
+
+
+
+
+    // {/* This creates a button that navigates to a dataset. Commented out for now because it was ugly */}
+    //       {/* <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(nodeData.attributes.id)}>
+    //             <NavigationIcon />
+    //           </IconButton> */}
+        
+// TODO: Modify this to check if the transformation name
+// is the same as the dataset name
+function ifDataset(string) {
+  if (string == "Dataset") {
+    return true
+  }
+  return false   
+}
 
 class NodeLabel extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {inside: false}
+  }
+
+  openCard = () => {
+    this.setState({inside:true})
+    console.log(this.state.inside)
+  }
+
+  closeCard = () => {
+    this.setState({inside:false})
+    console.log(this.state.inside)
+  }
+
   render() {
     const {className, nodeData, navigation} = this.props
-    console.log(this.props)
+    const { classes } = this.props
+    // TODO: I don't know how to make <MediaCard> appear as the top level element
     return (
-        <div className={className}>
-          <Typography>
-          <b>{nodeData.name}</b>
-          <br></br>{nodeData.attributes.kind} 
-          </Typography>
-         {/* This creates a button that navigates to a dataset. Commented out for now because it was ugly */}
-          {/* <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(nodeData.attributes.id)}>
-                <NavigationIcon />
-              </IconButton> */}
-         
+      <div className={className} 
+           id={"nodeContainer"}
+           onMouseEnter={this.openCard} 
+           onMouseLeave={this.closeCard} 
+           width={400} >
+        <Typography>
+          <ToggleVisibility visible={ifDataset(nodeData.attributes.kind)}>
+              <b>{nodeData.name}</b>
+              <br></br>
+          </ToggleVisibility> 
+          {nodeData.attributes.kind}
+        </Typography>
+        <div id={"cardContainer"} width={400}>
+        <ToggleVisibility visible={this.state.inside} >
+          <MediaCard classes = { classes } nodeData={ nodeData} navigation={navigation}/> 
+        </ToggleVisibility>
         </div>
+      </div>
     )
   }
 }
 
-
-function MouseOver(nodeData,ext){
-    console.log(nodeData)
-    return null
-}
-
+const lineStyle = {links: {
+  stroke: '#c4c2c1',
+  strokeWidth: 2,
+}}
 // TreeMaker, Heart breaker
 const TreeMaker = (props) => {
   const { data } = props;
   const { id } = props;
   const { navigation } = props;
-  console.log(data)
+  // console.log(data)
   return (
     <ExpansionPanel>
       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
         <Typography> <b> View Connection Diagram </b> </Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-          {/* TODO:  Make this scale with the box size rater than hard coding  */}
-        <div id="custom-container" style={{ width: '70em', height: '45em' }}> 
+        {/* TODO:  Make this scale with the box size rater than hard coding  */}
+        <div id={"treeContainer"} style={{ width: '70em', height: '45em'}} > 
           <Tree
             data={data}
             orientation="horizontal"
+            styles={lineStyle}
             initialDepth={2}
             translate={{x:25, y:320}}
-            onMouseOver={MouseOver}
             allowForeignObjects
             nodeLabelComponent={{
-              render: <NodeLabel className='myLabelComponentInSvg' navigation={navigation}/>,
+              render: <NodeLabel className='FancyNodeLabels' navigation={navigation}/>,
               foreignObjectWrapper: {
                 y: 24
+            
               }
             }}
           />
@@ -90,13 +131,14 @@ const DatasetTree = (props) => {
         if (loading) return null
         if (error) return null
         const links = linkData(JSON.parse(data.dataset[0].connections))
-        console.log(links)
+        // console.log(links)
         return (<TreeMaker data={links} id={id} navigation={navigation}/>)
       }}
 
     </Query>
   )
 };
+
 
 
 export default DatasetTree

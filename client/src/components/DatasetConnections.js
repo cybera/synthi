@@ -19,8 +19,9 @@ import { withDatasets } from '../containers/DatasetList'
 
 const styles = theme => ({
   root: {
-    width: '100%',
+    width: '100%'
   },
+
   icon: {
     verticalAlign: 'bottom',
     height: 20,
@@ -81,7 +82,6 @@ function makeLinksAlternate(queryResult) {
     // try and modify the neo4j query once this is happy so the
     // naming conventions make sense
 
-
     if (queryResult[i].connection.type == 'INPUT') {
       connected.push({
         id: queryResult[i].connection.start.node,
@@ -91,7 +91,7 @@ function makeLinksAlternate(queryResult) {
         children: null,
         origin:false,
         attributes:{id: queryResult[i].connection.start.node,
-                   kind: queryResult[i].connection.start.kind}
+          kind: queryResult[i].connection.start.kind}
       })
     } else if (queryResult[i].connection.type == 'OUTPUT') {
       connected.push({
@@ -110,7 +110,6 @@ function makeLinksAlternate(queryResult) {
     }
     // Be lazy and remove duplicates that I didn't deal with earlier
     // while also defining the root node of the tree
-
     const root = {
       id: queryResult[0].connection.end.node,
       name: queryResult[0].connection.end.name,
@@ -118,14 +117,13 @@ function makeLinksAlternate(queryResult) {
       origin:false,
       children: null,
       attributes:{id: queryResult[0].connection.end.node,
-      kind: queryResult[0].connection.end.kind}
+        kind: queryResult[0].connection.end.kind}
       
     }
     connected.unshift(root)
     connected = new Set(connected.map(item => JSON.stringify(item)));
     connected = [...connected].map(item => JSON.parse(item));
   }
-
   // The final data set is always the terminating node, 
   // however we also have to find if it's connected to anything
   // else and make it clear that it is the origin. This is important
@@ -136,24 +134,46 @@ function makeLinksAlternate(queryResult) {
   // just need to put the if in the above loop
   const originName = connected[connected.length-1].name
   for (var i = 0; i<connected.length;i++) {
-    if (connected[i].kind == "Transformation"){
-      connected[i].nodeSvgShape = {shape: 'circle', shapeProps: {fill: 'blue', 'r':10}}
+    if (connected[i].kind == "Transformation") {
+      connected[i].nodeSvgShape = {
+        shape: 'circle', 
+        shapeProps: {
+          fill: '#9b3e22',
+          'r':10, 
+          stroke: '#6a6a6a',
+          strokeWidth:2
+        }
+      }
     } 
-    if (connected[i].kind == "Dataset"){
-      connected[i].nodeSvgShape = {shape: 'circle', shapeProps: {fill: 'green', 'r':10}}
+    if (connected[i].kind == "Dataset") {
+      connected[i].nodeSvgShape = {
+        shape: 'circle',
+        shapeProps: {
+          fill: '#229B90', 
+          'r':10, 
+          stroke: '#6a6a6a',
+          strokeWidth:2}
+      }
     }
     // This is to change the color of the terminating data sets so it's clear they won't expand any more 
     if (connected[i].name == originName) { 
       connected[i].origin = true,
-      connected[i].nodeSvgShape = {shape: 'circle', shapeProps: {fill: 'white', 'r':10}}
+      connected[i].nodeSvgShape = {shape: 'circle', 
+        shapeProps: {
+          fill: 'white',
+          'r':10, 
+          stroke: '#6a6a6a',
+          strokeWidth:2
+        }
+      }
     }
   }
 
-  console.log(connected)
   return list_to_tree(connected)
 }
 
-
+// This will probably be removed in the future because no one likes 
+// the table. 
 const RenderRelations = (props) => {
   const { node } = props;
   const { classes } = props;
