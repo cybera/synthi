@@ -8,6 +8,10 @@ from importlib.machinery import SourceFileLoader
 from neo4j.v1 import GraphDatabase
 import storage
 
+# get around sibling import problem
+script_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(script_dir,'..'))
+
 from common import neo4j_driver, load_transform
 
 neo4j_uri = "bolt://neo4j:7687"

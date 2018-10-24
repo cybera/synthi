@@ -22,11 +22,11 @@ def callback(ch, method, properties, body):
     params = json.loads(msg)
 
     if params['task'] == 'generate':
-        process_path = os.path.join(WORKER_ROOT, 'engine.py')
+        process_path = os.path.join(WORKER_ROOT, 'tasks', 'engine.py')
     elif params['task'] == 'import_csv':
-        process_path = os.path.join(WORKER_ROOT, 'import_csv.py')
+        process_path = os.path.join(WORKER_ROOT, 'tasks', 'import_csv.py')
     elif params['task'] == 'register_transformation':
-        process_path = os.path.join(WORKER_ROOT, 'register.py')
+        process_path = os.path.join(WORKER_ROOT, 'tasks', 'register.py')
 
     call([process_path, str(params['id'])])
     print("Done")

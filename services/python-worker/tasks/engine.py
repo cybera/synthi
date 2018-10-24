@@ -6,6 +6,10 @@ import importlib
 import json
 import pandas as pd
 
+# get around sibling import problem
+script_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(script_dir,'..'))
+
 from common import neo4j_driver, status_channel, queue_conn
 from common import load_transform
 
