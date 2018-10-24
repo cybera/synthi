@@ -48,7 +48,6 @@ services:
       - ./data/scripts:/mnt/scripts
     environment:
       - DATA_ROOT=/mnt/data
-      - STORAGE_TYPE=object
     command: /usr/src/app/main.py
   python-shell:
     build: ./services/python-worker

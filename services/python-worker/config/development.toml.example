@@ -1,6 +1,5 @@
 [storage.object.creds]
 
-# provider = "openstack"
 username = "your-openstack-username"
 password = "your-openstack-password"
 region = "your-openstack-region-name"
@@ -16,16 +15,13 @@ scripts = "your-dev-scripts-container"
 
 [storage]
 
-# Can be "object" or "legacy". "object" is the default.
-# type = "object"
+# Can be "object" or "legacy"
+type = "object"
 
 [neo4j]
 
-# If not set, protocol, host, and port all have these defaults
-
-# protocol = "bolt"
-# host = "neo4j"
-# port = 7687
-
+protocol = "bolt"
+host = "neo4j"
+port = 7687
 username = "your-neo4j-username"
 password = "your-neo4j-password"

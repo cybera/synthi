@@ -12,6 +12,24 @@
 - [Material UI](https://material-ui.com) is a UI framework of ready made React components for common UI elements.
 - [Webpack](https://webpack.js.org) and [Babel](https://babeljs.io) are used mainly behind the scenes to compile and bundle client side code in a way that is compatible with most modern browsers.
 
+### Configuration
+
+There are two configuration files you'll need to add some information to:
+
+1. server/config/development.toml
+2. services/python-worker/config/development.toml
+
+Each of the containing directories already has a development.toml.example file that has placeholders for the necessary information. Unfortunately there's quite a bit of duplication at the moment.
+
+For object storage, you'll need working Openstack credentials and two containers (one for scripts and one for datasets). These can be created via:
+
+```bash
+swift post your-scripts-container
+swift post your-datasets-container
+```
+
+You should also set your neo4j username and password in the development.toml file.
+
 ### First time setup
 
 You'll need to install [NPM](https://www.npmjs.com/get-npm) and then install necessary libraries in your local environment:
