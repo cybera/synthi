@@ -23,6 +23,12 @@ const createReadStream = (area, relativePath) => connection().download({
   remote: relativePath
 })
 
+const remove = (area, relativePath) => connection().removeFile(
+  config.get('storage.object.containers')[area],
+  relativePath,
+  (err) => console.log(err)
+)
+
 const exists = (area, relativePath) => {
   return new Promise((resolve, reject) => {
     connection().getFile(
@@ -39,6 +45,7 @@ const exists = (area, relativePath) => {
 export {
   createWriteStream,
   createReadStream,
+  remove,
   exists,
   connection
 }

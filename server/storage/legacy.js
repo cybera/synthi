@@ -27,6 +27,13 @@ const createReadStream = (area, relativePath) => {
   return fs.createReadStream(path)
 }
 
+const remove = (area, relativePath) => {
+  const path = fullPath(area, relativePath)
+  if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {
+    fs.unlinkSync(path)
+  }
+}
+
 // TODO: The fs API actually suggests not to check for existence first and
 // simply deal with the error
 const exists = async (area, relativePath) => {
@@ -40,4 +47,9 @@ const exists = async (area, relativePath) => {
   })
 }
 
-export { createWriteStream, createReadStream, exists }
+export {
+  createWriteStream,
+  createReadStream,
+  remove,
+  exists
+}

@@ -55,7 +55,6 @@ export const waitForFile = (relPath) => {
 export const storeFS = ({ stream, filename }) => {
   const id = shortid.generate()
   const uniqueFilename = `${id}-${filename}`
-  const fullPath = fullDatasetPath(uniqueFilename)
 
   return new Promise(
     (resolve, reject) => stream
@@ -63,7 +62,7 @@ export const storeFS = ({ stream, filename }) => {
         console.log(error)
         if (stream.truncated) {
           // Delete the truncated file
-          fs.unlinkSync(fullPath)
+          Storage.remove('datasets', uniqueFilename)
         }
         reject(error)
       })

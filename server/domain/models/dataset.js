@@ -37,11 +37,8 @@ export default class Dataset {
   }
 
   deleteDataset() {
-    const path = this.fullPath()
     try {
-      if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {
-        fs.unlinkSync(path)
-      }
+      Storage.remove('datasets', this.path)
     } catch(err) {
       console.log(err)
     }
