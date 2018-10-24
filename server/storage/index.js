@@ -1,6 +1,7 @@
 import config from 'config'
 import * as ObjectStorage from './object'
 import * as LegacyStorage from './legacy'
+import getStream from 'get-stream'
 
 const storageType = config.get('storage.type')
 
@@ -13,6 +14,10 @@ if (storageType === 'object') {
   // to fall back to it if there are no better options, but we should
   // warn about that.
   console.log('Unknown storage.type. Defaulting to legacy storage.')
+}
+
+Storage.read = async (area, relativePath) => {
+  return await getStream(Storage.createReadStream(area, relativePath))
 }
 
 export default Storage

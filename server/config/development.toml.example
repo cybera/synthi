@@ -9,6 +9,11 @@ tenantName = "your-openstack-tenant-name"
 # you should not include the "/v2.0" path found in default openstack credentials
 authUrl = "https://auth-endpoint:5000"
 
+[storage.object.containers]
+
+datasets = "your-dev-datasets-container"
+scripts = "your-dev-scripts-container"
+
 [neo4j]
 
 username = "your-neo4j-username"

@@ -6,7 +6,9 @@ import importlib
 import json
 import pandas as pd
 
-from common import neo4j_driver, status_channel, queue_conn, SCRIPT_ROOT
+from common import neo4j_driver, status_channel, queue_conn
+from common import load_transform
+
 import storage
 
 session = neo4j_driver.session()
@@ -49,18 +51,6 @@ def write_output(df, output_name):
   print(f"Updating calculated '{output_name}' dataset.")
   storage.write_csv(df, dataset['path'])
 
-def load_transform(script_path):
-  full_path = os.path.join(SCRIPT_ROOT, script_path)
-  transform_spec = importlib.util.spec_from_file_location("transform", full_path)
-  transform_mod = importlib.util.module_from_spec(transform_spec)
-
-  transform_mod.dataset_input = dataset_input
-  transform_mod.dataset_output = dataset_output
-
-  transform_spec.loader.exec_module(transform_mod)
-
-  return transform_mod
-
 find_transforms_query = '''
 MATCH full_path = (output:Dataset)<-[*]-(last)
 WHERE ID(output) = toInteger($output_id) AND
@@ -94,7 +84,7 @@ try:
   for t in transforms:
     transform_script = t['script']
     print(f"Running {transform_script}")
-    transform_mod = load_transform(transform_script)
+    transform_mod = load_transform(transform_script, dataset_input, dataset_output)
     transform_result = transform_mod.transform()
     write_output(transform_result, t['output_name'])
 except Exception as e:

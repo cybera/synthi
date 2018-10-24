@@ -30,14 +30,14 @@ export const ensureDatasetExists = (dataset) => {
 }
 
 export const fullDatasetPath = (relPath) => {
-  const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
-  const fullPath = pathlib.join(uploadDir, relPath || "")
+  const dataDir = pathlib.resolve(process.env.DATA_FOLDER)
+  const fullPath = pathlib.join(dataDir, 'datasets', relPath || "")
   return fullPath
 }
 
 export const fullScriptPath = (relPath) => {
-  const scriptsDir = pathlib.resolve(process.env.SCRIPTS_FOLDER)
-  const fullPath = pathlib.join(scriptsDir, relPath || "")
+  const dataDir = pathlib.resolve(process.env.DATA_FOLDER)
+  const fullPath = pathlib.join(dataDir, 'scripts', relPath || "")
   return fullPath
 }
 
@@ -67,7 +67,7 @@ export const storeFS = ({ stream, filename }) => {
         }
         reject(error)
       })
-      .pipe(Storage.createWriteStream(uniqueFilename))
+      .pipe(Storage.createWriteStream('datasets', uniqueFilename))
       .on('error', error => reject(error))
       .on('finish', () => resolve({ id, path: uniqueFilename }))
   )

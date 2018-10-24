@@ -9,6 +9,12 @@ class ObjectDict:
       else:
         self.__dict__[k] = v
 
+  def __getitem__(self, key):
+    return self.__dict__[key]
+
+  def __repr__(self):
+    return self.__dict__.__repr__()
+
 config_dir = os.path.dirname(os.path.realpath(__file__))
 config_entries = toml.load(os.path.join(config_dir, 'development.toml'))
 

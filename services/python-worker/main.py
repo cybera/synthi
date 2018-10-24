@@ -7,7 +7,6 @@ import re
 import json
 
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
-SCRIPT_ROOT = os.environ['SCRIPT_ROOT']
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=0))
 channel = connection.channel()

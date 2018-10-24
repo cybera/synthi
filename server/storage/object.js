@@ -13,20 +13,20 @@ const connection = () => {
   return openstack
 }
 
-const createWriteStream = relativePath => connection().upload({
-  container: config.get('storage.object.uploadContainer'),
+const createWriteStream = (area, relativePath) => connection().upload({
+  container: config.get('storage.object.containers')[area],
   remote: relativePath
 })
 
-const createReadStream = relativePath => connection().download({
-  container: config.get('storage.object.uploadContainer'),
+const createReadStream = (area, relativePath) => connection().download({
+  container: config.get('storage.object.containers')[area],
   remote: relativePath
 })
 
-const exists = (relativePath) => {
+const exists = (area, relativePath) => {
   return new Promise((resolve, reject) => {
     connection().getFile(
-      config.get('storage.object.uploadContainer'),
+      config.get('storage.object.containers')[area],
       relativePath,
       (err, file) => {
         // !err means the object exists

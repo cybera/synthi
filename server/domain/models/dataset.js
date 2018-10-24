@@ -19,8 +19,8 @@ export default class Dataset {
   }
 
   async rows() {
-    if (this.path && await Storage.exists(this.path)) {
-      const readStream = await Storage.createReadStream(this.path)
+    if (this.path && await Storage.exists('datasets', this.path)) {
+      const readStream = await Storage.createReadStream('datasets', this.path)
       const csv = await csvFromStream(readStream)
       return csv.map(r => JSON.stringify(r))
     }
@@ -28,8 +28,8 @@ export default class Dataset {
   }
 
   async samples() {
-    if (this.path && await Storage.exists(this.path)) {
-      const readStream = await Storage.createReadStream(this.path)
+    if (this.path && await Storage.exists('datasets', this.path)) {
+      const readStream = await Storage.createReadStream('datasets', this.path)
       const csv = await csvFromStream(readStream, 0, 10)
       return csv.map(r => JSON.stringify(r))
     }

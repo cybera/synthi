@@ -12,7 +12,10 @@ module.exports = {
         tenantName: undefined,
         authUrl: undefined
       },
-      uploadContainer: 'adi'
+      containers: {
+        'datasets': undefined,
+        'scripts': undefined
+      }
     }
   },
   neo4j: {
