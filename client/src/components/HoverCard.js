@@ -17,6 +17,10 @@ function ifDataset(string) {
   }
 
 const styles = {
+  root: {
+    position: 'absolute',
+    zIndex: 1000,
+  },
   card: {
     minWidth: 150,
   },
@@ -32,14 +36,15 @@ function MediaCard(props) {
   const { classes } = props;
   const { nodeData } = props;
   const { navigation } = props;
+
   return (
-    <Card className={classes.card}>
+    <Card id="card" className="card" raised={true}>
       <CardContent>
         <Typography className={classes.title}  gutterBottom>
-          {nodeData.kind}
+          <h3>{nodeData.kind}</h3>
         </Typography>
         <Typography color="textSecondary">
-         {nodeData.name}
+        <h2> {nodeData.name} </h2>
         </Typography>
         <Typography className={classes.pos}>
           Extra information about node here 

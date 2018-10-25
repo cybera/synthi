@@ -70,10 +70,10 @@ class NodeLabel extends React.PureComponent {
           </ToggleVisibility> 
           {nodeData.attributes.kind}
         </Typography>
-        <div id={"cardContainer"} width={400}>
-        <ToggleVisibility visible={this.state.inside} >
-          <MediaCard classes = { classes } nodeData={ nodeData} navigation={navigation}/> 
-        </ToggleVisibility>
+        <div id={"cardContainer"} width={400} className="front">
+        {/* <ToggleVisibility visible={this.state.inside} > */}
+          {this.state.inside ? <MediaCard classes = { classes } nodeData={ nodeData} navigation={navigation}/> : null}
+        {/* </ToggleVisibility> */}
         </div>
       </div>
     )
@@ -83,7 +83,7 @@ class NodeLabel extends React.PureComponent {
 const lineStyle = {links: {
   stroke: '#c4c2c1',
   strokeWidth: 2,
-}}
+}, }
 // TreeMaker, Heart breaker
 const TreeMaker = (props) => {
   const { data } = props;
@@ -99,6 +99,7 @@ const TreeMaker = (props) => {
         {/* TODO:  Make this scale with the box size rater than hard coding  */}
         <div id={"treeContainer"} style={{ width: '70em', height: '45em'}} > 
           <Tree
+            id={"stayback"}
             data={data}
             orientation="horizontal"
             styles={lineStyle}
@@ -109,7 +110,6 @@ const TreeMaker = (props) => {
               render: <NodeLabel className='FancyNodeLabels' navigation={navigation}/>,
               foreignObjectWrapper: {
                 y: 24
-            
               }
             }}
           />

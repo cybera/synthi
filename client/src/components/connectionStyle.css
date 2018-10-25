@@ -1,12 +1,44 @@
-#custom-container{
-    position:relative !important;
-    z-index:0 !important;
+
+
+/* #cardContainer {
+    position: absolute !important;
+    z-index: 999999 !important;
+} */
+/* circle {
+    position: absolute;
+    z-index:1
 }
-#nodeContainer {
-    position:relative !important;
-    z-index: -1 !important ;
+
+foreignObject {
+    position: absolute;
+    z-index: 2
 }
-#cardContainer {
-    position:relative !important;
-    z-index: 100101030412245 !important;
+
+.FancyNodeLabels {
+    position: absolute;
+    z-index: 10;
+} */
+
+
+/* .card{
+   position: absolute !important;
+   z-index: 2147483647 !important;
+}  */
+
+/* .FancyNodeLabels{
+    position: absolute !important;
+} */
+/* Card { 
+    position: absolute !important;
+} */
+
+
+.card {
+    position: absolute !important;
+    z-index: 2147483647 !important;
+    width: 300px;
+    height: 200px;  
+    opacity: 1;
 }
+
+
