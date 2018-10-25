@@ -71,9 +71,7 @@ class NodeLabel extends React.PureComponent {
           {nodeData.attributes.kind}
         </Typography>
         <div id={"cardContainer"} width={400} className="front">
-        {/* <ToggleVisibility visible={this.state.inside} > */}
           {this.state.inside ? <MediaCard classes = { classes } nodeData={ nodeData} navigation={navigation}/> : null}
-        {/* </ToggleVisibility> */}
         </div>
       </div>
     )
