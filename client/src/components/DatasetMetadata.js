@@ -90,32 +90,40 @@ const LocalDatePicker = (props) => {
 class DatasetMetadata extends React.Component {
   state = {
     edited: false,
-    title: '',
-    contributor: '',
-    contact: '',
-    dateAdded: null,
-    dateCreated: null,
-    dateUpdated: null,
-    updates: null,
-    updateFrequencyAmount: 0,
-    updateFrequencyUnit: 'weeks',
-    format: 'csv',
-    description: '',
-    source: '',
-    identifier: '',
-    theme: ''
+    fields: {
+      title: '',
+      contributor: '',
+      contact: '',
+      dateAdded: null,
+      dateCreated: null,
+      dateUpdated: null,
+      updates: null,
+      updateFrequencyAmount: 0,
+      updateFrequencyUnit: 'weeks',
+      format: 'csv',
+      description: '',
+      source: '',
+      identifier: '',
+      theme: ''
+    }
   }
 
   handleChange = name => event => {
+    let fields = { ...this.state.fields }
+    fields[name] = event.target.value
+
     this.setState({
-      [name]: event.target.value,
+      fields: fields,
       edited: true
     })
   }
 
   handleDateChange = name => date => {
+    let fields = { ...this.state.fields }
+    fields[name] = date
+
     this.setState({
-      [name]: date,
+      fields: fields,
       edited: true
     })
   }
@@ -129,6 +137,8 @@ class DatasetMetadata extends React.Component {
 
   render() {
     const { id, classes } = this.props
+    const { fields } = this.state
+
     return (
       <div>
         <form className={classes.container} noValidate autoComplete="off">
@@ -146,7 +156,7 @@ class DatasetMetadata extends React.Component {
                 id="metadata-title"
                 label="Title"
                 className={classes.textField}
-                value={this.state.title}
+                value={fields.title}
                 onChange={this.handleChange('title')}
                 margin="normal"
               />
@@ -156,7 +166,7 @@ class DatasetMetadata extends React.Component {
                 id="metadata-identifier"
                 label="Identifier"
                 className={classes.textField}
-                value={this.state.identifier}
+                value={fields.identifier}
                 onChange={this.handleChange('identifier')}
                 margin="normal"
               />
@@ -166,7 +176,7 @@ class DatasetMetadata extends React.Component {
                 id="metadata-theme"
                 label="Theme"
                 className={classes.textField}
-                value={this.state.theme}
+                value={fields.theme}
                 onChange={this.handleChange('theme')}
                 margin="normal"
               />
@@ -176,7 +186,7 @@ class DatasetMetadata extends React.Component {
                 id="metadata-contributor"
                 label="Contributor"
                 className={classes.textField}
-                value={this.state.contributor}
+                value={fields.contributor}
                 onChange={this.handleChange('contributor')}
                 margin="normal"
               />
@@ -186,7 +196,7 @@ class DatasetMetadata extends React.Component {
                 id="metadata-contact"
                 label="Contact"
                 className={classes.textField}
-                value={this.state.contact}
+                value={fields.contact}
                 onChange={this.handleChange('contact')}
                 margin="normal"
               />
@@ -194,7 +204,7 @@ class DatasetMetadata extends React.Component {
               <Grid item xs={4}>
                 <LocalDatePicker
                   label="Date Added"
-                  value={this.state.dateAdded}
+                  value={fields.dateAdded}
                   onChange={this.handleDateChange('dateAdded')}
                   className={classes.dateField}
                 />
@@ -202,7 +212,7 @@ class DatasetMetadata extends React.Component {
               <Grid item xs={4}>
                 <LocalDatePicker
                   label="Date Created"
-                  value={this.state.dateCreated}
+                  value={fields.dateCreated}
                   onChange={this.handleDateChange('dateCreated')}
                   className={classes.dateField}
                 />
@@ -210,7 +220,7 @@ class DatasetMetadata extends React.Component {
               <Grid item xs={4}>
                 <LocalDatePicker
                   label="Date Updated"
-                  value={this.state.dateUpdated}
+                  value={fields.dateUpdated}
                   onChange={this.handleDateChange('dateUpdated')}
                   className={classes.dateField}
                 />
@@ -221,7 +231,7 @@ class DatasetMetadata extends React.Component {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={this.state.updates}
+                        checked={fields.updates}
                         onChange={this.handleChange('updates')}
                         value="updates"
                         color="primary"
@@ -234,13 +244,13 @@ class DatasetMetadata extends React.Component {
                   id="metadata-frequency-amount"
                   label="Amount"
                   className={classes.amountField}
-                  value={this.state.updateFrequencyAmount}
+                  value={fields.updateFrequencyAmount}
                   onChange={this.handleChange('updateFrequencyAmount')}
                   margin="normal"
                 />
                 <FormControl className={classes.formControl} style={{verticalAlign:'bottom', marginBottom:8}}>
                   <Select
-                    value={this.state.updateFrequencyUnit}
+                    value={fields.updateFrequencyUnit}
                     onChange={this.handleChange('updateFrequencyUnit')}
                   >
                     <MenuItem value="days">days</MenuItem>
@@ -258,7 +268,7 @@ class DatasetMetadata extends React.Component {
                   </InputLabel>
                   <Select
                     className={classes.formatSelectComponent}
-                    value={this.state.format}
+                    value={fields.format}
                     onChange={this.handleChange('format')}
                     input={<Input name="format" id="format-label-placeholder" />}
                   >
@@ -272,7 +282,7 @@ class DatasetMetadata extends React.Component {
                 id="metadata-source"
                 label="Source"
                 className={classes.sourceField}
-                value={this.state.source}
+                value={fields.source}
                 onChange={this.handleChange('source')}
                 margin="normal"
               />
@@ -282,7 +292,7 @@ class DatasetMetadata extends React.Component {
                 id="metadata-description"
                 label="Description"
                 multiline
-                value={this.state.description}
+                value={fields.description}
                 onChange={this.handleChange('description')}
                 className={classes.textArea}
                 margin="normal"
