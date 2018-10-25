@@ -4,6 +4,13 @@ import TextField from '@material-ui/core/TextField'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import { DatePicker } from 'material-ui-pickers'
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import FormControl from '@material-ui/core/FormControl'
+import Select from '@material-ui/core/Select'
+import Input from '@material-ui/core/Input'
 
 import ADIButton from './ADIButton'
 
@@ -17,6 +24,43 @@ const styles = theme => ({
     marginRight: theme.spacing.unit,
     width: 200,
   },
+  textArea: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+  },
+  updateSection: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+  },
+  amountField: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    width: 60
+  },
+  sourceField: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    width: 400
+  },
+  formatSelector: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    marginTop: theme.spacing.unit * 4,
+    marginBottom: theme.spacing.unit * 4,
+    width: 200,
+  },
+  // TODO: Should probably figure out how to do nested styling better
+  // in JSS
+  formatSelectComponent: {
+    width: 200
+  },
+  dateField: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    width: 200,
+  },
   dense: {
     marginTop: 19,
   },
@@ -26,7 +70,7 @@ const styles = theme => ({
 })
 
 const LocalDatePicker = (props) => {
-  const { label, value, onChange } = props
+  const { label, value, onChange, className } = props
   return (
     <DatePicker
       keyboard
@@ -37,6 +81,7 @@ const LocalDatePicker = (props) => {
       value={value}
       onChange={onChange}
       disableOpenOnEnter
+      className={className}
       animateYearScrolling={false}
     />
   )
@@ -50,7 +95,15 @@ class DatasetMetadata extends React.Component {
     contact: '',
     dateAdded: null,
     dateCreated: null,
-    dateUpdated: null
+    dateUpdated: null,
+    updates: null,
+    updateFrequencyAmount: 0,
+    updateFrequencyUnit: 'weeks',
+    format: 'csv',
+    description: '',
+    source: '',
+    identifier: '',
+    theme: ''
   }
 
   handleChange = name => event => {
@@ -88,7 +141,7 @@ class DatasetMetadata extends React.Component {
                 Save
               </ADIButton>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={4}>
               <TextField
                 id="metadata-title"
                 label="Title"
@@ -98,7 +151,27 @@ class DatasetMetadata extends React.Component {
                 margin="normal"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={4}>
+              <TextField
+                id="metadata-identifier"
+                label="Identifier"
+                className={classes.textField}
+                value={this.state.identifier}
+                onChange={this.handleChange('identifier')}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField
+                id="metadata-theme"
+                label="Theme"
+                className={classes.textField}
+                value={this.state.theme}
+                onChange={this.handleChange('theme')}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={4}>
               <TextField
                 id="metadata-contributor"
                 label="Contributor"
@@ -108,7 +181,7 @@ class DatasetMetadata extends React.Component {
                 margin="normal"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={8}>
               <TextField
                 id="metadata-contact"
                 label="Contact"
@@ -118,25 +191,102 @@ class DatasetMetadata extends React.Component {
                 margin="normal"
               />
             </Grid>
+              <Grid item xs={4}>
+                <LocalDatePicker
+                  label="Date Added"
+                  value={this.state.dateAdded}
+                  onChange={this.handleDateChange('dateAdded')}
+                  className={classes.dateField}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <LocalDatePicker
+                  label="Date Created"
+                  value={this.state.dateCreated}
+                  onChange={this.handleDateChange('dateCreated')}
+                  className={classes.dateField}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <LocalDatePicker
+                  label="Date Updated"
+                  value={this.state.dateUpdated}
+                  onChange={this.handleDateChange('dateUpdated')}
+                  className={classes.dateField}
+                />
+              </Grid>
             <Grid item xs={12}>
-              <LocalDatePicker
-                label="Date Added"
-                value={this.state.dateAdded}
-                onChange={this.handleDateChange('dateAdded')}
-              />
+              <div className={classes.updateSection}>
+                <FormControl className={classes.formControl} style={{marginTop: 23}}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={this.state.updates}
+                        onChange={this.handleChange('updates')}
+                        value="updates"
+                        color="primary"
+                      />
+                    }
+                    label="Updates every"
+                  />
+                </FormControl>
+                <TextField
+                  id="metadata-frequency-amount"
+                  label="Amount"
+                  className={classes.amountField}
+                  value={this.state.updateFrequencyAmount}
+                  onChange={this.handleChange('updateFrequencyAmount')}
+                  margin="normal"
+                />
+                <FormControl className={classes.formControl} style={{verticalAlign:'bottom', marginBottom:8}}>
+                  <Select
+                    value={this.state.updateFrequencyUnit}
+                    onChange={this.handleChange('updateFrequencyUnit')}
+                  >
+                    <MenuItem value="days">days</MenuItem>
+                    <MenuItem value="weeks">weeks</MenuItem>
+                    <MenuItem value="months">months</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
             </Grid>
             <Grid item xs={12}>
-              <LocalDatePicker
-                label="Date Created"
-                value={this.state.dateCreated}
-                onChange={this.handleDateChange('dateCreated')}
-              />
+              <div className={classes.formatSelector}>
+                <FormControl className={classes.formControl}>
+                  <InputLabel shrink htmlFor="format-label-placeholder">
+                    Format
+                  </InputLabel>
+                  <Select
+                    className={classes.formatSelectComponent}
+                    value={this.state.format}
+                    onChange={this.handleChange('format')}
+                    input={<Input name="format" id="format-label-placeholder" />}
+                  >
+                    <MenuItem value="csv">CSV</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
             </Grid>
             <Grid item xs={12}>
-              <LocalDatePicker
-                label="Date Updated"
-                value={this.state.dateUpdated}
-                onChange={this.handleDateChange('dateUpdated')}
+              <TextField
+                id="metadata-source"
+                label="Source"
+                className={classes.sourceField}
+                value={this.state.source}
+                onChange={this.handleChange('source')}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12} style={{paddingRight: 120}}>
+              <TextField
+                id="metadata-description"
+                label="Description"
+                multiline
+                value={this.state.description}
+                onChange={this.handleChange('description')}
+                className={classes.textArea}
+                margin="normal"
+                fullWidth
               />
             </Grid>
           </Grid>
@@ -147,17 +297,3 @@ class DatasetMetadata extends React.Component {
 }
 
 export default withStyles(styles)(DatasetMetadata)
-
-/*
-  x 1. Title
-  x 2. Contributor
-  x 3. Contact
-  x 4. Date Added
-  x 5. Date Created
-  x 6. Date Updated
-  7. Update Frequency
-  8. Format
-  9. Description
-  10. Source
-  11. Identifier
-*/
