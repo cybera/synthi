@@ -6,15 +6,19 @@ import importlib
 import json
 import pandas as pd
 
-from common import neo4j_driver, status_channel, queue_conn, SCRIPT_ROOT, DATA_ROOT
+# get around sibling import problem
+script_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(script_dir,'..'))
+
+from common import neo4j_driver, status_channel, queue_conn
+from common import load_transform
+
+import storage
 
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
 generate_id = int(sys.argv[1])
-
-def dataset_abspath(dataset):
-  return os.path.join(DATA_ROOT, dataset['path'])
 
 def dataset_input(name):
   dataset_by_name_query = '''
@@ -25,7 +29,7 @@ def dataset_input(name):
   results = tx.run(dataset_by_name_query, name=name)
   # TODO: more checking here
   dataset = results.single()
-  return pd.read_csv(dataset_abspath(dataset))
+  return storage.read_csv(dataset['path'])
 
 def dataset_output(name):
   # This is only needed so things don't break if this function is in a transformation
@@ -49,20 +53,7 @@ def write_output(df, output_name):
   '''
   dataset = tx.run(update_dataset_query, name=output_name, columns=columns).single()
   print(f"Updating calculated '{output_name}' dataset.")
-  df.to_csv(dataset_abspath(dataset), index=False)
-
-
-def load_transform(script_path):
-  full_path = os.path.join(SCRIPT_ROOT, script_path)
-  transform_spec = importlib.util.spec_from_file_location("transform", full_path)
-  transform_mod = importlib.util.module_from_spec(transform_spec)
-
-  transform_mod.dataset_input = dataset_input
-  transform_mod.dataset_output = dataset_output
-
-  transform_spec.loader.exec_module(transform_mod)
-
-  return transform_mod
+  storage.write_csv(df, dataset['path'])
 
 find_transforms_query = '''
 MATCH full_path = (output:Dataset)<-[*]-(last)
@@ -97,7 +88,7 @@ try:
   for t in transforms:
     transform_script = t['script']
     print(f"Running {transform_script}")
-    transform_mod = load_transform(transform_script)
+    transform_mod = load_transform(transform_script, dataset_input, dataset_output)
     transform_result = transform_mod.transform()
     write_output(transform_result, t['output_name'])
 except Exception as e:

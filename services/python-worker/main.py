@@ -7,7 +7,6 @@ import re
 import json
 
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
-SCRIPT_ROOT = os.environ['SCRIPT_ROOT']
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=0))
 channel = connection.channel()
@@ -21,13 +20,7 @@ def callback(ch, method, properties, body):
     sys.stdout.flush()
 
     params = json.loads(msg)
-
-    if params['task'] == 'generate':
-        process_path = os.path.join(WORKER_ROOT, 'engine.py')
-    elif params['task'] == 'import_csv':
-        process_path = os.path.join(WORKER_ROOT, 'import_csv.py')
-    elif params['task'] == 'register_transformation':
-        process_path = os.path.join(WORKER_ROOT, 'register.py')
+    process_path = os.path.join(WORKER_ROOT, 'tasks', f"{params['task']}.py")
 
     call([process_path, str(params['id'])])
     print("Done")

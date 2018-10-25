@@ -22,8 +22,7 @@ services:
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
     environment:
-      - SCRIPTS_FOLDER=/mnt/scripts
-      - UPLOADS_FOLDER=/mnt/data
+      - DATA_FOLDER=/mnt/data
     networks:
       - default
     command: npm run devStart
@@ -48,7 +47,6 @@ services:
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
     environment:
-      - SCRIPT_ROOT=/mnt/scripts
       - DATA_ROOT=/mnt/data
     command: /usr/src/app/main.py
   python-shell:
@@ -62,6 +60,7 @@ services:
       - DATA_ROOT=/mnt/data
     networks:
       - default
+    working_dir: /usr/src/app
     stdin_open: true
     tty: true
   redis:

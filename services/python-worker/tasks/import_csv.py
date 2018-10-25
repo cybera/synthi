@@ -4,7 +4,12 @@ import os, sys, json
 
 import pandas as pd
 
-from common import neo4j_driver, status_channel, DATA_ROOT
+# get around sibling import problem
+script_dir = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(script_dir,'..'))
+
+from common import neo4j_driver, status_channel
+import storage
 
 session = neo4j_driver.session()
 tx = session.begin_transaction()
@@ -18,9 +23,7 @@ result = tx.run('''
 ''', id=DATASET_ID).single()
 dataset = result['d']
 
-dataset_path = os.path.join(DATA_ROOT, dataset['path'])
-
-df = pd.read_csv(dataset_path)
+df = storage.read_csv(dataset['path'])
 
 columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
 

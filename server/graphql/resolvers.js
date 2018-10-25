@@ -1,5 +1,3 @@
-import mkdirp from 'mkdirp'
-import pathlib from 'path'
 import { merge } from 'lodash'
 
 import datasetResolvers from './resolvers/dataset'
@@ -7,11 +5,6 @@ import plotsResolvers from './resolvers/plots'
 import transformationsResolvers from './resolvers/transformations'
 
 import { storeFS } from '../lib/util'
-
-const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
-
-// Ensure upload directory exists
-mkdirp.sync(uploadDir)
 
 const processUpload = async (upload) => {
   const {

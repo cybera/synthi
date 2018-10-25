@@ -25,6 +25,11 @@ import { ensureDatasetExists, waitForFile } from './lib/util'
 import { startDatasetStatusConsumer } from './lib/queue'
 import UserRepository from './domain/repositories/userRepository'
 import DatasetRepository from './domain/repositories/datasetRepository'
+import { checkConfig } from './lib/startup-checks'
+
+// Do a config check right away to warn of any undefined configuration that we're
+// expecting to be set
+checkConfig()
 
 const RedisStore = require('connect-redis')(session)
 
@@ -133,7 +138,6 @@ app.get('/dataset/:id', async (req, res) => {
 
 const httpServer = http.createServer(app)
 apolloServer.installSubscriptionHandlers(httpServer)
-
 // run server on port 3000
 const PORT = 3000
 const server = httpServer.listen(PORT, err => {
@@ -145,7 +149,7 @@ const server = httpServer.listen(PORT, err => {
 })
 
 const queueConnection = startDatasetStatusConsumer()
-console.log('after')
+
 // Close all connections on shutdown
 onExit(function (code, signal) {
   console.log("Shutting down...")

@@ -1,0 +1,27 @@
+[storage.object.creds]
+
+username = "your-openstack-username"
+password = "your-openstack-password"
+region = "your-openstack-region-name"
+# tenant or project name
+tenantName = "your-openstack-tenant-name"
+# you should not include the "/v2.0" path found in default openstack credentials
+authUrl = "https://your-auth-endpoint:5000"
+
+[storage.object.containers]
+
+datasets = "your-dev-datasets-container"
+scripts = "your-dev-scripts-container"
+
+[storage]
+
+# Can be "object" or "legacy"
+type = "object"
+
+[neo4j]
+
+protocol = "bolt"
+host = "neo4j"
+port = 7687
+username = "your-neo4j-username"
+password = "your-neo4j-password"

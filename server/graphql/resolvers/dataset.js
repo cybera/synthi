@@ -95,10 +95,10 @@ export default {
     async columns(dataset) {
       return dataset.columns.map(c => ({ ...c, visible: columnVisible(c) }))
     },
-    samples(dataset) {
+    async samples(dataset) {
       return dataset.samples()
     },
-    rows(dataset) {
+    async rows(dataset) {
       return dataset.rows()
     },
     inputTransformation(dataset) {

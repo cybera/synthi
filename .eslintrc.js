@@ -8,6 +8,7 @@ module.exports = {
     'comma-dangle': 'off',
     'semi': 'off',
     'no-underscore-dangle': 'off',
-    'react/jsx-filename-extension': [1, { 'extensions': ['.js', '.jsx'] }]
+    'react/jsx-filename-extension': [1, { 'extensions': ['.js', '.jsx'] }],
+    'no-cond-assign': 'except-parens'
   }
 }

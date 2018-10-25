@@ -3,6 +3,8 @@ import fs from 'fs'
 import waitOn from 'wait-on'
 import AMQP from 'amqplib'
 import shortid from 'shortid'
+import Storage from '../storage'
+import csvParse from 'csv-parse'
 
 export const runTransformation = async (dataset) => {
   const conn = await AMQP.connect('amqp://queue')
@@ -28,14 +30,14 @@ export const ensureDatasetExists = (dataset) => {
 }
 
 export const fullDatasetPath = (relPath) => {
-  const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
-  const fullPath = pathlib.join(uploadDir, relPath || "")
+  const dataDir = pathlib.resolve(process.env.DATA_FOLDER)
+  const fullPath = pathlib.join(dataDir, 'datasets', relPath || "")
   return fullPath
 }
 
 export const fullScriptPath = (relPath) => {
-  const scriptsDir = pathlib.resolve(process.env.SCRIPTS_FOLDER)
-  const fullPath = pathlib.join(scriptsDir, relPath || "")
+  const dataDir = pathlib.resolve(process.env.DATA_FOLDER)
+  const fullPath = pathlib.join(dataDir, 'scripts', relPath || "")
   return fullPath
 }
 
@@ -53,7 +55,6 @@ export const waitForFile = (relPath) => {
 export const storeFS = ({ stream, filename }) => {
   const id = shortid.generate()
   const uniqueFilename = `${id}-${filename}`
-  const fullPath = fullDatasetPath(uniqueFilename)
 
   return new Promise(
     (resolve, reject) => stream
@@ -61,12 +62,44 @@ export const storeFS = ({ stream, filename }) => {
         console.log(error)
         if (stream.truncated) {
           // Delete the truncated file
-          fs.unlinkSync(fullPath)
+          Storage.remove('datasets', uniqueFilename)
         }
         reject(error)
       })
-      .pipe(fs.createWriteStream(fullPath))
+      .pipe(Storage.createWriteStream('datasets', uniqueFilename))
       .on('error', error => reject(error))
       .on('finish', () => resolve({ id, path: uniqueFilename }))
   )
+}
+
+export const csvFromStream = async (stream, from, to) => {
+  const options = {
+    delimeter: ',',
+    columns: true,
+    cast: true,
+    from,
+    to
+  }
+
+  const parser = csvParse(options)
+
+  const output = []
+
+  const parseStream = new Promise((resolve, reject) => parser
+    .on('readable', () => {
+      try {
+        let record
+        while ((record = parser.read())) {
+          output.push(record)
+        }
+      } catch(err) {
+        console.log(err)
+      }
+    })
+    .on('end', resolve)
+    .on('error', reject))
+
+  stream.pipe(parser)
+
+  return parseStream.then(() => output)
 }

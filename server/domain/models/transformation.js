@@ -3,6 +3,7 @@ import shortid from 'shortid'
 
 import DatasetRepository from '../../domain/repositories/datasetRepository'
 import { fullScriptPath } from '../../lib/util'
+import Storage from '../../storage'
 
 export default class Transformation {
   constructor(neo4jNode, context) {
@@ -36,12 +37,10 @@ export default class Transformation {
     return fullScriptPath(this.script)
   }
   
-  code() {
-    const path = this.fullPath()
-
+  async code() {
     try {
-      if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {
-        const fileString = fs.readFileSync(path, 'utf8')
+      if (this.script && Storage.exists('scripts', this.script)) {
+        const fileString = await Storage.read('scripts', this.script)
         return fileString
       }
     } catch(err) {
@@ -52,14 +51,9 @@ export default class Transformation {
   }
 
   storeCode(code) {
-    const path = this.fullPath()
-
     try {
-      let writeStream = fs.createWriteStream(path)
+      let writeStream = Storage.createWriteStream('scripts', this.script)
       writeStream.write(code, 'utf8')
-      writeStream.on('finish', () =>{
-        console.log(`wrote code to: ${path}`)
-      })
       writeStream.end()
     } catch(err) {
       console.log(err)
