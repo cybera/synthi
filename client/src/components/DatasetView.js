@@ -4,7 +4,6 @@ import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 
 import { withStyles } from '@material-ui/core/styles'
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
@@ -32,10 +31,7 @@ const DATASET_GENERATION_SUBSCRIPTION = gql`
 
 const styles = theme => ({
   root: {
-    ...theme.mixins.gutters(),
-    paddingTop: 16,
-    paddingBottom: 16,
-    marginTop: theme.spacing.unit
+    ...theme.mixins.gutters()
   },
   rightIcon: {
     marginLeft: theme.spacing.unit,
@@ -110,7 +106,7 @@ class DatasetView extends React.Component {
           this.subscribeToDatasetGenerated(subscribeToMore, refetch)
 
           return (
-            <Paper className={classes.root} elevation={4}>
+            <div className={classes.root}>
               <Typography variant="headline">
                 <DatasetNameEditor dataset={dataset} />
                 <IconButton aria-label="Chart" onClick={() => navigation.switchMode('chart-editor')}>
@@ -127,7 +123,7 @@ class DatasetView extends React.Component {
               <ToggleVisibility visible={!dataset.generating}>
                 <DataTableView columns={selectedColumns} rows={sampleRows} />
               </ToggleVisibility>
-            </Paper>
+            </div>
           )
         }}
       </Query>

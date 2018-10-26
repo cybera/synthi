@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
-import DatasetView from './DatasetView'
+import DatasetDetails from './DatasetDetails'
 import DatasetList from './DatasetList'
 import NewDatasetButton from '../containers/NewDatasetButton'
 
@@ -30,7 +30,7 @@ const DatasetBrowser = (props) => {
           <DatasetList />
         </Grid>
         <Grid item xs={9}>
-          <DatasetView id={selectedDataset} />
+          <DatasetDetails id={selectedDataset} />
         </Grid>
       </Grid>
     </div>

@@ -1,6 +1,8 @@
 FROM continuumio/anaconda3
 
-RUN pip install pika \
+RUN apt-get install gcc -y && \
+    pip install --upgrade pip && \
+    pip install pika \
                 neo4j-driver \
                 bcrypt \
                 openstacksdk \

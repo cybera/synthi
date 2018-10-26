@@ -18,6 +18,8 @@ import NavigationContext from './context/NavigationContext'
 
 import { withStyles } from '@material-ui/core/styles'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
+import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
 
 import { WebSocketLink } from 'apollo-link-ws';
 import { split } from 'apollo-link';
@@ -143,8 +145,10 @@ class App extends React.Component {
           }}
         >
           <MuiThemeProvider theme={theme}>
-            <Notifier />
-            {mainComponent}
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <Notifier />
+              {mainComponent}
+            </MuiPickersUtilsProvider>
           </MuiThemeProvider>
         </NavigationContext.Provider>
       </ApolloProvider>
