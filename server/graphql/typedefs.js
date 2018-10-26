@@ -63,7 +63,9 @@ type Dataset {
   generating: Boolean
   inputTransformation: Transformation
   metadata: DatasetMetadata
+  connections: String
 }
+
 
 type Transformation {
   id: Int!

@@ -5,7 +5,7 @@ import utils from './utils'
 export default class OrganizationRepository {
   static async get(id) {
     const query = [`MATCH (o:Organization)<-[:MEMBER]-(u:User)
-      WHERE ID(o) = $id
+      WHERE ID(o) = toInteger($id)
       RETURN
         ID(o) AS id,
         o.name AS name,
@@ -23,7 +23,7 @@ export default class OrganizationRepository {
   static async getAll(context) {
     const user = { context }
     const query = [`MATCH (o:Organization)<-[:MEMBER]-(u:User)
-      WHERE ID(u) = $user.id
+      WHERE ID(u) = toInteger($user.id)
       RETURN
         ID(o) AS id,
         o.name AS name,
@@ -48,7 +48,7 @@ export default class OrganizationRepository {
 
   static delete(id) {
     const query = [`MATCH (o:Organization)
-      WHERE ID(o) = $id
+      WHERE ID(o) = toInteger($id)
       DETACH DELETE o`, { id }]
 
     safeQuery(...query)

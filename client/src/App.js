@@ -95,14 +95,19 @@ class App extends React.Component {
   constructor(props) {
     super(props)
 
-    const user = JSON.parse(localStorage.getItem('user'))
-    const org = user.orgs.find(org => org.name === user.username)
-
     this.state = {
-      user,
       currentDataset: null,
       currentMode: 'datasets',
-      currentOrg: org.id
+    }
+
+    try {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const org = user.orgs.find(org => org.name === user.username)
+
+      this.state.user = user
+      this.state.currentOrg = org.id
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -115,15 +120,15 @@ class App extends React.Component {
   setOrg = org => this.setState({ currentOrg: org })
 
   render() {
-    const { state } = this
+    const { user, currentMode, currentDataset, currentOrg } = this.state
     let mainComponent
-    if (state.user) {
+    if (user) {
       mainComponent = (
         <div>
           <AppBar />
           <StyledMainComponent
-            mode={state.currentMode}
-            dataset={state.currentDataset}
+            mode={currentMode}
+            dataset={currentDataset}
           />
         </div>
       )
@@ -134,10 +139,10 @@ class App extends React.Component {
       <ApolloProvider client={client}>
         <NavigationContext.Provider
           value={{
-            currentMode: state.currentMode,
-            currentDataset: state.currentDataset,
-            currentOrg: state.currentOrg,
-            user: state.user,
+            currentMode: currentMode,
+            currentDataset: currentDataset,
+            currentOrg: currentOrg,
+            user: user,
             switchMode: this.switchMode,
             selectDataset: this.selectDataset,
             setUser: this.setUser,

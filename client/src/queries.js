@@ -60,3 +60,12 @@ export const plotsRetrieveQuery = gql`
   }
 }
 `
+
+export const datasetConnectionsQuery = gql`
+  query($id: Int!) {
+    dataset(id: $id) {
+     id
+     name
+     connections
+   }
+ }`

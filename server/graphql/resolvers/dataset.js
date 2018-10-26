@@ -104,6 +104,10 @@ export default {
     },
     inputTransformation(dataset) {
       return TransformationRepository.inputTransformation(dataset)
+    },
+    async connections(dataset) {
+      const results = await DatasetRepository.datasetConnections(dataset)
+      return results
     }
   },
   Mutation: {

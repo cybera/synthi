@@ -37,7 +37,6 @@ export default class DatasetRepository {
     if (!name) {
       name = await this.uniqueDefaultName(data.owner)
     }
-
     const dataset = new Dataset(null, name, data.path, data.owner, data.computed,
       data.generating, [])
 
@@ -47,7 +46,7 @@ export default class DatasetRepository {
 
     const query = [`
       MATCH (o:Organization)
-      WHERE ID(o) = $dataset.owner.id
+      WHERE ID(o) = toInteger($dataset.owner.id)
       CREATE (d:Dataset { name: $dataset.name })
       SET d.path = $dataset.path,
         d.computed = $dataset.computed,
@@ -145,11 +144,42 @@ export default class DatasetRepository {
   static async isUnique(dataset) {
     const query = [`
       MATCH (d:Dataset { name: $dataset.name })<-[:OWNER]-(o:Organization)
-      WHERE ID(o) = $dataset.owner.id AND ID(d) <> $dataset.id
+      WHERE ID(o) = toInteger($dataset.owner.id) AND ID(d) <> toInteger($dataset.id)
       RETURN d`, { dataset }]
 
     const results = await safeQuery(...query)
 
     return results.length === 0
+  }
+
+  static async datasetConnections(dataset) {
+    const query = `MATCH (root:Dataset)
+    WHERE ID(root) = toInteger($id)
+    OPTIONAL MATCH p=(root)<-[*]-(a:Dataset)
+    WITH relationships(p) AS r, root
+    UNWIND CASE WHEN size(r) IS NULL THEN [NULL] ELSE r END AS rs
+    WITH CASE 
+      WHEN rs IS NULL THEN {original:ID(root), name:root.name, kind:root.kind}
+        ELSE {start:{
+              node: ID(startNode(rs)), 
+              kind: labels(startNode(rs))[0],
+              name: startNode(rs).name,
+              inputs: startNode(rs).inputs,
+              outputs: startNode(rs).outputs
+              }, 
+              type: type(rs), 
+              end:{
+                node: ID(endNode(rs)), 
+                kind: labels(endNode(rs))[0],
+                name:endNode(rs).name,
+                inputs: endNode(rs).inputs,
+                outputs: endNode(rs).outputs
+
+              }}
+    END AS connection
+    RETURN connection`
+
+    const connections = await safeQuery(query, { id: dataset.id })
+    return JSON.stringify(connections)
   }
 }
