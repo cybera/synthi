@@ -1,4 +1,32 @@
+const DatasetMetadata = `
+  title: String
+  contributor: String
+  contact: String
+  dateAdded: Date
+  dateCreated: Date
+  dateUpdated: Date
+  updates: Boolean
+  updateFrequencyAmount: Int
+  updateFrequencyUnit: FrequencyUnit
+  format: DatasetFormat
+  description: String
+  source: String
+  identifier: String
+  theme: String
+`
+
 export default /* GraphQL */ `
+
+scalar Date
+
+enum DatasetFormat {
+  csv
+}
+enum FrequencyUnit {
+  days
+  weeks
+  months
+}
 
 type File {
   id: ID!
@@ -15,6 +43,14 @@ type Column {
   visible: Boolean
 }
 
+type DatasetMetadata {
+  ${DatasetMetadata}
+}
+
+input DatasetMetadataInput {
+  ${DatasetMetadata}
+}
+
 type Dataset {
   id: Int!
   name: String!
@@ -25,6 +61,7 @@ type Dataset {
   computed: Boolean
   generating: Boolean
   inputTransformation: Transformation
+  metadata: DatasetMetadata
 }
 
 type Transformation {
@@ -57,6 +94,7 @@ type Mutation {
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean
   saveInputTransformation(id: Int!, code:String): Transformation
+  updateDatasetMetadata(id: Int!, metadata:DatasetMetadataInput): DatasetMetadata
 }
 
 type Subscription {

@@ -11,6 +11,9 @@ import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import Input from '@material-ui/core/Input'
+import { Query, Mutation } from 'react-apollo'
+import gql from "graphql-tag"
+import * as Ramda from 'ramda'
 
 import ADIButton from './ADIButton'
 
@@ -88,8 +91,7 @@ const LocalDatePicker = (props) => {
 }
 
 class DatasetMetadata extends React.Component {
-  state = {
-    edited: false,
+  static defaultProps = {
     fields: {
       title: '',
       contributor: '',
@@ -107,6 +109,22 @@ class DatasetMetadata extends React.Component {
       theme: ''
     }
   }
+
+  state = {
+    edited: false,
+    // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+    fields: this.props.fields
+  }
+
+  // static getDerivedStateFromProps(props, state) {
+  //   const { id, fields } = props
+  //   const { edited } = state
+  //   if (state.id !== id || state.fields == null) {
+  //     return { id, fields, edited }
+  //   } else {
+  //     return null
+  //   }
+  // }
 
   handleChange = name => event => {
     let fields = { ...this.state.fields }
@@ -128,15 +146,23 @@ class DatasetMetadata extends React.Component {
     })
   }
 
-  handeSave = () => {
+  handeSave = (mutation) => {
+    const { id } = this.props
+
+    mutation({
+      variables: {
+        id,
+        metadata: this.state.fields
+      }
+    })
+
     this.setState({
       edited: false
     })
-    console.log(this.state)
   }
 
   render() {
-    const { id, classes } = this.props
+    const { id, classes, saveMutation } = this.props
     const { fields } = this.state
 
     return (
@@ -145,7 +171,7 @@ class DatasetMetadata extends React.Component {
           <Grid container spacing={0}>
             <Grid item xs={12}>
               <ADIButton 
-                onClick={this.handeSave} 
+                onClick={() => this.handeSave(saveMutation)} 
                 disabled={!this.state.edited}
               >
                 Save
@@ -306,4 +332,75 @@ class DatasetMetadata extends React.Component {
   }
 }
 
-export default withStyles(styles)(DatasetMetadata)
+const StyledDatasetMetadata = withStyles(styles)(DatasetMetadata)
+
+export const datasetMetadataQuery = gql`
+query($id: Int) {
+  dataset(id: $id) {
+    metadata {
+      title
+      contributor
+      contact
+      dateAdded
+      dateCreated
+      dateUpdated
+      updates
+      updateFrequencyAmount
+      updateFrequencyUnit
+      format
+      description
+      source
+      identifier
+      theme
+    }
+  }
+}
+`
+export const updateDatasetMetadataMutation = gql`
+  mutation UpdateDatasetMetadata($id: Int!, $metadata: DatasetMetadataInput) {
+    updateDatasetMetadata(id: $id, metadata: $metadata) {
+      title
+    }
+  }
+`
+
+const ConnectedDatasetMetadata = (props) => {
+  const { id } = props
+
+  // Passing a key value to force re-rendering every time this query gets data and tries to pass
+  // it as props to the metadata form. See:
+  // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+  return (
+    <Mutation 
+      mutation={updateDatasetMetadataMutation}
+      refetchQueries={[
+        { query: datasetMetadataQuery }
+      ]}
+      >
+      { updateDatasetMetadata => (
+        <Query query={datasetMetadataQuery} variables={{ id }}>
+          {({ loading, error, data }) => {
+            if (loading) return <p>Loading...</p>;
+            if (error) return <p>Error!</p>;
+
+            const fieldKeys = Object.keys(DatasetMetadata.defaultProps.fields)
+            let fields = Ramda.pick(fieldKeys, data.dataset[0].metadata)
+            fields = Ramda.reject(field => field == null, fields)
+            fields = Ramda.merge(DatasetMetadata.defaultProps.fields, fields)
+
+            return (
+              <StyledDatasetMetadata 
+                key={id}
+                id={id}
+                fields={fields}
+                saveMutation={updateDatasetMetadata}
+              />
+            )
+          }}
+        </Query>
+      )}
+    </Mutation>
+  )
+}
+
+export default ConnectedDatasetMetadata
