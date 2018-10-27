@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { linkData } from './DatasetConnections';
 import { datasetConnectionsQuery } from '../queries';
+import { withNavigation } from '../context/NavigationContext'
 import ToggleVisibility from './ToggleVisibility'
 import MediaCard from './HoverCard'
 import './connectionStyle.css'
@@ -128,4 +129,4 @@ const DatasetTree = (props) => {
   )
 };
 
-export default DatasetTree
+export default withNavigation(DatasetTree)
