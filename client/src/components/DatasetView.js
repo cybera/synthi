@@ -18,8 +18,6 @@ import DatasetColumnChips from './DatasetColumnChips'
 import DatasetNameEditor from '../containers/DatasetNameEditor'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetModeToggle from '../containers/DatasetModeToggle'
-import DatasetConnections from './DatasetConnections'
-import DatasetTree from './DatasetTree'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -128,13 +126,6 @@ class DatasetView extends React.Component {
               <DatasetEditor dataset={dataset} />
               <Typography className={classes.error}>{errors[id]}</Typography>
               <DatasetColumnChips columns={displayColumns} />
-              <DatasetConnections
-                dataset={dataset}
-                classes={classes}
-                id={id}
-                navigation={navigation}
-              />
-              <DatasetTree dataset={dataset} classes={classes} id={id} navigation={navigation} />
               <ToggleVisibility visible={dataset.generating}>
                 <LinearProgress />
               </ToggleVisibility>
