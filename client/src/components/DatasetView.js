@@ -91,7 +91,13 @@ class DatasetView extends React.Component {
 
     return (
       <Query query={datasetViewQuery} variables={{ id }}>
-        {({ data, subscribeToMore, loading, error, refetch }) => {
+        {({
+          data,
+          subscribeToMore,
+          loading,
+          error,
+          refetch
+        }) => {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error!</p>
 
