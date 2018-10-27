@@ -1,11 +1,7 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import Tree from 'react-d3-tree';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { linkData } from './DatasetConnections';
 import { datasetConnectionsQuery } from '../queries';
 import { withNavigation } from '../context/NavigationContext'
@@ -82,31 +78,23 @@ const TreeMaker = (props) => {
   const { navigation } = props;
   // console.log(data)
   return (
-    <ExpansionPanel>
-      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography> <b> View Connection Diagram </b> </Typography>
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails>
-        {/* TODO:  Make this scale with the box size rater than hard coding  */}
-        <div id="treeContainer" style={{ width: '70em', height: '45em'}}>
-          <Tree
-            id="stayback"
-            data={data}
-            orientation="horizontal"
-            styles={lineStyle}
-            initialDepth={2}
-            translate={{ x: 25, y: 320 }}
-            allowForeignObjects
-            nodeLabelComponent={{
-              render: <NodeLabel className="FancyNodeLabels" navigation={navigation}/>,
-              foreignObjectWrapper: {
-                y: 24
-              }
-            }}
-          />
-        </div>
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
+    <div id="treeContainer" style={{ width: '70em', height: '45em'}}>
+      <Tree
+        id="stayback"
+        data={data}
+        orientation="horizontal"
+        styles={lineStyle}
+        initialDepth={2}
+        translate={{ x: 25, y: 320 }}
+        allowForeignObjects
+        nodeLabelComponent={{
+          render: <NodeLabel className="FancyNodeLabels" navigation={navigation}/>,
+          foreignObjectWrapper: {
+            y: 24
+          }
+        }}
+      />
+    </div>
   )
 };
 
