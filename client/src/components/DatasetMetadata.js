@@ -12,10 +12,40 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import Input from '@material-ui/core/Input'
 import { Query, Mutation } from 'react-apollo'
-import gql from "graphql-tag"
+import gql from 'graphql-tag'
 import * as Ramda from 'ramda'
 
 import ADIButton from './ADIButton'
+
+export const datasetMetadataQuery = gql`
+query($id: Int) {
+  dataset(id: $id) {
+    metadata {
+      title
+      contributor
+      contact
+      dateAdded
+      dateCreated
+      dateUpdated
+      updates
+      updateFrequencyAmount
+      updateFrequencyUnit
+      format
+      description
+      source
+      identifier
+      theme
+    }
+  }
+}
+`
+export const updateDatasetMetadataMutation = gql`
+  mutation UpdateDatasetMetadata($id: Int!, $metadata: DatasetMetadataInput) {
+    updateDatasetMetadata(id: $id, metadata: $metadata) {
+      title
+    }
+  }
+`
 
 const styles = theme => ({
   container: {
@@ -227,42 +257,42 @@ class DatasetMetadata extends React.Component {
                 margin="normal"
               />
             </Grid>
-              <Grid item xs={4}>
-                <LocalDatePicker
-                  label="Date Added"
-                  value={fields.dateAdded}
-                  onChange={this.handleDateChange('dateAdded')}
-                  className={classes.dateField}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <LocalDatePicker
-                  label="Date Created"
-                  value={fields.dateCreated}
-                  onChange={this.handleDateChange('dateCreated')}
-                  className={classes.dateField}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <LocalDatePicker
-                  label="Date Updated"
-                  value={fields.dateUpdated}
-                  onChange={this.handleDateChange('dateUpdated')}
-                  className={classes.dateField}
-                />
-              </Grid>
+            <Grid item xs={4}>
+              <LocalDatePicker
+                label="Date Added"
+                value={fields.dateAdded}
+                onChange={this.handleDateChange('dateAdded')}
+                className={classes.dateField}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <LocalDatePicker
+                label="Date Created"
+                value={fields.dateCreated}
+                onChange={this.handleDateChange('dateCreated')}
+                className={classes.dateField}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <LocalDatePicker
+                label="Date Updated"
+                value={fields.dateUpdated}
+                onChange={this.handleDateChange('dateUpdated')}
+                className={classes.dateField}
+              />
+            </Grid>
             <Grid item xs={12}>
               <div className={classes.updateSection}>
                 <FormControl className={classes.formControl} style={{marginTop: 23}}>
                   <FormControlLabel
-                    control={
+                    control={(
                       <Checkbox
                         checked={fields.updates}
                         onChange={this.handleChange('updates')}
                         value="updates"
                         color="primary"
                       />
-                    }
+                    )}
                     label="Updates every"
                   />
                 </FormControl>
@@ -334,36 +364,6 @@ class DatasetMetadata extends React.Component {
 
 const StyledDatasetMetadata = withStyles(styles)(DatasetMetadata)
 
-export const datasetMetadataQuery = gql`
-query($id: Int) {
-  dataset(id: $id) {
-    metadata {
-      title
-      contributor
-      contact
-      dateAdded
-      dateCreated
-      dateUpdated
-      updates
-      updateFrequencyAmount
-      updateFrequencyUnit
-      format
-      description
-      source
-      identifier
-      theme
-    }
-  }
-}
-`
-export const updateDatasetMetadataMutation = gql`
-  mutation UpdateDatasetMetadata($id: Int!, $metadata: DatasetMetadataInput) {
-    updateDatasetMetadata(id: $id, metadata: $metadata) {
-      title
-    }
-  }
-`
-
 const ConnectedDatasetMetadata = (props) => {
   const { id } = props
 
@@ -371,12 +371,12 @@ const ConnectedDatasetMetadata = (props) => {
   // it as props to the metadata form. See:
   // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
   return (
-    <Mutation 
+    <Mutation
       mutation={updateDatasetMetadataMutation}
       refetchQueries={[
         { query: datasetMetadataQuery, variables: { id } }
       ]}
-      >
+    >
       { updateDatasetMetadata => (
         <Query query={datasetMetadataQuery} variables={{ id }}>
           {({ loading, error, data }) => {
@@ -389,7 +389,7 @@ const ConnectedDatasetMetadata = (props) => {
             fields = Ramda.merge(DatasetMetadata.defaultProps.fields, fields)
 
             return (
-              <StyledDatasetMetadata 
+              <StyledDatasetMetadata
                 key={id}
                 id={id}
                 fields={fields}
