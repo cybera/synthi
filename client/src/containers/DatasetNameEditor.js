@@ -21,7 +21,7 @@ const DatasetNameEditor = (props) => {
   return (
     <Mutation
       mutation={updateDatasetGQL}
-      refetchQueries={[{ query: datasetViewQuery }, { query: datasetListQuery }]}
+      refetchQueries={[{ query: datasetViewQuery, variables: { id: dataset.id } }, { query: datasetListQuery }]}
     >
       { updateMutation => (
         <EditableTextField

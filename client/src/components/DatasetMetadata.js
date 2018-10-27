@@ -374,7 +374,7 @@ const ConnectedDatasetMetadata = (props) => {
     <Mutation 
       mutation={updateDatasetMetadataMutation}
       refetchQueries={[
-        { query: datasetMetadataQuery }
+        { query: datasetMetadataQuery, variables: { id } }
       ]}
       >
       { updateDatasetMetadata => (

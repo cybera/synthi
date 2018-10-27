@@ -18,7 +18,7 @@ const DatasetGenerator = ({ children }) => {
     const generateDataset = id => mutation({
       variables: { id },
       refetchQueries: [
-        { query: datasetViewQuery }
+        { query: datasetViewQuery, variables: { id } }
       ]
     })
 
