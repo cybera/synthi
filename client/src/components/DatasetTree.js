@@ -44,7 +44,7 @@ class NodeLabel extends React.PureComponent {
 
   render() {
     const { className, nodeData, navigation } = this.props
-    const { classes } = this.props
+
     // TODO: I don't know how to make <MediaCard> appear as the top level element
     return (
       <div className={className} 
@@ -60,7 +60,7 @@ class NodeLabel extends React.PureComponent {
           {nodeData.attributes.kind}
         </Typography>
         <div id={"cardContainer"} width={400} className="front">
-          {this.state.inside ? <MediaCard classes = { classes } nodeData={ nodeData} navigation={navigation}/> : null}
+          {this.state.inside ? <MediaCard nodeData={ nodeData} navigation={navigation}/> : null}
         </div>
       </div>
     )
@@ -111,9 +111,7 @@ const TreeMaker = (props) => {
 
 
 const DatasetTree = (props) => {
-  const { id } = props.dataset
-  const { classes } = props
-  const { navigation } = props;
+  const { navigation, id } = props;
 
   return (
     <Query query={datasetConnectionsQuery} variables={{ id }}>
