@@ -1,4 +1,5 @@
-import { safeQuery } from '../../neo4j/connection'
+import { mapValues, isDate } from 'lodash'
+import { safeQuery, neo4j } from '../../neo4j/connection'
 
 export default {
   Dataset: {
@@ -15,7 +16,6 @@ export default {
       const result = await safeQuery(query, { id })
 
       if (result[0].metadata) {
-        console.log(result[0].metadata.properties)
         return result[0].metadata.properties
       }
 
@@ -24,9 +24,13 @@ export default {
   },
   Mutation: {
     updateDatasetMetadata: async (_, { id, metadata }, context) => {
-      console.log('New Metadata')
-      console.log(metadata)
-      console.log('-----------------')
+      const translatedMetadata = mapValues(metadata, (v) => {
+        if (isDate(v)) {
+          return neo4j.types.DateTime.fromStandardDate(v)
+        }
+        return v
+      })
+
       const query = `
         MATCH (d:Dataset)
         WHERE ID(d) = toInteger($id)
@@ -34,7 +38,7 @@ export default {
         SET metadata = $metadata
       `
 
-      await safeQuery(query, { id, metadata })
+      await safeQuery(query, { id, metadata: translatedMetadata })
 
       return metadata
     }

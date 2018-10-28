@@ -23,5 +23,5 @@ const safeQuery = (query, params) => {
   })
 }
 
-export { safeQuery }
+export { safeQuery, neo4j }
 export default neo4jConnection

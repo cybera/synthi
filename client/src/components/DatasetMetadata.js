@@ -146,35 +146,43 @@ class DatasetMetadata extends React.Component {
     fields: this.props.fields
   }
 
-  // static getDerivedStateFromProps(props, state) {
-  //   const { id, fields } = props
-  //   const { edited } = state
-  //   if (state.id !== id || state.fields == null) {
-  //     return { id, fields, edited }
-  //   } else {
-  //     return null
-  //   }
+  handleChange = convertEvent => name => (event) => {
+    let fields = { ...this.state.fields }
+
+    fields[name] = convertEvent(event)
+
+    this.setState({
+      fields: fields,
+      edited: true
+    })
+  }
+
+  handleStringChange = name => event => this.handleChange(
+    e => e.target.value
+  )(name)(event)
+
+  handleCheckboxChange = name => event => this.handleChange(
+    e => e.target.checked
+  )(name)(event)
+
+  handleIntChange = name => event => this.handleChange(
+    e => parseInt(e.target.value, 10)
+  )(name)(event)
+
+  handleDateChange = name => date => this.handleChange(
+    d => d.getTime()
+  )(name)(date)
+
+  // handleDateChange = name => (date) => {
+  //   let fields = { ...this.state.fields }
+  
+  //   fields[name] = date.getTime()
+
+  //   this.setState({
+  //     fields: fields,
+  //     edited: true
+  //   })
   // }
-
-  handleChange = name => event => {
-    let fields = { ...this.state.fields }
-    fields[name] = event.target.value
-
-    this.setState({
-      fields: fields,
-      edited: true
-    })
-  }
-
-  handleDateChange = name => date => {
-    let fields = { ...this.state.fields }
-    fields[name] = date
-
-    this.setState({
-      fields: fields,
-      edited: true
-    })
-  }
 
   handeSave = (mutation) => {
     const { id } = this.props
@@ -213,7 +221,7 @@ class DatasetMetadata extends React.Component {
                 label="Title"
                 className={classes.textField}
                 value={fields.title}
-                onChange={this.handleChange('title')}
+                onChange={this.handleStringChange('title')}
                 margin="normal"
               />
             </Grid>
@@ -223,7 +231,7 @@ class DatasetMetadata extends React.Component {
                 label="Identifier"
                 className={classes.textField}
                 value={fields.identifier}
-                onChange={this.handleChange('identifier')}
+                onChange={this.handleStringChange('identifier')}
                 margin="normal"
               />
             </Grid>
@@ -233,7 +241,7 @@ class DatasetMetadata extends React.Component {
                 label="Theme"
                 className={classes.textField}
                 value={fields.theme}
-                onChange={this.handleChange('theme')}
+                onChange={this.handleStringChange('theme')}
                 margin="normal"
               />
             </Grid>
@@ -243,7 +251,7 @@ class DatasetMetadata extends React.Component {
                 label="Contributor"
                 className={classes.textField}
                 value={fields.contributor}
-                onChange={this.handleChange('contributor')}
+                onChange={this.handleStringChange('contributor')}
                 margin="normal"
               />
             </Grid>
@@ -253,7 +261,7 @@ class DatasetMetadata extends React.Component {
                 label="Contact"
                 className={classes.textField}
                 value={fields.contact}
-                onChange={this.handleChange('contact')}
+                onChange={this.handleStringChange('contact')}
                 margin="normal"
               />
             </Grid>
@@ -288,7 +296,7 @@ class DatasetMetadata extends React.Component {
                     control={(
                       <Checkbox
                         checked={fields.updates}
-                        onChange={this.handleChange('updates')}
+                        onChange={this.handleCheckboxChange('updates')}
                         value="updates"
                         color="primary"
                       />
@@ -301,13 +309,13 @@ class DatasetMetadata extends React.Component {
                   label="Amount"
                   className={classes.amountField}
                   value={fields.updateFrequencyAmount}
-                  onChange={this.handleChange('updateFrequencyAmount')}
+                  onChange={this.handleIntChange('updateFrequencyAmount', parseInt)}
                   margin="normal"
                 />
                 <FormControl className={classes.formControl} style={{verticalAlign:'bottom', marginBottom:8}}>
                   <Select
                     value={fields.updateFrequencyUnit}
-                    onChange={this.handleChange('updateFrequencyUnit')}
+                    onChange={this.handleStringChange('updateFrequencyUnit')}
                   >
                     <MenuItem value="days">days</MenuItem>
                     <MenuItem value="weeks">weeks</MenuItem>
@@ -325,7 +333,7 @@ class DatasetMetadata extends React.Component {
                   <Select
                     className={classes.formatSelectComponent}
                     value={fields.format}
-                    onChange={this.handleChange('format')}
+                    onChange={this.handleStringChange('format')}
                     input={<Input name="format" id="format-label-placeholder" />}
                   >
                     <MenuItem value="csv">CSV</MenuItem>
@@ -339,7 +347,7 @@ class DatasetMetadata extends React.Component {
                 label="Source"
                 className={classes.sourceField}
                 value={fields.source}
-                onChange={this.handleChange('source')}
+                onChange={this.handleStringChange('source')}
                 margin="normal"
               />
             </Grid>
@@ -349,7 +357,7 @@ class DatasetMetadata extends React.Component {
                 label="Description"
                 multiline
                 value={fields.description}
-                onChange={this.handleChange('description')}
+                onChange={this.handleStringChange('description')}
                 className={classes.textArea}
                 margin="normal"
                 fullWidth
