@@ -6,14 +6,15 @@ import shortid from 'shortid'
 import Storage from '../storage'
 import csvParse from 'csv-parse'
 
-export const runTransformation = async (dataset) => {
+export const runTransformation = async (user, dataset) => {
   const conn = await AMQP.connect('amqp://queue')
   const ch = await conn.createChannel()
   const ok = await ch.assertQueue('python-worker', { durable: false })
 
   const msg = {
     task: 'generate',
-    id: dataset.id
+    id: dataset.id,
+    username: user.username
   }
 
   ch.sendToQueue('python-worker', Buffer.from(JSON.stringify(msg)))
