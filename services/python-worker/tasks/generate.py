@@ -19,16 +19,31 @@ session = neo4j_driver.session()
 tx = session.begin_transaction()
 
 generate_id = int(sys.argv[1])
+username = sys.argv[2]
 
 def dataset_input(name):
+  names = name.split(":")
+
+  if len(names) > 2:
+    raise Exception(f"Cannot parse dataset name {name}")
+  elif len(names) == 2:
+    org, dataset_name = names
+  else:
+    org = username
+    dataset_name = names[0]
+
   dataset_by_name_query = '''
-  MATCH (d:Dataset { name: $name })
+MATCH (d:Dataset { name: $name })<-[:OWNER]-(:Organization { name: $org })
   RETURN d.path AS path
   '''
   print(f"Finding '{name}' dataset.")
-  results = tx.run(dataset_by_name_query, name=name)
+  results = tx.run(dataset_by_name_query, name=dataset_name, org=org)
   # TODO: more checking here
   dataset = results.single()
+
+  if dataset is None:
+    raise Exception(f"Dataset {name} not found")
+
   return storage.read_csv(dataset['path'])
 
 def dataset_output(name):
@@ -37,13 +52,15 @@ def dataset_output(name):
   # here, we have enough hooked up in the graph to figure out the output node.
   pass
 
-def write_output(df, output_name):
+def write_output(df, owner, output_name):
   # TODO: Since we can now figure out the exact path from the transformations query,
   # it's not really necessary to figure that out again via the more brittle name lookup.
   columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
 
+  # TODO: Why is this returning five identical results?
   update_dataset_query = '''
-    MATCH (dataset:Dataset { name: $name })
+    MATCH (dataset:Dataset { name: $name })<-[:OWNER]-(o:Organization)
+    WHERE ID(o) = $owner
     WITH dataset
     UNWIND $columns AS column
     MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
@@ -51,7 +68,8 @@ def write_output(df, output_name):
     SET dataset.generating = false
     RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
   '''
-  dataset = tx.run(update_dataset_query, name=output_name, columns=columns).single()
+  results = tx.run(update_dataset_query, owner=owner, name=output_name, columns=columns)
+  dataset = results.single()
   print(f"Updating calculated '{output_name}' dataset.")
   storage.write_csv(df, dataset['path'])
 
@@ -64,14 +82,15 @@ MATCH (t:Transformation)
 MATCH individual_path = (output)<-[*]-(t)
 WHERE t IN nodes(full_path)
 WITH DISTINCT(individual_path), t
-MATCH (t)-[:OUTPUT]->(individual_output:Dataset)
+MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
 RETURN
   t.name AS name,
   t.script AS script,
   length(individual_path) AS distance,
   ID(individual_output) AS output_id,
   individual_output.name AS output_name,
-  individual_output.path AS output_path
+  individual_output.path AS output_path,
+  ID(o) AS owner
 ORDER BY distance DESC
 '''
 print(f"Finding and ordering transforms for ID: {generate_id}.")
@@ -90,7 +109,7 @@ try:
     print(f"Running {transform_script}")
     transform_mod = load_transform(transform_script, dataset_input, dataset_output)
     transform_result = transform_mod.transform()
-    write_output(transform_result, t['output_name'])
+    write_output(transform_result, t['owner'], t['output_name'])
 except Exception as e:
   body["status"] = "failed"
   body["message"] = repr(e)

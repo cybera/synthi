@@ -131,7 +131,7 @@ export default {
       const dataset = await DatasetRepository.get(context, id)
       dataset.generating = true
       await DatasetRepository.save(context, dataset)
-      runTransformation(dataset)
+      runTransformation(context.user, dataset)
       return dataset
     },
     toggleColumnVisibility(_, { id }) {

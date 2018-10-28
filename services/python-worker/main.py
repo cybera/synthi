@@ -22,7 +22,10 @@ def callback(ch, method, properties, body):
     params = json.loads(msg)
     process_path = os.path.join(WORKER_ROOT, 'tasks', f"{params['task']}.py")
 
-    call([process_path, str(params['id'])])
+    if params['task'] == 'generate':
+        call([process_path, str(params['id']), str(params['username'])])
+    else:
+        call([process_path, str(params['id'])])
     print("Done")
     sys.stdout.flush()
 
