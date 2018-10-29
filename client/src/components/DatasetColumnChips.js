@@ -70,10 +70,12 @@ const toggleColumnVisibility = gql`
 `
 
 const DatasetColumnChipsWithToggle = (props) => {
+  const { dataset } = props
+
   const toggle = mutation => id => mutation({
     variables: { id },
     refetchQueries: [
-      { query: datasetViewQuery, variables: { id } }
+      { query: datasetViewQuery, variables: { id: dataset.id } }
     ]
   })
 

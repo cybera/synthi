@@ -29,7 +29,7 @@ const nameSort = (a, b) => {
   if (aNormalized < bNormalized) {
     return -1
   }
-  
+
   if (aNormalized > bNormalized) {
     return 1
   }

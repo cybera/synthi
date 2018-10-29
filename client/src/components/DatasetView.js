@@ -125,7 +125,7 @@ class DatasetView extends React.Component {
               </Typography>
               <DatasetEditor dataset={dataset} />
               <Typography className={classes.error}>{errors[id]}</Typography>
-              <DatasetColumnChips columns={displayColumns} />
+              <DatasetColumnChips dataset={dataset} columns={displayColumns} />
               <ToggleVisibility visible={dataset.generating}>
                 <LinearProgress />
               </ToggleVisibility>
