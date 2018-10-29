@@ -1,5 +1,31 @@
 # Architecture
 
+## Introduction
+
+> This is the Unix philosophy: Write programs that do one thing and do it well. Write programs to work together. Write programs to handle text streams, because that is a universal interface.
+
+*- Doug McIlroy (2003)*
+
+Though the above quote is talking about building an operating system, the architectural philosophy it describes is central to the current version of ADI. Whenever possible, we build or use relatively independent components with a minimal set of responsibilities that work together to get more complex tasks done. In a way, we're even taking on the last principle, though in our case, the "universal interface" is flat, 2D tables, stored in an easy to parse format (right now CSV, in the future, perhaps something like Parquet), that undergo a series of transformations.
+
+Here's a diagram of how these components interact.
+
+![ADI Architecture 2.0](images/architecture.png)
+
+The components are explained in more detail below, but here's a summary and some working definitions:
+
+- Server: The main process that handles web requests from individual clients. It is responsible for authentication, authorization, and an API that clients can query and command. The server uses GraphQL in most cases, over REST, to provide a flexible API.
+
+- Queue: This is the hub for passing messages between various components on the server side. It can distribute work and also broadcast the results of that work.
+
+- Workers: These are the processes that carry out individual transformations. Right now, we only support Python, but a different worker for a different language could be set up to handle those tasks.
+
+- Client (React): This is the front end user interface of ADI. It is originally served from the Server, but afterwards lives almost completely within a user's browser. When it makes further requests from the Server, it only really needs data (and for the server to determine that it is authorized to have that data).
+
+- Storage: Where possible, we're streaming uploaded files and transformations directly to and from object storage. Object storage (like Swift in OpenStack or S3 in AWS) allows for infinitely expandable containers (ultimately expanded by the object storage provider adding more hard drives) and redundant, fault tolerant storage.
+
+- Graph database: Metadata about the datasets is stored in a graph database, where we can model the connections between the datasets, columns, etc.
+
 ## Transformation Engine
 
 ### What is a Transformation?
@@ -60,7 +86,11 @@ Of course, a software queue has several advantages over our bulletin board. One 
 
 1. Producer/consumer work queues: The producer posts a single message. The *first* consumer that can handle the message takes it off of the queue. This avoids multiple workers doing the same task and provides an easy way to scale the work. This is how we farm out transformation tasks.
 
+  ![Producer Consumer Queue](images/producer_consumer_queue.png)
+
 2. Publish/Subscribe broadcasting queues: The publisher posts a single message and every subscriber that's interested gets it. Think of this like a TV station broadcasting a show to an audience. This is how anyone with the correct permissions can get informed of new datasets or when datasets they've sent to generate have finished.
+
+  ![Publisher Subscriber Queue](images/publisher_subscriber_queue.png)
 
 This architecture allows us to create specific microservices that do one job really well and can scale by simply creating more of them. It also gives them an easy way to communicate back to the main server and ultimately individual users.
 
