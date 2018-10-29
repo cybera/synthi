@@ -22,6 +22,21 @@ const styles = theme => ({
   }
 })
 
+const nameSort = (a, b) => {
+  const aNormalized = a.name.toLowerCase()
+  const bNormalized = b.name.toLowerCase()
+
+  if (aNormalized < bNormalized) {
+    return -1
+  }
+  
+  if (aNormalized > bNormalized) {
+    return 1
+  }
+
+  return 0
+}
+
 class DatasetList extends React.Component {
   static propTypes = {
     classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
@@ -52,12 +67,11 @@ class DatasetList extends React.Component {
     const { navigation, datasets, classes } = this.props
 
     return (
-
-
       <div className={classes.root}>
         <List component="nav">
           {datasets
             .filter(d => d.owner.id === navigation.currentOrg)
+            .sort(nameSort)
             .map(({ id, name }) => (
               <ListItem
                 button
