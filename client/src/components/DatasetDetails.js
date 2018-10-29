@@ -13,6 +13,7 @@ import { withStyles } from '@material-ui/core/styles';
 import DatasetView from './DatasetView'
 import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
+import Placeholder from './Placeholder'
 
 const styles = theme => ({
   root: {
@@ -51,7 +52,7 @@ class DatasetDetails extends React.Component {
   state = {
     mode: 'view'
   }
-  
+
   changeMode(mode) {
     this.setState({ mode })
   }
@@ -59,7 +60,15 @@ class DatasetDetails extends React.Component {
   render() {
     const { id, classes } = this.props
     const { mode } = this.state
-    
+
+    if (!id) {
+      return (
+        <Placeholder heading="Welcome to ADI">
+          Select a dataset or create a new dataset to begin.
+        </Placeholder>
+      )
+    }
+
     return (
       <Paper className={classes.root} elevation={4}>
         <Grid container spacing={8}>

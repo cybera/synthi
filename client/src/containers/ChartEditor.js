@@ -7,6 +7,7 @@ import StatelessChartEditor from '../components/ChartEditor'
 import FetchDataset from '../components/FetchDataset'
 import PlotlyDataConverter from '../components/PlotlyDataConverter'
 import PlotlySave from '../components/PlotlySave'
+import Placeholder from '../components/Placeholder'
 
 class ChartEditor extends React.Component {
   constructor() {
@@ -16,6 +17,14 @@ class ChartEditor extends React.Component {
 
   render() {
     const { datasetID } = this.props
+
+    if (!datasetID) {
+      return (
+        <Placeholder heading="Chart Editor">
+          You need to select a dataset before you can use the chart editor.
+        </Placeholder>
+      )
+    }
 
     return (
       <FetchDataset datasetID={datasetID}>
