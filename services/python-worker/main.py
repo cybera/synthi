@@ -23,7 +23,7 @@ def callback(ch, method, properties, body):
     process_path = os.path.join(WORKER_ROOT, 'tasks', f"{params['task']}.py")
 
     if params['task'] == 'generate':
-        call([process_path, str(params['id']), str(params['username'])])
+        call([process_path, str(params['id']), str(params['ownerName'])])
     else:
         call([process_path, str(params['id'])])
     print("Done")

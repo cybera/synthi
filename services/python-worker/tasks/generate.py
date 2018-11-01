@@ -19,7 +19,7 @@ session = neo4j_driver.session()
 tx = session.begin_transaction()
 
 generate_id = int(sys.argv[1])
-username = sys.argv[2]
+owner_name = sys.argv[2]
 
 def dataset_input(name):
   names = name.split(":")
@@ -29,7 +29,7 @@ def dataset_input(name):
   elif len(names) == 2:
     org, dataset_name = names
   else:
-    org = username
+    org = owner_name
     dataset_name = names[0]
 
   dataset_by_name_query = '''
