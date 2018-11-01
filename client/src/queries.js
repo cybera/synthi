@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export const datasetListQuery = gql`
-{
-  dataset {
+query($searchString: String) {
+  dataset(searchString: $searchString) {
     id,
     name,
     owner {

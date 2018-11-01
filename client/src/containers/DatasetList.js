@@ -4,10 +4,13 @@ import { Query } from 'react-apollo'
 
 import { datasetListQuery } from '../queries'
 
-const withDatasets = Component => props => (
+const withDatasets = Component => (props) => {
+  const { searchString } = props
+
+  return (
   <Query
     query={datasetListQuery}
-    pollInterval={5000}
+      variables={{ searchString }}
   >
     {({ loading, error, data }) => {
       if (loading) return <p>Loading...</p>;
@@ -17,5 +20,6 @@ const withDatasets = Component => props => (
     }}
   </Query>
 )
+}
 
 export { withDatasets } // eslint-disable-line import/prefer-default-export

@@ -82,12 +82,12 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 
 export default {
   Query: {
-    async dataset(_, { id, name }, context) {
+    async dataset(_, { id, name, searchString }, context) {
       let datasets = []
 
       if (id != null) datasets.push(await DatasetRepository.get(context, id))
       else if (name != null) datasets.push(await DatasetRepository.getByName(context, name))
-      else datasets = await DatasetRepository.getAll(context)
+      else datasets = await DatasetRepository.getAll(context, searchString)
 
       return datasets
     },
