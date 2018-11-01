@@ -20,6 +20,7 @@ session = neo4j_driver.session()
 tx = session.begin_transaction()
 
 transformation_id = int(sys.argv[1])
+owner_name = sys.argv[2]
 
 transformation = tx.run('''
   MATCH (t:Transformation)
@@ -31,11 +32,21 @@ inputs = []
 outputs = []
 
 def dataset_input(name):
-  inputs.append(name)
+  names = name.split(':')
+
+  if len(names) > 2:
+    raise Exception(f"Cannot parse dataset name {name}")
+  elif len(names) == 2:
+    org, dataset = names
+  else:
+    org = owner_name
+    dataset = names[0]
+
+  inputs.append([org, dataset])
 
 def dataset_output(name):
   if len(outputs) == 0:
-    outputs.append(name)
+    outputs.append([owner_name, name])
   else:
     print("Transformations can currently only have one output")
     exit(0)
@@ -47,25 +58,21 @@ transform_mod = load_transform(transformation['script'],
 input_query = '''
   MATCH (t:Transformation)
   WHERE ID(t) = toInteger($id)
-  SET t.inputs = $inputs
+  SET t.inputs = [ x in $inputs | x[0] + ':' + x[1] ]
   WITH t
-  UNWIND t.inputs AS input_name
-  WITH t, input_name
-  MATCH (input:Dataset { name: input_name })
-  MERGE (input)-[:INPUT]->(t)
+  UNWIND $inputs AS input
+  MATCH (d:Dataset { name: input[1] })<-[:OWNER]-(o:Organization { name: input[0] })
+  MERGE (d)-[:INPUT]->(t)
 '''
 
 output_query = '''
   MATCH (t:Transformation)
   WHERE ID(t) = toInteger($id)
-  SET t.outputs = $outputs
-  WITH t
-  UNWIND t.outputs AS output_name
-  MERGE (output:Dataset { name: output_name })
-  MERGE (output)<-[:OUTPUT]-(t)
-  SET 
-    output.computed = true, 
-    output.path = (output_name + ".csv")
+  SET t.outputs = [ x in $outputs | x[0] + ':' + x[1] ]
+  WITH t UNWIND $outputs AS output
+  MERGE (d:Dataset { name: output[1] })<-[:OWNER]-(o:Organization { name: output[0] })
+  MERGE (d)<-[:OUTPUT]-(t)
+  SET d.computed = true, d.path = (output[1] + ".csv")
 '''
 
 results = tx.run(input_query, id=transformation_id, inputs=inputs)
