@@ -85,6 +85,11 @@ class Login extends React.Component {
     }).then((obj) => {
       props.navigation.setUser(obj.user)
       localStorage.setItem('user', JSON.stringify(obj.user))
+      let homeOrg = obj.user.orgs.find(o => o.name === obj.user.username)
+      if (!homeOrg) {
+        [homeOrg] = obj.user.orgs
+      }
+      props.navigation.setOrg(homeOrg.id)
     }).catch((err) => {
       console.log(err)
       openSnackbar({ message: 'Login failed' })
