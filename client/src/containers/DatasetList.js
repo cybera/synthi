@@ -12,18 +12,19 @@ const withDatasets = Component => (props) => {
   }
 
   return (
-  <Query
-    query={datasetListQuery}
+    <Query
+      query={datasetListQuery}
+      pollInterval={5000}
       variables={{ searchString }}
-  >
-    {({ loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
-      if (error) return <p>Error!</p>;
+    >
+      {({ loading, error, data }) => {
+        if (loading) return <p>Loading...</p>;
+        if (error) return <p>Error!</p>;
 
-      return <Component {...props} datasets={data.dataset} />
-    }}
-  </Query>
-)
+        return <Component {...props} datasets={data.dataset} />
+      }}
+    </Query>
+  )
 }
 
 export { withDatasets } // eslint-disable-line import/prefer-default-export
