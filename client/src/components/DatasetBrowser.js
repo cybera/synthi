@@ -35,24 +35,16 @@ class DatasetBrowser extends React.Component {
     searchString: undefined
   }
 
-  doSearch = (value) => {
-    if (value === '') {
-      this.setState({ searchString: undefined })
-    } else {
-      this.setState({ searchString: value })
-    }
-  }
-
   render() {
     const { classes, selectedDataset } = this.props
     const { searchString } = this.state
 
     return (
       <div className={classes.root}>
-        <Grid container spacing={24}>
+        <Grid container spacing={16}>
           <Grid item xs={12}>
             <SearchBar
-              onRequestSearch={value => this.doSearch(value)}
+              onRequestSearch={value => this.setState({ searchString: value })}
               onCancelSearch={() => this.setState({ searchString: undefined })}
               style={{
                 margin: '0 auto'

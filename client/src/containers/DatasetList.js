@@ -5,7 +5,11 @@ import { Query } from 'react-apollo'
 import { datasetListQuery } from '../queries'
 
 const withDatasets = Component => (props) => {
-  const { searchString } = props
+  let { searchString } = props
+
+  if (!searchString) {
+    searchString = undefined
+  }
 
   return (
   <Query
