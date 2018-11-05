@@ -1,4 +1,3 @@
-import fs from 'fs'
 import shortid from 'shortid'
 
 import DatasetRepository from '../repositories/datasetRepository'
@@ -13,11 +12,11 @@ export default class Transformation {
       Object.assign(this, rest)
 
       this.id = neo4jNode.identity
-      this.inputs = inputs.map(input_name => DatasetRepository.getByName(context, input_name))
-      this.outputs = outputs.map(output_name => DatasetRepository.getByName(context, output_name))
+      this.inputs = inputs.map(inputName => DatasetRepository.getByName(context, inputName))
+      this.outputs = outputs.map(outputName => DatasetRepository.getByName(context, outputName))
 
       if (!this.name) {
-        this.name = this.outputs[0]
+        [this.name] = this.outputs
       }
 
       if (!this.script) {
@@ -30,18 +29,16 @@ export default class Transformation {
   }
 
   fullPath() {
-    console.log("script:")
-    console.log(this.script)
     return fullScriptPath(this.script)
   }
-  
+
   async code() {
     try {
       if (this.script && Storage.exists('scripts', this.script)) {
         const fileString = await Storage.read('scripts', this.script)
         return fileString
       }
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     }
 
@@ -50,10 +47,10 @@ export default class Transformation {
 
   storeCode(code) {
     try {
-      let writeStream = Storage.createWriteStream('scripts', this.script)
+      const writeStream = Storage.createWriteStream('scripts', this.script)
       writeStream.write(code, 'utf8')
       writeStream.end()
-    } catch(err) {
+    } catch (err) {
       console.log(err)
     }
   }
