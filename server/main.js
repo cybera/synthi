@@ -47,13 +47,14 @@ const authenticateUser = async (username, password) => {
     return false
   }
   const valid = await user.validPassword(password)
+  // Returning the password hash isn't good practice
+  user.password = undefined
   return valid ? user : false
 }
 
 // Authentication w/ passportjs
 passport.use(new LocalStrategy(
   (username, password, done) => {
-    console.log(`here: ${username}/${password}`)
     authenticateUser(username, password)
       .then(result => done(null, result))
       .catch((err) => { console.log(err.message); done(err) })
