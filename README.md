@@ -106,3 +106,23 @@ Current downloads for APOC can be found at: https://github.com/neo4j-contrib/neo
 The most current APOC download link is: https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/3.4.0.3
 
 They may need to be upgraded at some point. There doesn't seem to be any sort of dependency/package manager for these and the files are relatively small, so the plugins are being checked into the repository (under neo4j/plugins).
+
+### Debugging with VS Code
+
+To debug the NodeJS server within VS Code, you need to first restart the server in debug mode:
+
+```bash
+bin/server debug
+```
+
+The server will not fully complete starting until you attach the debugger. You can do that by selecting the Debug panel in VS Code and then clicking the play button on the "Attach to Docker" configuration at the top.
+
+![Attach in VSCode](docs/images/vscode-debug.png)
+
+After a few seconds, the startup should complete, and you will now be able to set breakpoints on the server code.
+
+You may need to manually restart the debug server at times. You can do that by running the above command again. To go back to a regular development setup that doesn't require VS Code's debugger to be running, you can use:
+
+```bash
+bin/server development
+```
