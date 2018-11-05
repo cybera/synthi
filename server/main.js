@@ -155,5 +155,5 @@ const queueConnection = startDatasetStatusConsumer()
 onExit(function (code, signal) {
   console.log("Shutting down...")
   server.close()
-  queueConnection.close()
+  queueConnection.then(qc => qc.close())
 }, { alwaysLast: true })
