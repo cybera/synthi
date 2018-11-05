@@ -16,8 +16,6 @@ if (storageType === 'object') {
   console.log('Unknown storage.type. Defaulting to legacy storage.')
 }
 
-Storage.read = async (area, relativePath) => {
-  return await getStream(Storage.createReadStream(area, relativePath))
-}
+const read = (area, relativePath) => getStream(Storage.createReadStream(area, relativePath))
 
-export default Storage
+export default { ...Storage, read }
