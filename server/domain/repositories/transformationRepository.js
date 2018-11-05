@@ -3,7 +3,7 @@ import { sendToWorkerQueue } from '../../lib/queue'
 import Transformation from '../models/transformation'
 import shortid from 'shortid'
 
-export const inputTransformation = async (dataset) => {
+export const inputTransformation = async (context, dataset) => {
   const query = [`
     MATCH (d:Dataset)
     WHERE ID(d) = toInteger($dataset.id)
@@ -14,13 +14,13 @@ export const inputTransformation = async (dataset) => {
   const results = await safeQuery(...query)
 
   if (results[0] && results[0]['t']) {
-    return new Transformation(results[0]['t'])
+    return new Transformation(results[0]['t'], context)
   } else {
     return null
   }
 }
 
-export const saveInputTransformation = async (dataset, code) => {
+export const saveInputTransformation = async (context, dataset, code) => {
   const query = [`
     MATCH (d:Dataset)
     WHERE ID(d) = toInteger($dataset.id)

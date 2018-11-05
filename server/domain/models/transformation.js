@@ -12,8 +12,6 @@ export default class Transformation {
 
       Object.assign(this, rest)
 
-      const context = { user: { id: this.owner_id } }
-
       this.id = neo4jNode.identity
       this.inputs = inputs.map(input_name => DatasetRepository.getByName(context, input_name))
       this.outputs = outputs.map(output_name => DatasetRepository.getByName(context, output_name))
