@@ -1,7 +1,7 @@
 import fs from 'fs'
 import shortid from 'shortid'
 
-import DatasetRepository from '../../domain/repositories/datasetRepository'
+import DatasetRepository from '../repositories/datasetRepository'
 import { fullScriptPath } from '../../lib/util'
 import Storage from '../../storage'
 
