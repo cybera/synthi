@@ -59,7 +59,7 @@ class DatasetList extends React.Component {
 
   handleDelete = (id, name) => {
     const { deleteDataset, navigation } = this.props
-    if (confirm("Are you sure you want to remove " + name + "?")) {
+    if (confirm("Are you sure you want to remove '" + name + "'?")) {
       deleteDataset({ variables: { id }, refetchQueries: [{ query: datasetListQuery }] })
       if (id === navigation.currentDataset) {
         navigation.selectDataset(null)
