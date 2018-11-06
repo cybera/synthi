@@ -64,7 +64,7 @@ class DatasetList extends React.Component {
       if (id === navigation.currentDataset) {
         navigation.selectDataset(null)
       }
-      openSnackbar({ message: name + " was successfully removed." })
+      openSnackbar({ message: "'" + name + "' was successfully removed." })
     }
   }
 
