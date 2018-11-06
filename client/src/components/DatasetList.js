@@ -16,6 +16,8 @@ import { datasetListQuery, deleteDatasetMutation } from '../queries'
 import { withDatasets } from '../containers/DatasetList'
 import { withNavigation } from '../context/NavigationContext'
 
+import { openSnackbar } from './Notifier'
+
 const styles = theme => ({
   root: {
     backgroundColor: theme.palette.background.paper,
@@ -62,6 +64,7 @@ class DatasetList extends React.Component {
       if (id === navigation.currentDataset) {
         navigation.selectDataset(null)
       }
+      openSnackbar({ message: name + " was successfully removed." })
     }
   }
 
