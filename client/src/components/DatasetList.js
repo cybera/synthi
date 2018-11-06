@@ -55,9 +55,9 @@ class DatasetList extends React.Component {
     datasets: []
   }
 
-  handleDelete = (id) => {
+  handleDelete = (id, name) => {
     const { deleteDataset, navigation } = this.props
-    if (confirm("Are you sure you want to remove this dataset?")) {
+    if (confirm("Are you sure you want to remove " + name + "?")) {
       deleteDataset({ variables: { id }, refetchQueries: [{ query: datasetListQuery }] })
       if (id === navigation.currentDataset) {
         navigation.selectDataset(null)
@@ -83,7 +83,7 @@ class DatasetList extends React.Component {
               >
                 <ListItemText primary={name} />
                 <ListItemSecondaryAction>
-                  <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, e)}>
+                  <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, name, e)}>
                     <DeleteIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
