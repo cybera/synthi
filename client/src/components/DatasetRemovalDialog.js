@@ -38,6 +38,8 @@ export default class DatasetRemovalDialog extends React.Component {
   }
 
   render() {
+    const { name } = this.props.toRemove;
+
     return (
       <Dialog
         open={this.state.open}
@@ -46,7 +48,7 @@ export default class DatasetRemovalDialog extends React.Component {
         aria-describedby="alert-dataset-removal-content"
       >
         <DialogTitle id="alert-dataset-removal-title">
-          Remove '{this.props.toRemove.name}'?
+          Remove '{name}'?
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dataset-removal-content">
@@ -63,9 +65,8 @@ export default class DatasetRemovalDialog extends React.Component {
           <Button 
             onClick={() => this.handleClose(true)} 
             variant="contained" 
-            color="primary" 
-            autoFocus>
-            OK
+            color="primary">
+            Continue
           </Button>
         </DialogActions>
       </Dialog>
