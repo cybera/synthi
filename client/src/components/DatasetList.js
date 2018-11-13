@@ -16,7 +16,9 @@ import { datasetListQuery, deleteDatasetMutation } from '../queries'
 import { withDatasets } from '../containers/DatasetList'
 import { withNavigation } from '../context/NavigationContext'
 
+import DatasetRemovalDialog from './DatasetRemovalDialog'
 import { openSnackbar } from './Notifier'
+
 
 const styles = theme => ({
   root: {
@@ -40,6 +42,17 @@ const nameSort = (a, b) => {
 }
 
 class DatasetList extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      toRemove: {
+        id: null,
+        name: null
+      }
+    }
+  }
+
   static propTypes = {
     classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     deleteDataset: PropTypes.func.isRequired,
@@ -57,14 +70,30 @@ class DatasetList extends React.Component {
     datasets: []
   }
 
+  handleOpenDialog = (id, name) => {
+    console.log("Clickety click");
+
+    this.setState({
+      toRemove: {
+        id: id,
+        name: name
+      }
+    });
+
+    this.openDialog();
+  }
+
   handleDelete = (id, name) => {
     const { deleteDataset, navigation } = this.props
-    if (confirm(`Are you sure you want to permanently remove '${name}'?`)) {
-      deleteDataset({ variables: { id }, refetchQueries: [{ query: datasetListQuery }] })
-      if (id === navigation.currentDataset) {
-        navigation.selectDataset(null)
-      }
+
+    deleteDataset({ 
+      variables: { id }, refetchQueries: [{ query: datasetListQuery }] 
+    }).then(() => {
       openSnackbar({ message: `'${name}' was successfully removed.` })
+    })
+    
+    if (id === navigation.currentDataset) {
+      navigation.selectDataset(null)
     }
   }
 
@@ -86,12 +115,17 @@ class DatasetList extends React.Component {
               >
                 <ListItemText primary={name} />
                 <ListItemSecondaryAction>
-                  <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, name, e)}>
+                  <IconButton aria-label="Delete" onClick={() => this.handleOpenDialog(id, name)}>
                     <DeleteIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
               </ListItem>
             ))}
+          <DatasetRemovalDialog
+            toRemove={this.state.toRemove}
+            onClose={this.handleDelete.bind(this)}
+            openDialog={(openDialog) => this.openDialog = openDialog}
+          />
         </List>
       </div>
     )
