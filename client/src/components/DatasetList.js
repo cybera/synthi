@@ -89,9 +89,12 @@ class DatasetList extends React.Component {
     deleteDataset({ 
       variables: { id }, refetchQueries: [{ query: datasetListQuery }] 
     }).then(() => {
-      openSnackbar({ message: `'${name}' was successfully removed.` })
-    })
-    
+      openSnackbar({ message: `'${name}' was successfully removed.` });
+    }).catch((err) => {
+      openSnackbar({ message: `An error occurred: ${err}` });
+      console.log('An error occurred:', err);
+    });
+
     if (id === navigation.currentDataset) {
       navigation.selectDataset(null)
     }
