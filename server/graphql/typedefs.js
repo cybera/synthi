@@ -82,7 +82,7 @@ type Plot {
 }
 
 type Query {
-  dataset(id: Int, name: String): [Dataset]
+  dataset(id: Int, name: String, searchString: String): [Dataset]
   plots(id: Int): [Plot]
   uploads: [File]
 }

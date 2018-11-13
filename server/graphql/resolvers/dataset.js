@@ -82,12 +82,12 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 
 export default {
   Query: {
-    async dataset(_, { id, name }, context) {
+    async dataset(_, { id, name, searchString }, context) {
       let datasets = []
 
       if (id != null) datasets.push(await DatasetRepository.get(context, id))
       else if (name != null) datasets.push(await DatasetRepository.getByName(context, name))
-      else datasets = await DatasetRepository.getAll(context)
+      else datasets = await DatasetRepository.getAll(context, searchString)
 
       return datasets
     },
@@ -102,8 +102,8 @@ export default {
     async rows(dataset) {
       return dataset.rows()
     },
-    inputTransformation(dataset) {
-      return TransformationRepository.inputTransformation(dataset)
+    inputTransformation(dataset, _, context) {
+      return TransformationRepository.inputTransformation(context, dataset)
     },
     async connections(dataset) {
       const results = await DatasetRepository.datasetConnections(dataset)
@@ -141,7 +141,7 @@ export default {
     },
     async saveInputTransformation(_, { id, code }, context) {
       const dataset = await DatasetRepository.get(context, id)
-      return TransformationRepository.saveInputTransformation(dataset, code)
+      return TransformationRepository.saveInputTransformation(context, dataset, code)
     }
   },
   Subscription: {

@@ -15,6 +15,7 @@
     "cors": "^2.8.4",
     "csv-parse": "^3.0.0",
     "dotenv": "^6.0.0",
+    "esm": "^3.0.84",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "get-stream": "^4.1.0",
@@ -49,9 +50,9 @@
   },
   "scripts": {
     "test": "jest",
-    "start": "babel-node index.js",
-    "devStart": "nodemon --exec npm run start -- ./index.js",
-    "debug": "nodemon --inspect-brk=0.0.0.0:9222 --nolazy --exec npm run start -- ./index.js"
+    "start": "node index.js",
+    "devStart": "nodemon ./index.js",
+    "debug": "nodemon --inspect-brk=0.0.0.0:9222 --nolazy ./index.js"
   },
   "author": "",
   "license": "ISC",

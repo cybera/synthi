@@ -25,9 +25,12 @@ export default class DatasetRepository {
     return canAccessDataset(context.user, dataset) ? dataset : null
   }
 
-  static async getAll(context) {
-    const query = this.buildQuery('')
-    const results = await safeQuery(query)
+  static async getAll(context, searchString) {
+    const query = [this.buildQuery('', searchString !== undefined)]
+    if (searchString) {
+      query.push({ searchIndex: 'DefaultDatasetSearchIndex', searchString })
+    }
+    const results = await safeQuery(...query)
     const datasets = await Promise.all(results.map(d => utils.createDataset(d)))
     return datasets.filter(d => canAccessDataset(context.user, d))
   }
@@ -109,8 +112,27 @@ export default class DatasetRepository {
     return dataset
   }
 
-  static buildQuery(where) {
-    return `MATCH (d:Dataset)<-[:OWNER]-(o:Organization)
+  static buildQuery(where, indexSearch) {
+    // If indexSearch is true, instead of trying to match among all the datasets,
+    // we add an APOC call to do an index search and return only the subset of
+    // datasets with connections to the search results. Right now, only HAS_METADATA
+    // and BELONGS_TO relationships are supported, which represent the relationships
+    // connecting the DatasetMetadata nodes and Column nodes to a Dataset. Building
+    // the query this way requires the $searchIndex and $searchString parameters.
+    let initialMatch
+    if (indexSearch) {
+      initialMatch = `
+        CALL apoc.index.search($searchIndex, $searchString)
+        YIELD node AS searchResult
+        MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO]-(d:Dataset)
+        MATCH (d)<-[:OWNER]-(o:Organization)
+      `
+    } else {
+      initialMatch = 'MATCH (d:Dataset)<-[:OWNER]-(o:Organization)'
+    }
+
+    return `
+      ${initialMatch}
       ${where}
       OPTIONAL MATCH (d)<--(c:Column)
       RETURN
@@ -120,7 +142,8 @@ export default class DatasetRepository {
         COALESCE(d.generating, false) AS generating,
         d.path AS path,
         COLLECT(c) AS columns,
-        o AS owner`
+        o AS owner
+      `
   }
 
   static async uniqueDefaultName(owner) {

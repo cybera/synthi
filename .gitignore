@@ -1,5 +1,4 @@
 .DS_Store
-.vscode
 .env
 docs/examples/__pycache__
 __pycache__
