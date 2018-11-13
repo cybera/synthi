@@ -8,7 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 
-export default class DatasetRemovalDialog extends React.Component {
+class ConfirmationDialog extends React.Component {
   constructor(props) {
     super(props);
 
@@ -20,7 +20,7 @@ export default class DatasetRemovalDialog extends React.Component {
   }
 
   componentDidMount() {
-    this.props.openDialog(this.handleClickOpen);
+    this.props.onOpen(this.handleClickOpen);
   }
 
   handleClickOpen = () => {
@@ -28,45 +28,45 @@ export default class DatasetRemovalDialog extends React.Component {
   }
 
   handleClose = (agree) => {
-    const { id, name } = this.props.toRemove;
-
     this.setState({ open: false });
 
     if (agree) {
-      this.props.onClose(id, name);
+      this.props.onClose();
     }
   }
 
   render() {
-    const { name } = this.props.toRemove;
+    const { header, content, cancelLabel, continueLabel, hideCancel } = this.props;
 
     return (
       <Dialog
         open={this.state.open}
         onClose={this.handleClose}
-        aria-labelledby="alert-dataset-removal-title"
-        aria-describedby="alert-dataset-removal-content"
+        aria-labelledby="alert-confirmation-title"
+        aria-describedby="alert-confirmation-content"
       >
         <DialogTitle id="alert-dataset-removal-title">
-          Remove '{name}'?
+          {header}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dataset-removal-content">
-            Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?
+            {content}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button 
-            onClick={() => this.handleClose(false)} 
-            variant="contained" 
-            color="default">
-            Cancel
-          </Button>
+          {!hideCancel && 
+            <Button 
+              onClick={() => this.handleClose(false)} 
+              variant="contained" 
+              color="default">
+              {cancelLabel}
+            </Button>
+          }
           <Button 
             onClick={() => this.handleClose(true)} 
             variant="contained" 
             color="primary">
-            Continue
+            {continueLabel}
           </Button>
         </DialogActions>
       </Dialog>
@@ -74,11 +74,20 @@ export default class DatasetRemovalDialog extends React.Component {
   }
 }
 
-DatasetRemovalDialog.propTypes = {
-  toRemove: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string
-  }),
-  openDialog: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired
+ConfirmationDialog.propTypes = {
+  header: PropTypes.string.isRequired,
+  content: PropTypes.string.isRequired,
+  cancelLabel: PropTypes.string,
+  disagreeLabel: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  hideCancel: PropTypes.bool
 }
+
+ConfirmationDialog.defaultProps = {
+  continueLabel: "Continue",
+  cancelLabel: "Cancel",
+  hideCancel: false
+}
+
+export default ConfirmationDialog;

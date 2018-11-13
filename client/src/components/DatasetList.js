@@ -16,7 +16,7 @@ import { datasetListQuery, deleteDatasetMutation } from '../queries'
 import { withDatasets } from '../containers/DatasetList'
 import { withNavigation } from '../context/NavigationContext'
 
-import DatasetRemovalDialog from './DatasetRemovalDialog'
+import ConfirmationDialog from './ConfirmationDialog'
 import { openSnackbar } from './Notifier'
 
 
@@ -78,11 +78,12 @@ class DatasetList extends React.Component {
       }
     });
 
-    this.openDialog();
+    this.onOpen();
   }
 
-  handleDelete = (id, name) => {
-    const { deleteDataset, navigation } = this.props
+  handleDelete = () => {
+    const { deleteDataset, navigation } = this.props;
+    const { id, name } = this.state.toRemove;
 
     deleteDataset({ 
       variables: { id }, refetchQueries: [{ query: datasetListQuery }] 
@@ -90,7 +91,7 @@ class DatasetList extends React.Component {
       openSnackbar({ message: `'${name}' was successfully removed.` });
     }).catch((err) => {
       openSnackbar({ message: err });
-      console.log('An error occurred:', err);
+      console.log(err);
     });
 
     if (id === navigation.currentDataset) {
@@ -99,7 +100,7 @@ class DatasetList extends React.Component {
   }
 
   render() {
-    const { navigation, datasets, classes } = this.props
+    const { navigation, datasets, classes } = this.props;
 
     return (
       <div className={classes.root}>
@@ -122,10 +123,11 @@ class DatasetList extends React.Component {
                 </ListItemSecondaryAction>
               </ListItem>
             ))}
-          <DatasetRemovalDialog
-            toRemove={this.state.toRemove}
+          <ConfirmationDialog
+            header={`Remove '${this.state.toRemove.name}'?`}
+            content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
             onClose={this.handleDelete.bind(this)}
-            openDialog={(openDialog) => this.openDialog = openDialog}
+            onOpen={(onOpen) => this.onOpen = onOpen}
           />
         </List>
       </div>
