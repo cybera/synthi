@@ -71,8 +71,6 @@ class DatasetList extends React.Component {
   }
 
   handleOpenDialog = (id, name) => {
-    console.log("Clickety click");
-
     this.setState({
       toRemove: {
         id: id,
@@ -91,7 +89,7 @@ class DatasetList extends React.Component {
     }).then(() => {
       openSnackbar({ message: `'${name}' was successfully removed.` });
     }).catch((err) => {
-      openSnackbar({ message: `An error occurred: ${err}` });
+      openSnackbar({ message: err });
       console.log('An error occurred:', err);
     });
 
