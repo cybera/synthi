@@ -58,14 +58,16 @@ class ConfirmationDialog extends React.Component {
             <Button 
               onClick={() => this.handleClose(false)} 
               variant="contained" 
-              color="default">
+              color="default"
+            >
               {cancelLabel}
             </Button>
           }
           <Button 
             onClick={() => this.handleClose(true)} 
             variant="contained" 
-            color="primary">
+            color="primary"
+          >
             {continueLabel}
           </Button>
         </DialogActions>
