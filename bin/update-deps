@@ -1,0 +1,11 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$(dirname $SCRIPT_DIR)"
+
+if [ -z $1 ]; then
+  docker-compose run server npm install
+  docker-compose run client npm install
+else
+  docker-compose run $1 npm install
+fi

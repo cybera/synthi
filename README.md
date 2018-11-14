@@ -32,26 +32,15 @@ You should also set your neo4j username and password in the development.toml fil
 
 ### First time setup
 
-You'll need to install [NPM](https://www.npmjs.com/get-npm) and then install necessary libraries in your local environment:
+You'll need to install [NPM](https://www.npmjs.com/get-npm) and then install necessary libraries in your local environment. The `npm install` commands are technically optional and only required for autocompletion and linting.
 
 ```bash
-cd server && npm install && cp .env.example .env
+cd server && cp .env.example .env && npm install
 cd client && npm install
 ```
 
-```
+```bash
 docker-compose build
-docker-compose run server bash
-```
-
-On the server:
-
-```
-npm uninstall bcrypt
-npm install bcrypt
-```
-
-```
 docker-compose stop
 docker-compose up
 docker-compose logs python-worker
@@ -83,6 +72,12 @@ Or launch everything with docker:
 
 ```bash
 docker-compose up -d
+```
+
+To update Node dependencies in the Docker container:
+
+```bash
+bin/update-deps [client/server]
 ```
 
 ### Creating a User
