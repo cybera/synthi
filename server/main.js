@@ -128,14 +128,15 @@ app.get('/whoami', (req, res) => {
 })
 
 app.get('/dataset/:id', async (req, res) => {
-  let dataset = await DatasetRepository.get({ user: req.user }, req.params.id)
+  const dataset = await DatasetRepository.get({ user: req.user }, req.params.id)
 
   if (dataset) {
     ensureDatasetExists(dataset)
 
-    await waitForFile(dataset.path).catch(err => console.log(err))
+    // await waitForFile(dataset.path).catch(err => console.log(err))
 
-    res.download(dataset.fullPath(), `${dataset.name}.csv`, (err) => res.send(err))
+    res.attachment(`${dataset.name}.csv`)
+    dataset.readStream().pipe(res)
   } else {
     res.status(404).send('Not found')
   }
