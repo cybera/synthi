@@ -36,6 +36,10 @@ export default class Dataset {
     return []
   }
 
+  readStream() {
+    return Storage.createReadStream('datasets', this.path)
+  }
+
   deleteDataset() {
     try {
       Storage.remove('datasets', this.path)

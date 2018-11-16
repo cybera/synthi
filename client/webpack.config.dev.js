@@ -14,7 +14,8 @@ module.exports = merge(common, {
     proxy: {
       '/login': 'http://server:3000',
       '/logout': 'http://server:3000',
-      '/graphql': 'http://server:3000'
+      '/graphql': 'http://server:3000',
+      '/dataset': 'http://server:3000'
     }
   },
   plugins: [

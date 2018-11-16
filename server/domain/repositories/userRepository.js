@@ -25,6 +25,17 @@ export default class UserRepository {
     return utils.createUser(result)
   }
 
+  static async getByAPIKey(apikey) {
+    const query = this.buildQuery('WHERE u.apikey = $apikey')
+    const result = (await safeQuery(query, { apikey }))[0]
+
+    if (!result) {
+      return null
+    }
+
+    return utils.createUser(result)
+  }
+
   static async create(data) {
     const user = new User(null, data.username)
     await user.hashPassword(data.password)
@@ -49,6 +60,7 @@ export default class UserRepository {
         ID(u) AS id,
         u.username AS username,
         u.password AS password,
+        u.apikey AS apikey,
         COLLECT(o) AS orgs`
   }
 }
