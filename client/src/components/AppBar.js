@@ -5,12 +5,12 @@ import { withStyles } from '@material-ui/core/styles'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 
-import LogoutButton from './LogoutButton'
 import ADIButton from './ADIButton'
 import OrgSelector from './OrgSelector'
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 import ADILogo from '../images/ckan-logo.png'
+import UserMenu from './UserMenu'
 
 const styles = {
   root: {
@@ -62,7 +62,7 @@ function ButtonAppBar(props) {
           </ADIButton>
           <span className={classes.flex} />
           <OrgSelector />
-          <LogoutButton />
+          <UserMenu />
         </Toolbar>
       </AppBar>
     </div>
