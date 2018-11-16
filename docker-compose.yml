@@ -55,7 +55,8 @@ services:
       - ./data/scripts:/mnt/scripts
     environment:
       - DATA_ROOT=/mnt/data
-    command: /usr/src/app/main.py
+    depends_on:
+      - queue
   python-shell:
     build: ./services/python-worker
     volumes:
