@@ -16,6 +16,10 @@ import { datasetListQuery, deleteDatasetMutation } from '../queries'
 import { withDatasets } from '../containers/DatasetList'
 import { withNavigation } from '../context/NavigationContext'
 
+import ConfirmationDialog from './ConfirmationDialog'
+import { openSnackbar } from './Notifier'
+
+
 const styles = theme => ({
   root: {
     backgroundColor: theme.palette.background.paper,
@@ -38,6 +42,17 @@ const nameSort = (a, b) => {
 }
 
 class DatasetList extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      toRemove: {
+        id: null,
+        name: null
+      }
+    }
+  }
+
   static propTypes = {
     classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     deleteDataset: PropTypes.func.isRequired,
@@ -55,16 +70,37 @@ class DatasetList extends React.Component {
     datasets: []
   }
 
-  handleDelete = (id) => {
-    const { deleteDataset, navigation } = this.props
-    deleteDataset({ variables: { id }, refetchQueries: [{ query: datasetListQuery }] })
+  handleOpenDialog = (id, name) => {
+    this.setState({
+      toRemove: {
+        id: id,
+        name: name
+      }
+    });
+
+    this.onOpen();
+  }
+
+  handleDelete = () => {
+    const { deleteDataset, navigation } = this.props;
+    const { id, name } = this.state.toRemove;
+
+    deleteDataset({ 
+      variables: { id }, refetchQueries: [{ query: datasetListQuery }] 
+    }).then(() => {
+      openSnackbar({ message: `'${name}' was successfully removed.` });
+    }).catch((err) => {
+      openSnackbar({ message: err });
+      console.log(err);
+    });
+
     if (id === navigation.currentDataset) {
       navigation.selectDataset(null)
     }
   }
 
   render() {
-    const { navigation, datasets, classes } = this.props
+    const { navigation, datasets, classes } = this.props;
 
     return (
       <div className={classes.root}>
@@ -81,12 +117,18 @@ class DatasetList extends React.Component {
               >
                 <ListItemText primary={name} />
                 <ListItemSecondaryAction>
-                  <IconButton aria-label="Delete" onClick={e => this.handleDelete(id, e)}>
+                  <IconButton aria-label="Delete" onClick={() => this.handleOpenDialog(id, name)}>
                     <DeleteIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
               </ListItem>
             ))}
+          <ConfirmationDialog
+            header={`Remove '${this.state.toRemove.name}'?`}
+            content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
+            onClose={this.handleDelete.bind(this)}
+            onOpen={(onOpen) => this.onOpen = onOpen}
+          />
         </List>
       </div>
     )
