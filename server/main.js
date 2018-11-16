@@ -12,6 +12,7 @@ import cors from 'cors'
 
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
+import { HeaderAPIKeyStrategy } from 'passport-headerapikey'
 
 import session from 'express-session'
 
@@ -41,25 +42,43 @@ app.use(cors())
 // dist directory (if it exists)
 // app.use(express.static("dist"))
 
-const authenticateUser = async (username, password) => {
-  const user = await UserRepository.getByUsername(username)
-  if (!user) {
-    return false
+const authenticateUser = async ({ username, password, apikey }) => {
+  let user
+  let valid = false
+
+  if (apikey) {
+    user = await UserRepository.getByAPIKey(apikey)
+    if (user) user.viaAPI = true
+    valid = true
+  } else {
+    user = await UserRepository.getByUsername(username)
+    if (user) user.viaAPI = false
+    valid = user && await user.validPassword(password)
   }
-  const valid = await user.validPassword(password)
+
   // Returning the password hash isn't good practice
-  user.password = undefined
+  if (user) user.password = undefined
   return valid ? user : false
 }
 
 // Authentication w/ passportjs
 passport.use(new LocalStrategy(
   (username, password, done) => {
-    authenticateUser(username, password)
+    authenticateUser({ username, password })
       .then(result => done(null, result))
       .catch((err) => { console.log(err.message); done(err) })
   }
 ));
+
+passport.use(new HeaderAPIKeyStrategy(
+  { header: 'Authorization', prefix: 'Api-Key ' },
+  false,
+  (apikey, done) => {
+    authenticateUser({ apikey })
+      .then(user => done(null, user))
+      .catch((err) => { console.log(err.message); done(err) })
+  }
+))
 
 passport.serializeUser((user, done) => {
   console.log(`serializeUser: ${user.id}`)
@@ -90,7 +109,23 @@ app.use(session({
   resave: false
 }))
 app.use(passport.initialize())
-app.use(passport.session())
+
+// Normally, we'd do app.use(passport.session()) here, but passport.session() is really just
+// shorthand for passport.authenticate('session'), and the passport.authenticate calls are
+// really just ways of constructing authentication-oriented connect middleware. Because we
+// want to support both api key authentication (for 3rd party tool integration) and session
+// cookie based authentication (for regular browsing after logging in), we'll construct our
+// own middleware function that chooses which authentication technique to ultimately use based
+// on whether there's an authorization header.
+const sessionAuthentication = passport.authenticate('session')
+const apiKeyAuthentication = passport.authenticate('headerapikey', { session: false })
+app.use((req, res, next) => {
+  let authenticate = sessionAuthentication
+  if (req.headers.authorization) {
+    authenticate = apiKeyAuthentication
+  }
+  authenticate(req, res, next)
+})
 
 const apolloServer = new ApolloServer({
   typeDefs,
@@ -146,7 +181,7 @@ const httpServer = http.createServer(app)
 apolloServer.installSubscriptionHandlers(httpServer)
 // run server on port 3000
 const PORT = 3000
-const server = httpServer.listen(PORT, err => {
+const server = httpServer.listen(PORT, (err) => {
   if (err) {
     console.log(err)
   }
@@ -157,8 +192,8 @@ const server = httpServer.listen(PORT, err => {
 const queueConnection = startDatasetStatusConsumer()
 
 // Close all connections on shutdown
-onExit(function (code, signal) {
-  console.log("Shutting down...")
+onExit(() => {
+  console.log('Shutting down...')
   server.close()
   queueConnection.then(qc => qc.close())
 }, { alwaysLast: true })
