@@ -85,6 +85,7 @@ type Query {
   dataset(id: Int, name: String, searchString: String): [Dataset]
   plots(id: Int): [Plot]
   uploads: [File]
+  currentUser: User
 }
 
 type Organization {
@@ -97,6 +98,7 @@ type User {
   id: Int!
   username: String!
   organizations: [Organization]
+  apikey: String
 }
 
 type Mutation {
@@ -110,6 +112,7 @@ type Mutation {
   toggleColumnVisibility(id: Int!): Boolean
   saveInputTransformation(id: Int!, code:String): Transformation
   updateDatasetMetadata(id: Int!, metadata:DatasetMetadataInput): DatasetMetadata
+  regenerateAPIKey: User
 }
 
 type Subscription {

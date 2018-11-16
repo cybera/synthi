@@ -60,6 +60,7 @@ export default class UserRepository {
         ID(u) AS id,
         u.username AS username,
         u.password AS password,
+        u.apikey AS apikey,
         COLLECT(o) AS orgs`
   }
 }

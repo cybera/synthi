@@ -27,7 +27,7 @@ createUser = (result) => {
     orgs = result.orgs.map(org => createOrg({ id: org.identity, ...org.properties }))
   }
 
-  return new User(result.id, result.username, result.password, orgs)
+  return new User(result.id, result.username, result.password, orgs, result.apikey)
 }
 
 createOrg = (result) => {
