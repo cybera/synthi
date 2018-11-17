@@ -1,5 +1,3 @@
-import 'dotenv/config'
-
 import http from 'http'
 
 import bodyParser from 'body-parser'

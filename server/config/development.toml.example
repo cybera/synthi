@@ -14,6 +14,10 @@ authUrl = "https://your-auth-endpoint:5000"
 datasets = "your-dev-datasets-container"
 scripts = "your-dev-scripts-container"
 
+[storage.legacy]
+
+dataRoot = /tmp/uploads
+
 [storage]
 
 # Can be "object" or "legacy". "object" is the default.

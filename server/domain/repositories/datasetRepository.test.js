@@ -1,5 +1,3 @@
-import 'dotenv/config'
-
 import neo4jConnection from '../../neo4j/connection'
 import DatasetRepository from './datasetRepository'
 import UserRepository from './userRepository'

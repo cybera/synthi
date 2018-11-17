@@ -32,10 +32,10 @@ You should also set your neo4j username and password in the development.toml fil
 
 ### First time setup
 
-You'll need to install [NPM](https://www.npmjs.com/get-npm) and then install necessary libraries in your local environment. The `npm install` commands are technically optional and only required for autocompletion and linting.
+For autocompletion and linting you'll need to install [NPM](https://www.npmjs.com/get-npm) and then run the following commands to install the dependencies:
 
 ```bash
-cd server && cp .env.example .env && npm install
+cd server && npm install
 cd client && npm install
 ```
 
@@ -121,6 +121,7 @@ You may need to manually restart the debug server at times. You can do that by r
 ```bash
 bin/server development
 ```
+<<<<<<< HEAD
 
 ### Migrations
 
@@ -129,3 +130,5 @@ Some changes will require data updates. There is a simple migration system in pl
 Migrations will be run in the order the names would be sorted, so you know for sure a migration shouldn't be run until another one has been run, you can affect the order by appropriate naming. The current convention is to prefix the migration name with a double digit integer to indicate order (`00_`, `01_`, etc).
 
 One important assumption you should consider when making migrations is that all migrations are idempotent. That is, if they will do their own checking to see whether they need to change anything, based on the current state, and if there's nothing to change, they'll have no effect. Your migration script should be able to be run any number of times and only change data when it's not in the state it should be. This means you can also add to existing migrations if it makes sense, but it also means that there isn't really a concept of rolling back.
+=======
+>>>>>>> Convert remaining uses of dotenv to config

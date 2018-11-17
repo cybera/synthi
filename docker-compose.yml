@@ -53,8 +53,6 @@ services:
       - ./services/python-worker:/usr/src/app
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
-    environment:
-      - DATA_ROOT=/mnt/data
     depends_on:
       - queue
   python-shell:

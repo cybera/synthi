@@ -13,6 +13,10 @@ authUrl = "https://your-auth-endpoint:5000"
 datasets = "your-dev-datasets-container"
 scripts = "your-dev-scripts-container"
 
+[storage.legacy]
+
+dataRoot = "/mnt/data"
+
 [storage]
 
 # Can be "object" or "legacy"
