@@ -4,6 +4,7 @@ import datasetResolvers from './resolvers/dataset'
 import plotsResolvers from './resolvers/plots'
 import transformationsResolvers from './resolvers/transformations'
 import datasetMetadataResolvers from './resolvers/datasetMetadata'
+import columnResolvers from './resolvers/column'
 import generalResolvers from './resolvers/general'
 import UserRepository from '../domain/repositories/userRepository'
 
@@ -49,6 +50,7 @@ export default merge(
   mainResolvers,
   generalResolvers,
   datasetResolvers,
+  columnResolvers,
   datasetMetadataResolvers,
   plotsResolvers,
   transformationsResolvers

@@ -35,7 +35,7 @@ export default {
         MATCH (d:Dataset)
         WHERE ID(d) = toInteger($id)
         MERGE (d)-[:HAS_METADATA]->(metadata:DatasetMetadata)
-        SET metadata = $metadata
+        SET metadata += $metadata
       `
 
       await safeQuery(query, { id, metadata: translatedMetadata })
