@@ -5,6 +5,7 @@ import MenuList from '@material-ui/core/MenuList'
 import MenuItem from '@material-ui/core/MenuItem'
 import ViewIcon from '@material-ui/icons/ViewColumn'
 import EditIcon from '@material-ui/icons/Edit'
+import TagMultipleIcon from 'mdi-react/TagMultipleIcon'
 import ConnectionsIcon from '@material-ui/icons/DeviceHub'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import Paper from '@material-ui/core/Paper'
@@ -63,8 +64,8 @@ class DatasetDetails extends React.Component {
       },
       {
         name: 'column-tags',
-        icon: <div />,
-        detailMode: <div />
+        icon: <TagMultipleIcon />,
+        detailMode: <DatasetColumnTags />
       }
     ]
   }
