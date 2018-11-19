@@ -104,7 +104,7 @@ class DatasetDetails extends React.Component {
             </MenuList>
           </Grid>
           <Grid item xs={11}>
-            { this.showView(mode, options)|| <div /> }
+            {this.showView(mode, options)}
           </Grid>
         </Grid>
       </Paper>
