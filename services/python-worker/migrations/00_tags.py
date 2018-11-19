@@ -5,4 +5,5 @@ def migrate(tx):
     MERGE (:Tag { name: 'Integer', system: true })
     MERGE (:Tag { name: 'Float', system: true })
     MERGE (:Tag { name: 'String', system: true })
+    MERGE (:Tag { name: 'Boolean', system: true })
   ''')
