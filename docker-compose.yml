@@ -55,20 +55,6 @@ services:
       - ./data/scripts:/mnt/scripts
     depends_on:
       - queue
-  python-shell:
-    build: ./services/python-worker
-    volumes:
-      - ./services/python-worker:/usr/src/app
-      - ./data/uploads:/mnt/data
-      - ./data/scripts:/mnt/scripts
-    environment:
-      - SCRIPT_ROOT=/mnt/scripts
-      - DATA_ROOT=/mnt/data
-    networks:
-      - default
-    working_dir: /usr/src/app
-    stdin_open: true
-    tty: true
   redis:
     image: redis:4.0
     networks:
