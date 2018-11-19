@@ -12,27 +12,41 @@ export const tags = async (column) => {
   return results.map(row => row.tag.properties)
 }
 
-export const update = async (column, newValues, newTags) => {
+export const update = async (column, values, tagNames) => {
   // Remove any tags not in the list, add tags that are in the list and haven't yet
   // been related, and set any new values.
 
-  const tagNames = newTags.map(tag => tag.name)
+  let editTags = ''
 
-  const cleanupQuery = `
+  // We only want to add/remove tags if a list of tags has been provided
+  if (tagNames) {
+    editTags = `
+      WITH column
+      OPTIONAL MATCH (tag:Tag)-[r:DESCRIBES]->(column)
+      WHERE NOT tag.name IN $tagNames
+      DELETE r
+      WITH column
+      MATCH (tag:Tag)
+      WHERE tag.name IN $tagNames
+      MERGE (tag)-[:DESCRIBES]->(column)
+    `
+  }
+
+  const editQuery = `
     MATCH (column:Column { uuid: $column.uuid })
-    SET column += $newValues
-    WITH column
-    OPTIONAL MATCH (tag:Tag)-[r:DESCRIBES]->(column)
-    WHERE NOT tag.name IN $tagNames
-    DELETE r
-    WITH column
-    OPTIONAL MATCH (tag:Tag)
-    WHERE tag.name IN $tagNames
-    MERGE (tag)-[:DESCRIBES]->(column)
+    SET column += $values
+    ${editTags}
     RETURN column
   `
 
-  const results = await safeQuery(cleanupQuery, { column, tagNames, newValues })
+  await safeQuery(editQuery, { column, tagNames, values })
+
+  const returnQuery = `
+    MATCH (column:Column { uuid: $column.uuid })
+    RETURN column
+  `
+
+  const results = await safeQuery(returnQuery, { column })
 
   return results.map(row => row.column.properties)[0]
 }

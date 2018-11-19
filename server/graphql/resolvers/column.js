@@ -11,7 +11,7 @@ export default {
   },
   Mutation: {
     updateColumn: async (_, { uuid, values, tagNames }, context) => {
-      return update({ uuid }, values, tagNames.map(name => ({ name })))
+      return update({ uuid }, values, tagNames)
     }
   }
 }
