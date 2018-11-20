@@ -1,11 +1,13 @@
 import React from 'react'
 
+const host = window.location.origin
+
 export const CurlBlock = (props) => {
   const { dataset, apikey } = props
 
-  const downloadCode = `curl --header "Authorization: Api-Key ${apikey}" localhost:8080/dataset/${dataset.id}`
+  const downloadCode = `curl --header "Authorization: Api-Key ${apikey}" ${host}/dataset/${dataset.id}`
 
-  const columnNamesCode = `curl http://localhost:8080/graphql \\
+  const columnNamesCode = `curl ${host}/graphql \\
 -X POST \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Api-Key ${apikey}" \\
@@ -23,7 +25,7 @@ export const CurlBlock = (props) => {
 }
 EOS`
 
-  const metadataCode = `curl http://localhost:8080/graphql \\
+  const metadataCode = `curl ${host}/graphql \\
 -X POST \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Api-Key ${apikey}" \\
@@ -76,11 +78,26 @@ EOS`
 export const PythonBlock = (props) => {
   const { dataset, apikey } = props
 
+  const downloadCode = `import requests
+import pandas as pd
+import io
+
+headers = { 'Authorization': 'Api-Key ${apikey}' }
+response = requests.get('${host}/dataset/${dataset.id}', headers=headers)
+
+df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
+`
+
   return (
     <div>
-      Python export for:
-
-      {dataset.name}
+      <p>
+        <b>Read {dataset.name} into a data frame:</b>
+      </p>
+      <p>
+        <pre>
+          {downloadCode}
+        </pre>
+      </p>
     </div>
   )
 }
@@ -98,7 +115,7 @@ library(httr)
 
 apiKey <- '${apikey}'
 
-req <- GET('localhost:8080/dataset/${dataset.id}', 
+req <- GET('${host}/dataset/${dataset.id}', 
     add_headers(Authorization = paste("Api-Key", apiKey))
 )
 
