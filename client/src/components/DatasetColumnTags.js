@@ -30,7 +30,7 @@ export const datasetColumnTagsQuery = gql`
 `
 
 export const updateDatasetColumnsMutation = gql`
-  mutation updateColumns($uuid: String, $values: ColumnInput, $tagNames: [String]) {
+  mutation updateColumns($uuid: String!, $values: ColumnInput, $tagNames: [String]) {
     updateColumn(
       uuid: $uuid,
       values: $values,
@@ -43,16 +43,19 @@ export const updateDatasetColumnsMutation = gql`
 
 // Each column in every dataset will have these form fields.
 class DatasetColumnTags extends React.Component {
-  constructor(props) {
-    super(props)
-    const { name, tags } = props
+  static defaultProps = {
+    tags: [],
+    uuid: '',
+    name: '',
+    id: null
+  }
 
-    this.state = {
-      column: {
-        name: name,
-        tags: tags.map((tag) => tag.name)
-      }
-    }
+  state = {
+    column: {
+      name: this.props.column.name,
+      tags: this.props.column.tags.map((tag) => tag.name)
+    },
+    edited: false
   }
 
   handleTextChange(event) {
@@ -65,20 +68,48 @@ class DatasetColumnTags extends React.Component {
     newColumnData[name] = value
 
     this.setState({
-      column: newColumnData
+      column: newColumnData,
+      edited: true
     })
+
+    this.handleSave()
   }
 
   handleTagChange(tagNames) {
+    let newColumnData = { ...this.state.column }
+
+    newColumnData['tags'] = tagNames
+
     this.setState({
-      column: {
-        tags: tagNames
+      column: newColumnData,
+      edited: true
+    })
+
+    this.handleSave()
+  }
+
+  handleSave() {
+    const { name, tags } = this.state.column
+    const { saveMutation, uuid } = this.props
+
+    saveMutation({
+      variables: {
+        uuid,
+        values: {
+          name
+        },
+        tagNames: tags
       }
+    })
+
+    this.setState({
+      edited: false
     })
   }
 
   render() {
-    const { id, name, tags } = this.state.column
+    const { name, tags } = this.state.column
+    const { id } = this.props.column
 
     return (
       <div>
@@ -103,10 +134,12 @@ class DatasetColumnTags extends React.Component {
 // column tags will go here.
 class DatasetColumnTagsContainer extends React.Component {
   render() {
-    const { columns } = this.props
+    const { columns, saveMutation } = this.props
     const columnFields = columns.map((column) => 
-      <DatasetColumnTags column={column} key={column.uuid} />
+      <DatasetColumnTags column={column} key={column.uuid} saveMutation={saveMutation} />
     )
+
+    console.log(columns)
 
     return (
       <form noValidate autoComplete="off">
