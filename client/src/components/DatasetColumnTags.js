@@ -30,7 +30,7 @@ export const datasetColumnTagsQuery = gql`
 `
 
 export const updateDatasetColumnsMutation = gql`
-  mutation updateColumns($uuid: String!, $values: ColumnInput, $tagNames: [String]) {
+  mutation UpdateColumn($uuid: String!, $values: ColumnInput, $tagNames: [String]) {
     updateColumn(
       uuid: $uuid,
       values: $values,
@@ -52,6 +52,7 @@ class DatasetColumnTags extends React.Component {
 
   state = {
     column: {
+      uuid: this.props.column.uuid,
       name: this.props.column.name,
       tags: this.props.column.tags.map((tag) => tag.name)
     },
@@ -72,7 +73,7 @@ class DatasetColumnTags extends React.Component {
       edited: true
     })
 
-    this.handleSave()
+    this.handleSave(newColumnData)
   }
 
   handleTagChange(tagNames) {
@@ -85,12 +86,14 @@ class DatasetColumnTags extends React.Component {
       edited: true
     })
 
-    this.handleSave()
+    this.handleSave(newColumnData)
   }
 
-  handleSave() {
-    const { name, tags } = this.state.column
-    const { saveMutation, uuid } = this.props
+  handleSave(newColumnData) {
+    const { name, tags, uuid } = newColumnData
+    const { saveMutation } = this.props
+
+    console.log("New name:", tags)
 
     saveMutation({
       variables: {
@@ -162,7 +165,7 @@ const ConnectedDatasetColumnTags = (props) => {
         { query: datasetColumnTagsQuery, variables: { id } }
       ]}
     >
-      { updateColumns => (
+      { updateColumn => (
         <Query query={datasetColumnTagsQuery} variables={{ id }}>
           {({ loading, error, data }) => {
             if (loading) return <p>Loading...</p>;
@@ -172,7 +175,7 @@ const ConnectedDatasetColumnTags = (props) => {
             // TODO: Create a better empty state for this panel
             if (columns.length == 0) return <p>Please upload or generate a dataset to manage columns.</p>;
             
-            return(<DatasetColumnTagsContainer columns={columns} saveMutation={updateColumns} />)
+            return(<DatasetColumnTagsContainer columns={columns} saveMutation={updateColumn} />)
           }}
         </Query>
       )}
