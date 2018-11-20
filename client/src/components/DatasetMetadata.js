@@ -204,168 +204,166 @@ class DatasetMetadata extends React.Component {
     const { fields } = this.state
 
     return (
-      <div>
-        <form className={classes.container} noValidate autoComplete="off">
-          <Grid container spacing={0}>
-            <Grid item xs={12}>
-              <ADIButton 
-                onClick={() => this.handeSave(saveMutation)} 
-                disabled={!this.state.edited}
-              >
-                Save
-              </ADIButton>
-            </Grid>
-            <Grid item xs={4}>
-              <TextField
-                id="metadata-title"
-                label="Title"
-                className={classes.textField}
-                value={fields.title}
-                onChange={this.handleStringChange('title')}
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <TextField
-                id="metadata-identifier"
-                label="Identifier"
-                className={classes.textField}
-                value={fields.identifier}
-                onChange={this.handleStringChange('identifier')}
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <TextField
-                id="metadata-theme"
-                label="Theme"
-                className={classes.textField}
-                value={fields.theme}
-                onChange={this.handleStringChange('theme')}
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <TextField
-                id="metadata-contributor"
-                label="Contributor"
-                className={classes.textField}
-                value={fields.contributor}
-                onChange={this.handleStringChange('contributor')}
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={8}>
-              <TextField
-                id="metadata-contact"
-                label="Contact"
-                className={classes.textField}
-                value={fields.contact}
-                onChange={this.handleStringChange('contact')}
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <LocalDatePicker
-                label="Date Added"
-                value={fields.dateAdded}
-                onChange={this.handleDateChange('dateAdded')}
-                className={classes.dateField}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <LocalDatePicker
-                label="Date Created"
-                value={fields.dateCreated}
-                onChange={this.handleDateChange('dateCreated')}
-                className={classes.dateField}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <LocalDatePicker
-                label="Date Updated"
-                value={fields.dateUpdated}
-                onChange={this.handleDateChange('dateUpdated')}
-                className={classes.dateField}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <div className={classes.updateSection}>
-                <FormControl className={classes.formControl} style={{marginTop: 23}}>
-                  <FormControlLabel
-                    control={(
-                      <Checkbox
-                        checked={fields.updates}
-                        onChange={this.handleCheckboxChange('updates')}
-                        value="updates"
-                        color="primary"
-                      />
-                    )}
-                    label="Updates every"
-                  />
-                </FormControl>
-                <TextField
-                  id="metadata-frequency-amount"
-                  label="Amount"
-                  className={classes.amountField}
-                  value={fields.updateFrequencyAmount}
-                  onChange={this.handleIntChange('updateFrequencyAmount', parseInt)}
-                  margin="normal"
-                />
-                <FormControl className={classes.formControl} style={{verticalAlign:'bottom', marginBottom:8}}>
-                  <Select
-                    value={fields.updateFrequencyUnit}
-                    onChange={this.handleStringChange('updateFrequencyUnit')}
-                  >
-                    <MenuItem value="days">days</MenuItem>
-                    <MenuItem value="weeks">weeks</MenuItem>
-                    <MenuItem value="months">months</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
-            </Grid>
-            <Grid item xs={12}>
-              <div className={classes.formatSelector}>
-                <FormControl className={classes.formControl}>
-                  <InputLabel shrink htmlFor="format-label-placeholder">
-                    Format
-                  </InputLabel>
-                  <Select
-                    className={classes.formatSelectComponent}
-                    value={fields.format}
-                    onChange={this.handleStringChange('format')}
-                    input={<Input name="format" id="format-label-placeholder" />}
-                  >
-                    <MenuItem value="csv">CSV</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                id="metadata-source"
-                label="Source"
-                className={classes.sourceField}
-                value={fields.source}
-                onChange={this.handleStringChange('source')}
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={12} style={{paddingRight: 120}}>
-              <TextField
-                id="metadata-description"
-                label="Description"
-                multiline
-                value={fields.description}
-                onChange={this.handleStringChange('description')}
-                className={classes.textArea}
-                margin="normal"
-                fullWidth
-              />
-            </Grid>
+      <form className={classes.container} noValidate autoComplete="off">
+        <Grid container spacing={0}>
+          <Grid item xs={12}>
+            <ADIButton 
+              onClick={() => this.handeSave(saveMutation)} 
+              disabled={!this.state.edited}
+            >
+              Save
+            </ADIButton>
           </Grid>
-        </form>
-      </div>
+          <Grid item xs={4}>
+            <TextField
+              id="metadata-title"
+              label="Title"
+              className={classes.textField}
+              value={fields.title}
+              onChange={this.handleStringChange('title')}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              id="metadata-identifier"
+              label="Identifier"
+              className={classes.textField}
+              value={fields.identifier}
+              onChange={this.handleStringChange('identifier')}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              id="metadata-theme"
+              label="Theme"
+              className={classes.textField}
+              value={fields.theme}
+              onChange={this.handleStringChange('theme')}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <TextField
+              id="metadata-contributor"
+              label="Contributor"
+              className={classes.textField}
+              value={fields.contributor}
+              onChange={this.handleStringChange('contributor')}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={8}>
+            <TextField
+              id="metadata-contact"
+              label="Contact"
+              className={classes.textField}
+              value={fields.contact}
+              onChange={this.handleStringChange('contact')}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <LocalDatePicker
+              label="Date Added"
+              value={fields.dateAdded}
+              onChange={this.handleDateChange('dateAdded')}
+              className={classes.dateField}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <LocalDatePicker
+              label="Date Created"
+              value={fields.dateCreated}
+              onChange={this.handleDateChange('dateCreated')}
+              className={classes.dateField}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <LocalDatePicker
+              label="Date Updated"
+              value={fields.dateUpdated}
+              onChange={this.handleDateChange('dateUpdated')}
+              className={classes.dateField}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <div className={classes.updateSection}>
+              <FormControl className={classes.formControl} style={{marginTop: 23}}>
+                <FormControlLabel
+                  control={(
+                    <Checkbox
+                      checked={fields.updates}
+                      onChange={this.handleCheckboxChange('updates')}
+                      value="updates"
+                      color="primary"
+                    />
+                  )}
+                  label="Updates every"
+                />
+              </FormControl>
+              <TextField
+                id="metadata-frequency-amount"
+                label="Amount"
+                className={classes.amountField}
+                value={fields.updateFrequencyAmount}
+                onChange={this.handleIntChange('updateFrequencyAmount', parseInt)}
+                margin="normal"
+              />
+              <FormControl className={classes.formControl} style={{verticalAlign:'bottom', marginBottom:8}}>
+                <Select
+                  value={fields.updateFrequencyUnit}
+                  onChange={this.handleStringChange('updateFrequencyUnit')}
+                >
+                  <MenuItem value="days">days</MenuItem>
+                  <MenuItem value="weeks">weeks</MenuItem>
+                  <MenuItem value="months">months</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+          </Grid>
+          <Grid item xs={12}>
+            <div className={classes.formatSelector}>
+              <FormControl className={classes.formControl}>
+                <InputLabel shrink htmlFor="format-label-placeholder">
+                  Format
+                </InputLabel>
+                <Select
+                  className={classes.formatSelectComponent}
+                  value={fields.format}
+                  onChange={this.handleStringChange('format')}
+                  input={<Input name="format" id="format-label-placeholder" />}
+                >
+                  <MenuItem value="csv">CSV</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              id="metadata-source"
+              label="Source"
+              className={classes.sourceField}
+              value={fields.source}
+              onChange={this.handleStringChange('source')}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={12} style={{paddingRight: 120}}>
+            <TextField
+              id="metadata-description"
+              label="Description"
+              multiline
+              value={fields.description}
+              onChange={this.handleStringChange('description')}
+              className={classes.textArea}
+              margin="normal"
+              fullWidth
+            />
+          </Grid>
+        </Grid>
+      </form>
     )
   }
 }
