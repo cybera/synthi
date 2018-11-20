@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import ADIButton from '../components/ADIButton'
 import DatasetGenerator from '../components/DatasetGenerator'
 import ToggleVisibility from '../components/ToggleVisibility'
+import DatasetDownloadButton from '../components/dataset/DownloadButton'
 import DatasetUploadButton from './DatasetUploadButton'
 import TransformationEditor from './TransformationEditor'
 import SaveTransformationButton from './SaveTransformationButton'
@@ -45,6 +46,7 @@ class DatasetEditor extends React.Component {
             </ADIButton>
           )}
         </DatasetGenerator>
+        <DatasetDownloadButton dataset={dataset} />
         <ToggleVisibility visible={dataset.computed}>
           <TransformationEditor
             dataset={dataset}
