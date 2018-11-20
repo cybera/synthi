@@ -65,7 +65,7 @@ class DatasetDetails extends React.Component {
       {
         name: 'column-tags',
         icon: <TagMultipleIcon />,
-        detailMode: <DatasetColumnTags />
+        detailMode: <DatasetColumnTags id={id} />
       }
     ]
   }
