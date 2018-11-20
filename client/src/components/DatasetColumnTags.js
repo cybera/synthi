@@ -13,48 +13,94 @@ import ChipInput from 'material-ui-chip-input'
 // GraphQL & Apollo things
 import { Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
-import * as Ramda from 'ramda'
 
 export const datasetColumnTagsQuery = gql`
-query($id: Int!) {
-  dataset(id: $id) {
-    columns {
-      uuid
-      name
-      tags {
+  query($id: Int!) {
+    dataset(id: $id) {
+      columns {
+        id
+        uuid
         name
+        tags {
+          name
+        }
       }
     }
   }
-}
 `
 
 export const updateDatasetColumnsMutation = gql`
-mutation updateColumns($uuid: String, $values: ColumnInput, $tagNames: [String]) {
-  updateColumn(
-    uuid: $uuid,
-    values: $values,
-    tagNames: $tagNames
-  ) {
-    name
+  mutation updateColumns($uuid: String, $values: ColumnInput, $tagNames: [String]) {
+    updateColumn(
+      uuid: $uuid,
+      values: $values,
+      tagNames: $tagNames
+    ) {
+      name
+    }
   }
-}
 `
 
+// Each column in every dataset will have these form fields.
 class DatasetColumnTags extends React.Component {
-  state = {
-    edited: false
+  constructor(props) {
+    super(props)
+    const { name, tags } = props
+
+    this.state = {
+      column: {
+        name: name,
+        tags: tags.map((tag) => tag.name)
+      }
+    }
   }
 
-  render = () => {
-    const {column} = this.props
-    
+  handleTextChange(event) {
+    // Made this dynamic in case we add more fields in the future
+    const target = event.target
+    const value = target.value
+    const name = target.id.slice(0,4)
+    let newColumnData = { ...this.state.column }
+
+    newColumnData[name] = value
+
+    this.setState({
+      column: newColumnData
+    })
+  }
+
+  handleTagChange(tagNames) {
+    this.setState({
+      column: {
+        tags: tagNames
+      }
+    })
+  }
+
+  render() {
+    const { id, name, tags } = this.state.column
+
     return (
-      <div>{column.name}</div>
+      <div>
+        <TextField
+          id={`name${id}`}
+          label="Column Name"
+          value={name}
+          onChange={(event) => this.handleTextChange(event)}
+        />
+        <ChipInput 
+          id={`tags${id}`}
+          label="Tags"
+          defaultValue={tags}
+          onChange={(newTags) => this.handleTagChange(newTags)}
+        />
+      </div>
     )
   }
 }
 
+// Container where the form will be put together, extra logic about saving
+// column tags will go here.
 class DatasetColumnTagsContainer extends React.Component {
   render() {
     const { columns } = this.props
@@ -70,6 +116,9 @@ class DatasetColumnTagsContainer extends React.Component {
   }
 }
 
+// The actual component that will be exported. Choreographs what will be
+// shown on the panel based off of the data and the other components defined
+// in this file.
 const ConnectedDatasetColumnTags = (props) => {
   const { id } = props
 
@@ -87,12 +136,10 @@ const ConnectedDatasetColumnTags = (props) => {
             if (error) return <p>Error!</p>;
 
             const columns = data.dataset[0].columns
+            // TODO: Create a better empty state for this panel
+            if (columns.length == 0) return <p>Please upload or generate a dataset to manage columns.</p>;
             
-            if (columns.length == 0) {
-              return <p>Please upload or generate a dataset to manage columns.</p>
-            } else {
-              return (<DatasetColumnTagsContainer columns={columns} />)
-            }
+            return(<DatasetColumnTagsContainer columns={columns} saveMutation={updateColumns} />)
           }}
         </Query>
       )}
