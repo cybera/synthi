@@ -7,6 +7,7 @@ import FormControl from '@material-ui/core/FormControl'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Input from '@material-ui/core/Input'
 import InputLabel from '@material-ui/core/InputLabel'
+import TextField from '@material-ui/core/TextField'
 import ChipInput from 'material-ui-chip-input'
 
 // GraphQL & Apollo things
@@ -43,9 +44,9 @@ mutation updateColumns($uuid: String, $values: ColumnInput, $tagNames: [String])
 class DatasetColumnTags extends React.Component {
   render() {
     return(
-      <div>
-
-      </div>
+      <form noValidate autoComplete="off">
+        
+      </form>
     )
   }
 }

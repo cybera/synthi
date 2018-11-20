@@ -184,7 +184,7 @@ class DatasetMetadata extends React.Component {
   //   })
   // }
 
-  handeSave = (mutation) => {
+  handleSave = (mutation) => {
     const { id } = this.props
 
     mutation({
@@ -208,7 +208,7 @@ class DatasetMetadata extends React.Component {
         <Grid container spacing={0}>
           <Grid item xs={12}>
             <ADIButton 
-              onClick={() => this.handeSave(saveMutation)} 
+              onClick={() => this.handleSave(saveMutation)} 
               disabled={!this.state.edited}
             >
               Save
