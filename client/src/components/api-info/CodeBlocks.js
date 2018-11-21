@@ -141,9 +141,30 @@ export const ExcelBlock = (props) => {
 
   return (
     <div>
-      Excel export for:
+      <p>
+        <b>Import {dataset.name} into Excel:</b>
+      </p>
 
-      {dataset.name}
+      <ol>
+        <li>
+          <a href={`${window.location.origin}/dataset/${dataset.id}`}>Click here</a>
+          &nbsp;to download the&nbsp;
+          {dataset.name}
+          &nbsp;dataset.
+        </li>
+        <li>
+          In Excel, click&nbsp;
+          <b>File</b>
+          &nbsp;and then&nbsp;
+          <b>Open</b>
+          , and select the downloaded copy of&nbsp;
+          {dataset.name}
+          .csv on your computer.
+        </li>
+        <li>
+          Click <b>Open</b>
+        </li>
+      </ol>
     </div>
   )
 }
