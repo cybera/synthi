@@ -15,6 +15,7 @@ def convert_type(pd_type):
 def column_info(df):
   column_types = df.dtypes
   columns = [dict(name=name,
+                  originalName=name,
                   tags=[convert_type(column_types[name])],
                   order=i+1) for i, name in enumerate(df.columns)]
   return columns

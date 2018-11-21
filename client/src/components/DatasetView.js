@@ -27,7 +27,7 @@ const DATASET_GENERATION_SUBSCRIPTION = gql`
       message
     }
   }
-`;
+`
 
 const styles = theme => ({
   root: {
@@ -109,7 +109,7 @@ class DatasetView extends React.Component {
 
           const sampleRows = dataset.samples.map((s) => {
             const record = JSON.parse(s)
-            return selectedColumns.map(c => record[c.name])
+            return selectedColumns.map(c => record[c.originalName])
           })
 
           this.subscribeToDatasetGenerated(subscribeToMore, refetch)

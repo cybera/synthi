@@ -63,7 +63,7 @@ def write_output(df, owner, output_name):
     WHERE ID(o) = $owner
     WITH dataset
     UNWIND $columns AS column
-    MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
+    MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
     WITH dataset
     SET dataset.generating = false
     RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path

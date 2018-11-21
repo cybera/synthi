@@ -12,34 +12,7 @@ import ChipInput from 'material-ui-chip-input'
 
 // GraphQL & Apollo things
 import { Query, Mutation } from 'react-apollo'
-import gql from 'graphql-tag'
-
-export const datasetColumnTagsQuery = gql`
-  query($id: Int!) {
-    dataset(id: $id) {
-      columns {
-        id
-        uuid
-        name
-        tags {
-          name
-        }
-      }
-    }
-  }
-`
-
-export const updateDatasetColumnsMutation = gql`
-  mutation UpdateColumn($uuid: String!, $values: ColumnInput, $tagNames: [String]) {
-    updateColumn(
-      uuid: $uuid,
-      values: $values,
-      tagNames: $tagNames
-    ) {
-      name
-    }
-  }
-`
+import { updateDatasetColumnsMutation, datasetColumnTagsQuery } from '../queries'
 
 // Each column in every dataset will have these form fields.
 class DatasetColumnTags extends React.Component {
@@ -141,8 +114,6 @@ class DatasetColumnTagsContainer extends React.Component {
     const columnFields = columns.map((column) => 
       <DatasetColumnTags column={column} key={column.uuid} saveMutation={saveMutation} />
     )
-
-    console.log(columns)
 
     return (
       <form noValidate autoComplete="off">
