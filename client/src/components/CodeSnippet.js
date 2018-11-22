@@ -29,7 +29,7 @@ const CodeSnippet = (props) => {
         name={`code-snippet-${language}`}
         editorProps={{$blockScrolling: true}}
         readOnly
-        fontSize={14}
+        fontSize={13}
         showPrintMargin={false}
         showGutter={false}
         width="100%"
