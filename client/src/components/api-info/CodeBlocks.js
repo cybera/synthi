@@ -1,11 +1,15 @@
 import React from 'react'
 
+import Typography from '@material-ui/core/Typography'
+
+import CodeSnippet from '../CodeSnippet'
+
 const host = window.location.origin
 
 export const CurlBlock = (props) => {
   const { dataset, apikey } = props
 
-  const downloadCode = `curl --header "Authorization: Api-Key ${apikey}" ${host}/dataset/${dataset.id}`
+  const downloadCode = `curl -H "Authorization: Api-Key ${apikey}" ${host}/dataset/${dataset.id}`
 
   const columnNamesCode = `curl ${host}/graphql \\
 -X POST \\
@@ -47,30 +51,18 @@ EOS`
 
   return (
     <div>
-      <p>
-        <b>Download {dataset.name}:</b>
-      </p>
-      <p>
-        <pre>
-          {downloadCode}
-        </pre>
-      </p>
-      <p>
-        <b>Get column information for {dataset.name}:</b>
-      </p>
-      <p>
-        <pre>
-          {columnNamesCode}
-        </pre>
-      </p>
-      <p>
-        <b>Get metadata for {dataset.name}:</b>
-      </p>
-      <p>
-        <pre>
-          {metadataCode}
-        </pre>
-      </p>
+      <Typography component="h2" variant="title" gutterBottom>
+        Download {dataset.name}
+      </Typography>
+      <CodeSnippet language="sh" code={downloadCode} />
+      <Typography component="h2" variant="title" gutterBottom>
+        Get column information for {dataset.name}
+      </Typography>
+      <CodeSnippet language="sh" code={columnNamesCode} />
+      <Typography component="h2" variant="title" gutterBottom>
+        Get metadata for {dataset.name}
+      </Typography>
+      <CodeSnippet language="sh" code={metadataCode} />
     </div>
   )
 }
@@ -90,14 +82,10 @@ df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
 
   return (
     <div>
-      <p>
-        <b>Read {dataset.name} into a data frame:</b>
-      </p>
-      <p>
-        <pre>
-          {downloadCode}
-        </pre>
-      </p>
+      <Typography component="h2" variant="title" gutterBottom>
+        Read <em>{dataset.name}</em> into a data frame
+      </Typography>
+      <CodeSnippet language="python" code={downloadCode} />
     </div>
   )
 }
@@ -124,14 +112,10 @@ df <- content(req, type='text/csv')
 
   return (
     <div>
-      <p>
-        <b>Read {dataset.name} into a data frame:</b>
-      </p>
-      <p>
-        <pre>
-          {downloadCode}
-        </pre>
-      </p>
+      <Typography component="h2" variant="title" gutterBottom>
+        Read {dataset.name} into a data frame
+      </Typography>
+      <CodeSnippet language="r" code={downloadCode} />
     </div>
   )
 }
@@ -141,30 +125,31 @@ export const ExcelBlock = (props) => {
 
   return (
     <div>
-      <p>
-        <b>Import {dataset.name} into Excel:</b>
-      </p>
-
-      <ol>
-        <li>
-          <a href={`${window.location.origin}/dataset/${dataset.id}`}>Click here</a>
-          &nbsp;to download the&nbsp;
-          {dataset.name}
-          &nbsp;dataset.
-        </li>
-        <li>
-          In Excel, click&nbsp;
-          <b>File</b>
-          &nbsp;and then&nbsp;
-          <b>Open</b>
-          , and select the downloaded copy of&nbsp;
-          {dataset.name}
-          .csv on your computer.
-        </li>
-        <li>
-          Click <b>Open</b>
-        </li>
-      </ol>
+      <Typography component="h2" variant="title" gutterBottom>
+        Import {dataset.name} into Excel
+      </Typography>
+      <Typography variant="body1" gutterBottom align="left">
+        <ol>
+          <li>
+            <a href={`${window.location.origin}/dataset/${dataset.id}`}>Click here</a>
+            &nbsp;to download the&nbsp;
+            {dataset.name}
+            &nbsp;dataset.
+          </li>
+          <li>
+            In Excel, click&nbsp;
+            <b>File</b>
+            &nbsp;and then&nbsp;
+            <b>Open</b>
+            , and select the downloaded copy of&nbsp;
+            {dataset.name}
+            .csv on your computer.
+          </li>
+          <li>
+            Click <b>Open</b>
+          </li>
+        </ol>
+      </Typography>
     </div>
   )
 }
