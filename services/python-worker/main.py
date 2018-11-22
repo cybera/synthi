@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-import pika
 import sys
 import os
-from subprocess import call
-import re
+from subprocess import Popen
 import json
+
+import pika
 
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -22,11 +22,12 @@ def callback(ch, method, properties, body):
   params = json.loads(msg)
   process_path = os.path.join(WORKER_ROOT, 'tasks', f"{params['task']}.py")
 
-  if params['task'] == 'generate' or params['task'] == 'register_transformation':
-    call([process_path, str(params['id']), str(params['ownerName'])])
-  else:
-    call([process_path, str(params['id'])])
-  print("Done")
+  process_params = [f"{params['id']}"]
+  if 'ownerName' in params:
+    process_params.append(params['ownerName'])
+
+  Popen([process_path, *process_params])
+
   sys.stdout.flush()
 
 channel.basic_consume(callback,

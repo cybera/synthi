@@ -22,8 +22,8 @@ import onExit from 'signal-exit'
 
 import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
-import { ensureDatasetExists, waitForFile } from './lib/util'
-import { startDatasetStatusConsumer } from './lib/queue'
+
+import { startQueue, prepareDownload } from './lib/queue'
 import UserRepository from './domain/repositories/userRepository'
 import DatasetRepository from './domain/repositories/datasetRepository'
 import { checkConfig } from './lib/startup-checks'
@@ -166,12 +166,10 @@ app.get('/dataset/:id', async (req, res) => {
   const dataset = await DatasetRepository.get({ user: req.user }, req.params.id)
 
   if (dataset) {
-    ensureDatasetExists(dataset)
-
-    // await waitForFile(dataset.path).catch(err => console.log(err))
-
-    res.attachment(`${dataset.name}.csv`)
-    dataset.readStream().pipe(res)
+    prepareDownload(dataset, () => {
+      res.attachment(`${dataset.name}.csv`)
+      dataset.readStream().pipe(res)
+    })
   } else {
     res.status(404).send('Not found')
   }
@@ -189,11 +187,11 @@ const server = httpServer.listen(PORT, (err) => {
   console.log(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
 })
 
-const queueConnection = startDatasetStatusConsumer()
+const queueConnection = startQueue()
 
 // Close all connections on shutdown
 onExit(() => {
   console.log('Shutting down...')
   server.close()
-  queueConnection.then(qc => qc.close())
+  queueConnection.close()
 }, { alwaysLast: true })
