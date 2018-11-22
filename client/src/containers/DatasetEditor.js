@@ -43,6 +43,9 @@ class DatasetEditor extends React.Component {
             <DatasetUploadButton dataset={dataset} />
           </span>
         </ToggleVisibility>
+        <span className={classes.editorButton}>
+          <DatasetDownloadButton dataset={dataset} />
+        </span>
         <ToggleVisibility visible={dataset.computed}>
           <span className={classes.editorButton}>
             <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
@@ -60,9 +63,6 @@ class DatasetEditor extends React.Component {
             </span>
           )}
         </DatasetGenerator>
-        <span className={classes.editorButton}>
-          <DatasetDownloadButton dataset={dataset} />
-        </span>
         <ToggleVisibility visible={dataset.computed}>
           <TransformationEditor
             dataset={dataset}
