@@ -142,7 +142,7 @@ df <- content(req, type='text/csv')`
 }
 
 export const ExcelBlock = (props) => {
-  const { dataset, apikey } = props
+  const { dataset } = props
 
   return (
     <div>
@@ -170,6 +170,66 @@ export const ExcelBlock = (props) => {
             Click <b>Open</b>
           </li>
         </ol>
+      </Typography>
+    </div>
+  )
+}
+
+export const SASSBlock = (props) => {
+  const { dataset } = props
+
+  return (
+    <div>
+      <Typography component="h2" variant="title" gutterBottom>
+        Import {dataset.name} into SASS
+      </Typography>
+      <Typography variant="body1" gutterBottom align="left">
+        Placeholder for SASS instructions
+      </Typography>
+    </div>
+  )
+}
+
+export const SPSSBlock = (props) => {
+  const { dataset } = props
+
+  return (
+    <div>
+      <Typography component="h2" variant="title" gutterBottom>
+        Import {dataset.name} into SPSS
+      </Typography>
+      <Typography variant="body1" gutterBottom align="left">
+        Placeholder for SPSS instructions
+      </Typography>
+    </div>
+  )
+}
+
+export const MatlabBlock = (props) => {
+  const { dataset } = props
+
+  return (
+    <div>
+      <Typography component="h2" variant="title" gutterBottom>
+        Import {dataset.name} into Matlab
+      </Typography>
+      <Typography variant="body1" gutterBottom align="left">
+        Placeholder for Matlab instructions
+      </Typography>
+    </div>
+  )
+}
+
+export const TableauBlock = (props) => {
+  const { dataset } = props
+
+  return (
+    <div>
+      <Typography component="h2" variant="title" gutterBottom>
+        Import {dataset.name} into Tableau
+      </Typography>
+      <Typography variant="body1" gutterBottom align="left">
+        Placeholder for Tableau instructions
       </Typography>
     </div>
   )
