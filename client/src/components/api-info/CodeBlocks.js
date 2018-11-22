@@ -1,21 +1,25 @@
 import React from 'react'
 
 import Typography from '@material-ui/core/Typography'
+import Grid from '@material-ui/core/Grid'
 
 import CodeSnippet from '../CodeSnippet'
+import CodeSnippetCopyButton from '../CodeSnippetCopyButton'
 
 const host = window.location.origin
 
 export const CurlBlock = (props) => {
   const { dataset, apikey } = props
 
-  const downloadCode = `curl -H "Authorization: Api-Key ${apikey}" ${host}/dataset/${dataset.id}`
+  const downloadCode = `curl -s ${host}/dataset/${dataset.id} \\
+-H "Authorization: Api-Key ${apikey}" \\
+>${dataset.name}.csv`
 
-  const columnNamesCode = `curl ${host}/graphql \\
+  const columnNamesCode = `curl -s ${host}/graphql \\
 -X POST \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Api-Key ${apikey}" \\
---data @- << EOS
+--data @- << EOS >${dataset.name}.columns.json
 {
   "query": "{
     dataset(id: ${dataset.id}) {
@@ -29,11 +33,11 @@ export const CurlBlock = (props) => {
 }
 EOS`
 
-  const metadataCode = `curl ${host}/graphql \\
+  const metadataCode = `curl -s ${host}/graphql \\
 -X POST \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Api-Key ${apikey}" \\
---data @- << EOS
+--data @- << EOS >${dataset.name}.metadata.json
 {
   "query": "{
     dataset(id: ${dataset.id}) {
@@ -43,6 +47,17 @@ EOS`
         title
         contributor
         contact
+        dateAdded
+        dateCreated
+        dateUpdated
+        updates
+        updateFrequencyAmount
+        updateFrequencyUnit
+        format
+        description
+        source
+        identifier
+        theme
       }
     }
   }"
@@ -53,14 +68,17 @@ EOS`
     <div>
       <Typography component="h2" variant="title" gutterBottom>
         Download {dataset.name}
+        <CodeSnippetCopyButton code={downloadCode} />
       </Typography>
       <CodeSnippet language="sh" code={downloadCode} />
       <Typography component="h2" variant="title" gutterBottom>
         Get column information for {dataset.name}
+        <CodeSnippetCopyButton code={columnNamesCode} />
       </Typography>
       <CodeSnippet language="sh" code={columnNamesCode} />
       <Typography component="h2" variant="title" gutterBottom>
         Get metadata for {dataset.name}
+        <CodeSnippetCopyButton code={metadataCode} />
       </Typography>
       <CodeSnippet language="sh" code={metadataCode} />
     </div>
@@ -77,13 +95,13 @@ import io
 headers = { 'Authorization': 'Api-Key ${apikey}' }
 response = requests.get('${host}/dataset/${dataset.id}', headers=headers)
 
-df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
-`
+df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))`
 
   return (
     <div>
       <Typography component="h2" variant="title" gutterBottom>
         Read <em>{dataset.name}</em> into a data frame
+        <CodeSnippetCopyButton code={downloadCode} />
       </Typography>
       <CodeSnippet language="python" code={downloadCode} />
     </div>
@@ -93,13 +111,10 @@ df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))
 export const RBlock = (props) => {
   const { dataset, apikey } = props
 
-  const downloadCode = `# Make sure the following packages are installed:
-install.packages("httr")
-install.packages("readr")
+  const dependencyCode = `install.packages("httr")
+install.packages("readr")`
 
-# Run the following:
-
-library(httr)
+  const downloadCode = `library(httr)
 
 apiKey <- '${apikey}'
 
@@ -107,13 +122,19 @@ req <- GET('${host}/dataset/${dataset.id}',
     add_headers(Authorization = paste("Api-Key", apiKey))
 )
 
-df <- content(req, type='text/csv')
-`
+df <- content(req, type='text/csv')`
 
   return (
     <div>
       <Typography component="h2" variant="title" gutterBottom>
+        Install required packages
+        <CodeSnippetCopyButton code={dependencyCode} />
+      </Typography>
+      <CodeSnippet language="r" code={dependencyCode} />
+
+      <Typography component="h2" variant="title" gutterBottom>
         Read {dataset.name} into a data frame
+        <CodeSnippetCopyButton code={downloadCode} />
       </Typography>
       <CodeSnippet language="r" code={downloadCode} />
     </div>
