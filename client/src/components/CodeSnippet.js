@@ -30,7 +30,7 @@ const CodeSnippet = (props) => {
         editorProps={{$blockScrolling: true}}
         readOnly
         fontSize={14}
-        showPrintMargin={true}
+        showPrintMargin={false}
         showGutter={false}
         width="100%"
         maxLines={lineCount}
