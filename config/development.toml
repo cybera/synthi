@@ -20,12 +20,12 @@ dataRoot = "/mnt/data"
 [storage]
 
 # Can be "object" or "legacy"
-type = "object"
+type = "legacy"
 
 [neo4j]
 
 protocol = "bolt"
 host = "neo4j"
 port = 7687
-username = "your-neo4j-username"
-password = "your-neo4j-password"
+username = "neo4j"
+password = "password"

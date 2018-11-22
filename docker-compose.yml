@@ -12,6 +12,7 @@ services:
     networks:
       - default
     environment:
+      NEO4J_AUTH: neo4j/password
       NEO4J_dbms_memory_heap_maxSize: 2048
       NEO4J_dbms_memory_pagecache_size: 1048576
       NEO4J_dbms_security_procedures_unrestricted: apoc.*
@@ -24,6 +25,7 @@ services:
       - "3000:3000"
     volumes:
       - ./server:/usr/src/app
+      - ./config/development.toml:/usr/src/app/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
       - server_node_modules:/usr/src/app/node_modules
@@ -51,6 +53,7 @@ services:
       - default
     volumes:
       - ./services/python-worker:/usr/src/app
+      - ./config/development.toml:/usr/src/app/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
     depends_on:

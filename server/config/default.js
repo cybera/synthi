@@ -13,9 +13,12 @@ module.exports = {
         authUrl: undefined
       },
       containers: {
-        'datasets': undefined,
-        'scripts': undefined
+        datasets: undefined,
+        scripts: undefined
       }
+    },
+    legacy: {
+      dataRoot: '/mnt/data'
     }
   },
   neo4j: {
@@ -24,7 +27,7 @@ module.exports = {
     port: 7687,
     username: undefined,
     password: undefined,
-    url: defer(function() { 
+    url: defer(function () {
       return `${this.neo4j.protocol}://${this.neo4j.host}:${this.neo4j.port}`
     })
   }
