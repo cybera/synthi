@@ -1,14 +1,12 @@
 version: '3'
 services:
   neo4j:
-    image: neo4j:3.4
+    build: ./neo4j
     ports:
       - "7474:7474"
       - "7687:7687"
     volumes:
-      - ./data/neo4j/data:/data
-      - ./data/neo4j/logs:/logs
-      - ./neo4j/plugins:/plugins
+      - neo4j_data:/data
     networks:
       - default
     environment:
@@ -29,8 +27,6 @@ services:
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
       - server_node_modules:/usr/src/app/node_modules
-    environment:
-      - DATA_FOLDER=/mnt/data
     networks:
       - default
     command: npm run devStart
@@ -64,5 +60,6 @@ services:
       - default
 
 volumes:
+  neo4j_data:
   server_node_modules:
   client_node_modules:
