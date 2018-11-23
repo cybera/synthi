@@ -20,6 +20,8 @@ import morgan from 'morgan'
 
 import onExit from 'signal-exit'
 
+import { graphqlUploadExpress } from 'graphql-upload'
+
 import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
 
@@ -27,6 +29,7 @@ import { startQueue, prepareDownload } from './lib/queue'
 import UserRepository from './domain/repositories/userRepository'
 import DatasetRepository from './domain/repositories/datasetRepository'
 import { checkConfig } from './lib/startup-checks'
+
 
 // Do a config check right away to warn of any undefined configuration that we're
 // expecting to be set
@@ -142,8 +145,21 @@ const apolloServer = new ApolloServer({
   formatError: (error) => {
     console.log(error)
     return error
-  }
+  },
+  // PATCH: Handle and reject parsing errors
+  // See below. This is disbled until Apollo updates its version of apollo-upload-server
+  // from the upstream repo.
+  uploads: false
 })
+
+// PATCH: Handle and reject parsing errors
+// See the following discussion:
+// https://github.com/apollographql/apollo-upload-server/pull/2
+// There's a critical error that can crash the server via a malformed request that
+// hasn't been patched yet in Apollo Server. It has been fixed upstream in the same
+// nodejs package Apollo is using. The workaround is to use the original package
+// again and disable Apollo's version.
+app.use('/graphql', graphqlUploadExpress({ maxFileSize: 524288000, maxFiles: 10 }))
 
 // This needs to come after the passport middleware
 apolloServer.applyMiddleware({ app })
