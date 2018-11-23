@@ -12,79 +12,78 @@
 - [Material UI](https://material-ui.com) is a UI framework of ready made React components for common UI elements.
 - [Webpack](https://webpack.js.org) and [Babel](https://babeljs.io) are used mainly behind the scenes to compile and bundle client side code in a way that is compatible with most modern browsers.
 
-### Configuration
+### Prerequisites
 
-There are two configuration files you'll need to add some information to:
+* Docker and Docker Compose
+* OpenStack credentials for object storage
+* Node.js for your local development environment
 
-1. server/config/development.toml
-2. services/python-worker/config/development.toml
+### Setup
 
-Each of the containing directories already has a development.toml.example file that has placeholders for the necessary information. Unfortunately there's quite a bit of duplication at the moment.
-
-For object storage, you'll need working Openstack credentials and two containers (one for scripts and one for datasets). These can be created via:
+To create the initial configuration, copy the example config:
 
 ```bash
-swift post your-scripts-container
-swift post your-datasets-container
+cp config/development.toml.example config/development.toml
 ```
 
-You should also set your neo4j username and password in the development.toml file.
+Use your OpenStack credentials to populate the values in `[storage.object.creds]`.
 
-### First time setup
+Now source your OpenStack credentials and create the Swift containers:
 
-For autocompletion and linting you'll need to install [NPM](https://www.npmjs.com/get-npm) and then run the following commands to install the dependencies:
+```bash
+swift post adi_datasets
+swift post adi_scripts
+```
+
+Now build the Docker images and launch the application:
+
+```bash
+docker-compose build
+docker-compose up -d
+```
+
+After that's done, run the database migrations:
+
+```bash
+bin/migrate
+```
+
+Finally, create the first user:
+
+```bash
+bin/create-user <user>
+```
+
+Now you should be able to login and start using the application from http://localhost:8080.
+
+### Development
+
+Node.js dependencies need to be installed locally for autocompletion and linting:
 
 ```bash
 cd server && npm install
 cd client && npm install
 ```
 
-```bash
-docker-compose build
-docker-compose stop
-docker-compose up
-docker-compose logs python-worker
-```
+All source code is bind mounted into its respective container so any local changes will automatically be reflected in the running application without the need to restart containers or rebuild images. However, this does *not* include the `node_modules` directories because some modules have compiled components that need to be built for the correct architecture. Unfortunately that means `npm install` needs to be run locally *and* in the client and/or server containers when dependencies change.
 
-#### Neo4J
+### Scripts
 
-Create the search index:
+There are a number of useful helper scripts in the `bin` directory:
 
-```cypher
-CALL apoc.index.addAllNodes('DefaultDatasetSearchIndex', {
-DatasetMetadata: ["title", "contributor", "contact", "description", "source", "identifier", "theme"],
-Column: ["name"],
-Dataset: ["name"]
-}, { autoUpdate: true })
-```
+* `add-user-to-org <user> <org>` - Adds an existing user to an existing organization
+* `create-org <org>` - Creates an organization
+* `create-user <user>` - Creates a user
+* `migrate` - Run the database migrations
+* `shell <service>` - Drops you to a bash shell in the specified service container
+* `update-deps [client|server]` - Runs `npm install` on the client, server or both
 
-### Running a Development Environment
+### Endpoints
 
-You'll need 3 things to get going on development: Neo4J running (API on port 7687, front end on port 7878), the ExpressJS server running (accessible on port 3000), and a development server serving up the client code (accessible on port 8080).
-
-```bash
-bin/neo4j start
-bin/server
-bin/dev-client
-```
-
-Or launch everything with docker:
-
-```bash
-docker-compose up -d
-```
-
-To update Node dependencies in the Docker container:
-
-```bash
-bin/update-deps [client/server]
-```
-
-### Creating a User
-
-```
-bin/create-user USERNAME
-```
+* http://localhost:8080 - Client
+* http://localhost:3000 - Server
+* http://localhost:8080/graphql - GraphQL playground
+* http://localhost:7474 - Neo4j Browser
 
 ### Neo4J plugins
 
@@ -121,7 +120,6 @@ You may need to manually restart the debug server at times. You can do that by r
 ```bash
 bin/server development
 ```
-<<<<<<< HEAD
 
 ### Migrations
 
@@ -130,5 +128,3 @@ Some changes will require data updates. There is a simple migration system in pl
 Migrations will be run in the order the names would be sorted, so you know for sure a migration shouldn't be run until another one has been run, you can affect the order by appropriate naming. The current convention is to prefix the migration name with a double digit integer to indicate order (`00_`, `01_`, etc).
 
 One important assumption you should consider when making migrations is that all migrations are idempotent. That is, if they will do their own checking to see whether they need to change anything, based on the current state, and if there's nothing to change, they'll have no effect. Your migration script should be able to be run any number of times and only change data when it's not in the state it should be. This means you can also add to existing migrations if it makes sense, but it also means that there isn't really a concept of rolling back.
-=======
->>>>>>> Convert remaining uses of dotenv to config
