@@ -25,9 +25,16 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 
-// TODO: this will need to be somewhat configurable
+let uri
+
+if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production') {
+  uri = 'ws://localhost:3000/graphql'
+} else {
+  uri = `wss://${window.location.hostname}/graphql`
+}
+
 const wsLink = new WebSocketLink({
-  uri: `ws://localhost:3000/graphql`,
+  uri,
   options: {
     reconnect: true
   }
