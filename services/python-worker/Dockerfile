@@ -1,4 +1,4 @@
-FROM continuumio/anaconda3
+FROM continuumio/anaconda3:5.3.0
 
 RUN apt-get update && \
     apt-get install gcc -y && \
