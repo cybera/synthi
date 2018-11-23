@@ -14,7 +14,7 @@ import { withStyles } from '@material-ui/core/styles'
 import DatasetView from './DatasetView'
 import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
-import DatasetColumnTags from './DatasetColumnTags'
+import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
 import Placeholder from './Placeholder'
 
 const styles = theme => ({
@@ -65,7 +65,7 @@ class DatasetDetails extends React.Component {
       {
         name: 'column-tags',
         icon: <TagMultipleIcon />,
-        detailMode: <DatasetColumnTags id={id} />
+        detailMode: <DatasetColumnTagsContainer id={id} />
       }
     ]
   }

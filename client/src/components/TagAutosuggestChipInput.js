@@ -13,12 +13,38 @@ import MenuItem from '@material-ui/core/MenuItem'
 
 import { withStyles } from '@material-ui/core/styles'
 
+// TODO: Fetch the suggestions from the DB, possibly passed in as a prop to this component
 const suggestions = [
   { name: "Float" },
   { name: "Integer" },
   { name: "String" },
   { name: "Boolean" }
 ]
+
+const styles = theme => ({
+  container: {
+    flexGrow: 1,
+    position: 'relative',
+  },
+  suggestionsContainerOpen: {
+    position: 'absolute',
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit * 3,
+    left: 0,
+    right: 0
+  },
+  suggestion: {
+    display: 'block'
+  },
+  suggestionsList: {
+    margin: 0,
+    padding: 0,
+    listStyleType: 'none'
+  },
+  textField: {
+    width: '100%'
+  }
+})
 
 function renderInput (inputProps) {
   const { classes, autoFocus, value, onChange, onAdd, onDelete, chips, ref, ...other } = inputProps
@@ -95,32 +121,6 @@ function getSuggestions (value) {
 function getSuggestionValue (suggestion) {
   return suggestion.name
 }
-
-const styles = theme => ({
-  container: {
-    flexGrow: 1,
-    position: 'relative',
-    height: 200
-  },
-  suggestionsContainerOpen: {
-    position: 'absolute',
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit * 3,
-    left: 0,
-    right: 0
-  },
-  suggestion: {
-    display: 'block'
-  },
-  suggestionsList: {
-    margin: 0,
-    padding: 0,
-    listStyleType: 'none'
-  },
-  textField: {
-    width: '100%'
-  }
-})
 
 class TagAutosuggestChipInput extends React.Component {
   constructor(props) {
