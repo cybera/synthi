@@ -40,14 +40,29 @@ type File {
   encoding: String!
 }
 
+type Tag {
+  uuid: String!
+  name: String!
+  system: Boolean
+}
+
 type Column {
   id: Int!
+  uuid: String!
   name: String!
+  originalName: String
   order: Int
   visible: Boolean
+  tags: [Tag]
+}
+
+input ColumnInput {
+  name: String
+  order: Int
 }
 
 type DatasetMetadata {
+  uuid: String!
   ${DatasetMetadata}
 }
 
@@ -57,6 +72,7 @@ input DatasetMetadataInput {
 
 type Dataset {
   id: Int!
+  uuid: String!
   name: String!
   owner: Organization!
   columns: [Column]
@@ -73,6 +89,7 @@ type Dataset {
 
 type Transformation {
   id: Int!
+  uuid: String!
   name: String
   script: String
   inputs: [Dataset]
@@ -94,12 +111,14 @@ type Query {
 
 type Organization {
   id: Int!
+  uuid: String!
   name: String!
   members: [User]
 }
 
 type User {
   id: Int!
+  uuid: String!
   username: String!
   organizations: [Organization]
   apikey: String
@@ -117,6 +136,7 @@ type Mutation {
   saveInputTransformation(id: Int!, code:String): Transformation
   updateDatasetMetadata(id: Int!, metadata:DatasetMetadataInput): DatasetMetadata
   regenerateAPIKey: User
+  updateColumn(uuid:String!, values:ColumnInput, tagNames:[String]): Column
 }
 
 type Subscription {

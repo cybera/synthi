@@ -5,6 +5,7 @@ import MenuList from '@material-ui/core/MenuList'
 import MenuItem from '@material-ui/core/MenuItem'
 import ViewIcon from '@material-ui/icons/ViewColumn'
 import EditIcon from '@material-ui/icons/Edit'
+import TagMultipleIcon from 'mdi-react/TagMultipleIcon'
 import ConnectionsIcon from '@material-ui/icons/DeviceHub'
 import APIIcon from '@material-ui/icons/ImportExport'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
@@ -14,6 +15,7 @@ import { withStyles } from '@material-ui/core/styles'
 import DatasetView from './DatasetView'
 import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
+import DatasetColumnTags from './DatasetColumnTags'
 import APIInfo from './api-info'
 import Placeholder from './Placeholder'
 
@@ -35,23 +37,6 @@ const styles = theme => ({
   icon: {},
 });
 
-const DetailMode = (props) => {
-  const { mode, id } = props
-
-  switch (mode) {
-    case 'view':
-      return <DatasetView id={id} />
-    case 'metadata':
-      return <DatasetMetadata id={id} />
-    case 'connections':
-      return <DatasetTree id={id} />
-    case 'api_info':
-      return <APIInfo id={id} />
-    default:
-      return <div />
-  }
-}
-
 class DatasetDetails extends React.Component {
   state = {
     mode: 'view'
@@ -61,9 +46,53 @@ class DatasetDetails extends React.Component {
     this.setState({ mode })
   }
 
+  setupMenuOptions(id) {
+    // Define the icon and corresponding template for each menu item here
+    return [
+      {
+        name: 'view',
+        icon: <ViewIcon />,
+        detailMode: <DatasetView id={id} />
+      },
+      {
+        name: 'metadata',
+        icon: <EditIcon />,
+        detailMode: <DatasetMetadata id={id} />
+      },
+      {
+        name: 'connections',
+        icon: <ConnectionsIcon />,
+        detailMode: <DatasetTree id={id} />
+      },
+      {
+        name: 'column-tags',
+        icon: <TagMultipleIcon />,
+        detailMode: <DatasetColumnTags id={id} />
+      },
+      {
+        name: 'api_info',
+        icon: <APIIcon />,
+        detailMode: <APIInfo id={id} />
+      }
+    ]
+  }
+
+  showView(mode, menuItems) {
+    const current = menuItems.find(item => item.name == mode).detailMode
+    return current !== undefined ? current : <div />
+  }
+
   render() {
     const { id, classes } = this.props
     const { mode } = this.state
+    const options = this.setupMenuOptions(id)
+    const menuItems = options.map((item) =>
+      <MenuItem key={item.name} className={classes.menuItem} onClick={() => this.changeMode(item.name)} selected={mode == item.name}>
+        <ListItemIcon className={classes.icon}>
+          {item.icon}
+        </ListItemIcon>
+      </MenuItem>
+    )
 
     if (!id) {
       return (
@@ -78,30 +107,11 @@ class DatasetDetails extends React.Component {
         <Grid container spacing={8}>
           <Grid item xs={1}>
             <MenuList>
-              <MenuItem className={classes.menuItem} onClick={() => this.changeMode('view')} selected={mode === 'view'}>
-                <ListItemIcon className={classes.icon}>
-                  <ViewIcon />
-                </ListItemIcon>
-              </MenuItem>
-              <MenuItem className={classes.menuItem}  onClick={() => this.changeMode('metadata')} selected={mode === 'metadata'}>
-                <ListItemIcon className={classes.icon}>
-                  <EditIcon />
-                </ListItemIcon>
-              </MenuItem>
-              <MenuItem className={classes.menuItem}  onClick={() => this.changeMode('connections')} selected={mode === 'connections'}>
-                <ListItemIcon className={classes.icon}>
-                  <ConnectionsIcon />
-                </ListItemIcon>
-              </MenuItem>
-              <MenuItem className={classes.menuItem} onClick={() => this.changeMode('api_info')} selected={mode === 'api_info'}>
-                <ListItemIcon className={classes.icon}>
-                  <APIIcon />
-                </ListItemIcon>
-              </MenuItem>
+              {menuItems}
             </MenuList>
           </Grid>
           <Grid item xs={11}>
-            <DetailMode id={id} mode={mode} />
+            {this.showView(mode, options)}
           </Grid>
         </Grid>
       </Paper>

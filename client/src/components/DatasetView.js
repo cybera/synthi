@@ -1,13 +1,13 @@
-import React from 'react';
+import React from 'react'
 import PropTypes from 'prop-types'
-import { Query } from 'react-apollo';
-import gql from 'graphql-tag';
+import { Query } from 'react-apollo'
+import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography';
+import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import ChartIcon from '@material-ui/icons/ShowChart'
-import LinearProgress from '@material-ui/core/LinearProgress';
+import LinearProgress from '@material-ui/core/LinearProgress'
 
 import { datasetViewQuery } from '../queries'
 import { withNavigation } from '../context/NavigationContext'
@@ -27,7 +27,7 @@ const DATASET_GENERATION_SUBSCRIPTION = gql`
       message
     }
   }
-`;
+`
 
 const styles = theme => ({
   root: {
@@ -109,7 +109,7 @@ class DatasetView extends React.Component {
 
           const sampleRows = dataset.samples.map((s) => {
             const record = JSON.parse(s)
-            return selectedColumns.map(c => record[c.name])
+            return selectedColumns.map(c => record[c.originalName])
           })
 
           this.subscribeToDatasetGenerated(subscribeToMore, refetch)

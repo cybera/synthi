@@ -61,7 +61,7 @@ def generate_dataset(generate_id, owner_name):
       WHERE ID(o) = $owner
       WITH dataset
       UNWIND $columns AS column
-      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order })
+      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
       WITH dataset
       SET dataset.generating = false
       RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
