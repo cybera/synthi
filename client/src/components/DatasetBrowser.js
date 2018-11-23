@@ -48,7 +48,7 @@ class DatasetBrowser extends React.Component {
             </Grid>
             <Grid item xs={9}>
               <SearchBar
-                onRequestSearch={value => this.setState({ searchString: value })}
+                onChange={value => this.setState({ searchString: value })}
                 onCancelSearch={() => this.setState({ searchString: undefined })}
               />
             </Grid>

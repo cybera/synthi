@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 
 import { graphql } from 'react-apollo'
 
+import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItem from '@material-ui/core/ListItem'
@@ -19,10 +20,18 @@ import { withNavigation } from '../context/NavigationContext'
 import ConfirmationDialog from './ConfirmationDialog'
 import { openSnackbar } from './Notifier'
 
-
 const styles = theme => ({
   root: {
+    display: 'flex'
+  },
+  drawer: {
+    width: 300,
+    flexShrink: 0,
     backgroundColor: theme.palette.background.paper,
+    zIndex: theme.zIndex.appBar - 1
+  },
+  drawerPaper: {
+    width: 300,
   }
 })
 
@@ -103,34 +112,32 @@ class DatasetList extends React.Component {
     const { navigation, datasets, classes } = this.props;
 
     return (
-      <div className={classes.root}>
-        <List component="nav">
-          {datasets
-            .filter(d => d.owner.id === navigation.currentOrg)
-            .sort(nameSort)
-            .map(({ id, name }) => (
-              <ListItem
-                button
-                key={id}
-                selected={navigation.currentDataset === id}
-                onClick={() => navigation.selectDataset(id)}
-              >
-                <ListItemText primary={name} />
-                <ListItemSecondaryAction>
-                  <IconButton aria-label="Delete" onClick={() => this.handleOpenDialog(id, name)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          <ConfirmationDialog
-            header={`Remove '${this.state.toRemove.name}'?`}
-            content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
-            onClose={this.handleDelete.bind(this)}
-            onOpen={(onOpen) => this.onOpen = onOpen}
-          />
-        </List>
-      </div>
+      <List component="nav">
+        {datasets
+          .filter(d => d.owner.id === navigation.currentOrg)
+          .sort(nameSort)
+          .map(({ id, name }) => (
+            <ListItem
+              button
+              key={id}
+              selected={navigation.currentDataset === id}
+              onClick={() => navigation.selectDataset(id)}
+            >
+              <ListItemText primary={name} />
+              <ListItemSecondaryAction>
+                <IconButton aria-label="Delete" onClick={() => this.handleOpenDialog(id, name)}>
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          ))}
+        <ConfirmationDialog
+          header={`Remove '${this.state.toRemove.name}'?`}
+          content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
+          onClose={this.handleDelete.bind(this)}
+          onOpen={(onOpen) => this.onOpen = onOpen}
+        />
+      </List>
     )
   }
 }
