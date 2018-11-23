@@ -1,0 +1,61 @@
+version: '3.3'
+services:
+  neo4j:
+    image: cybera/adi-neo4j:latest
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - default
+    environment:
+      NEO4J_dbms_memory_heap_maxSize: 2048
+      NEO4J_dbms_memory_pagecache_size: 1048576
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_apoc_autoIndex_enabled: "true"
+      NEO4J_com_graphaware_runtime_enabled: "true"
+      NEO4J_com_graphaware_module_UIDM_1: "com.graphaware.module.uuid.UuidBootstrapper"
+  server:
+    image: cybera/adi-server:latest
+    ports:
+      - "3000:3000"
+    configs:
+      - source: production.toml
+        target: /usr/src/app/config/production.toml
+    volumes:
+      - uploads:/mnt/data
+      - scripts:/mnt/scripts
+    networks:
+      - default
+    environment:
+      NODE_ENV: production
+  queue:
+    image: rabbitmq
+    networks:
+      - default
+  python-worker:
+    image: cybera/adi-python-worker:latest
+    configs:
+      - source: production.toml
+        target: /usr/src/app/config/development.toml
+    volumes:
+      - uploads:/mnt/data
+      - scripts:/mnt/scripts
+    networks:
+     - default
+    depends_on:
+      - queue
+  redis:
+    image: redis:4.0
+    networks:
+      - default
+
+configs:
+  production.toml:
+    external: true
+
+volumes:
+  neo4j_data:
+  uploads:
+  scripts:
