@@ -12,6 +12,6 @@ RUN apt-get update && \
 WORKDIR /usr/src/app
 
 ADD build/wait-for-it.sh /
-ADD * ./
+ADD . ./
 
 CMD [ "/wait-for-it.sh", "queue:5672", "--", "./main.py"]
