@@ -31,7 +31,7 @@ def generate_dataset(generate_id, owner_name):
       dataset_name = names[0]
 
     dataset_by_name_query = '''
-  MATCH (d:Dataset { name: $name })<-[:OWNER]-(:Organization { name: $org })
+    MATCH (d:Dataset { name: $name })<-[:OWNER]-(:Organization { name: $org })
     RETURN d.path AS path
     '''
     print(f"Finding '{name}' dataset.")
