@@ -7,6 +7,7 @@ import ViewIcon from '@material-ui/icons/ViewColumn'
 import EditIcon from '@material-ui/icons/Edit'
 import TagMultipleIcon from 'mdi-react/TagMultipleIcon'
 import ConnectionsIcon from '@material-ui/icons/DeviceHub'
+import APIIcon from '@material-ui/icons/ImportExport'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
@@ -15,6 +16,7 @@ import DatasetView from './DatasetView'
 import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
 import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
+import APIInfo from './api-info'
 import Placeholder from './Placeholder'
 
 const styles = theme => ({
@@ -66,6 +68,11 @@ class DatasetDetails extends React.Component {
         name: 'column-tags',
         icon: <TagMultipleIcon />,
         detailMode: <DatasetColumnTagsContainer id={id} />
+      },
+      {
+        name: 'api_info',
+        icon: <APIIcon />,
+        detailMode: <APIInfo id={id} />
       }
     ]
   }

@@ -15,9 +15,13 @@ const DatasetMetadata = `
   theme: String
 `
 
+// PATCH: Handle and reject parsing errors
+// 'scalar Upload' can be removed once the following pull request is accepted:
+// https://github.com/apollographql/apollo-upload-server/pull/2
 export default /* GraphQL */ `
 
 scalar Date
+scalar Upload
 
 enum DatasetFormat {
   csv

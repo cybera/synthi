@@ -34,7 +34,8 @@ export const update = async (column, values, tagNames) => {
 
   const editQuery = `
     MATCH (column:Column { uuid: $column.uuid })
-    SET column += $values
+    SET column.originalName = COALESCE(column.originalName, column.name),
+        column += $values
     ${editTags}
     RETURN column
   `

@@ -109,7 +109,7 @@ class DatasetView extends React.Component {
 
           const sampleRows = dataset.samples.map((s) => {
             const record = JSON.parse(s)
-            return selectedColumns.map(c => record[c.originalName])
+            return selectedColumns.map(c => record[c.originalName || c.name])
           })
 
           this.subscribeToDatasetGenerated(subscribeToMore, refetch)
