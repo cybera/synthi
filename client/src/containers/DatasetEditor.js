@@ -1,12 +1,21 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import { withStyles } from '@material-ui/core/styles'
+
 import ADIButton from '../components/ADIButton'
 import DatasetGenerator from '../components/DatasetGenerator'
 import ToggleVisibility from '../components/ToggleVisibility'
+import DatasetDownloadButton from '../components/dataset/DownloadButton'
 import DatasetUploadButton from './DatasetUploadButton'
 import TransformationEditor from './TransformationEditor'
 import SaveTransformationButton from './SaveTransformationButton'
+
+const styles = theme => ({
+  editorButton: {
+    marginRight: theme.spacing.unit
+  }
+})
 
 class DatasetEditor extends React.Component {
   static propTypes = {
@@ -25,24 +34,33 @@ class DatasetEditor extends React.Component {
   transformationCode = () => this.transformationEditor.current.state.code
 
   render() {
-    const { dataset } = this.props
+    const { dataset, classes } = this.props
 
     return (
       <div>
         <ToggleVisibility visible={!dataset.computed}>
-          <DatasetUploadButton dataset={dataset} />
+          <span className={classes.editorButton}>
+            <DatasetUploadButton dataset={dataset} />
+          </span>
         </ToggleVisibility>
+        <span className={classes.editorButton}>
+          <DatasetDownloadButton dataset={dataset} />
+        </span>
         <ToggleVisibility visible={dataset.computed}>
-          <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
+          <span className={classes.editorButton}>
+            <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
+          </span>
         </ToggleVisibility>
         <DatasetGenerator>
           {({ generateDataset }) => dataset.computed && (
-            <ADIButton
-              disabled={dataset.generating}
-              onClick={() => generateDataset(dataset.id)}
-            >
-              Generate!
-            </ADIButton>
+            <span className={classes.editorButton}>
+              <ADIButton
+                disabled={dataset.generating}
+                onClick={() => generateDataset(dataset.id)}
+              >
+                Generate!
+              </ADIButton>
+            </span>
           )}
         </DatasetGenerator>
         <ToggleVisibility visible={dataset.computed}>
@@ -56,4 +74,4 @@ class DatasetEditor extends React.Component {
   }
 }
 
-export default DatasetEditor
+export default withStyles(styles)(DatasetEditor)
