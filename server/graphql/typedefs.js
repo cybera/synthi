@@ -46,6 +46,7 @@ type Column {
   id: Int!
   uuid: String!
   name: String!
+  originalName: String
   order: Int
   visible: Boolean
   tags: [Tag]

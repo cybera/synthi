@@ -40,6 +40,7 @@ query($id: Int) {
       name
       order
       visible
+      originalName
     }
     computed
     generating
@@ -68,4 +69,33 @@ export const datasetConnectionsQuery = gql`
      name
      connections
    }
- }`
+ }
+`
+
+
+export const datasetColumnTagsQuery = gql`
+  query($id: Int!) {
+    dataset(id: $id) {
+      columns {
+        id
+        uuid
+        name
+        tags {
+          name
+        }
+      }
+    }
+  }
+`
+
+export const updateDatasetColumnsMutation = gql`
+  mutation UpdateColumn($uuid: String!, $values: ColumnInput, $tagNames: [String]) {
+    updateColumn(
+      uuid: $uuid,
+      values: $values,
+      tagNames: $tagNames
+    ) {
+      name
+    }
+  }
+`
