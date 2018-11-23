@@ -31,7 +31,7 @@ services:
     environment:
       NODE_ENV: production
   queue:
-    image: rabbitmq
+    image: rabbitmq:3.7
     networks:
       - default
   python-worker:

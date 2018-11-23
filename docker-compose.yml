@@ -42,7 +42,7 @@ services:
     networks:
       - default
   queue:
-    image: rabbitmq
+    image: rabbitmq:3.7
     networks:
       - default
   python-worker:
