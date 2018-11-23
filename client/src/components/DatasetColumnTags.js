@@ -8,7 +8,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Input from '@material-ui/core/Input'
 import InputLabel from '@material-ui/core/InputLabel'
 import TextField from '@material-ui/core/TextField'
-import ChipInput from 'material-ui-chip-input'
+import TagAutosuggestChipInput from './TagAutosuggestChipInput'
 
 // GraphQL & Apollo things
 import { Query, Mutation } from 'react-apollo'
@@ -66,8 +66,6 @@ class DatasetColumnTags extends React.Component {
     const { name, tags, uuid } = newColumnData
     const { saveMutation } = this.props
 
-    console.log("New name:", tags)
-
     saveMutation({
       variables: {
         uuid,
@@ -95,11 +93,11 @@ class DatasetColumnTags extends React.Component {
           value={name}
           onChange={(event) => this.handleTextChange(event)}
         />
-        <ChipInput 
+        <TagAutosuggestChipInput 
           id={`tags${id}`}
           label="Tags"
-          defaultValue={tags}
-          onChange={(newTags) => this.handleTagChange(newTags)}
+          savedTags={tags}
+          onTagChange={this.handleTagChange.bind(this)}
         />
       </div>
     )
