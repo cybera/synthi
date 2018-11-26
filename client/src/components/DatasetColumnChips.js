@@ -29,15 +29,14 @@ const DatasetColumnChips = (props) => {
   return (
     <Paper className={classes.root}>
       <Typography variant="subheading">Columns:</Typography>
-      <Grid container spacing={2}>
+      <Grid container spacing={8}>
         {columns.map(({ id, name, visible }) => (
-          <Grid item>
+          <Grid item key={id}>
             <Chip
               clickable
               color={visible ? 'primary' : 'default'}
               onClick={() => toggleColumnVisibility(id)}
               label={name}
-              key={id}
               className={classes.chip}
             />
           </Grid>
