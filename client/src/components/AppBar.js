@@ -30,6 +30,8 @@ const styles = (theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    boxShadow: 'none',
+    borderBottom: 'solid 1px #e2e2e2'
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,

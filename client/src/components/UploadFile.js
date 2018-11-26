@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles'
 import ADIButton from './ADIButton'
+import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 
 const styles = theme => ({
   input: {
@@ -43,6 +44,7 @@ class UploadFile extends React.Component {
           onChange={this.handleChange}
         />
         <ADIButton variant="raised" component="span" className={classes.button}>
+          <CloudUploadIcon style={{ marginRight: 10, fontSize: '1.45em' }}/>
           { text }
         </ADIButton>
       </label>

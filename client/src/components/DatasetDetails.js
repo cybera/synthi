@@ -32,7 +32,7 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit * 2
   },
   wrapper: {
-    padding: theme.spacing.unit * 3,
+    padding: theme.spacing.unit,
   },
   tabs: {
     boxShadow: 'none',
@@ -114,8 +114,6 @@ class DatasetDetails extends React.Component {
         </Placeholder>
       )
     }
-    
-    console.log(navigation)
 
     return (
       <div>
@@ -140,9 +138,7 @@ class DatasetDetails extends React.Component {
           </AppBar>
         </Paper>
         <div className={classes.wrapper}>
-          <Paper className={classes.content} elevation={4}>
-            {this.showView(value, options)}
-          </Paper>
+          {this.showView(value, options)}
         </div>
       </div>
     )

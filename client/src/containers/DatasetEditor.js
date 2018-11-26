@@ -19,7 +19,8 @@ const styles = theme => ({
 
 class DatasetEditor extends React.Component {
   static propTypes = {
-    dataset: PropTypes.object // eslint-disable-line react/forbid-prop-types
+    dataset: PropTypes.object,
+    dataExists: PropTypes.bool // eslint-disable-line react/forbid-prop-types
   }
 
   static defaultProps = {
@@ -34,7 +35,7 @@ class DatasetEditor extends React.Component {
   transformationCode = () => this.transformationEditor.current.state.code
 
   render() {
-    const { dataset, classes } = this.props
+    const { dataset, classes, dataExists } = this.props
 
     return (
       <div>
@@ -43,14 +44,19 @@ class DatasetEditor extends React.Component {
             <DatasetUploadButton dataset={dataset} />
           </span>
         </ToggleVisibility>
-        <span className={classes.editorButton}>
-          <DatasetDownloadButton dataset={dataset} />
-        </span>
+
+        <ToggleVisibility visible={dataExists}>
+          <span className={classes.editorButton}>
+            <DatasetDownloadButton dataset={dataset} />
+          </span>
+        </ToggleVisibility>
+
         <ToggleVisibility visible={dataset.computed}>
           <span className={classes.editorButton}>
             <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
           </span>
         </ToggleVisibility>
+
         <DatasetGenerator>
           {({ generateDataset }) => dataset.computed && (
             <span className={classes.editorButton}>
@@ -63,6 +69,7 @@ class DatasetEditor extends React.Component {
             </span>
           )}
         </DatasetGenerator>
+
         <ToggleVisibility visible={dataset.computed}>
           <TransformationEditor
             dataset={dataset}

@@ -14,10 +14,19 @@ import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 import ToggleVisibility from './ToggleVisibility'
 import DataTableView from './DataTableView'
-import DatasetColumnChips from './DatasetColumnChips'
-import DatasetNameEditor from '../containers/DatasetNameEditor'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetModeToggle from '../containers/DatasetModeToggle'
+import Paper from '@material-ui/core/Paper'
+
+// For editing the name without having to go to a form
+/* <Typography variant="headline">
+  <DatasetNameEditor dataset={dataset} />
+  <IconButton aria-label="Chart" onClick={() => navigation.switchMode('chart-editor')}>
+    <ChartIcon />
+  </IconButton>
+</Typography> */
+
+// <DatasetColumnChips dataset={dataset} columns={displayColumns} />
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -112,25 +121,22 @@ class DatasetView extends React.Component {
             return selectedColumns.map(c => record[c.originalName || c.name])
           })
 
+          const dataExists = selectedColumns.length > 0
+
           this.subscribeToDatasetGenerated(subscribeToMore, refetch)
 
           return (
             <div className={classes.root}>
-              <Typography variant="headline">
-                <DatasetNameEditor dataset={dataset} />
-                <IconButton aria-label="Chart" onClick={() => navigation.switchMode('chart-editor')}>
-                  <ChartIcon />
-                </IconButton>
-                <DatasetModeToggle dataset={dataset} />
-              </Typography>
-              <DatasetEditor dataset={dataset} />
+              <DatasetModeToggle dataset={dataset} />
+              <DatasetEditor dataset={dataset} dataExists={dataExists} />
               <Typography className={classes.error}>{errors[id]}</Typography>
-              <DatasetColumnChips dataset={dataset} columns={displayColumns} />
               <ToggleVisibility visible={dataset.generating}>
                 <LinearProgress />
               </ToggleVisibility>
-              <ToggleVisibility visible={!dataset.generating}>
-                <DataTableView columns={selectedColumns} rows={sampleRows} />
+              <ToggleVisibility visible={!dataset.generating && dataExists}>
+                <Paper>
+                  <DataTableView columns={selectedColumns} rows={sampleRows} />
+                </Paper>
               </ToggleVisibility>
             </div>
           )

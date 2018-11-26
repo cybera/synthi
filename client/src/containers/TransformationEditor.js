@@ -14,6 +14,7 @@ const styles = theme => ({
     justifyContent: 'left',
     flexWrap: 'wrap',
     padding: theme.spacing.unit * 2,
+    marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2
   }
 })
