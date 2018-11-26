@@ -15,6 +15,7 @@
     "cors": "^2.8.5",
     "csv-parse": "^3.0.0",
     "esm": "^3.0.84",
+    "event-stream": "^3.3.5",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "get-stream": "^4.1.0",
