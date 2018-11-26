@@ -20,9 +20,6 @@ const CREATE_DATASET = gql`
 `
 
 const styles = theme => ({
-  button: {
-    margin: theme.spacing.unit,
-  },
   rightIcon: {
     marginLeft: 10
   }
@@ -57,7 +54,7 @@ class NewDatasetButton extends React.Component
             className={classes.button}
             variant="raised" 
             color="primary" 
-            fullWidth={true}>
+            fullWidth>
             New Dataset
             <DescriptionIcon className={classes.rightIcon}/>
           </ADIButton>

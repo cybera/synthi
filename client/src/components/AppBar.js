@@ -15,6 +15,8 @@ import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 import ADILogo from '../images/ckan-logo.png'
 import UserMenu from './UserMenu'
+import Sidebar from './Sidebar'
+
 
 const drawerWidth = 300
 
@@ -44,11 +46,27 @@ const styles = (theme) => ({
   flex: {
     flex: 1,
   },
+  hide: {
+    display: 'none'
+  },
   spacer: {
     marginRight: 20
   },
-  hide: {
-    display: 'none'
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing.unit * 3,
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: 0
+  },
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: drawerWidth
   }
 });
 
@@ -57,16 +75,16 @@ class ButtonAppBar extends React.Component {
     open: true
   }
 
-  handleDrawerOpen = () => {
-    this.setState({ open: true })
-  }
+  toggleDrawer = () => {
+    const current = this.state.open
 
-  handleDrawerClose = () => {
-    this.setState({ open: false })
+    this.setState({ open: !current })
   }
 
   render() {
-    const { classes, navigation } = this.props;
+    const { classes, navigation, children } = this.props;
+    const { open } = this.state;
+
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -76,8 +94,8 @@ class ButtonAppBar extends React.Component {
           <Toolbar disableGutters={!open}>
             <IconButton
               color="default"
-              aria-lable="View Datasets"
-              onClick={this.handleDrawerOpen}
+              aria-label="View Datasets"
+              onClick={this.toggleDrawer}
               className={classNames(classes.menuButton, open && classes.hide)}
             >
               <MenuIcon />
@@ -110,6 +128,13 @@ class ButtonAppBar extends React.Component {
             <UserMenu />
           </Toolbar>
         </AppBar>
+        <Sidebar open={open} handleSidebarToggle={this.toggleDrawer.bind(this)}/>
+        <main
+          className={classNames(classes.content, {
+            [classes.contentShift]: open
+          })}>
+          {children}
+        </main>
       </div>
     );
   }

@@ -23,15 +23,6 @@ import { openSnackbar } from './Notifier'
 const styles = theme => ({
   root: {
     display: 'flex'
-  },
-  drawer: {
-    width: 300,
-    flexShrink: 0,
-    backgroundColor: theme.palette.background.paper,
-    zIndex: theme.zIndex.appBar - 1
-  },
-  drawerPaper: {
-    width: 300,
   }
 })
 

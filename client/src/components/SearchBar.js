@@ -6,7 +6,6 @@ import MUISearchBar from 'material-ui-search-bar'
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit / 2,
     marginRight: theme.spacing.unit,
