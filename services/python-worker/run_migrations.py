@@ -23,5 +23,5 @@ def run_from_file(path):
 
 migrations = glob.glob(os.path.join(MIGRATIONS_DIR, "*.py"))
 
-for migration in migrations:
+for migration in sorted(migrations):
   run_from_file(migration)
