@@ -116,14 +116,14 @@ class App extends React.Component {
 
   switchMode = mode => this.setState({ currentMode: mode })
 
-  selectDataset = id => this.setState({ currentDataset: id })
+  selectDataset = (id, name) => this.setState({ currentDataset: id, currentName: name })
 
   setUser = user => this.setState({ user })
 
   setOrg = org => this.setState({ currentOrg: org })
 
   render() {
-    const { user, currentMode, currentDataset, currentOrg } = this.state
+    const { user, currentMode, currentDataset, currentName, currentOrg } = this.state
     let mainComponent
 
     if (user) {
@@ -144,6 +144,7 @@ class App extends React.Component {
           value={{
             currentMode: currentMode,
             currentDataset: currentDataset,
+            currentName: currentName,
             currentOrg: currentOrg,
             user: user,
             switchMode: this.switchMode,

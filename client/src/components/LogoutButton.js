@@ -19,7 +19,7 @@ class LogoutButton extends React.Component {
       .then((response) => {
         if (response.ok) {
           navigation.setUser(null)
-          navigation.selectDataset(null)
+          navigation.selectDataset(null, null)
           localStorage.removeItem('user')
         }
       })

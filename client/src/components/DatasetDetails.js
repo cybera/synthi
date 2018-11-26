@@ -7,6 +7,8 @@ import ConnectionsIcon from '@material-ui/icons/DeviceHub'
 import APIIcon from '@material-ui/icons/ImportExport'
 import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
+import { withNavigation } from '../context/NavigationContext'
+import { compose } from '../lib/common'
 
 import DatasetView from './DatasetView'
 import DatasetMetadata from './DatasetMetadata'
@@ -23,7 +25,7 @@ const styles = theme => ({
   header: {
     // backgroundColor: theme.palette.primary.main,
     paddingLeft: theme.spacing.unit * 3,
-    paddingTop: theme.spacing.unit * 10,
+    paddingTop: theme.spacing.unit * 7,
     paddingBottom: 0
   },
   headerText: {
@@ -98,7 +100,7 @@ class DatasetDetails extends React.Component {
   }
 
   render() {
-    const { id, classes } = this.props
+    const { id, classes, navigation } = this.props
     const { value } = this.state
     const options = this.setupMenuOptions(id)
     const tabs = options.map((item) =>
@@ -112,12 +114,14 @@ class DatasetDetails extends React.Component {
         </Placeholder>
       )
     }
+    
+    console.log(navigation)
 
     return (
       <div>
         <Paper className={classes.header} square>
-          <Typography variant="display2" component="h2" className={classes.headerText}>
-            Dataset Name
+          <Typography variant="display1" component="h2" className={classes.headerText}>
+            {navigation.currentName}
           </Typography>
           <AppBar 
             position="static" 
@@ -145,4 +149,7 @@ class DatasetDetails extends React.Component {
   }
 }
 
-export default withStyles(styles)(DatasetDetails)
+export default compose(
+  withNavigation,
+  withStyles(styles)
+)(DatasetDetails)

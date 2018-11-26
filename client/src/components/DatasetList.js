@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 
 import { graphql } from 'react-apollo'
 
-import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItem from '@material-ui/core/ListItem'
@@ -58,7 +57,8 @@ class DatasetList extends React.Component {
     deleteDataset: PropTypes.func.isRequired,
     navigation: PropTypes.shape({
       selectDataset: PropTypes.func,
-      currentDataset: PropTypes.number
+      currentDataset: PropTypes.number,
+      currentName: PropTypes.string
     }).isRequired,
     datasets: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.number,
@@ -95,7 +95,7 @@ class DatasetList extends React.Component {
     });
 
     if (id === navigation.currentDataset) {
-      navigation.selectDataset(null)
+      navigation.selectDataset(null, null)
     }
   }
 
@@ -112,7 +112,7 @@ class DatasetList extends React.Component {
               button
               key={id}
               selected={navigation.currentDataset === id}
-              onClick={() => navigation.selectDataset(id)}
+              onClick={() => navigation.selectDataset(id, name)}
             >
               <ListItemText primary={name} />
               <ListItemSecondaryAction>
