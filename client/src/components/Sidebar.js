@@ -5,6 +5,7 @@ import { compose } from '../lib/common'
 
 import DatasetList from './DatasetList'
 import Drawer from '@material-ui/core/Drawer'
+import Divider from '@material-ui/core/Divider';
 import NewDatasetButton from '../containers/NewDatasetButton'
 import IconButton from '@material-ui/core/IconButton'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
@@ -65,6 +66,7 @@ class Sidebar extends React.Component {
               <ChevronLeftIcon />
             </IconButton>
           </div>
+          <Divider />
           <SearchBar
             onChange={value => this.setState({ searchString: value })}
             onCancelSearch={() => this.setState({ searchString: undefined })}
