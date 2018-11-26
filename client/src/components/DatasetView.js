@@ -16,6 +16,7 @@ import ToggleVisibility from './ToggleVisibility'
 import DataTableView from './DataTableView'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetModeToggle from '../containers/DatasetModeToggle'
+import DatasetColumnChips from './DatasetColumnChips'
 import Paper from '@material-ui/core/Paper'
 
 // For editing the name without having to go to a form
@@ -25,8 +26,6 @@ import Paper from '@material-ui/core/Paper'
     <ChartIcon />
   </IconButton>
 </Typography> */
-
-// <DatasetColumnChips dataset={dataset} columns={displayColumns} />
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -137,6 +136,7 @@ class DatasetView extends React.Component {
                 <Paper>
                   <DataTableView columns={selectedColumns} rows={sampleRows} />
                 </Paper>
+                <DatasetColumnChips dataset={dataset} columns={displayColumns} />
               </ToggleVisibility>
             </div>
           )
