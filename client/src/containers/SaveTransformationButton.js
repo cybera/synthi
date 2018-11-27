@@ -1,7 +1,5 @@
 import React from 'react'
 
-import { withStyles } from '@material-ui/core/styles'
-
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 
@@ -19,24 +17,26 @@ const saveInputTransformationGQL = gql`
 const SaveTransformationButton = (props) => {
   const { dataset, currentCode } = props
   return (
-    <Mutation 
+    <Mutation
       mutation={saveInputTransformationGQL}
-      refetchQueries={[{ query: datasetViewQuery }]}>
+      refetchQueries={[{ query: datasetViewQuery, variables: { id: dataset.id } }]}
+    >
       { saveMutation => (
-        <ADIButton 
+        <ADIButton
           onClick={
-            (event) => saveMutation({ 
-              variables: { 
+            () => saveMutation({
+              variables: {
                 id: dataset.id,
-                code: currentCode() 
+                code: currentCode()
               }
             })
-          } 
-        >Save</ADIButton>
+          }
+        >
+          Save
+        </ADIButton>
       )}
     </Mutation>
   )
 }
 
 export default SaveTransformationButton
-

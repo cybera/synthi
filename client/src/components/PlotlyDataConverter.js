@@ -1,6 +1,11 @@
 const PlotlyDataConverter = ({ dataset, children }) => {
   const toRealType = (x) => {
-    if (Number.isNaN(x)) {
+    // Attempts to convert to a number and then checks if that number is NaN to
+    // test for a string. Note that Number.isNaN is NOT the same as isNaN. The
+    // former explicitly tests for numbers that are NaN, not other objects. See
+    // https://github.com/airbnb/javascript#standard-library for why this is used
+    // instead of just isNaN(x)
+    if (Number.isNaN(Number(x))) {
       return x;
     }
     return (x % 1 === 0) ? parseInt(x, 10) : parseFloat(x)

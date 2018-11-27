@@ -18,14 +18,23 @@ import NavigationContext from './context/NavigationContext'
 
 import { withStyles } from '@material-ui/core/styles'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
+import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
 
 import { WebSocketLink } from 'apollo-link-ws';
 import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 
-// TODO: this will need to be somewhat configurable
+let uri
+
+if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production') {
+  uri = 'ws://localhost:3000/graphql'
+} else {
+  uri = `wss://${window.location.hostname}/graphql`
+}
+
 const wsLink = new WebSocketLink({
-  uri: `ws://localhost:3000/graphql`,
+  uri,
   options: {
     reconnect: true
   }
@@ -93,12 +102,19 @@ class App extends React.Component {
   constructor(props) {
     super(props)
 
-    const user = localStorage.getItem('user')
-
     this.state = {
-      user: user,
       currentDataset: null,
-      currentMode: "datasets"
+      currentMode: 'datasets',
+    }
+
+    try {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const org = user.orgs.find(org => org.name === user.username)
+
+      this.state.user = user
+      this.state.currentOrg = org.id
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -108,16 +124,18 @@ class App extends React.Component {
 
   setUser = user => this.setState({ user })
 
+  setOrg = org => this.setState({ currentOrg: org })
+
   render() {
-    const { state } = this
+    const { user, currentMode, currentDataset, currentOrg } = this.state
     let mainComponent
-    if (state.user) {
+    if (user) {
       mainComponent = (
         <div>
           <AppBar />
           <StyledMainComponent
-            mode={state.currentMode}
-            dataset={state.currentDataset}
+            mode={currentMode}
+            dataset={currentDataset}
           />
         </div>
       )
@@ -128,17 +146,21 @@ class App extends React.Component {
       <ApolloProvider client={client}>
         <NavigationContext.Provider
           value={{
-            currentMode: state.currentMode,
-            currentDataset: state.currentDataset,
-            user: state.user,
+            currentMode: currentMode,
+            currentDataset: currentDataset,
+            currentOrg: currentOrg,
+            user: user,
             switchMode: this.switchMode,
             selectDataset: this.selectDataset,
-            setUser: this.setUser
+            setUser: this.setUser,
+            setOrg: this.setOrg
           }}
         >
           <MuiThemeProvider theme={theme}>
-            <Notifier />
-            {mainComponent}
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <Notifier />
+              {mainComponent}
+            </MuiPickersUtilsProvider>
           </MuiThemeProvider>
         </NavigationContext.Provider>
       </ApolloProvider>

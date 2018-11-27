@@ -3,57 +3,57 @@ import fs from 'fs'
 import waitOn from 'wait-on'
 import AMQP from 'amqplib'
 import shortid from 'shortid'
+import csvParse from 'csv-parse'
+import config from 'config'
+
+import Storage from '../storage'
 
 export const runTransformation = async (dataset) => {
   const conn = await AMQP.connect('amqp://queue')
   const ch = await conn.createChannel()
-  const ok = await ch.assertQueue('python-worker', { durable: false })
+  await ch.assertQueue('python-worker', { durable: false })
 
   const msg = {
     task: 'generate',
-    id: dataset.id
+    id: dataset.id,
+    ownerName: dataset.owner.name
   }
 
   ch.sendToQueue('python-worker', Buffer.from(JSON.stringify(msg)))
 }
 
-export const datasetExists = (dataset) => {
-  return (dataset.path && fs.existsSync(dataset.fullPath()))
-}
+export const datasetExists = dataset => dataset.path && fs.existsSync(dataset.fullPath())
 
 export const ensureDatasetExists = (dataset) => {
-  if(!datasetExists(dataset) && dataset.computed) {
+  if (!datasetExists(dataset) && dataset.computed) {
     runTransformation(dataset)
   }
 }
 
 export const fullDatasetPath = (relPath) => {
-  const uploadDir = pathlib.resolve(process.env.UPLOADS_FOLDER)
-  const fullPath = pathlib.join(uploadDir, relPath || "")
+  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
+  const fullPath = pathlib.join(dataDir, 'datasets', relPath || '')
   return fullPath
 }
 
 export const fullScriptPath = (relPath) => {
-  const scriptsDir = pathlib.resolve(process.env.SCRIPTS_FOLDER)
-  const fullPath = pathlib.join(scriptsDir, relPath || "")
+  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
+  const fullPath = pathlib.join(dataDir, 'scripts', relPath || '')
   return fullPath
 }
 
-export const waitForFile = (relPath) => {
-  return new Promise((resolve, reject) => {
-    // TODO: This will need to change when using non-local storage
-    waitOn({
-      resources: [`file:${fullDatasetPath(relPath)}`],
-      interval: 1000,
-      timeout: 60000
-    }, err => (err ? reject(err) : resolve()))
-  })
-}
+export const waitForFile = relPath => new Promise((resolve, reject) => {
+  // TODO: This will need to change when using non-local storage
+  waitOn({
+    resources: [`file:${fullDatasetPath(relPath)}`],
+    interval: 1000,
+    timeout: 60000
+  }, err => (err ? reject(err) : resolve()))
+})
 
 export const storeFS = ({ stream, filename }) => {
   const id = shortid.generate()
   const uniqueFilename = `${id}-${filename}`
-  const fullPath = fullDatasetPath(uniqueFilename)
 
   return new Promise(
     (resolve, reject) => stream
@@ -61,12 +61,44 @@ export const storeFS = ({ stream, filename }) => {
         console.log(error)
         if (stream.truncated) {
           // Delete the truncated file
-          fs.unlinkSync(fullPath)
+          Storage.remove('datasets', uniqueFilename)
         }
         reject(error)
       })
-      .pipe(fs.createWriteStream(fullPath))
+      .pipe(Storage.createWriteStream('datasets', uniqueFilename))
       .on('error', error => reject(error))
       .on('finish', () => resolve({ id, path: uniqueFilename }))
   )
+}
+
+export const csvFromStream = async (stream, from, to) => {
+  const options = {
+    delimeter: ',',
+    columns: true,
+    cast: true,
+    from,
+    to
+  }
+
+  const parser = csvParse(options)
+
+  const output = []
+
+  const parseStream = new Promise((resolve, reject) => parser
+    .on('readable', () => {
+      try {
+        let record
+        while ((record = parser.read())) {
+          output.push(record)
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    })
+    .on('end', resolve)
+    .on('error', reject))
+
+  stream.pipe(parser)
+
+  return parseStream.then(() => output)
 }

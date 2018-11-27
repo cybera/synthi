@@ -1,9 +1,10 @@
-import DatasetRepository from '../../domain/repositories/datasetRepository'
 import { sendToWorkerQueue } from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import { storeFS, runTransformation } from '../../lib/util'
 import { pubsub, withFilter } from '../pubsub'
 import * as TransformationRepository from '../../domain/repositories/transformationRepository'
+import DatasetRepository from '../../domain/repositories/datasetRepository'
+import OrganizationRepository from '../../domain/repositories/organizationRepository'
 
 // TODO: Move this to a real memcached or similar service and actually tie it to the
 // current user
@@ -81,12 +82,12 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 
 export default {
   Query: {
-    dataset(_, { id, name }, context) {
+    async dataset(_, { id, name, searchString }, context) {
       let datasets = []
 
-      if (id != null) datasets.push(DatasetRepository.get(context, id))
-      else if (name != null) datasets.push(DatasetRepository.getByName(context, name))
-      else datasets = DatasetRepository.getAll(context)
+      if (id != null) datasets.push(await DatasetRepository.get(context, id))
+      else if (name != null) datasets.push(await DatasetRepository.getByName(context, name))
+      else datasets = await DatasetRepository.getAll(context, searchString)
 
       return datasets
     },
@@ -95,19 +96,24 @@ export default {
     async columns(dataset) {
       return dataset.columns.map(c => ({ ...c, visible: columnVisible(c) }))
     },
-    samples(dataset) {
+    async samples(dataset) {
       return dataset.samples()
     },
-    rows(dataset) {
+    async rows(dataset) {
       return dataset.rows()
     },
-    inputTransformation(dataset) {
-      return TransformationRepository.inputTransformation(dataset)
+    inputTransformation(dataset, _, context) {
+      return TransformationRepository.inputTransformation(context, dataset)
+    },
+    async connections(dataset) {
+      const results = await DatasetRepository.datasetConnections(dataset)
+      return results
     }
   },
   Mutation: {
-    createDataset(_, { name }, context) {
-      return DatasetRepository.create(context, { name })
+    async createDataset(_, { name, owner }, context) {
+      const org = await OrganizationRepository.get(owner)
+      return DatasetRepository.create(context, { name, owner: org })
     },
     async deleteDataset(_, { id }, context) {
       return DatasetRepository.delete(context, id)
@@ -135,7 +141,7 @@ export default {
     },
     async saveInputTransformation(_, { id, code }, context) {
       const dataset = await DatasetRepository.get(context, id)
-      return TransformationRepository.saveInputTransformation(dataset, code)
+      return TransformationRepository.saveInputTransformation(context, dataset, code)
     }
   },
   Subscription: {

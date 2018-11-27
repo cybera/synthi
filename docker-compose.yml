@@ -1,29 +1,34 @@
 version: '3'
 services:
   neo4j:
-    image: neo4j:3.3
+    build: ./neo4j
+    image: cybera/adi-neo4j:latest
     ports:
       - "7474:7474"
       - "7687:7687"
     volumes:
-      - ./data/neo4j/data:/data
-      - ./data/neo4j/logs:/logs
+      - neo4j_data:/data
     networks:
       - default
     environment:
+      NEO4J_AUTH: neo4j/password
       NEO4J_dbms_memory_heap_maxSize: 2048
       NEO4J_dbms_memory_pagecache_size: 1048576
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_apoc_autoIndex_enabled: "true"
+      NEO4J_com_graphaware_runtime_enabled: "true"
+      NEO4J_com_graphaware_module_UIDM_1: "com.graphaware.module.uuid.UuidBootstrapper"
   server:
     build: ./server
+    image: cybera/adi-server:latest
     ports:
       - "3000:3000"
     volumes:
       - ./server:/usr/src/app
+      - ./config/development.toml:/usr/src/app/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
-    environment:
-      - SCRIPTS_FOLDER=/mnt/scripts
-      - UPLOADS_FOLDER=/mnt/data
+      - server_node_modules:/usr/src/app/node_modules
     networks:
       - default
     command: npm run devStart
@@ -33,38 +38,31 @@ services:
       - "8080:8080"
     volumes:
       - ./client:/usr/src/app
+      - client_node_modules:/usr/src/app/node_modules
     networks:
       - default
   queue:
-    image: rabbitmq
+    image: rabbitmq:3.7
     networks:
       - default
   python-worker:
     build: ./services/python-worker
+    image: cybera/adi-python-worker:latest
     networks:
       - default
     volumes:
       - ./services/python-worker:/usr/src/app
+      - ./config/development.toml:/usr/src/app/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
-    environment:
-      - SCRIPT_ROOT=/mnt/scripts
-      - DATA_ROOT=/mnt/data
-    command: /usr/src/app/main.py
-  python-shell:
-    build: ./services/python-worker
-    volumes:
-      - ./services/python-worker:/usr/src/app
-      - ./data/uploads:/mnt/data
-      - ./data/scripts:/mnt/scripts
-    environment:
-      - SCRIPT_ROOT=/mnt/scripts
-      - DATA_ROOT=/mnt/data
-    networks:
-      - default
-    stdin_open: true
-    tty: true
+    depends_on:
+      - queue
   redis:
     image: redis:4.0
     networks:
       - default
+
+volumes:
+  neo4j_data:
+  server_node_modules:
+  client_node_modules:

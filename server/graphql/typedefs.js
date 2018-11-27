@@ -1,4 +1,36 @@
+const DatasetMetadata = `
+  title: String
+  contributor: String
+  contact: String
+  dateAdded: Date
+  dateCreated: Date
+  dateUpdated: Date
+  updates: Boolean
+  updateFrequencyAmount: Int
+  updateFrequencyUnit: FrequencyUnit
+  format: DatasetFormat
+  description: String
+  source: String
+  identifier: String
+  theme: String
+`
+
+// PATCH: Handle and reject parsing errors
+// 'scalar Upload' can be removed once the following pull request is accepted:
+// https://github.com/apollographql/apollo-upload-server/pull/2
 export default /* GraphQL */ `
+
+scalar Date
+scalar Upload
+
+enum DatasetFormat {
+  csv
+}
+enum FrequencyUnit {
+  days
+  weeks
+  months
+}
 
 type File {
   id: ID!
@@ -8,16 +40,41 @@ type File {
   encoding: String!
 }
 
+type Tag {
+  uuid: String!
+  name: String!
+  system: Boolean
+}
+
 type Column {
   id: Int!
+  uuid: String!
   name: String!
+  originalName: String
   order: Int
   visible: Boolean
+  tags: [Tag]
+}
+
+input ColumnInput {
+  name: String
+  order: Int
+}
+
+type DatasetMetadata {
+  uuid: String!
+  ${DatasetMetadata}
+}
+
+input DatasetMetadataInput {
+  ${DatasetMetadata}
 }
 
 type Dataset {
   id: Int!
+  uuid: String!
   name: String!
+  owner: Organization!
   columns: [Column]
   samples: [String]
   rows: [String]
@@ -25,10 +82,14 @@ type Dataset {
   computed: Boolean
   generating: Boolean
   inputTransformation: Transformation
+  metadata: DatasetMetadata
+  connections: String
 }
+
 
 type Transformation {
   id: Int!
+  uuid: String!
   name: String
   script: String
   inputs: [Dataset]
@@ -42,13 +103,29 @@ type Plot {
 }
 
 type Query {
-  dataset(id: Int, name: String): [Dataset]
+  dataset(id: Int, name: String, searchString: String): [Dataset]
   plots(id: Int): [Plot]
   uploads: [File]
+  currentUser: User
+}
+
+type Organization {
+  id: Int!
+  uuid: String!
+  name: String!
+  members: [User]
+}
+
+type User {
+  id: Int!
+  uuid: String!
+  username: String!
+  organizations: [Organization]
+  apikey: String
 }
 
 type Mutation {
-  createDataset(name: String): Dataset
+  createDataset(name: String, owner: Int): Dataset
   deleteDataset(id: Int!): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
@@ -57,6 +134,9 @@ type Mutation {
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean
   saveInputTransformation(id: Int!, code:String): Transformation
+  updateDatasetMetadata(id: Int!, metadata:DatasetMetadataInput): DatasetMetadata
+  regenerateAPIKey: User
+  updateColumn(uuid:String!, values:ColumnInput, tagNames:[String]): Column
 }
 
 type Subscription {

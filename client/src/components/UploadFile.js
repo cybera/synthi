@@ -5,9 +5,6 @@ import { withStyles } from '@material-ui/core/styles'
 import ADIButton from './ADIButton'
 
 const styles = theme => ({
-  button: {
-    margin: theme.spacing.unit,
-  },
   input: {
     display: 'none',
   },

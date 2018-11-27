@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-import pika
 import sys
 import os
-from subprocess import call
-import re
+from subprocess import Popen
 import json
 
+import pika
+
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
-SCRIPT_ROOT = os.environ['SCRIPT_ROOT']
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=0))
 channel = connection.channel()
@@ -16,22 +15,20 @@ channel = connection.channel()
 channel.queue_declare(queue='python-worker')
 
 def callback(ch, method, properties, body):
-    msg = body.decode('utf8')
-    print(f"Received: {msg}")
-    sys.stdout.flush()
+  msg = body.decode('utf8')
+  print(f"Received: {msg}")
+  sys.stdout.flush()
 
-    params = json.loads(msg)
+  params = json.loads(msg)
+  process_path = os.path.join(WORKER_ROOT, 'tasks', f"{params['task']}.py")
 
-    if params['task'] == 'generate':
-        process_path = os.path.join(WORKER_ROOT, 'engine.py')
-    elif params['task'] == 'import_csv':
-        process_path = os.path.join(WORKER_ROOT, 'import_csv.py')
-    elif params['task'] == 'register_transformation':
-        process_path = os.path.join(WORKER_ROOT, 'register.py')
+  process_params = [f"{params['id']}"]
+  if 'ownerName' in params:
+    process_params.append(params['ownerName'])
 
-    call([process_path, str(params['id'])])
-    print("Done")
-    sys.stdout.flush()
+  Popen([process_path, *process_params])
+
+  sys.stdout.flush()
 
 channel.basic_consume(callback,
                       queue='python-worker',

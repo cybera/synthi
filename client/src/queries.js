@@ -1,10 +1,13 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const datasetListQuery = gql`
-{
-  dataset {
+query($searchString: String) {
+  dataset(searchString: $searchString) {
     id,
-    name
+    name,
+    owner {
+      id
+    }
   }
 }
 `
@@ -37,6 +40,7 @@ query($id: Int) {
       name
       order
       visible
+      originalName
     }
     computed
     generating
@@ -56,4 +60,42 @@ export const plotsRetrieveQuery = gql`
     jsondef
   }
 }
+`
+
+export const datasetConnectionsQuery = gql`
+  query($id: Int!) {
+    dataset(id: $id) {
+     id
+     name
+     connections
+   }
+ }
+`
+
+
+export const datasetColumnTagsQuery = gql`
+  query($id: Int!) {
+    dataset(id: $id) {
+      columns {
+        id
+        uuid
+        name
+        tags {
+          name
+        }
+      }
+    }
+  }
+`
+
+export const updateDatasetColumnsMutation = gql`
+  mutation UpdateColumn($uuid: String!, $values: ColumnInput, $tagNames: [String]) {
+    updateColumn(
+      uuid: $uuid,
+      values: $values,
+      tagNames: $tagNames
+    ) {
+      name
+    }
+  }
 `

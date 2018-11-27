@@ -49,7 +49,7 @@ const MutatingModeToggle = (props) => {
   return (
     <Mutation 
       mutation={updateDatasetGQL}
-      refetchQueries={[{ query: datasetViewQuery }]}>
+      refetchQueries={[{ query: datasetViewQuery, variables: { id: dataset.id } }]}>
       { updateMutation => (
         <StyledDatasetModeToggle 
           handleMode={

@@ -1,5 +1,5 @@
 const webpack = require('webpack');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const merge = require('webpack-merge');
 const common = require('./webpack.config.js');
@@ -14,7 +14,8 @@ module.exports = merge(common, {
     proxy: {
       '/login': 'http://server:3000',
       '/logout': 'http://server:3000',
-      '/graphql': 'http://server:3000'
+      '/graphql': 'http://server:3000',
+      '/dataset': 'http://server:3000'
     }
   },
   plugins: [

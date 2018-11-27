@@ -1,0 +1,7 @@
+// These are project-wide settings for anyone using VSCode. Only put
+// settings here that make sense for the entire team. You can put
+// personal overrides in the User Settings area.
+
+{
+    "editor.tabSize": 2
+}

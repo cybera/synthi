@@ -6,7 +6,7 @@ export default {
       let query = ['MATCH (p:Plot) RETURN p.jsondef AS jsondef, ID(p) as id']
       if (id != null) {
         query = [`MATCH (p:Plot) 
-                  WHERE ID(p) = $id 
+                  WHERE ID(p) = toInteger($id)
                   RETURN 
                     p.jsondef AS jsondef, 
                     ID(p) AS id`, { id }]

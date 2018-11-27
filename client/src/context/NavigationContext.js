@@ -3,10 +3,12 @@ import React from 'react'
 const NavigationContext = React.createContext({
   currentMode: 'datasets',
   currentDataset: null,
+  currentOrg: null,
   user: null,
   switchMode: (mode) => {},
   selectDataset: (id) => {},
-  setUser: (user) => {}
+  setUser: (user) => {},
+  setOrg: (org) => {}
 });
 
 function withNavigation(Component) {
