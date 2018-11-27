@@ -102,11 +102,12 @@ class DatasetDetails extends React.Component {
       <Tab key={item.name} label={item.name} classes={{ root: classes.tabsRoot, selected: classes.selectedText}} />
     )
 
+    // TODO: Replace with a better placeholder 
     if (!id) {
       return (
-        <Placeholder heading="Welcome to ADI">
-          Select a dataset or create a new dataset to begin.
-        </Placeholder>
+        <div>
+          Welcome to ADI. Select a dataset or create a new dataset to begin.
+        </div>
       )
     }
 
