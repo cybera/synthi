@@ -11,7 +11,7 @@ const styles = (theme) => ({
     marginTop: theme.spacing.unit
   },
   form: {
-    marginTop: '30px',
+    marginTop: 30,
     display: 'block'
   }
 })
