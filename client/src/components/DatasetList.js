@@ -116,9 +116,9 @@ class DatasetList extends React.Component {
             >
               <ListItemText primary={name} />
               <ListItemSecondaryAction>
-                <IconButton aria-label="Delete" onClick={() => this.handleOpenDialog(id, name)}>
+                {/* <IconButton aria-label="Delete" onClick={() => this.handleOpenDialog(id, name)}>
                   <DeleteIcon />
-                </IconButton>
+                </IconButton> */}
               </ListItemSecondaryAction>
             </ListItem>
           ))}

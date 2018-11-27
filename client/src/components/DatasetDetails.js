@@ -82,11 +82,6 @@ class DatasetDetails extends React.Component {
         detailMode: <DatasetTree id={id} />
       },
       {
-        name: 'Tags',
-        icon: <TagMultipleIcon />,
-        detailMode: <DatasetColumnTagsContainer id={id} />
-      },
-      {
         name: 'API Info',
         icon: <APIIcon />,
         detailMode: <APIInfo id={id} />
