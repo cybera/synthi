@@ -21,7 +21,12 @@ import { openSnackbar } from './Notifier'
 
 const styles = theme => ({
   root: {
-    display: 'flex'
+    display: 'block',
+    position: 'absolute',
+    bottom: 0,
+    height: 'calc(100% - 178px)',
+    width: '100%',
+    overflowY: 'auto'
   }
 })
 
@@ -103,7 +108,7 @@ class DatasetList extends React.Component {
     const { navigation, datasets, classes } = this.props;
 
     return (
-      <List component="nav">
+      <List component="nav" className={classes.root}>
         {datasets
           .filter(d => d.owner.id === navigation.currentOrg)
           .sort(nameSort)

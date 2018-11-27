@@ -17,7 +17,7 @@ const styles = (theme) => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.background.paper
   },
   drawerPaper: {
     width: drawerWidth,
@@ -29,8 +29,15 @@ const styles = (theme) => ({
     ...theme.mixins.toolbar,
     justifyContent: 'flex-end',
   },
+  searchHeader: {
+
+  },
   hide: {
     display: 'none'
+  },
+  datasetList: {
+    position: 'absolute',
+    overflowY: 'auto'
   }
 })
 
@@ -67,11 +74,13 @@ class Sidebar extends React.Component {
             </IconButton>
           </div>
           <Divider />
-          <SearchBar
-            onChange={value => this.setState({ searchString: value })}
-            onCancelSearch={() => this.setState({ searchString: undefined })}
-          />
-          <NewDatasetButton />
+          <div className={classes.searchHeader}>
+            <SearchBar
+              onChange={value => this.setState({ searchString: value })}
+              onCancelSearch={() => this.setState({ searchString: undefined })}
+            />
+            <NewDatasetButton />
+          </div>
           <DatasetList searchString={searchString} />
         </Drawer>
     )
