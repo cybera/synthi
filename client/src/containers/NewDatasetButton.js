@@ -1,5 +1,4 @@
 import React from 'react'
-import DescriptionIcon from '@material-ui/icons/Description'
 import { withStyles } from '@material-ui/core/styles'
 
 import gql from "graphql-tag"
@@ -7,9 +6,7 @@ import { Mutation } from "react-apollo"
 import { compose } from '../lib/common'
 
 import { withNavigation } from '../context/NavigationContext'
-import ADIButton from '../components/ADIButton'
 import { datasetListQuery } from '../queries'
-import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 
