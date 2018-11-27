@@ -41,7 +41,7 @@ class DatasetEditor extends React.Component {
       <div>
         <ToggleVisibility visible={!dataset.computed}>
           <span className={classes.editorButton}>
-            <DatasetUploadButton dataset={dataset} />
+            <DatasetUploadButton id={dataset.id} />
           </span>
         </ToggleVisibility>
 

@@ -18,6 +18,8 @@ import DatasetEditor from '../containers/DatasetEditor'
 import DatasetModeToggle from '../containers/DatasetModeToggle'
 import DatasetColumnChips from './DatasetColumnChips'
 import Paper from '@material-ui/core/Paper'
+import WarningBanner from './WarningBanner'
+import DatasetUploadButton from '../containers/DatasetUploadButton'
 
 // For editing the name without having to go to a form
 /* <Typography variant="headline">
@@ -93,7 +95,7 @@ class DatasetView extends React.Component {
   }
 
   render() {
-    const { id } = this.props
+    const { id, classes } = this.props
 
     return (
       <Query query={datasetViewQuery} variables={{ id }}>
@@ -105,11 +107,21 @@ class DatasetView extends React.Component {
           refetch
         }) => {
           if (loading) return <p>Loading...</p>
-          if (error) return <p>Error!</p>
+          if (error) {
+            return (
+              <div className={classes.root}>
+                <WarningBanner 
+                  message={error.message}
+                  header="Something's wrong with your file..."
+                  advice="Please fix the issue above and try uploading again. If the issue persists, contact us."
+                />
+                <DatasetUploadButton id={id} />
+              </div>
+            )
+          }
 
           if (id == null) return <div />
-
-          const { classes, navigation } = this.props
+          
           const { errors } = this.state
           const dataset = data.dataset[0]
           const displayColumns = dataset.columns
