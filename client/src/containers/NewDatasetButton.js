@@ -25,7 +25,8 @@ const CREATE_DATASET = gql`
 const styles = theme => ({
   button: {
     justifyContent: 'left',
-    marginBottom: 5
+    marginBottom: 5,
+    width: '100%'
   }
 })
  
