@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Query } from 'react-apollo'
+import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
@@ -95,72 +95,68 @@ class DatasetView extends React.Component {
   }
 
   render() {
-    const { id, classes } = this.props
+    const { id, classes, data: { loading, error, refetch, subscribeToMore } } = this.props
+
+    if (loading) return <p>Loading...</p>
+    if (error) {
+      return (
+        <div className={classes.root}>
+          <WarningBanner 
+            message={error.message}
+            header="Something's wrong with your file..."
+            advice="Please fix the issue above and try uploading again. If the issue persists, contact us."
+          />
+          <DatasetUploadButton id={id} />
+        </div>
+      )
+    }
+
+    if (id == null) return <div />
+
+    const { errors } = this.state
+    const dataset = this.props.data.dataset[0]
+    const displayColumns = dataset.columns
+    const selectedColumns = displayColumns.filter(c => c.visible)
+
+    const sampleRows = dataset.samples.map((s) => {
+      const record = JSON.parse(s)
+      return selectedColumns.map(c => record[c.originalName || c.name])
+    })
+
+    const dataExists = selectedColumns.length > 0
+
+    this.subscribeToDatasetGenerated(subscribeToMore, refetch)
 
     return (
-      <Query query={datasetViewQuery} variables={{ id }}>
-        {({
-          data,
-          subscribeToMore,
-          loading,
-          error,
-          refetch
-        }) => {
-          if (loading) return <p>Loading...</p>
-          if (error) {
-            return (
-              <div className={classes.root}>
-                <WarningBanner 
-                  message={error.message}
-                  header="Something's wrong with your file..."
-                  advice="Please fix the issue above and try uploading again. If the issue persists, contact us."
-                />
-                <DatasetUploadButton id={id} />
-              </div>
-            )
-          }
-
-          if (id == null) return <div />
-          
-          const { errors } = this.state
-          const dataset = data.dataset[0]
-          const displayColumns = dataset.columns
-          const selectedColumns = displayColumns.filter(c => c.visible)
-
-          const sampleRows = dataset.samples.map((s) => {
-            const record = JSON.parse(s)
-            return selectedColumns.map(c => record[c.originalName || c.name])
-          })
-
-          const dataExists = selectedColumns.length > 0
-
-          this.subscribeToDatasetGenerated(subscribeToMore, refetch)
-
-          return (
-            <div className={classes.root}>
-              <DatasetModeToggle dataset={dataset} />
-              <DatasetEditor dataset={dataset} dataExists={dataExists} />
-              <Typography className={classes.error}>{errors[id]}</Typography>
-              <ToggleVisibility visible={dataset.generating}>
-                <LinearProgress />
-              </ToggleVisibility>
-              <ToggleVisibility visible={!dataset.generating && dataExists}>
-                <Paper>
-                  <DataTableView columns={selectedColumns} rows={sampleRows} />
-                </Paper>
-                <DatasetColumnChips dataset={dataset} columns={displayColumns} />
-              </ToggleVisibility>
-            </div>
-          )
-        }}
-      </Query>
+      <div className={classes.root}>
+        <DatasetModeToggle dataset={dataset} />
+        <DatasetEditor dataset={dataset} dataExists={dataExists} />
+        <Typography className={classes.error}>{errors[id]}</Typography>
+        <ToggleVisibility visible={dataset.generating}>
+          <LinearProgress />
+        </ToggleVisibility>
+        <ToggleVisibility visible={!dataset.generating && dataExists}>
+          <Paper>
+            <DataTableView columns={selectedColumns} rows={sampleRows} />
+          </Paper>
+          <DatasetColumnChips dataset={dataset} columns={displayColumns} />
+        </ToggleVisibility>
+      </div>
     )
   }
 }
 
 const StyledDatasetView = compose(
   withStyles(styles),
-  withNavigation
+  withNavigation,
+  graphql(
+    datasetViewQuery, {
+      options: (props) =>({
+        variables: { id: props.id },
+        fetchPolicy: 'network-only'
+      })
+    }
+  )
 )(DatasetView)
 
 export default StyledDatasetView
