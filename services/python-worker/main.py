@@ -8,7 +8,7 @@ import pika
 
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=0))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=60))
 channel = connection.channel()
 
 
