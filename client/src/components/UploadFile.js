@@ -9,6 +9,9 @@ const styles = theme => ({
   input: {
     display: 'none',
   },
+  icon: {
+    marginRight: theme.spacing.unit
+  }
 })
 
 class UploadFile extends React.Component {
@@ -44,7 +47,7 @@ class UploadFile extends React.Component {
           onChange={this.handleChange}
         />
         <ADIButton variant="raised" component="span" className={classes.button}>
-          <CloudUploadIcon style={{ marginRight: 10, fontSize: '1.45em' }}/>
+          <CloudUploadIcon className={classes.icon} />
           { text }
         </ADIButton>
       </label>

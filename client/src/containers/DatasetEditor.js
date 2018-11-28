@@ -14,6 +14,9 @@ import SaveTransformationButton from './SaveTransformationButton'
 const styles = theme => ({
   editorButton: {
     marginRight: theme.spacing.unit
+  },
+  root: {
+    textAlign: 'right'
   }
 })
 
@@ -38,11 +41,18 @@ class DatasetEditor extends React.Component {
     const { dataset, classes, dataExists } = this.props
 
     return (
-      <div>
+      <div className={classes.root}>
         <ToggleVisibility visible={!dataset.computed}>
           <span className={classes.editorButton}>
             <DatasetUploadButton id={dataset.id} />
           </span>
+        </ToggleVisibility>
+
+        <ToggleVisibility visible={dataset.computed}>
+          <TransformationEditor
+            dataset={dataset}
+            ref={this.transformationEditor}
+          />
         </ToggleVisibility>
 
         <ToggleVisibility visible={dataExists}>
@@ -69,13 +79,6 @@ class DatasetEditor extends React.Component {
             </span>
           )}
         </DatasetGenerator>
-
-        <ToggleVisibility visible={dataset.computed}>
-          <TransformationEditor
-            dataset={dataset}
-            ref={this.transformationEditor}
-          />
-        </ToggleVisibility>
       </div>
     )
   }

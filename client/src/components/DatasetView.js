@@ -15,11 +15,11 @@ import { compose } from '../lib/common'
 import ToggleVisibility from './ToggleVisibility'
 import DataTableView from './DataTableView'
 import DatasetEditor from '../containers/DatasetEditor'
-import DatasetModeToggle from '../containers/DatasetModeToggle'
 import DatasetColumnChips from './DatasetColumnChips'
 import Paper from '@material-ui/core/Paper'
 import WarningBanner from './WarningBanner'
 import DatasetUploadButton from '../containers/DatasetUploadButton'
+import DatasetComputeModeButton from '../containers/DatasetComputeModeButton'
 import NoDataSvg from './svg/NoData'
 import WarnSvg from './svg/Warn'
 
@@ -129,7 +129,7 @@ class DatasetView extends React.Component {
             advice="Please try uploading a new version."
             className={classes.text}
           />
-          <DatasetUploadButton id={id} />
+          <DatasetComputeModeButton id={id} />
         </div>
       )
     }
@@ -142,10 +142,9 @@ class DatasetView extends React.Component {
     const selectedColumns = displayColumns.filter(c => c.visible)
     const dataExists = selectedColumns.length > 0
 
-    if (!dataExists) {
+    if (!dataExists && !dataset.computed) {
       return(
         <div className={classes.root}>
-          <DatasetModeToggle dataset={dataset} />
           <div className={classes.empty}>
             <div className={classes.svgContainer}>
               <NoDataSvg color="#303f9f" className={classes.svg} />
@@ -155,10 +154,11 @@ class DatasetView extends React.Component {
                 Add some data to your dataset
               </Typography>
               <Typography variant="subheading">
-                Upload a CSV file containing the underlying data for your dataset.
+                Upload a CSV file containing the underlying data or generate it from existing datasets.
               </Typography>
             </div>
             <DatasetUploadButton id={id} />
+            <DatasetComputeModeButton id={id} />
           </div>
         </div>
       )
@@ -173,7 +173,6 @@ class DatasetView extends React.Component {
 
     return (
       <div className={classes.root}>
-        <DatasetModeToggle dataset={dataset} />
         <DatasetEditor dataset={dataset} dataExists={dataExists} />
         <Typography className={classes.error}>{errors[id]}</Typography>
         <ToggleVisibility visible={dataset.generating}>
