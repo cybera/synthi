@@ -5,7 +5,17 @@ import Typography from '@material-ui/core/Typography'
 
 const styles = (theme) => ({
   root: {
-    marginBottom: 15
+    marginBottom: 15,
+    marginTop: 20
+  },
+  error: {
+    color: '#F44336',
+  },
+  message: {
+    maxWidth: 500,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    color: '#F44336',
   }
 })
 
@@ -18,10 +28,10 @@ class WarningBanner extends React.Component {
     const {header, message, advice, classes} = this.props
     return(
       <div className={classes.root}>
-        <Typography variant="title">
+        <Typography variant="headline" className={classes.error}>
           {header}
         </Typography>
-        <Typography variant="subheading">
+        <Typography variant="body2" className={classes.message}>
           {message}
         </Typography>
         <Typography variant="body1">

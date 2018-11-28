@@ -1,10 +1,10 @@
 import React from 'react'
 
 const NoData = (props) => {
-  const { color } = this.props
+  const { color } = props
 
   return(
-    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" id="f20e0c25-d928-42cc-98d1-13cc230663ea" data-name="Layer 1" width="820.16" height="780.81" viewBox="0 0 820.16 780.81">
+    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" id="f20e0c25-d928-42cc-98d1-13cc230663ea" data-name="Layer 1" viewBox="0 0 820.16 780.81">
       <defs>
         <linearGradient id="07332201-7176-49c2-9908-6dc4a39c4716" x1="539.63" y1="734.6" x2="539.63" y2="151.19" gradientTransform="translate(-3.62 1.57)" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="gray" stopOpacity="0.25"/>

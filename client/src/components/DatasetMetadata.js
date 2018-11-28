@@ -388,12 +388,7 @@ class DatasetMetadata extends React.Component {
         >
           Save Changes
         </ADIButton>
-        <Typography variant="headline" className={classes.title}>
-          Column Settings
-        </Typography>
-        <Paper>
-          <DatasetColumnTagsContainer id={id} />
-        </Paper>
+        <DatasetColumnTagsContainer id={id} />
       </div>
     )
   }
