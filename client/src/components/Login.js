@@ -45,6 +45,9 @@ const styles = theme => ({
   img: {
     paddingBottom: theme.spacing.unit * 2,
   },
+  hidden: {
+    display: 'none'
+  }
 })
 
 class Login extends React.Component {
@@ -140,7 +143,7 @@ class Login extends React.Component {
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
-                style={{ display: 'none' }}
+                className={classes.hidden}
               />
               <ADIButton
                 type="submit"
