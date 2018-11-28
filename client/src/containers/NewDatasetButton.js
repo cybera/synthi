@@ -1,5 +1,4 @@
 import React from 'react'
-import DescriptionIcon from '@material-ui/icons/Description'
 import { withStyles } from '@material-ui/core/styles'
 
 import gql from "graphql-tag"
@@ -7,8 +6,9 @@ import { Mutation } from "react-apollo"
 import { compose } from '../lib/common'
 
 import { withNavigation } from '../context/NavigationContext'
-import ADIButton from '../components/ADIButton'
 import { datasetListQuery } from '../queries'
+import Button from '@material-ui/core/Button'
+import AddIcon from '@material-ui/icons/Add'
 
 const CREATE_DATASET = gql`
   mutation CreateDataset($name: String, $owner: Int) {
@@ -21,10 +21,9 @@ const CREATE_DATASET = gql`
 
 const styles = theme => ({
   button: {
-    margin: theme.spacing.unit,
-  },
-  rightIcon: {
-    marginLeft: 10
+    justifyContent: 'left',
+    marginBottom: 5,
+    width: '100%'
   }
 })
  
@@ -52,15 +51,14 @@ class NewDatasetButton extends React.Component
         variables={{ owner: navigation.currentOrg }}
         refetchQueries={[{ query: datasetListQuery }]}>
         {(mutate, { data }) => (
-          <ADIButton 
-            onClick={() => this.handleClick(mutate)} 
+          <Button 
             className={classes.button}
-            variant="raised" 
-            color="primary" 
-            fullWidth={true}>
-            New Dataset
-            <DescriptionIcon className={classes.rightIcon}/>
-          </ADIButton>
+            onClick={() => this.handleClick(mutate)} 
+            color="primary"
+          >
+            <AddIcon />
+            Add New Dataset
+          </Button>
         )}
       </Mutation>
     )

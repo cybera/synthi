@@ -6,7 +6,7 @@ import { ApolloProvider } from "react-apollo";
 
 import { createUploadLink } from 'apollo-upload-client'
 
-import DatasetBrowser from './components/DatasetBrowser'
+import DatasetDetails from './components/DatasetDetails'
 import ChartEditor from './containers/ChartEditor'
 import Scenarios from './components/Scenarios'
 import StyledLogin from './components/Login'
@@ -76,15 +76,18 @@ const theme = createMuiTheme({
 
 const styles = theme => ({
   root: {
-    marginTop: 10
+    marginTop: 64
+  },
+  appRoot: {
+    flexGrow: 1
   }
 });
 
 function MainComponent(props) {
-  const { mode, dataset, classes } = props
+  const { mode, dataset } = props
 
   if (mode == 'datasets') {
-    return <DatasetBrowser selectedDataset={dataset}/>
+    return <DatasetDetails id={dataset}/>
   } else if (mode == 'chart-editor') {
     return <ChartEditor datasetID={dataset}/>
   } else if (mode == 'scenarios') {
@@ -129,15 +132,15 @@ class App extends React.Component {
   render() {
     const { user, currentMode, currentDataset, currentOrg } = this.state
     let mainComponent
+
     if (user) {
       mainComponent = (
-        <div>
-          <AppBar />
+        <AppBar>
           <StyledMainComponent
             mode={currentMode}
             dataset={currentDataset}
           />
-        </div>
+        </AppBar>
       )
     } else {
       mainComponent = <StyledLogin />
