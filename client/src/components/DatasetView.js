@@ -129,7 +129,7 @@ class DatasetView extends React.Component {
             advice="Please try uploading a new version."
             className={classes.text}
           />
-          <DatasetComputeModeButton id={id} />
+          <DatasetUploadButton id={id} />
         </div>
       )
     }
