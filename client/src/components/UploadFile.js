@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles'
-import ADIButton from './ADIButton'
+import Button from '@material-ui/core/Button'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 
 const styles = theme => ({
@@ -37,7 +37,7 @@ class UploadFile extends React.Component {
     const { classes, text } = this.props
 
     return (
-      <label htmlFor="raised-button-file">
+      <span>
         <input
           accept=".csv"
           className={classes.input}
@@ -46,11 +46,13 @@ class UploadFile extends React.Component {
           type="file"
           onChange={this.handleChange}
         />
-        <ADIButton variant="raised" component="span" className={classes.button}>
-          <CloudUploadIcon className={classes.icon} />
-          { text }
-        </ADIButton>
-      </label>
+        <label htmlFor="raised-button-file">
+          <Button variant="raised" component="span" color="primary" className={classes.button}>
+            <CloudUploadIcon className={classes.icon} />
+            { text }
+          </Button>
+        </label>
+      </span>
     )
   }
 }

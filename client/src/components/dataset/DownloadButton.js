@@ -14,7 +14,7 @@ const DownloadButton = (props) => {
 
   return (
     <ADIButton onClick={() => handleDownload(url)}>
-      <CloudDownloadIcon style={{ marginRight: 10, fontSize: '1.45em' }} />
+      <CloudDownloadIcon style={{ marginRight: 10 }} />
       Download
     </ADIButton>
   )

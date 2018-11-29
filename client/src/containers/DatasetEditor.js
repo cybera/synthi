@@ -15,7 +15,7 @@ const styles = theme => ({
   editorButton: {
     marginRight: theme.spacing.unit
   },
-  root: {
+  buttonsRight: {
     textAlign: 'right'
   }
 })
@@ -61,24 +61,26 @@ class DatasetEditor extends React.Component {
           </span>
         </ToggleVisibility>
 
-        <ToggleVisibility visible={dataset.computed}>
-          <span className={classes.editorButton}>
-            <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
-          </span>
-        </ToggleVisibility>
-
-        <DatasetGenerator>
-          {({ generateDataset }) => dataset.computed && (
+        <div className={classes.buttonsRight}>
+          <ToggleVisibility visible={dataset.computed}>
             <span className={classes.editorButton}>
-              <ADIButton
-                disabled={dataset.generating}
-                onClick={() => generateDataset(dataset.id)}
-              >
-                Generate!
-              </ADIButton>
+              <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
             </span>
-          )}
-        </DatasetGenerator>
+          </ToggleVisibility>
+
+          <DatasetGenerator>
+            {({ generateDataset }) => dataset.computed && (
+              <span>
+                <ADIButton
+                  disabled={dataset.generating}
+                  onClick={() => generateDataset(dataset.id)}
+                >
+                  Generate!
+                </ADIButton>
+              </span>
+            )}
+          </DatasetGenerator>
+        </div>
       </div>
     )
   }
