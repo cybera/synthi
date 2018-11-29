@@ -8,8 +8,12 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import IconButton from '@material-ui/core/IconButton'
+import MoreVertIcon from '@material-ui/icons/MoreVert'
 import DeleteIcon from '@material-ui/icons/Delete'
 import { withStyles } from '@material-ui/core/styles'
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state'
 
 import { compose } from '../lib/common'
 import { datasetListQuery, deleteDatasetMutation } from '../queries'
@@ -50,10 +54,11 @@ class DatasetList extends React.Component {
     super(props);
 
     this.state = {
-      toRemove: {
+      selectedDataset: {
         id: null,
         name: null
-      }
+      },
+      menuAnchor: null
     }
   }
 
@@ -75,9 +80,9 @@ class DatasetList extends React.Component {
     datasets: []
   }
 
-  handleOpenDialog = (id, name) => {
+  handleDeleteDialog = (id, name) => {
     this.setState({
-      toRemove: {
+      selectedDataset: {
         id: id,
         name: name
       }
@@ -88,7 +93,7 @@ class DatasetList extends React.Component {
 
   handleDelete = () => {
     const { deleteDataset, navigation } = this.props;
-    const { id, name } = this.state.toRemove;
+    const { id, name } = this.state.selectedDataset;
 
     deleteDataset({ 
       variables: { id }, refetchQueries: [{ query: datasetListQuery }] 
@@ -106,6 +111,7 @@ class DatasetList extends React.Component {
 
   render() {
     const { navigation, datasets, classes } = this.props;
+    const { menuAnchor, selectedDataset } = this.state
 
     return (
       <List component="nav" className={classes.root}>
@@ -121,14 +127,41 @@ class DatasetList extends React.Component {
             >
               <ListItemText primary={name} />
               <ListItemSecondaryAction>
-                {/* <IconButton aria-label="Delete" onClick={() => this.handleOpenDialog(id, name)}>
-                  <DeleteIcon />
-                </IconButton> */}
+                <PopupState variant="popover" popupId="dataset-actions">
+                  {
+                    popupState => (
+                      <React.Fragment>
+                        <IconButton
+                          onClick={(event) => {
+                            popupState.open(event)
+                          }}
+                        >
+                          <MoreVertIcon />
+                        </IconButton>
+                        <Menu {...bindMenu(popupState)}>
+                          <MenuItem onClick={popupState.close}>
+                            Edit name
+                          </MenuItem>
+
+                          <MenuItem 
+                            onClick={() => {
+                              popupState.close()
+                              this.handleDeleteDialog(id, name)
+                            }}
+                          >
+                            Remove
+                          </MenuItem>
+                        </Menu>
+                      </React.Fragment>
+                    )
+                  }
+                </PopupState>
               </ListItemSecondaryAction>
             </ListItem>
           ))}
+
         <ConfirmationDialog
-          header={`Remove '${this.state.toRemove.name}'?`}
+          header={`Remove '${this.state.selectedDataset.name}'?`}
           content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
           onClose={this.handleDelete.bind(this)}
           onOpen={(onOpen) => this.onOpen = onOpen}
