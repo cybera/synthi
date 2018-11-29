@@ -1,12 +1,15 @@
-import React from 'react';
-import { Query } from 'react-apollo';
-import Tree from 'react-d3-tree';
-import Typography from '@material-ui/core/Typography';
-import { linkData } from './DatasetConnections';
-import { datasetConnectionsQuery } from '../queries';
+import React from 'react'
+import { Query } from 'react-apollo'
+import Tree from 'react-d3-tree'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
+import { compose } from '../lib/common'
+import { linkData } from './DatasetConnections'
+import { datasetConnectionsQuery } from '../queries'
 import { withNavigation } from '../context/NavigationContext'
 import ToggleVisibility from './ToggleVisibility'
 import MediaCard from './HoverCard'
+import Paper from '@material-ui/core/Paper'
 import './connectionStyle.css'
 
 // {/* This creates a button that navigates to a dataset. Commented out for now because it was ugly */}
@@ -17,11 +20,17 @@ import './connectionStyle.css'
 // TODO: Modify this to check if the transformation name
 // is the same as the dataset name
 function ifDataset(string) {
-  if (string === 'Dataset') {
-    return true
-  }
-  return false
+  return string === 'Dataset'
 }
+
+const styles = (theme) => ({
+  root: {
+    ...theme.mixins.gutters(),
+    paddingTop: 16,
+    paddingBottom: 16,
+    marginTop: theme.spacing.unit
+  }
+})
 
 class NodeLabel extends React.PureComponent {
   constructor(props) {
@@ -31,12 +40,10 @@ class NodeLabel extends React.PureComponent {
 
   openCard = () => {
     this.setState({ inside: true })
-    console.log(this.state.inside)
   }
 
   closeCard = () => {
     this.setState({ inside: false })
-    console.log(this.state.inside)
   }
 
   render() {
@@ -44,19 +51,21 @@ class NodeLabel extends React.PureComponent {
 
     // TODO: I don't know how to make <MediaCard> appear as the top level element
     return (
-      <div className={className} 
-           id={"nodeContainer"}
-           onMouseEnter={this.openCard} 
-           onMouseLeave={this.closeCard} 
-           width={400} >
+      <div 
+        className={className} 
+        id="nodeContainer"
+        onMouseEnter={this.openCard} 
+        onMouseLeave={this.closeCard} 
+        width={400}
+      >
         <Typography>
           <ToggleVisibility visible={ifDataset(nodeData.attributes.kind)}>
-              <b>{nodeData.name}</b>
-              <br></br>
+            <b>{nodeData.name}</b>
+            <br></br>
           </ToggleVisibility> 
           {nodeData.attributes.kind}
         </Typography>
-        <div id={"cardContainer"} width={400} className="front">
+        <div id="cardContainer" width={400} className="front">
           {this.state.inside ? <MediaCard nodeData={ nodeData} navigation={navigation}/> : null}
         </div>
       </div>
@@ -100,21 +109,29 @@ const TreeMaker = (props) => {
 
 
 const DatasetTree = (props) => {
-  const { navigation, id } = props;
+  const { navigation, id, classes } = props;
 
   return (
     <Query query={datasetConnectionsQuery} variables={{ id }}>
       {({ loading, error, data }) => {
         if (loading) return null
         if (error) return null
-        console.log(data.dataset[0].connections)
-        const links = linkData(JSON.parse(data.dataset[0].connections))
-        // console.log(links)
-        return (<TreeMaker data={links} id={id} navigation={navigation} />)
-      }}
 
+        const links = linkData(JSON.parse(data.dataset[0].connections))
+
+        return (
+          <div className={classes.root}>
+            <Paper>
+              <TreeMaker data={links} id={id} navigation={navigation} />
+            </Paper>
+          </div>
+        )
+      }}
     </Query>
   )
 };
 
-export default withNavigation(DatasetTree)
+export default compose(
+  withNavigation,
+  withStyles(styles)
+)(DatasetTree)

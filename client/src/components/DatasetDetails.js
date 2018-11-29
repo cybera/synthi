@@ -13,7 +13,6 @@ import { compose } from '../lib/common'
 import DatasetView from './DatasetView'
 import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
-import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
 import APIInfo from './api-info'
 import Placeholder from './Placeholder'
 import Typography from '@material-ui/core/Typography'
@@ -23,7 +22,6 @@ import Tab from '@material-ui/core/Tab'
 
 const styles = theme => ({
   header: {
-    // backgroundColor: theme.palette.primary.main,
     paddingLeft: theme.spacing.unit * 3,
     paddingTop: theme.spacing.unit * 7,
     paddingBottom: 0
