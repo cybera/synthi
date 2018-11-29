@@ -10,7 +10,6 @@ services:
     networks:
       - default
     environment:
-      NEO4J_AUTH: neo4j/bedaub-oblivion-gable-symmetry
       NEO4J_dbms_memory_heap_maxSize: 2048
       NEO4J_dbms_memory_pagecache_size: 1048576
       NEO4J_dbms_security_procedures_unrestricted: apoc.*
