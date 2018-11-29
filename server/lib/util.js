@@ -4,6 +4,7 @@ import waitOn from 'wait-on'
 import AMQP from 'amqplib'
 import shortid from 'shortid'
 import csvParse from 'csv-parse'
+import config from 'config'
 
 import Storage from '../storage'
 
@@ -30,13 +31,13 @@ export const ensureDatasetExists = (dataset) => {
 }
 
 export const fullDatasetPath = (relPath) => {
-  const dataDir = pathlib.resolve(process.env.DATA_FOLDER)
+  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
   const fullPath = pathlib.join(dataDir, 'datasets', relPath || '')
   return fullPath
 }
 
 export const fullScriptPath = (relPath) => {
-  const dataDir = pathlib.resolve(process.env.DATA_FOLDER)
+  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
   const fullPath = pathlib.join(dataDir, 'scripts', relPath || '')
   return fullPath
 }

@@ -1,8 +1,11 @@
-import pandas as pd
-import os
 from importlib.util import spec_from_file_location, module_from_spec
 
-DATA_ROOT = os.environ['DATA_ROOT']
+import os
+import config
+
+import pandas as pd
+
+DATA_ROOT = config.storage.legacy.dataRoot
 
 def read_csv(relative_path):
   abs_path = os.path.join(DATA_ROOT, 'datasets', relative_path)

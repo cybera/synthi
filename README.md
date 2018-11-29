@@ -12,79 +12,78 @@
 - [Material UI](https://material-ui.com) is a UI framework of ready made React components for common UI elements.
 - [Webpack](https://webpack.js.org) and [Babel](https://babeljs.io) are used mainly behind the scenes to compile and bundle client side code in a way that is compatible with most modern browsers.
 
-### Configuration
+### Prerequisites
 
-There are two configuration files you'll need to add some information to:
+* Docker and Docker Compose
+* OpenStack credentials for object storage
+* Node.js for your local development environment
 
-1. server/config/development.toml
-2. services/python-worker/config/development.toml
+### Setup
 
-Each of the containing directories already has a development.toml.example file that has placeholders for the necessary information. Unfortunately there's quite a bit of duplication at the moment.
-
-For object storage, you'll need working Openstack credentials and two containers (one for scripts and one for datasets). These can be created via:
-
-```bash
-swift post your-scripts-container
-swift post your-datasets-container
-```
-
-You should also set your neo4j username and password in the development.toml file.
-
-### First time setup
-
-You'll need to install [NPM](https://www.npmjs.com/get-npm) and then install necessary libraries in your local environment. The `npm install` commands are technically optional and only required for autocompletion and linting.
+To create the initial configuration, copy the example config:
 
 ```bash
-cd server && cp .env.example .env && npm install
-cd client && npm install
+cp config/development.toml.example config/development.toml
 ```
+
+Use your OpenStack credentials to populate the values in `[storage.object.creds]`.
+
+Now source your OpenStack credentials and create the Swift containers:
+
+```bash
+swift post adi_datasets
+swift post adi_scripts
+```
+
+Now build the Docker images and launch the application:
 
 ```bash
 docker-compose build
-docker-compose stop
-docker-compose up
-docker-compose logs python-worker
-```
-
-#### Neo4J
-
-Create the search index:
-
-```cypher
-CALL apoc.index.addAllNodes('DefaultDatasetSearchIndex', {
-DatasetMetadata: ["title", "contributor", "contact", "description", "source", "identifier", "theme"],
-Column: ["name"],
-Dataset: ["name"]
-}, { autoUpdate: true })
-```
-
-### Running a Development Environment
-
-You'll need 3 things to get going on development: Neo4J running (API on port 7687, front end on port 7878), the ExpressJS server running (accessible on port 3000), and a development server serving up the client code (accessible on port 8080).
-
-```bash
-bin/neo4j start
-bin/server
-bin/dev-client
-```
-
-Or launch everything with docker:
-
-```bash
 docker-compose up -d
 ```
 
-To update Node dependencies in the Docker container:
+After that's done, run the database migrations:
 
 ```bash
-bin/update-deps [client/server]
+bin/migrate
 ```
 
-### Creating a User
+Finally, create the first user:
 
+```bash
+bin/create-user <user>
 ```
-bin/create-user USERNAME
+
+Now you should be able to login and start using the application from http://localhost:8080.
+
+### Development
+
+Node.js dependencies need to be installed locally for autocompletion and linting:
+
+```bash
+cd server && npm install
+cd client && npm install
 ```
+
+All source code is bind mounted into its respective container so any local changes will automatically be reflected in the running application without the need to restart containers or rebuild images. However, this does *not* include the `node_modules` directories because some modules have compiled components that need to be built for the correct architecture. Unfortunately that means `npm install` needs to be run locally *and* in the client and/or server containers when dependencies change.
+
+### Scripts
+
+There are a number of useful helper scripts in the `bin` directory:
+
+* `add-user-to-org <user> <org>` - Adds an existing user to an existing organization
+* `create-org <org>` - Creates an organization
+* `create-user <user>` - Creates a user
+* `migrate` - Run the database migrations
+* `shell <service>` - Drops you to a bash shell in the specified service container
+* `update-deps [client|server]` - Runs `npm install` on the client, server or both
+
+### Endpoints
+
+* http://localhost:8080 - Client
+* http://localhost:3000 - Server
+* http://localhost:8080/graphql - GraphQL playground
+* http://localhost:7474 - Neo4j Browser
 
 ### Neo4J plugins
 

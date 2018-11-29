@@ -10,8 +10,12 @@ authUrl = "https://your-auth-endpoint:5000"
 
 [storage.object.containers]
 
-datasets = "your-dev-datasets-container"
-scripts = "your-dev-scripts-container"
+datasets = "adi_datasets"
+scripts = "adi_scripts"
+
+[storage.legacy]
+
+dataRoot = "/mnt/data"
 
 [storage]
 
@@ -23,5 +27,5 @@ type = "object"
 protocol = "bolt"
 host = "neo4j"
 port = 7687
-username = "your-neo4j-username"
-password = "your-neo4j-password"
+username = "neo4j"
+password = "password"

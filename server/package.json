@@ -16,6 +16,7 @@
     "csv-parse": "^3.2.0",
     "dotenv": "^6.1.0",
     "esm": "^3.0.84",
+    "event-stream": "^3.3.5",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "get-stream": "^4.1.0",

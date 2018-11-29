@@ -1,9 +1,10 @@
 import fs from 'fs'
 import pathlib from 'path'
 import mkdirp from 'mkdirp'
+import config from 'config'
 
 const ensureFoldersExist = () => {
-  const dataDir = pathlib.resolve(process.env.DATA_FOLDER)
+  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
 
   // Ensure upload directories exist
   mkdirp.sync(pathlib.join(dataDir, 'scripts'))
@@ -11,7 +12,7 @@ const ensureFoldersExist = () => {
 }
 
 const fullPath = (area, relativePath) => {
-  const dataDir = pathlib.resolve(process.env.DATA_FOLDER)
+  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
   return pathlib.join(dataDir, area, relativePath || '')
 }
 
