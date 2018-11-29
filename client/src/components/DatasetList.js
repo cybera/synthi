@@ -31,6 +31,9 @@ const styles = theme => ({
     height: 'calc(100% - 178px)',
     width: '100%',
     overflowY: 'auto'
+  },
+  delete: {
+    color: 'red'
   }
 })
 
@@ -149,7 +152,7 @@ class DatasetList extends React.Component {
                               this.handleDeleteDialog(id, name)
                             }}
                           >
-                            Remove
+                            <span className={classes.delete}>Remove</span>
                           </MenuItem>
                         </Menu>
                       </React.Fragment>
