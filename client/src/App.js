@@ -121,6 +121,29 @@ class App extends React.Component {
     }
   }
 
+  async componentDidMount() {
+    const { user } = this.state
+
+    if (!user) return
+
+    this.setState({ loading: true })
+
+    const res = await fetch('/whoami', { credentials: 'include' })
+    const body = res.text()
+
+    if (body === 'not logged in') {
+      this.setState({
+        user: null,
+        currentOrg: null,
+        currentDataset: null,
+        loading: false
+      })
+      localStorage.removeItem('user')
+    } else {
+      this.setState({ loading: false })
+    }
+  }
+
   switchMode = mode => this.setState({ currentMode: mode })
 
   selectDataset = id => this.setState({ currentDataset: id })

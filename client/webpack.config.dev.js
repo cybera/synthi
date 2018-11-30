@@ -15,11 +15,12 @@ module.exports = merge(common, {
       '/login': 'http://server:3000',
       '/logout': 'http://server:3000',
       '/graphql': 'http://server:3000',
-      '/dataset': 'http://server:3000'
+      '/dataset': 'http://server:3000',
+      '/whoami': 'http://server:3000'
     }
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new BundleAnalyzerPlugin()
+    new BundleAnalyzerPlugin({ analyzerHost: '0.0.0.0' })
   ]
 });
