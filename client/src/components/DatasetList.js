@@ -14,6 +14,8 @@ import { withStyles } from '@material-ui/core/styles'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state'
+import Pluralize from 'react-pluralize'
+import Typography from '@material-ui/core/Typography'
 
 import { compose } from '../lib/common'
 import { datasetListQuery, deleteDatasetMutation } from '../queries'
@@ -34,6 +36,15 @@ const styles = theme => ({
   },
   delete: {
     color: 'red'
+  },
+  searchResults: {
+    marginLeft: theme.spacing.unit * 3,
+    marginRight: theme.spacing.unit * 3,
+    marginBottom: theme.spacing.unit,
+    color: theme.palette.secondary.light,
+    textAlign: 'right',
+    borderBottom: 'solid 1px',
+    borderBottomColor: theme.palette.secondary.light
   }
 })
 
@@ -113,11 +124,17 @@ class DatasetList extends React.Component {
   }
 
   render() {
-    const { navigation, datasets, classes } = this.props;
+    const { navigation, datasets, classes, searchString } = this.props;
     const { menuAnchor, selectedDataset } = this.state
 
     return (
       <List component="nav" className={classes.root}>
+        {searchString &&
+          <Typography variant="body1" className={classes.searchResults}>
+            Displaying <Pluralize singular="result" count={datasets.length} />
+          </Typography>
+          
+        }
         {datasets
           .filter(d => d.owner.id === navigation.currentOrg)
           .sort(nameSort)

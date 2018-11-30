@@ -65,6 +65,7 @@
     "react-d3-tree": "^1.11.0",
     "react-dom": "^16.5.2",
     "react-plotly.js": "^2.2.0",
+    "react-pluralize": "^1.4.1",
     "subscriptions-transport-ws": "^0.9.15"
   }
 }

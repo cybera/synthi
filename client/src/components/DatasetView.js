@@ -71,6 +71,12 @@ const styles = theme => ({
   },
   text: {
     marginBottom: 10
+  },
+  subheader: {
+    maxWidth: 420,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 15
   }
 });
 
@@ -153,7 +159,7 @@ class DatasetView extends React.Component {
               <Typography variant="headline">
                 Add some data to your dataset
               </Typography>
-              <Typography variant="subheading">
+              <Typography variant="subheading" className={classes.subheader}>
                 Upload a CSV file containing the underlying data or generate it from existing datasets.
               </Typography>
             </div>

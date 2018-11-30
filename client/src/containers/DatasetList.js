@@ -4,6 +4,9 @@ import { Query } from 'react-apollo'
 
 import { datasetListQuery } from '../queries'
 
+import SearchEmptyState from '../components/SearchEmptyState'
+import SearchLoadingState from '../components/SearchLoadingState'
+
 const withDatasets = Component => (props) => {
   let { searchString } = props
 
@@ -18,10 +21,15 @@ const withDatasets = Component => (props) => {
       variables={{ searchString }}
     >
       {({ loading, error, data }) => {
-        if (loading) return <p>Loading...</p>;
-        if (error) return <p>Error!</p>;
+        if (loading && searchString) return <SearchLoadingState />
+        if (loading) return <p>Loading...</p>
+        if (error) return <p>Error!</p>
 
-        return <Component {...props} datasets={data.dataset} />
+        const availableDatasets = data.dataset
+        const available = availableDatasets.length > 0
+
+        if (available) return <Component {...props} datasets={availableDatasets} searchString={searchString} />
+        return(<SearchEmptyState />)
       }}
     </Query>
   )
