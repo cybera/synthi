@@ -45,6 +45,8 @@ cp ../config/development.toml.example production.toml
 docker config create production.toml production.toml
 ```
 
+Also run `cp neo4j.env.example neo4j.env` and change `password` to the value from `production.toml`:
+
 Now deploy the stack:
 
 ```
