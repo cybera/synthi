@@ -83,20 +83,15 @@ export const csvFromStream = async (stream, from, to) => {
   const parser = csvParse(options)
 
   const output = []
-
   const parseStream = new Promise((resolve, reject) => parser
     .on('readable', () => {
-      try {
-        let record
-        while ((record = parser.read())) {
-          output.push(record)
-        }
-      } catch (err) {
-        console.log(err)
+      let record
+      while ((record = parser.read())) {
+        output.push(record)
       }
     })
     .on('end', resolve)
-    .on('error', reject))
+    .on('error', err => reject(err)))
 
   stream.pipe(parser)
 
