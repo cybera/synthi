@@ -118,6 +118,19 @@ export default {
     async deleteDataset(_, { id }, context) {
       return DatasetRepository.delete(context, id)
     },
+    async importCSV(_, { id, removeExisting, options }, context) {
+      const dataset = await DatasetRepository.get(context, id)
+      // Only allow importing if the user can access the dataset in the first place
+      if (dataset) {
+        sendToWorkerQueue({
+          task: 'import_csv',
+          id,
+          removeExisting,
+          ...options
+        })
+      }
+      return dataset
+    },
     uploadDataset: (_, { name, file }, context) => processDatasetUpload(name, file, context),
     updateDataset: (_, props, context) => processDatasetUpdate(props, context),
     createPlot(_, { jsondef }) {

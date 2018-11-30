@@ -124,9 +124,16 @@ type User {
   apikey: String
 }
 
+input CSVImportOptions {
+  header: Boolean,
+  delimiter: String,
+  customDelimiter: String
+}
+
 type Mutation {
   createDataset(name: String, owner: Int): Dataset
   deleteDataset(id: Int!): Dataset
+  importCSV(id: Int!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
   updateDataset(id: Int!, file:Upload, computed:Boolean, name:String): Dataset
