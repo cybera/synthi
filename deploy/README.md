@@ -38,7 +38,7 @@ Switch to the remote Docker host:
 eval "$(docker-machine env adi-<environment>)"
 ```
 
-If an ADI config doesn't already exist, it'll need to be created:
+If an ADI config doesn't already exist, it'll need to be created (edit it accordingly before creating the config in Docker):
 
 ```
 cp ../config/development.toml.example production.toml
