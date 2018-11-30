@@ -19,12 +19,12 @@ const styles = (theme) => ({
 
 class SearchLoadingState extends React.Component {
   render() {
-    const { classes } = this.props
+    const { classes, content } = this.props
     return(
       <div className={classes.root}>
         <CircularProgress className={classes.loading} color="secondary" />
         <Typography variant="body2">
-          Searching datasets...
+          {content}
         </Typography>
       </div>
     )

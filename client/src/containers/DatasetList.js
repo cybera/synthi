@@ -21,8 +21,8 @@ const withDatasets = Component => (props) => {
       variables={{ searchString }}
     >
       {({ loading, error, data }) => {
-        if (loading && searchString) return <SearchLoadingState />
-        if (loading) return <p>Loading...</p>
+        if (loading && searchString) return <SearchLoadingState content="Searching datasets..." />
+        if (loading) return <SearchLoadingState content="Loading your datasets..." />
         if (error) return <p>Error!</p>
 
         const availableDatasets = data.dataset
