@@ -64,6 +64,7 @@ docker exec -ti adi_python-worker.1.$(docker service ps adi_python-worker -q --n
 Production uses the same images as development, but `docker stack deploy` only allows images to be pulled from a registry so they have to be pushed to Docker Hub:
 
 ```
+bin/build-client
 docker-compose build
 docker push cybera/adi-server
 docker push cybera/adi-neo4j
