@@ -8,7 +8,7 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import neo4j_driver, status_channel
+from common import neo4j_driver, status_channel, parse_params
 from lib import data_import
 
 import storage
@@ -16,7 +16,8 @@ import storage
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
-DATASET_ID = int(sys.argv[1])
+params = parse_params()
+DATASET_ID = params['id']
 
 result = tx.run('''
   MATCH(d: Dataset)
@@ -25,7 +26,20 @@ result = tx.run('''
 ''', id=DATASET_ID).single()
 dataset = result['d']
 
-df = storage.read_csv(dataset['path'])
+if 'removeExisting' in params:
+  print('Removing existing columns...')
+  tx.run('''
+    MATCH(d: Dataset)<-[:BELONGS_TO]-(c:Column)
+    WHERE ID(d) = toInteger($id)
+    DETACH DELETE c
+  ''', id=dataset.id)
+
+# Read the CSV file enough to extract metadata about the columns
+# If there is no information about column names supplied in a header,
+# make sure to supply generated string column names
+csv_parse_params = data_import.csv_params(params)
+df = storage.read_csv(dataset['path'], params=csv_parse_params)
+data_import.ensure_column_names(df)
 
 columns = data_import.column_info(df)
 
