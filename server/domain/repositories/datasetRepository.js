@@ -4,6 +4,7 @@ import canAccessDataset from '../policies/canAccessDataset'
 import utils from './utils'
 
 export default class DatasetRepository {
+  /*
   static async get(context, id) {
     id = parseInt(id, 10)
     const query = this.buildQuery('WHERE ID(d) = toInteger($id)')
@@ -24,7 +25,7 @@ export default class DatasetRepository {
     const dataset = await utils.createDataset(result[0])
     return canAccessDataset(context.user, dataset) ? dataset : null
   }
-
+  */
   static async getAll(context, searchString) {
     const query = [this.buildQuery('', searchString !== undefined)]
     if (searchString) {
@@ -35,6 +36,7 @@ export default class DatasetRepository {
     return datasets.filter(d => canAccessDataset(context.user, d))
   }
 
+  /*
   static async create(context, data) {
     let { name } = data
     if (!name) {
@@ -63,6 +65,7 @@ export default class DatasetRepository {
 
     return dataset
   }
+  */
 
   static async save(context, dataset) {
     if (!canAccessDataset(context.user, dataset)) {
@@ -146,6 +149,7 @@ export default class DatasetRepository {
       `
   }
 
+  /*
   static async uniqueDefaultName(owner) {
     const query = `
       MATCH (d:Dataset)<-[:OWNER]-(o:Organization)
@@ -163,6 +167,7 @@ export default class DatasetRepository {
 
     return `New Dataset ${maxIndex + 1}`
   }
+  */
 
   static async isUnique(dataset) {
     const query = [`

@@ -4,7 +4,7 @@ import { storeFS, runTransformation } from '../../lib/util'
 import { pubsub, withFilter } from '../pubsub'
 import * as TransformationRepository from '../../domain/repositories/transformationRepository'
 import DatasetRepository from '../../domain/repositories/datasetRepository'
-import OrganizationRepository from '../../domain/repositories/organizationRepository'
+import Organization from '../../domain/models/organization'
 
 // TODO: Move this to a real memcached or similar service and actually tie it to the
 // current user
@@ -112,8 +112,12 @@ export default {
   },
   Mutation: {
     async createDataset(_, { name, owner }, context) {
-      const org = await OrganizationRepository.get(owner)
-      return DatasetRepository.create(context, { name, owner: org })
+      // TODO: context.user.createDataset(org, { name })
+      const org = await Organization.get(owner)
+      if (await org.canCreateDatasets(context.user)) {
+        return org.createDataset({ name })
+      }
+      return null
     },
     async deleteDataset(_, { id }, context) {
       return DatasetRepository.delete(context, id)

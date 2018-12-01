@@ -4,8 +4,13 @@ import Column from './column'
 
 import Storage from '../../storage'
 import { fullDatasetPath, csvFromStream } from '../../lib/util'
+import canAccessDataset from '../policies/canAccessDataset'
 
 class Dataset extends Base {
+  static async getByName(organization, name) {
+    return organization.datasetByName(name)
+  }
+
   constructor(node) {
     super(node)
   }
@@ -50,6 +55,10 @@ class Dataset extends Base {
     } catch(err) {
       console.log(err)
     }
+  }
+
+  canAccess(user) {
+    return canAccessDataset(user, this)
   }
 }
 
