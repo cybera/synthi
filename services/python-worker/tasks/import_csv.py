@@ -40,6 +40,7 @@ if 'removeExisting' in params:
 csv_parse_params = data_import.csv_params(params)
 df = storage.read_csv(dataset['path'], params=csv_parse_params)
 data_import.ensure_column_names(df)
+storage.write_csv(df, f"{dataset['uuid']}/imported.csv")
 
 columns = data_import.column_info(df)
 
