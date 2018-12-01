@@ -1,5 +1,5 @@
 import { safeQuery } from '../../neo4j/connection'
-import Dataset from '../models/dataset'
+import Dataset from '../models/dataset-old'
 import canAccessDataset from '../policies/canAccessDataset'
 import utils from './utils'
 

@@ -1,21 +1,17 @@
-import Base from './base'
-import Organization from './organization'
-import Column from './column'
-
+import fs from 'fs'
+import csvParse from 'csv-parse/lib/sync'
 import Storage from '../../storage'
 import { fullDatasetPath, csvFromStream } from '../../lib/util'
 
-class Dataset extends Base {
-  constructor(node) {
-    super(node)
-  }
-
-  async columns() {
-    return this.relatedMany('<-[:BELONGS_TO]-', Column, 'column')
-  }
-
-  async owner() {
-    return this.relatedOne('<-[:OWNER]-', Organization, 'owner')
+export default class Dataset {
+  constructor(id, name, path, owner, computed = false, generating = false, columns = []) {
+    this.id = id
+    this.name = name
+    this.path = path
+    this.owner = owner
+    this.computed = computed
+    this.generating = generating
+    this.columns = columns
   }
 
   fullPath() {
@@ -52,7 +48,3 @@ class Dataset extends Base {
     }
   }
 }
-
-Dataset.label = 'Dataset'
-
-export default Dataset

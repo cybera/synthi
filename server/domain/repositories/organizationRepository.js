@@ -1,5 +1,5 @@
 import { safeQuery } from '../../neo4j/connection'
-import Organization from '../models/organization'
+import Organization from '../models/organization-old'
 import utils from './utils'
 
 export default class OrganizationRepository {
