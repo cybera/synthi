@@ -111,6 +111,7 @@ class Login extends React.Component {
           [homeOrg] = currentUser.orgs
         }
         props.navigation.setOrg(homeOrg.id)
+        props.client.resetStore()
       })
     }).catch((err) => {
       console.log(err)
