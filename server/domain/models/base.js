@@ -1,4 +1,5 @@
 import { safeQuery } from '../../neo4j/connection'
+import lodash from 'lodash'
 
 class Base {
   constructor(node) {
@@ -95,6 +96,17 @@ class Base {
 
   canAccess(user) {
     return true
+  }
+
+  async save() {
+    const saveValues = lodash.pick(this, this.constructor.saveProperties)
+
+    const query = [`
+      MATCH (node:${this.constructor.label} { uuid: $node.uuid })
+      SET node += $saveValues
+    `, { node: this, saveValues }]
+
+    await safeQuery(...query)
   }
 }
 

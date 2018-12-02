@@ -76,5 +76,6 @@ class Organization extends Base {
 }
 
 Organization.label = 'Organization'
+Organization.saveProperties = []
 
 export default Organization

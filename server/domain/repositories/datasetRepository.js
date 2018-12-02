@@ -67,6 +67,7 @@ export default class DatasetRepository {
   }
   */
 
+  /*
   static async save(context, dataset) {
     if (!canAccessDataset(context.user, dataset)) {
       throw new Error('Not authorized')
@@ -88,6 +89,7 @@ export default class DatasetRepository {
 
     await safeQuery(...query)
   }
+  */
 
   static async delete(context, dataset) {
     if (typeof (dataset) === 'number') {
@@ -169,6 +171,7 @@ export default class DatasetRepository {
   }
   */
 
+  /*
   static async isUnique(dataset) {
     const query = [`
       MATCH (d:Dataset { name: $dataset.name })<-[:OWNER]-(o:Organization)
@@ -179,7 +182,8 @@ export default class DatasetRepository {
 
     return results.length === 0
   }
-
+  */
+  /*
   static async datasetConnections(dataset) {
     const query = `MATCH (root:Dataset)
     WHERE ID(root) = toInteger($id)
@@ -210,4 +214,5 @@ export default class DatasetRepository {
     const connections = await safeQuery(query, { id: dataset.id })
     return JSON.stringify(connections)
   }
+  */
 }
