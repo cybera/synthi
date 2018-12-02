@@ -108,6 +108,7 @@ class App extends React.Component {
     this.state = {
       currentDataset: null,
       currentMode: 'datasets',
+      currentOrg: 0
     }
 
     try {
