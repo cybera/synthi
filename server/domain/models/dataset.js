@@ -1,5 +1,6 @@
 import Base from './base'
 import Organization from './organization'
+import Transformation from './transformation'
 import Column from './column'
 
 import Storage from '../../storage'
@@ -22,6 +23,10 @@ class Dataset extends Base {
 
   async owner() {
     return this.relatedOne('<-[:OWNER]-', Organization, 'owner')
+  }
+
+  async inputTransformation() {
+    return this.relatedOne('<-[:OUTPUT]-', Transformation, 'transformation')
   }
 
   fullPath() {

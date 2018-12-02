@@ -13,10 +13,11 @@ export const runTransformation = async (dataset) => {
   const ch = await conn.createChannel()
   await ch.assertQueue('python-worker', { durable: false })
 
+  const owner = await dataset.owner()
   const msg = {
     task: 'generate',
     id: dataset.id,
-    ownerName: dataset.owner.name
+    ownerName: owner.name
   }
 
   ch.sendToQueue('python-worker', Buffer.from(JSON.stringify(msg)))

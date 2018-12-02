@@ -26,6 +26,7 @@ export default class DatasetRepository {
     return canAccessDataset(context.user, dataset) ? dataset : null
   }
   */
+  /*
   static async getAll(context, searchString) {
     const query = [this.buildQuery('', searchString !== undefined)]
     if (searchString) {
@@ -35,7 +36,7 @@ export default class DatasetRepository {
     const datasets = await Promise.all(results.map(d => utils.createDataset(d)))
     return datasets.filter(d => canAccessDataset(context.user, d))
   }
-
+  */
   /*
   static async create(context, data) {
     let { name } = data
@@ -117,6 +118,7 @@ export default class DatasetRepository {
     return dataset
   }
 
+  /*
   static buildQuery(where, indexSearch) {
     // If indexSearch is true, instead of trying to match among all the datasets,
     // we add an APOC call to do an index search and return only the subset of
@@ -150,7 +152,7 @@ export default class DatasetRepository {
         o AS owner
       `
   }
-
+  */
   /*
   static async uniqueDefaultName(owner) {
     const query = `

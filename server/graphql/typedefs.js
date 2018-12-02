@@ -70,6 +70,12 @@ input DatasetMetadataInput {
   ${DatasetMetadata}
 }
 
+input OrganizationID {
+  id: Int
+  uuid: String
+  name: String
+}
+
 type Dataset {
   id: Int!
   uuid: String!
@@ -103,7 +109,7 @@ type Plot {
 }
 
 type Query {
-  dataset(id: Int, name: String, searchString: String): [Dataset]
+  dataset(id: Int, name: String, searchString: String, org:OrganizationID): [Dataset]
   plots(id: Int): [Plot]
   uploads: [File]
   currentUser: User

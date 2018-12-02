@@ -3,10 +3,15 @@ import Dataset from './dataset'
 import User from './user'
 
 import { safeQuery } from '../../neo4j/connection'
+import Query from '../../neo4j/query'
 
 class Organization extends Base {
   constructor(node) {
     super(node)
+  }
+
+  async datasets(searchString, searchIndex = 'DefaultDatasetSearchIndex') {
+    return this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
   }
 
   datasetByName(name) {
@@ -73,6 +78,25 @@ class Organization extends Base {
 
     return results.length === 1
   }
+
+  /* eslint-disable class-methods-use-this */
+  allDatasetsQuery() {
+    const allDatasetsQuery = new Query(Dataset, 'dataset')
+    allDatasetsQuery.addPart(({ searchString }) => {
+      if (searchString) {
+        return `
+          CALL apoc.index.search($searchIndex, $searchString)
+          YIELD node AS searchResult
+          MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO]-(dataset:Dataset)
+          MATCH (dataset)<-[:OWNER]-(:Organization { uuid: $organization.uuid })
+        `
+      }
+      return 'MATCH (dataset:Dataset)<-[:OWNER]-(:Organization { uuid: $organization.uuid })'
+    })
+
+    return allDatasetsQuery
+  }
+  /* eslint-enable class-methods-use-this */
 }
 
 Organization.label = 'Organization'

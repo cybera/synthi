@@ -72,8 +72,6 @@ class Base {
       MATCH (node)${relation}(${name}:${ModelClass.label} ${relatedPropQueryString})
       RETURN ${name}
     `
-    console.log(query)
-    console.log(params)
 
     return safeQuery(query, params)
   }
