@@ -31,7 +31,6 @@ const styles = (theme) => ({
 
 const ConnectedPanel = (props) => {
   const { classes, id } = props
-  const { id } = props
 
   return (
     <Query query={datasetQuery} variables={{ id }}>
