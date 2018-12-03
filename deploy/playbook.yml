@@ -24,7 +24,7 @@
     - name: write nginx site configuration
       template:
         src: templates/site.j2
-        dest: /etc/nginx/sites-enabled/adi
+        dest: /etc/nginx/sites-enabled/default
       notify:
         - restart nginx
     - name: write docker daemon configuration

@@ -1,4 +1,6 @@
 import os
+import sys
+import json
 from contextlib import contextmanager
 
 from neo4j.v1 import GraphDatabase
@@ -25,3 +27,7 @@ def load_transform(script_path, dataset_input, dataset_output):
   storage.cleanup_script_module(transform_mod)
 
   return transform_mod
+
+def parse_params():
+  msg = sys.argv[1]
+  return json.loads(msg)

@@ -38,12 +38,14 @@ Switch to the remote Docker host:
 eval "$(docker-machine env adi-<environment>)"
 ```
 
-If an ADI config doesn't already exist, it'll need to be created:
+If an ADI config doesn't already exist, it'll need to be created (edit it accordingly before creating the config in Docker):
 
 ```
 cp ../config/development.toml.example production.toml
 docker config create production.toml production.toml
 ```
+
+Also run `cp neo4j.env.example neo4j.env` and change `password` to the value from `production.toml`:
 
 Now deploy the stack:
 
@@ -64,6 +66,7 @@ docker exec -ti adi_python-worker.1.$(docker service ps adi_python-worker -q --n
 Production uses the same images as development, but `docker stack deploy` only allows images to be pulled from a registry so they have to be pushed to Docker Hub:
 
 ```
+bin/build-client
 docker-compose build
 docker push cybera/adi-server
 docker push cybera/adi-neo4j

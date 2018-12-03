@@ -8,11 +8,12 @@ import json
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import status_channel, queue_conn
+from common import status_channel, queue_conn, parse_params
 from generate import generate_dataset
 
-dataset_id = int(sys.argv[1])
-owner_name = sys.argv[2]
+params = parse_params()
+dataset_id = params['id']
+owner_name = params['ownerName']
 
 # We need a more robust job queue... one where jobs can schedule other jobs and
 # wait on jobs they schedule to finish before finishing themselves. Since we don't

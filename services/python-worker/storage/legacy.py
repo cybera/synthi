@@ -7,9 +7,9 @@ import pandas as pd
 
 DATA_ROOT = config.storage.legacy.dataRoot
 
-def read_csv(relative_path):
+def read_csv(relative_path, params=dict()):
   abs_path = os.path.join(DATA_ROOT, 'datasets', relative_path)
-  return pd.read_csv(abs_path)
+  return pd.read_csv(abs_path, **params)
 
 def write_csv(df, relative_path):
   abs_path = os.path.join(DATA_ROOT, 'datasets', relative_path)

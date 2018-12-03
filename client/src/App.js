@@ -117,17 +117,19 @@ class App extends React.Component {
     this.state = {
       currentDataset: null,
       currentMode: 'datasets',
-      currentOrg: null,
+      currentOrg: 0,
       user: null,
       loading: true
     }
 
     try {
       const user = JSON.parse(localStorage.getItem('user'))
-      const org = user.orgs.find(o => o.name === user.username)
+      if (user && user.orgs) {
+        const org = user.orgs.find(o => o.name === user.username)
 
-      this.state.user = user
-      this.state.currentOrg = org.id
+        this.state.user = user
+        this.state.currentOrg = org.id
+      }
     } catch (error) {
       console.log(error)
     }

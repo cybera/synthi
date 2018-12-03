@@ -13,13 +13,13 @@ export const CurlBlock = (props) => {
 
   const downloadCode = `curl -s ${host}/dataset/${dataset.id} \\
 -H "Authorization: Api-Key ${apikey}" \\
->${dataset.name}.csv`
+>"${dataset.name}.csv"`
 
   const columnNamesCode = `curl -s ${host}/graphql \\
 -X POST \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Api-Key ${apikey}" \\
---data @- << EOS >${dataset.name}.columns.json
+--data @- << EOS >"${dataset.name}.columns.json"
 {
   "query": "{
     dataset(id: ${dataset.id}) {
@@ -37,7 +37,7 @@ EOS`
 -X POST \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Api-Key ${apikey}" \\
---data @- << EOS >${dataset.name}.metadata.json
+--data @- << EOS >"${dataset.name}.metadata.json"
 {
   "query": "{
     dataset(id: ${dataset.id}) {

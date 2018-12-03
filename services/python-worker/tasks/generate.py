@@ -10,8 +10,8 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import neo4j_driver, status_channel, queue_conn
-from common import load_transform
+from common import neo4j_driver, status_channel, queue_conn, parse_params
+from common import load_transform, parse_params
 
 import storage
 
@@ -125,5 +125,6 @@ def generate_dataset(generate_id, owner_name):
   status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
 
 if __name__ == "__main__":
-  generate_dataset(int(sys.argv[1]), sys.argv[2])
+  params = parse_params()
+  generate_dataset(params['id'], params['ownerName'])
   queue_conn.close()
