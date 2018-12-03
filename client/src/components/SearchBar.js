@@ -6,10 +6,10 @@ import MUISearchBar from 'material-ui-search-bar'
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing.unit * 2.5,
     marginBottom: theme.spacing.unit,
-    marginLeft: theme.spacing.unit / 2,
-    marginRight: theme.spacing.unit,
+    marginLeft: theme.spacing.unit * 2.5,
+    marginRight: theme.spacing.unit * 2.5,
     // TODO: Some way to directly base this on button height?
     height: 40
   },
@@ -20,10 +20,11 @@ const styles = theme => ({
 })
 
 const SearchBar = (props) => {
-  const { onRequestSearch, onCancelSearch, classes } = props
+  const { onRequestSearch, onCancelSearch, onChange, classes } = props
   return (
     <MUISearchBar
       classes={classes}
+      onChange={onChange}
       onRequestSearch={onRequestSearch}
       onCancelSearch={onCancelSearch}
     />
@@ -31,8 +32,9 @@ const SearchBar = (props) => {
 }
 
 SearchBar.propTypes = {
-  onRequestSearch: PropTypes.func.isRequired,
+  onRequestSearch: PropTypes.func,
   onCancelSearch: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   classes: PropTypes.object.isRequired // eslint-disable-line react/forbid-prop-types
 }
 

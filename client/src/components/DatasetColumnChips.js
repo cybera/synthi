@@ -20,7 +20,6 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit * 2
   },
   chip: {
-    margin: theme.spacing.unit / 2,
   }
 })
 
@@ -29,21 +28,20 @@ const DatasetColumnChips = (props) => {
 
   return (
     <Paper className={classes.root}>
-      <Grid container spacing={24}>
-        <Grid item xs={12}>
-          <Typography variant="subheading" gutterBottom>Columns:</Typography>
-        </Grid>
-        <Grid item xs={12}>
-          {columns.map(({ id, name, visible }) => (
+      <Typography variant="subheading">Columns:</Typography>
+      <Grid container spacing={2}>
+        {columns.map(({ id, name, visible }) => (
+          <Grid item>
             <Chip
               clickable
               color={visible ? 'primary' : 'default'}
               onClick={() => toggleColumnVisibility(id)}
               label={name}
               key={id}
+              className={classes.chip}
             />
-          ))}
-        </Grid>
+          </Grid>
+        ))}
       </Grid>
     </Paper>
   )
