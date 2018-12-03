@@ -1,3 +1,5 @@
+import { AuthenticationError } from 'apollo-server-express'
+
 import { sendToWorkerQueue } from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import { storeFS, runTransformation } from '../../lib/util'
@@ -43,6 +45,10 @@ const processDatasetUpdate = async (datasetProps, context) => {
 
   // TODO: access control
   let dataset = await Dataset.get(id)
+
+  if (!dataset.canAccess(context.user)) {
+    throw new AuthenticationError('Operation not allowed on this resource')
+  }
 
   if (file) {
     const { stream, filename } = await file
@@ -132,17 +138,28 @@ export default {
     async createDataset(_, { name, owner }, context) {
       // TODO: context.user.createDataset(org, { name })
       const org = await Organization.get(owner)
+      if (!await org.canAccess(context.user)) {
+        throw new AuthenticationError('You cannot create datasets for this organization')
+      }
+
       if (await org.canCreateDatasets(context.user)) {
         return org.createDataset({ name })
       }
       return null
     },
     async deleteDataset(_, { id }, context) {
-      const dataset = Dataset.get(id)
-      return dataset.delete()
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
+      await dataset.delete()
+      return dataset
     },
     async importCSV(_, { id, removeExisting, options }, context) {
       const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
       // Only allow importing if the user can access the dataset in the first place
       if (dataset) {
         sendToWorkerQueue({
@@ -165,6 +182,9 @@ export default {
     },
     async generateDataset(_, { id }, context) {
       const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
       dataset.generating = true
       await dataset.save()
       runTransformation(dataset)
@@ -177,6 +197,9 @@ export default {
     },
     async saveInputTransformation(_, { id, code }, context) {
       const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
       return TransformationRepository.saveInputTransformation(context, dataset, code)
     }
   },

@@ -54,14 +54,6 @@ class Dataset extends Base {
     return Storage.createReadStream('datasets', this.path)
   }
 
-  deleteDataset() {
-    try {
-      Storage.remove('datasets', this.path)
-    } catch(err) {
-      console.log(err)
-    }
-  }
-
   async canAccess(user) {
     const owner = await this.owner()
     const orgs = await user.orgs()
@@ -117,6 +109,22 @@ class Dataset extends Base {
 
     const connections = await safeQuery(query, this)
     return JSON.stringify(connections)
+  }
+
+  async delete() {
+    const query = [`
+      MATCH (d:Dataset)
+      WHERE ID(d) = toInteger($dataset.id)
+      OPTIONAL MATCH (d)<--(c:Column)
+      OPTIONAL MATCH (t:Transformation)-[:OUTPUT]->(d)
+      DETACH DELETE d, c, t`, { dataset: this }]
+    safeQuery(...query)
+
+    try {
+      Storage.remove('datasets', this.path)
+    } catch(err) {
+      console.log(err)
+    }
   }
 }
 

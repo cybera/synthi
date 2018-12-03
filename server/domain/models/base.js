@@ -109,6 +109,13 @@ class Base {
 
     await safeQuery(...query)
   }
+
+  async delete() {
+    const query = [`
+      MATCH (node:${this.__label} { uuid: $node.uuid })
+      DETACH DELETE node`, { node: this }]
+    safeQuery(...query)
+  }
 }
 
 export default Base

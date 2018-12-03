@@ -91,7 +91,7 @@ export default class DatasetRepository {
     await safeQuery(...query)
   }
   */
-
+  /*
   static async delete(context, dataset) {
     if (typeof (dataset) === 'number') {
       dataset = await this.get(context, dataset)
@@ -117,7 +117,7 @@ export default class DatasetRepository {
 
     return dataset
   }
-
+  */
   /*
   static buildQuery(where, indexSearch) {
     // If indexSearch is true, instead of trying to match among all the datasets,
