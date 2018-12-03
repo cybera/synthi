@@ -166,7 +166,12 @@ apolloServer.applyMiddleware({ app })
 
 app.post('/login',
   passport.authenticate('local'),
-  (req, res) => res.json({ user: req.user }))
+  async (req, res) => {
+    const passbackUser = {}
+    Object.assign(passbackUser, req.user)
+    passbackUser.orgs = await req.user.orgs()
+    res.json({ user: passbackUser })
+  })
 
 app.get('/logout', (req, res) => { req.logout(); res.send('Logged out') })
 
