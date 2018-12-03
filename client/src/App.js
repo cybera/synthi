@@ -119,7 +119,7 @@ class App extends React.Component {
       currentMode: 'datasets',
       currentOrg: 0,
       user: null,
-      loading: true
+      loading: false
     }
 
     try {
