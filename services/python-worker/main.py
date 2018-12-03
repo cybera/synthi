@@ -22,11 +22,11 @@ def callback(ch, method, properties, body):
   params = json.loads(msg)
   process_path = os.path.join(WORKER_ROOT, 'tasks', f"{params['task']}.py")
 
-  process_params = [f"{params['id']}"]
-  if 'ownerName' in params:
-    process_params.append(params['ownerName'])
+  # Not really sure we can guarantee that the json we get is safe to pass as a
+  # single string, so re-encode the python object before passing to the process
+  encoded_params = json.dumps(params)
 
-  Popen([process_path, *process_params])
+  Popen([process_path, json.dumps(params)])
 
   sys.stdout.flush()
 

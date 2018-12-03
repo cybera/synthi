@@ -5,7 +5,7 @@ import { Query } from 'react-apollo'
 import { datasetListQuery } from '../queries'
 
 const withDatasets = Component => (props) => {
-  let { searchString } = props
+  let { searchString, organization } = props
 
   if (!searchString) {
     searchString = undefined
@@ -15,7 +15,7 @@ const withDatasets = Component => (props) => {
     <Query
       query={datasetListQuery}
       pollInterval={5000}
-      variables={{ searchString }}
+      variables={{ searchString, org: organization }}
     >
       {({ loading, error, data }) => {
         if (loading) return <p>Loading...</p>;

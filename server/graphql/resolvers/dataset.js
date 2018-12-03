@@ -1,10 +1,13 @@
+import { AuthenticationError } from 'apollo-server-express'
+
 import { sendToWorkerQueue } from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import { storeFS, runTransformation } from '../../lib/util'
 import { pubsub, withFilter } from '../pubsub'
 import * as TransformationRepository from '../../domain/repositories/transformationRepository'
 import DatasetRepository from '../../domain/repositories/datasetRepository'
-import OrganizationRepository from '../../domain/repositories/organizationRepository'
+import Organization from '../../domain/models/organization'
+import Dataset from '../../domain/models/dataset'
 
 // TODO: Move this to a real memcached or similar service and actually tie it to the
 // current user
@@ -39,7 +42,13 @@ const processDatasetUpload = async (name, upload, context) => {
 
 const processDatasetUpdate = async (datasetProps, context) => {
   const { id, file, computed, name } = datasetProps
-  let dataset = await DatasetRepository.get(context, id)
+
+  // TODO: access control
+  let dataset = await Dataset.get(id)
+
+  if (!dataset.canAccess(context.user)) {
+    throw new AuthenticationError('Operation not allowed on this resource')
+  }
 
   if (file) {
     const { stream, filename } = await file
@@ -49,7 +58,7 @@ const processDatasetUpdate = async (datasetProps, context) => {
       dataset.path = path
       dataset.computed = false
 
-      await DatasetRepository.save(context, dataset)
+      await dataset.save()
       sendToWorkerQueue({
         task: 'import_csv',
         id: dataset.id
@@ -72,7 +81,7 @@ const processDatasetUpdate = async (datasetProps, context) => {
   }
 
   if (changed) {
-    await DatasetRepository.save(context, dataset)
+    await dataset.save()
   }
 
   return dataset
@@ -80,43 +89,87 @@ const processDatasetUpdate = async (datasetProps, context) => {
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
+const findOrganization = async (org) => {
+  if (!org) return null
+
+  const { id, uuid, name } = org
+
+  if (typeof uuid !== 'undefined') {
+    return Organization.getByUuid(uuid)
+  }
+
+  if (typeof id !== 'undefined') {
+    return Organization.get(org.id)
+  }
+
+  if (typeof name !== 'undefined') {
+    return Organization.getByName(org.name)
+  }
+
+  return null
+}
+
 export default {
   Query: {
-    async dataset(_, { id, name, searchString }, context) {
+    async dataset(_, { id, name, searchString, org }, context) {
       let datasets = []
 
-      if (id != null) datasets.push(await DatasetRepository.get(context, id))
-      else if (name != null) datasets.push(await DatasetRepository.getByName(context, name))
-      else datasets = await DatasetRepository.getAll(context, searchString)
+      const organization = await findOrganization(org)
+
+      if (id != null) datasets.push(await Dataset.get(id))
+      else if (name != null) datasets.push(await Dataset.getByName(organization, name))
+      else datasets = await organization.datasets(searchString)
 
       return datasets
     },
   },
   Dataset: {
     async columns(dataset) {
-      return dataset.columns.map(c => ({ ...c, visible: columnVisible(c) }))
+      const columns = await dataset.columns()
+      return columns.map(c => ({ ...c, visible: columnVisible(c) }))
     },
-    async samples(dataset) {
-      return dataset.samples()
-    },
-    async rows(dataset) {
-      return dataset.rows()
-    },
-    inputTransformation(dataset, _, context) {
-      return TransformationRepository.inputTransformation(context, dataset)
-    },
-    async connections(dataset) {
-      const results = await DatasetRepository.datasetConnections(dataset)
-      return results
-    }
+    samples: dataset => dataset.samples(),
+    rows: dataset => dataset.rows(),
+    owner: dataset => dataset.owner(),
+    inputTransformation: dataset => dataset.inputTransformation(),
+    connections: dataset => dataset.connections()
   },
   Mutation: {
     async createDataset(_, { name, owner }, context) {
-      const org = await OrganizationRepository.get(owner)
-      return DatasetRepository.create(context, { name, owner: org })
+      // TODO: context.user.createDataset(org, { name })
+      const org = await Organization.get(owner)
+      if (!await org.canAccess(context.user)) {
+        throw new AuthenticationError('You cannot create datasets for this organization')
+      }
+
+      if (await org.canCreateDatasets(context.user)) {
+        return org.createDataset({ name })
+      }
+      return null
     },
     async deleteDataset(_, { id }, context) {
-      return DatasetRepository.delete(context, id)
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
+      await dataset.delete()
+      return dataset
+    },
+    async importCSV(_, { id, removeExisting, options }, context) {
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
+      // Only allow importing if the user can access the dataset in the first place
+      if (dataset) {
+        sendToWorkerQueue({
+          task: 'import_csv',
+          id,
+          removeExisting,
+          ...options
+        })
+      }
+      return dataset
     },
     uploadDataset: (_, { name, file }, context) => processDatasetUpload(name, file, context),
     updateDataset: (_, props, context) => processDatasetUpdate(props, context),
@@ -128,9 +181,12 @@ export default {
       { jsondef }).then(results => results[0])
     },
     async generateDataset(_, { id }, context) {
-      const dataset = await DatasetRepository.get(context, id)
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
       dataset.generating = true
-      await DatasetRepository.save(context, dataset)
+      await dataset.save()
       runTransformation(dataset)
       return dataset
     },
@@ -140,7 +196,10 @@ export default {
       return visibleColumnCache[id].visible
     },
     async saveInputTransformation(_, { id, code }, context) {
-      const dataset = await DatasetRepository.get(context, id)
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
       return TransformationRepository.saveInputTransformation(context, dataset, code)
     }
   },
