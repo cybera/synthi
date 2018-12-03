@@ -6,6 +6,8 @@ class Base {
     if (!this.constructor.label) {
       throw Error('Subclass requires a .label to be set on the class before use')
     }
+    this.__label = this.constructor.label
+    this.__saveProperties = this.constructor.saveProperties
     this.id = node.identity
     Object.assign(this, node.properties)
   }
@@ -46,13 +48,13 @@ class Base {
 
   async relatedRaw(relation, ModelClass, name, relatedProps = {}) {
     let identityMatch = `
-      MATCH (node:${this.constructor.label} { uuid: $node.uuid })
+      MATCH (node:${this.__label} { uuid: $node.uuid })
     `
 
     if (!this.uuid) {
       console.log('Deprecated: All models should have a uuid. Falling back to id.')
       identityMatch = `
-        MATCH (node:${this.constructor.label})
+        MATCH (node:${this.__label})
         WHERE ID(node) = toInteger($node.id)
       `
     }
@@ -92,15 +94,16 @@ class Base {
     return []
   }
 
-  canAccess(user) {
+  async canAccess(user) {
+    console.log('This should be implemented in a subclass')
     return true
   }
 
   async save() {
-    const saveValues = lodash.pick(this, this.constructor.saveProperties)
+    const saveValues = lodash.pick(this, this.__saveProperties)
 
     const query = [`
-      MATCH (node:${this.constructor.label} { uuid: $node.uuid })
+      MATCH (node:${this.__label} { uuid: $node.uuid })
       SET node += $saveValues
     `, { node: this, saveValues }]
 

@@ -6,13 +6,6 @@ const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 
 class User extends Base {
-  // constructor(id, username, password = null, orgs = [], apikey) {
-  //   this.id = id
-  //   this.username = username
-  //   this.password = password
-  //   this.orgs = orgs
-  //   this.apikey = apikey
-  // }
   static async getByUsername(username) {
     const query = `
       MATCH (node:${this.label} { username: $username })
@@ -51,6 +44,14 @@ class User extends Base {
       WHERE ID(u) = toInteger($id)
       SET u.apikey = $apikey
     `, { id, apikey })
+  }
+
+  canAccess(user, field) {
+    const protectedFields = ['apikey', 'password']
+    if (protectedFields.includes(field)) {
+      return user.uuid === this.uuid
+    }
+    return true
   }
 }
 

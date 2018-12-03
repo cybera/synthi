@@ -5,7 +5,6 @@ import Column from './column'
 
 import Storage from '../../storage'
 import { fullDatasetPath, csvFromStream } from '../../lib/util'
-import canAccessDataset from '../policies/canAccessDataset'
 import { safeQuery } from '../../neo4j/connection'
 
 class Dataset extends Base {
@@ -63,8 +62,11 @@ class Dataset extends Base {
     }
   }
 
-  canAccess(user) {
-    return canAccessDataset(user, this)
+  async canAccess(user) {
+    const owner = await this.owner()
+    const orgs = await user.orgs()
+    const match = orgs.find(org => org.uuid === owner.uuid)
+    return typeof match !== 'undefined'
   }
 
   async save() {

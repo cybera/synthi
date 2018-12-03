@@ -65,7 +65,6 @@ class Organization extends Base {
   }
 
   async members() {
-    // TODO: Refactor the User model to make this work
     return this.relatedMany('<-[:MEMBER]-', User, 'user')
   }
 
@@ -77,6 +76,12 @@ class Organization extends Base {
     const results = await safeQuery(query, { user, organization: this })
 
     return results.length === 1
+  }
+
+  async canAccess(user) {
+    const orgs = await user.orgs()
+    const match = orgs.find(org => org.uuid === this.uuid)
+    return typeof match !== 'undefined'
   }
 
   /* eslint-disable class-methods-use-this */

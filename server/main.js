@@ -22,6 +22,7 @@ import { graphqlUploadExpress } from 'graphql-upload'
 
 import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
+import schemaDirectives from './graphql/directives'
 
 import { startQueue, prepareDownload } from './lib/queue'
 import User from './domain/models/user'
@@ -131,6 +132,7 @@ app.use((req, res, next) => {
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
+  schemaDirectives,
   context: ({ req }) => {
     // TODO: Actual websocket authentication
     if (req) {
@@ -177,10 +179,9 @@ app.get('/whoami', (req, res) => {
 })
 
 app.get('/dataset/:id', async (req, res) => {
-  // TODO: access permissions
   const dataset = await Dataset.get(req.params.id)
 
-  if (dataset) {
+  if (dataset && await dataset.canAccess(req.user)) {
     prepareDownload(dataset, () => {
       res.attachment(`${dataset.name}.csv`)
       dataset.readStream().pipe(res)

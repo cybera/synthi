@@ -109,9 +109,6 @@ export default {
       let datasets = []
 
       const organization = await findOrganization(org)
-      const user = context.user
-      // TODO: Make sure user is part of org
-
 
       if (id != null) datasets.push(await Dataset.get(id))
       else if (name != null) datasets.push(await Dataset.getByName(organization, name))

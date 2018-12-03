@@ -33,8 +33,8 @@ const processUpload = async (upload) => {
 const mainResolvers = {
   Query: {
     async currentUser(_, params, context) {
-      console.log(context)
-      return User.get(context.user.id)
+      const user = await User.get(context.user.id)
+      return user
     }
   },
   Mutation: {

@@ -32,6 +32,8 @@ enum FrequencyUnit {
   months
 }
 
+directive @authCanAccess on OBJECT | FIELD_DEFINITION
+
 type File {
   id: ID!
   path: String!
@@ -76,7 +78,7 @@ input OrganizationID {
   name: String
 }
 
-type Dataset {
+type Dataset @authCanAccess {
   id: Int!
   uuid: String!
   name: String!
@@ -92,8 +94,7 @@ type Dataset {
   connections: String
 }
 
-
-type Transformation {
+type Transformation @authCanAccess {
   id: Int!
   uuid: String!
   name: String
@@ -115,7 +116,7 @@ type Query {
   currentUser: User
 }
 
-type Organization {
+type Organization @authCanAccess {
   id: Int!
   uuid: String!
   name: String!
@@ -127,7 +128,7 @@ type User {
   uuid: String!
   username: String!
   organizations: [Organization]
-  apikey: String
+  apikey: String @authCanAccess
 }
 
 input CSVImportOptions {
