@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = {
   entry: {
-    app: './src/index.js'
+    app: ['@babel/polyfill', './src/index.js']
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

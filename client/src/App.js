@@ -1,29 +1,26 @@
-import React from "react";
+import React from 'react';
+import { hot } from 'react-hot-loader'
 
-import ApolloClient from "apollo-client";
-import { HttpLink, InMemoryCache, ApolloLink } from 'apollo-boost';
-import { ApolloProvider } from "react-apollo";
+import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import CircularProgress from '@material-ui/core/CircularProgress';
+import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
+import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
 
+import ApolloClient from 'apollo-client';
+import { InMemoryCache, ApolloLink } from 'apollo-boost';
+import { ApolloProvider } from 'react-apollo';
 import { createUploadLink } from 'apollo-upload-client'
+import { WebSocketLink } from 'apollo-link-ws';
+import { split } from 'apollo-link';
+import { getMainDefinition } from 'apollo-utilities';
 
 import DatasetDetails from './components/DatasetDetails'
 import ChartEditor from './containers/ChartEditor'
 import Scenarios from './components/Scenarios'
 import StyledLogin from './components/Login'
 import Notifier from './components/Notifier'
-
 import AppBar from './components/AppBar'
-
 import NavigationContext from './context/NavigationContext'
-
-import { withStyles } from '@material-ui/core/styles'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
-import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
-import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
-
-import { WebSocketLink } from 'apollo-link-ws';
-import { split } from 'apollo-link';
-import { getMainDefinition } from 'apollo-utilities';
 
 let uri
 
@@ -40,7 +37,7 @@ const wsLink = new WebSocketLink({
   }
 });
 
-const httpLink = ApolloLink.from([createUploadLink({ uri: "/graphql", credentials: 'include' })])
+const httpLink = ApolloLink.from([createUploadLink({ uri: '/graphql', credentials: 'include' })])
 
 // using the ability to split links, you can send data to each link
 // depending on what kind of operation is being sent
@@ -58,10 +55,8 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
   // Apparently "new HttpLink()" isn't necessary anymore:
   // https://stackoverflow.com/questions/49507035/how-to-use-apollo-link-http-with-apollo-upload-client
-  link: link
+  link
 })
-
-import { hot } from 'react-hot-loader'
 
 const theme = createMuiTheme({
   palette: {
@@ -74,32 +69,46 @@ const theme = createMuiTheme({
   },
 })
 
-const styles = theme => ({
+const styles = () => ({
   root: {
     marginTop: 64
   },
   appRoot: {
     flexGrow: 1
+  },
+  progress: {
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 50,
   }
 });
 
 function MainComponent(props) {
   const { mode, dataset } = props
 
-  if (mode == 'datasets') {
-    return <DatasetDetails id={dataset}/>
-  } else if (mode == 'chart-editor') {
-    return <ChartEditor datasetID={dataset}/>
-  } else if (mode == 'scenarios') {
-    return <Scenarios/>
-  } else {
-    return <div>Empty</div>
-  }
+  if (mode === 'datasets') return <DatasetDetails id={dataset} />
+  if (mode === 'chart-editor') return <ChartEditor datasetID={dataset} />
+  if (mode === 'scenarios') return <Scenarios />
+
+  return <div>Empty</div>
 }
 
-const StyledMainComponent = withStyles(styles)(props => <div className={props.classes.root}>
-  <MainComponent {...props} />
-</div>)
+const StyledMainComponent = withStyles(styles)(props => (
+  <div className={props.classes.root}>
+    <MainComponent {...props} />
+  </div>
+))
+
+const StyledCircularProgress = withStyles(styles)((props) => {
+  const { classes } = props;
+
+  return (
+    <div>
+      <CircularProgress className={classes.progress} />
+    </div>
+  )
+})
 
 class App extends React.Component {
   constructor(props) {
@@ -108,19 +117,44 @@ class App extends React.Component {
     this.state = {
       currentDataset: null,
       currentMode: 'datasets',
-      currentOrg: 0
+      currentOrg: 0,
+      user: null,
+      loading: true
     }
 
     try {
       const user = JSON.parse(localStorage.getItem('user'))
       if (user && user.orgs) {
-        const org = user.orgs.find(org => org.name === user.username)
+        const org = user.orgs.find(o => o.name === user.username)
 
         this.state.user = user
         this.state.currentOrg = org.id
       }
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  async componentDidMount() {
+    const { user } = this.state
+
+    if (!user) return
+
+    this.setState({ loading: true })
+
+    const res = await fetch('/whoami', { credentials: 'include' })
+    const body = res.text()
+
+    if (body === 'not logged in') {
+      this.setState({
+        user: null,
+        currentOrg: null,
+        currentDataset: null,
+        loading: false
+      })
+      localStorage.removeItem('user')
+    } else {
+      this.setState({ loading: false })
     }
   }
 
@@ -133,10 +167,14 @@ class App extends React.Component {
   setOrg = org => this.setState({ currentOrg: org })
 
   render() {
-    const { user, currentMode, currentDataset, currentOrg } = this.state
+    const { loading, user, currentMode, currentDataset, currentOrg } = this.state
     let mainComponent
 
-    if (user) {
+    if (loading) {
+      mainComponent = (
+        <StyledCircularProgress />
+      )
+    } else if (user) {
       mainComponent = (
         <AppBar>
           <StyledMainComponent
@@ -148,14 +186,15 @@ class App extends React.Component {
     } else {
       mainComponent = <StyledLogin />
     }
+
     return (
       <ApolloProvider client={client}>
         <NavigationContext.Provider
           value={{
-            currentMode: currentMode,
-            currentDataset: currentDataset,
-            currentOrg: currentOrg,
-            user: user,
+            currentMode,
+            currentDataset,
+            currentOrg,
+            user,
             switchMode: this.switchMode,
             selectDataset: this.selectDataset,
             setUser: this.setUser,
