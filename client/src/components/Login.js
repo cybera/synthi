@@ -24,6 +24,7 @@ const currentUserQuery = gql`
       id
       uuid
       username
+      apikey
       organizations {
         id
         uuid
