@@ -1,15 +1,29 @@
 import { safeQuery } from '../../neo4j/connection'
+import Base from './base'
+import Organization from './organization'
 
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 
-export default class User {
-  constructor(id, username, password = null, orgs = [], apikey) {
-    this.id = id
-    this.username = username
-    this.password = password
-    this.orgs = orgs
-    this.apikey = apikey
+class User extends Base {
+  static async getByUsername(username) {
+    const query = `
+      MATCH (node:${this.label} { username: $username })
+      RETURN node
+    `
+    return this.getByUniqueMatch(query, { username })
+  }
+
+  static async getByAPIKey(apikey) {
+    const query = `
+      MATCH (node:${this.label} { apikey: $apikey })
+      RETURN node
+    `
+    return this.getByUniqueMatch(query, { apikey })
+  }
+
+  async orgs() {
+    return this.relatedMany('-[:MEMBER]->', Organization, 'organization')
   }
 
   async hashPassword(password) {
@@ -31,4 +45,17 @@ export default class User {
       SET u.apikey = $apikey
     `, { id, apikey })
   }
+
+  canAccess(user, field) {
+    const protectedFields = ['apikey', 'password']
+    if (protectedFields.includes(field)) {
+      return user.uuid === this.uuid
+    }
+    return true
+  }
 }
+
+User.label = 'User'
+User.saveProperties = ['apikey', 'username', 'password']
+
+export default User

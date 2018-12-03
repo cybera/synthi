@@ -4,15 +4,18 @@ import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
 import { compose } from '../../lib/common'
-import { withNavigation } from '../../context/NavigationContext'
+
 import Panel from './Panel'
 import Paper from '@material-ui/core/Paper'
 
 export const datasetQuery = gql`
-query ($id: Int) {
+query DatasetAndAPIKey ($id: Int) {
   dataset(id: $id) {
     id
     name
+  }
+  currentUser {
+    apikey
   }
 }
 `
@@ -27,7 +30,8 @@ const styles = (theme) => ({
 })
 
 const ConnectedPanel = (props) => {
-  const { classes, id, navigation } = props
+  const { classes, id } = props
+  const { id } = props
 
   return (
     <Query query={datasetQuery} variables={{ id }}>
@@ -39,7 +43,7 @@ const ConnectedPanel = (props) => {
           return(
             <div className={classes.root}>
               <Paper>
-                <Panel dataset={data.dataset[0]} apikey={navigation.user.apikey} />
+                <Panel dataset={data.dataset[0]} apikey={data.currentUser.apikey} />
               </Paper>
             </div>
           )
@@ -50,6 +54,5 @@ const ConnectedPanel = (props) => {
 }
 
 export default compose(
-  withNavigation,
   withStyles(styles)
 )(ConnectedPanel)

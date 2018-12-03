@@ -55,7 +55,7 @@ class Sidebar extends React.Component {
   }
 
   render() {
-    const { classes, open } = this.props
+    const { classes, open, navigation } = this.props
     const { searchString } = this.state
 
     return(
@@ -81,7 +81,7 @@ class Sidebar extends React.Component {
             />
             <NewDatasetButton />
           </div>
-          <DatasetList searchString={searchString} />
+          <DatasetList searchString={searchString} organization={{ id: navigation.currentOrg }} />
         </Drawer>
     )
   }

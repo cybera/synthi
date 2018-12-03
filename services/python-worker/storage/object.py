@@ -25,11 +25,11 @@ def object_store():
   return conn.object_store
 
 
-def read_csv(relative_path):
+def read_csv(relative_path, params=dict()):
   container = config.storage.object.containers['datasets']
   obj = object_store().download_object(relative_path, container)
   bio = BytesIO(obj)
-  return pd.read_csv(bio)
+  return pd.read_csv(bio, **params)
 
 def write_csv(df, relative_path):
   container = config.storage.object.containers['datasets']

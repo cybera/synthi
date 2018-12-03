@@ -57,10 +57,12 @@ export const saveInputTransformation = async (context, dataset, code) => {
       await safeQuery(...setDefaultPathQuery)
     }
 
+    const owner = await dataset.owner()
+
     sendToWorkerQueue({
       task: 'register_transformation',
       id: transformation.id,
-      ownerName: dataset.owner.name
+      ownerName: owner.name
     })
 
     return transformation

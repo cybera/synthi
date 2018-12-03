@@ -1,0 +1,11 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$(dirname $SCRIPT_DIR)"
+
+rm -rf "$PROJECT_DIR/client/dist"
+rm -rf "$PROJECT_DIR/server/dist"
+
+cd $PROJECT_DIR/client
+npm run dist
+cp -r dist "$PROJECT_DIR/server/"

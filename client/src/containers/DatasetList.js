@@ -8,7 +8,7 @@ import SearchEmptyState from '../components/SearchEmptyState'
 import SearchLoadingState from '../components/SearchLoadingState'
 
 const withDatasets = Component => (props) => {
-  let { searchString } = props
+  let { searchString, organization } = props
 
   if (!searchString) {
     searchString = undefined
@@ -18,7 +18,7 @@ const withDatasets = Component => (props) => {
     <Query
       query={datasetListQuery}
       pollInterval={5000}
-      variables={{ searchString }}
+      variables={{ searchString, org: organization }}
     >
       {({ loading, error, data }) => {
         if (loading && searchString) return <SearchLoadingState content="Searching datasets..." />

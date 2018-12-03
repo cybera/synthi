@@ -22,10 +22,11 @@ import { graphqlUploadExpress } from 'graphql-upload'
 
 import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
+import schemaDirectives from './graphql/directives'
 
 import { startQueue, prepareDownload } from './lib/queue'
-import UserRepository from './domain/repositories/userRepository'
-import DatasetRepository from './domain/repositories/datasetRepository'
+import User from './domain/models/user'
+import Dataset from './domain/models/dataset'
 import { checkConfig } from './lib/startup-checks'
 
 
@@ -48,11 +49,11 @@ const authenticateUser = async ({ username, password, apikey }) => {
   let valid = false
 
   if (apikey) {
-    user = await UserRepository.getByAPIKey(apikey)
+    user = await User.getByAPIKey(apikey)
     if (user) user.viaAPI = true
     valid = true
   } else {
-    user = await UserRepository.getByUsername(username)
+    user = await User.getByUsername(username)
     if (user) user.viaAPI = false
     valid = user && await user.validPassword(password)
   }
@@ -90,7 +91,7 @@ passport.deserializeUser(async (id, done) => {
   console.log(`deserializeUser: ${id}`)
   let user
   try {
-    user = await UserRepository.get(id)
+    user = await User.get(id)
     if (!user) {
       return done(new Error('User not found'))
     }
@@ -131,6 +132,7 @@ app.use((req, res, next) => {
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
+  schemaDirectives,
   context: ({ req }) => {
     // TODO: Actual websocket authentication
     if (req) {
@@ -177,9 +179,9 @@ app.get('/whoami', (req, res) => {
 })
 
 app.get('/dataset/:id', async (req, res) => {
-  const dataset = await DatasetRepository.get({ user: req.user }, req.params.id)
+  const dataset = await Dataset.get(req.params.id)
 
-  if (dataset) {
+  if (dataset && await dataset.canAccess(req.user)) {
     prepareDownload(dataset, () => {
       res.attachment(`${dataset.name}.csv`)
       dataset.readStream().pipe(res)

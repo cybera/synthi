@@ -6,7 +6,7 @@ import transformationsResolvers from './resolvers/transformations'
 import datasetMetadataResolvers from './resolvers/datasetMetadata'
 import columnResolvers from './resolvers/column'
 import generalResolvers from './resolvers/general'
-import UserRepository from '../domain/repositories/userRepository'
+import User from '../domain/models/user'
 
 import { storeFS } from '../lib/util'
 
@@ -33,16 +33,20 @@ const processUpload = async (upload) => {
 const mainResolvers = {
   Query: {
     async currentUser(_, params, context) {
-      return UserRepository.get(context.user.id)
+      const user = await User.get(context.user.id)
+      return user
     }
   },
   Mutation: {
     uploadFile: (_, { file }) => processUpload(file),
     regenerateAPIKey: async (_, params, context) => {
-      const user = await UserRepository.get(context.user.id)
+      const user = await User.get(context.user.id)
       user.regenerateAPIKey()
       return user
     }
+  },
+  User: {
+    organizations: user => user.orgs()
   }
 }
 

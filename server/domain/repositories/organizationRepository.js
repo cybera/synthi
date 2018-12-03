@@ -1,8 +1,9 @@
 import { safeQuery } from '../../neo4j/connection'
-import Organization from '../models/organization'
+import Organization from '../models/organization-old'
 import utils from './utils'
 
 export default class OrganizationRepository {
+  /*
   static async get(id) {
     const query = [`MATCH (o:Organization)<-[:MEMBER]-(u:User)
       WHERE ID(o) = toInteger($id)
@@ -19,6 +20,7 @@ export default class OrganizationRepository {
 
     return utils.createOrg(result)
   }
+  */
 
   static async getAll(context) {
     const user = { context }

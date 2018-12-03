@@ -32,6 +32,8 @@ enum FrequencyUnit {
   months
 }
 
+directive @authCanAccess on OBJECT | FIELD_DEFINITION
+
 type File {
   id: ID!
   path: String!
@@ -70,7 +72,13 @@ input DatasetMetadataInput {
   ${DatasetMetadata}
 }
 
-type Dataset {
+input OrganizationID {
+  id: Int
+  uuid: String
+  name: String
+}
+
+type Dataset @authCanAccess {
   id: Int!
   uuid: String!
   name: String!
@@ -86,8 +94,7 @@ type Dataset {
   connections: String
 }
 
-
-type Transformation {
+type Transformation @authCanAccess {
   id: Int!
   uuid: String!
   name: String
@@ -103,13 +110,13 @@ type Plot {
 }
 
 type Query {
-  dataset(id: Int, name: String, searchString: String): [Dataset]
+  dataset(id: Int, name: String, searchString: String, org:OrganizationID): [Dataset]
   plots(id: Int): [Plot]
   uploads: [File]
   currentUser: User
 }
 
-type Organization {
+type Organization @authCanAccess {
   id: Int!
   uuid: String!
   name: String!
@@ -121,12 +128,19 @@ type User {
   uuid: String!
   username: String!
   organizations: [Organization]
-  apikey: String
+  apikey: String @authCanAccess
+}
+
+input CSVImportOptions {
+  header: Boolean,
+  delimiter: String,
+  customDelimiter: String
 }
 
 type Mutation {
   createDataset(name: String, owner: Int): Dataset
   deleteDataset(id: Int!): Dataset
+  importCSV(id: Int!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
   updateDataset(id: Int!, file:Upload, computed:Boolean, name:String): Dataset
