@@ -18,8 +18,7 @@ const uploadDatasetGQL = gql`
 `
 
 const DatasetUploadButton = (props) => {
-  const { dataset } = props
-  const { id } = dataset
+  const { id } = props
 
   return (
     <Mutation mutation={uploadDatasetGQL}>

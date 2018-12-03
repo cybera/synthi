@@ -34,7 +34,7 @@ class OrgSelector extends React.Component {
   handleChange = (event) => {
     const { navigation } = this.props
     navigation.setOrg(event.target.value)
-    navigation.selectDataset(null)
+    navigation.selectDataset(null, null)
   }
 
   populateOrgs = orgs => orgs.map(org => (

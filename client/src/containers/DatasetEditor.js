@@ -14,12 +14,16 @@ import SaveTransformationButton from './SaveTransformationButton'
 const styles = theme => ({
   editorButton: {
     marginRight: theme.spacing.unit
+  },
+  buttonsRight: {
+    textAlign: 'right'
   }
 })
 
 class DatasetEditor extends React.Component {
   static propTypes = {
-    dataset: PropTypes.object // eslint-disable-line react/forbid-prop-types
+    dataset: PropTypes.object,
+    dataExists: PropTypes.bool // eslint-disable-line react/forbid-prop-types
   }
 
   static defaultProps = {
@@ -34,41 +38,49 @@ class DatasetEditor extends React.Component {
   transformationCode = () => this.transformationEditor.current.state.code
 
   render() {
-    const { dataset, classes } = this.props
+    const { dataset, classes, dataExists } = this.props
 
     return (
-      <div>
+      <div className={classes.root}>
         <ToggleVisibility visible={!dataset.computed}>
           <span className={classes.editorButton}>
-            <DatasetUploadButton dataset={dataset} />
+            <DatasetUploadButton id={dataset.id} />
           </span>
         </ToggleVisibility>
-        <span className={classes.editorButton}>
-          <DatasetDownloadButton dataset={dataset} />
-        </span>
-        <ToggleVisibility visible={dataset.computed}>
-          <span className={classes.editorButton}>
-            <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
-          </span>
-        </ToggleVisibility>
-        <DatasetGenerator>
-          {({ generateDataset }) => dataset.computed && (
-            <span className={classes.editorButton}>
-              <ADIButton
-                disabled={dataset.generating}
-                onClick={() => generateDataset(dataset.id)}
-              >
-                Generate!
-              </ADIButton>
-            </span>
-          )}
-        </DatasetGenerator>
+
         <ToggleVisibility visible={dataset.computed}>
           <TransformationEditor
             dataset={dataset}
             ref={this.transformationEditor}
           />
         </ToggleVisibility>
+
+        <ToggleVisibility visible={dataExists}>
+          <span className={classes.editorButton}>
+            <DatasetDownloadButton dataset={dataset} />
+          </span>
+        </ToggleVisibility>
+
+        <div className={classes.buttonsRight}>
+          <ToggleVisibility visible={dataset.computed}>
+            <span className={classes.editorButton}>
+              <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
+            </span>
+          </ToggleVisibility>
+
+          <DatasetGenerator>
+            {({ generateDataset }) => dataset.computed && (
+              <span>
+                <ADIButton
+                  disabled={dataset.generating}
+                  onClick={() => generateDataset(dataset.id)}
+                >
+                  Generate!
+                </ADIButton>
+              </span>
+            )}
+          </DatasetGenerator>
+        </div>
       </div>
     )
   }

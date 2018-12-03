@@ -66,7 +66,7 @@ const theme = createMuiTheme({
     secondary: {
       main: '#303f9f',
     },
-  },
+  }
 })
 
 const styles = () => ({
@@ -160,14 +160,14 @@ class App extends React.Component {
 
   switchMode = mode => this.setState({ currentMode: mode })
 
-  selectDataset = id => this.setState({ currentDataset: id })
+  selectDataset = (id, name) => this.setState({ currentDataset: id, currentName: name })
 
   setUser = user => this.setState({ user })
 
   setOrg = org => this.setState({ currentOrg: org })
 
   render() {
-    const { loading, user, currentMode, currentDataset, currentOrg } = this.state
+    const { loading, user, currentMode, currentDataset, currentName, currentOrg } = this.state
     let mainComponent
 
     if (loading) {
@@ -195,6 +195,7 @@ class App extends React.Component {
             currentDataset,
             currentOrg,
             user,
+            currentName,
             switchMode: this.switchMode,
             selectDataset: this.selectDataset,
             setUser: this.setUser,

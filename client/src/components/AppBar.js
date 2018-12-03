@@ -30,6 +30,8 @@ const styles = (theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    boxShadow: 'none',
+    borderBottom: 'solid 1px #e2e2e2'
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
@@ -54,7 +56,6 @@ const styles = (theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing.unit * 3,
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
