@@ -103,27 +103,30 @@ class Login extends React.Component {
       }
       return response.json()
     }).then((obj) => {
-      props.navigation.setUser(obj.user)
-      localStorage.setItem('user', JSON.stringify(obj.user))
-      let homeOrg = obj.user.orgs.find(o => o.name === obj.user.username)
-      if (!homeOrg) {
-        [homeOrg] = obj.user.orgs
-      }
-      props.navigation.setOrg(homeOrg.id)
+      // NOTE: This may be required again at some point, but now that the issue here:
+      // https://github.com/apollographql/apollo-client/issues/4125
+      // has been resolved, it looks like I can roll back some rollbacks.
+      // props.navigation.setUser(obj.user)
+      // localStorage.setItem('user', JSON.stringify(obj.user))
+      // let homeOrg = obj.user.orgs.find(o => o.name === obj.user.username)
+      // if (!homeOrg) {
+      //   [homeOrg] = obj.user.orgs
+      // }
+      // props.navigation.setOrg(homeOrg.id)
       // Now that we have a proper session established, let's grab a proper
       // current user object.
-      // props.client.query({ query: currentUserQuery }).then(({ data }) => {
-      //   const { currentUser } = data
-      //   currentUser.orgs = currentUser.organizations
-      //   props.navigation.setUser(currentUser)
-      //   localStorage.setItem('user', JSON.stringify(currentUser))
-      //   let homeOrg = currentUser.orgs.find(o => o.name === currentUser.username)
-      //   if (!homeOrg) {
-      //     [homeOrg] = currentUser.orgs
-      //   }
-      //   props.navigation.setOrg(homeOrg.id)
-      //   props.client.resetStore()
-      // })
+      props.client.query({ query: currentUserQuery }).then(({ data }) => {
+        const { currentUser } = data
+        currentUser.orgs = currentUser.organizations
+        props.navigation.setUser(currentUser)
+        localStorage.setItem('user', JSON.stringify(currentUser))
+        let homeOrg = currentUser.orgs.find(o => o.name === currentUser.username)
+        if (!homeOrg) {
+          [homeOrg] = currentUser.orgs
+        }
+        props.navigation.setOrg(homeOrg.id)
+        props.client.resetStore()
+      })
     }).catch((err) => {
       console.log(err)
       openSnackbar({ message: 'Login failed' })

@@ -167,10 +167,14 @@ apolloServer.applyMiddleware({ app })
 app.post('/login',
   passport.authenticate('local'),
   async (req, res) => {
-    const passbackUser = {}
-    Object.assign(passbackUser, req.user)
-    passbackUser.orgs = await req.user.orgs()
-    res.json({ user: passbackUser })
+    // NOTE: This may be required again at some point, but now that the issue here:
+    // https://github.com/apollographql/apollo-client/issues/4125
+    // has been resolved, it looks like I can roll back some rollbacks.
+    // const passbackUser = {}
+    // Object.assign(passbackUser, req.user)
+    // passbackUser.orgs = await req.user.orgs()
+    // res.json({ user: passbackUser })
+    res.json({ user: req.user })
   })
 
 app.get('/logout', (req, res) => { req.logout(); res.send('Logged out') })
