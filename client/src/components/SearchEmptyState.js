@@ -29,11 +29,15 @@ const styles = theme => ({
   },
   heading: {
     color: theme.palette.secondary.main
+  },
+  subheading: {
+    paddingLeft: 20,
+    paddingRight: 20
   }
 })
 
 const SearchEmptyState = (props) => {
-  const { classes } = props
+  const { classes, text } = props
   return (
     <div className={classes.root}>
       <div className={classes.svgContainer}>
@@ -42,15 +46,16 @@ const SearchEmptyState = (props) => {
       <Typography variant="subheading" guttertop="true" className={classes.heading}>
         There&apos;s nothing here.
       </Typography>
-      <Typography variant="body1">
-        Your search did not return any results.
+      <Typography variant="body1" className={classes.subheading}>
+        { text }
       </Typography>
     </div>
   )
 }
 
 SearchEmptyState.propTypes = {
-  classes: PropTypes.objectOf(PropTypes.any).isRequired
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  text: PropTypes.string.isRequired
 }
 
 export default withStyles(styles)(SearchEmptyState)

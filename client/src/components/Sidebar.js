@@ -1,19 +1,21 @@
 import React from 'react'
-import { withNavigation } from '../context/NavigationContext'
-import { withStyles } from '@material-ui/core/styles'
-import { compose } from '../lib/common'
+import PropTypes from 'prop-types'
 
-import DatasetList from './DatasetList'
+import { withStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
 import Divider from '@material-ui/core/Divider';
-import NewDatasetButton from '../containers/NewDatasetButton'
 import IconButton from '@material-ui/core/IconButton'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
+
+import { withNavigation } from '../context/NavigationContext'
+import { compose } from '../lib/common'
 import SearchBar from './SearchBar'
+import NewDatasetButton from '../containers/NewDatasetButton'
+import DatasetList from './DatasetList'
 
 const drawerWidth = 300
 
-const styles = (theme) => ({
+const styles = theme => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
@@ -44,47 +46,57 @@ const styles = (theme) => ({
 class Sidebar extends React.Component {
   constructor(props) {
     super(props)
-  }
 
-  state = {
-    searchString: undefined
+    this.state = {
+      searchString: undefined
+    }
+
+    this.onToggle = this.onToggle.bind(this)
   }
 
   onToggle() {
-    this.props.handleSidebarToggle()
+    const { handleSidebarToggle } = this.props
+    handleSidebarToggle()
   }
 
   render() {
     const { classes, open, navigation } = this.props
     const { searchString } = this.state
 
-    return(
+    return (
       <Drawer
-          className={classes.drawer}
-          variant="persistent"
-          anchor="left"
-          open={open}
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-        >
-          <div className={classes.drawerHeader}>
-            <IconButton onClick={this.onToggle.bind(this)}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </div>
-          <Divider />
-          <div className={classes.searchHeader}>
-            <SearchBar
-              onChange={value => this.setState({ searchString: value })}
-              onCancelSearch={() => this.setState({ searchString: undefined })}
-            />
-            <NewDatasetButton />
-          </div>
-          <DatasetList searchString={searchString} organization={{ id: navigation.currentOrg }} />
-        </Drawer>
+        className={classes.drawer}
+        variant="persistent"
+        anchor="left"
+        open={open}
+        classes={{
+          paper: classes.drawerPaper,
+        }}
+      >
+        <div className={classes.drawerHeader}>
+          <IconButton onClick={this.onToggle}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </div>
+        <Divider />
+        <div className={classes.searchHeader}>
+          <SearchBar
+            onChange={value => this.setState({ searchString: value })}
+            onCancelSearch={() => this.setState({ searchString: undefined })}
+          />
+          <NewDatasetButton />
+        </div>
+        <DatasetList searchString={searchString} organization={{ id: navigation.currentOrg }} />
+      </Drawer>
     )
   }
+}
+
+Sidebar.propTypes = {
+  handleSidebarToggle: PropTypes.func.isRequired,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  open: PropTypes.bool.isRequired,
+  navigation: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 export default compose(

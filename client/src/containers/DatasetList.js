@@ -8,7 +8,8 @@ import SearchEmptyState from '../components/SearchEmptyState'
 import SearchLoadingState from '../components/SearchLoadingState'
 
 const withDatasets = Component => (props) => {
-  let { searchString, organization } = props
+  let { searchString } = props
+  const { organization } = props
 
   if (!searchString) {
     searchString = undefined
@@ -28,8 +29,12 @@ const withDatasets = Component => (props) => {
         const availableDatasets = data.dataset
         const available = availableDatasets.length > 0
 
-        if (available) return <Component {...props} datasets={availableDatasets} searchString={searchString} />
-        return(<SearchEmptyState />)
+        if (available) {
+          return <Component {...props} datasets={availableDatasets} searchString={searchString} />
+        }
+        if (searchString) return <SearchEmptyState text="Your search did not return any results." />
+
+        return <SearchEmptyState text="You haven't added any datasets yet." />
       }}
     </Query>
   )
