@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import TextField from '@material-ui/core/TextField'
 import { withStyles } from '@material-ui/core/styles'
@@ -122,14 +123,20 @@ const styles = theme => ({
 })
 
 const LocalDatePicker = (props) => {
-  const { label, value, onChange, className } = props
+  const {
+    label,
+    value,
+    onChange,
+    className
+  } = props
+
   return (
     <DatePicker
       keyboard
       label={label}
       format="yyyy/MM/dd"
       placeholder="2018/10/10"
-      mask={value => (value ? [/\d/, /\d/, /\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/ ] : [])}
+      mask={valueToMask => (valueToMask ? [/\d/, /\d/, /\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/] : [])}
       value={value}
       onChange={onChange}
       disableOpenOnEnter
@@ -137,6 +144,17 @@ const LocalDatePicker = (props) => {
       animateYearScrolling={false}
     />
   )
+}
+
+LocalDatePicker.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  className: PropTypes.string
+}
+
+LocalDatePicker.defaultProps = {
+  className: ''
 }
 
 class DatasetMetadata extends React.Component {
@@ -159,19 +177,23 @@ class DatasetMetadata extends React.Component {
     }
   }
 
-  state = {
-    edited: false,
-    // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
-    fields: this.props.fields
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      edited: false,
+      // See https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
+      fields: props.fields
+    }
   }
 
   handleChange = convertEvent => name => (event) => {
-    let fields = { ...this.state.fields }
+    const { fields } = this.state
 
     fields[name] = convertEvent(event)
 
     this.setState({
-      fields: fields,
+      fields,
       edited: true
     })
   }
@@ -194,7 +216,7 @@ class DatasetMetadata extends React.Component {
 
   // handleDateChange = name => (date) => {
   //   let fields = { ...this.state.fields }
-  
+
   //   fields[name] = date.getTime()
 
   //   this.setState({
@@ -205,11 +227,12 @@ class DatasetMetadata extends React.Component {
 
   handleSave = (mutation) => {
     const { id } = this.props
+    const { fields } = this.state
 
     mutation({
       variables: {
         id,
-        metadata: this.state.fields
+        metadata: fields
       }
     })
 
@@ -220,7 +243,7 @@ class DatasetMetadata extends React.Component {
 
   render() {
     const { id, classes, saveMutation } = this.props
-    const { fields } = this.state
+    const { fields, edited } = this.state
 
     return (
       <div className={classes.root}>
@@ -306,7 +329,7 @@ class DatasetMetadata extends React.Component {
               </Grid>
               <Grid item xs={12}>
                 <div className={classes.updateSection}>
-                  <FormControl className={classes.formControl} style={{marginTop: 23}}>
+                  <FormControl className={classes.formControl} style={{ marginTop: 23 }}>
                     <FormControlLabel
                       control={(
                         <Checkbox
@@ -327,7 +350,7 @@ class DatasetMetadata extends React.Component {
                     onChange={this.handleIntChange('updateFrequencyAmount', parseInt)}
                     margin="normal"
                   />
-                  <FormControl className={classes.formControl} style={{verticalAlign:'bottom', marginBottom:8}}>
+                  <FormControl className={classes.formControl} style={{ verticalAlign: 'bottom', marginBottom: 8 }}>
                     <Select
                       value={fields.updateFrequencyUnit}
                       onChange={this.handleStringChange('updateFrequencyUnit')}
@@ -366,7 +389,7 @@ class DatasetMetadata extends React.Component {
                   margin="normal"
                 />
               </Grid>
-              <Grid item xs={12} style={{paddingRight: 120}}>
+              <Grid item xs={12} style={{ paddingRight: 120 }}>
                 <TextField
                   id="metadata-description"
                   label="Description"
@@ -381,9 +404,9 @@ class DatasetMetadata extends React.Component {
             </Grid>
           </form>
         </Paper>
-        <ADIButton 
-          onClick={() => this.handleSave(saveMutation)} 
-          disabled={!this.state.edited}
+        <ADIButton
+          onClick={() => this.handleSave(saveMutation)}
+          disabled={!edited}
           className={classes.saveButton}
         >
           Save Changes
@@ -392,6 +415,28 @@ class DatasetMetadata extends React.Component {
       </div>
     )
   }
+}
+
+DatasetMetadata.propTypes = {
+  fields: PropTypes.shape({
+    title: PropTypes.string,
+    contributor: PropTypes.string,
+    contact: PropTypes.string,
+    dateAdded: PropTypes.string,
+    dateCreated: PropTypes.string,
+    dateUpdated: PropTypes.string,
+    updates: PropTypes.bool,
+    updateFrequencyAmount: PropTypes.number,
+    updateFrequencyUnit: PropTypes.string,
+    format: PropTypes.string,
+    description: PropTypes.string,
+    source: PropTypes.string,
+    identifier: PropTypes.string,
+    theme: PropTypes.string
+  }),
+  id: PropTypes.number.isRequired,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  saveMutation: PropTypes.func.isRequired
 }
 
 const StyledDatasetMetadata = withStyles(styles)(DatasetMetadata)
@@ -434,5 +479,10 @@ const ConnectedDatasetMetadata = (props) => {
     </Mutation>
   )
 }
+
+ConnectedDatasetMetadata.propTypes = {
+  id: PropTypes.number.isRequired
+}
+
 
 export default ConnectedDatasetMetadata
