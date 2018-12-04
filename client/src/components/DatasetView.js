@@ -113,6 +113,7 @@ class DatasetView extends React.Component {
         } else {
           this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
         }
+        console.log("hello")
         refetch()
         return prev
       }
@@ -149,7 +150,7 @@ class DatasetView extends React.Component {
     const dataExists = selectedColumns.length > 0
 
     if (!dataExists && !dataset.computed) {
-      return(
+      return (
         <div className={classes.root}>
           <div className={classes.empty}>
             <div className={classes.svgContainer}>
@@ -200,7 +201,7 @@ const StyledDatasetView = compose(
   withNavigation,
   graphql(
     datasetViewQuery, {
-      options: (props) =>({
+      options: props => ({
         variables: { id: props.id },
         fetchPolicy: 'network-only'
       })

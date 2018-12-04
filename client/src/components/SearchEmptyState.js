@@ -1,9 +1,10 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import EmptySvg from './svg/Empty'
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
     marginTop: 50,
     textAlign: 'center',
@@ -31,23 +32,25 @@ const styles = (theme) => ({
   }
 })
 
-class SearchEmptyState extends React.Component {
-  render() {
-    const { classes } = this.props
-    return(
-      <div className={classes.root}>
-        <div className={classes.svgContainer}>
-          <EmptySvg color="#303f9f" className={classes.svg} />
-        </div>
-        <Typography variant="subheading" gutterTop className={classes.heading}>
-          There's nothing here.
-        </Typography>
-        <Typography variant="body1">
-          Your search did not return any results.
-        </Typography>
+const SearchEmptyState = (props) => {
+  const { classes } = props
+  return (
+    <div className={classes.root}>
+      <div className={classes.svgContainer}>
+        <EmptySvg color="#303f9f" className={classes.svg} />
       </div>
-    )
-  }
+      <Typography variant="subheading" guttertop="true" className={classes.heading}>
+        There&apos;s nothing here.
+      </Typography>
+      <Typography variant="body1">
+        Your search did not return any results.
+      </Typography>
+    </div>
+  )
+}
+
+SearchEmptyState.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 export default withStyles(styles)(SearchEmptyState)

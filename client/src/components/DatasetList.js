@@ -64,18 +64,6 @@ const nameSort = (a, b) => {
 }
 
 class DatasetList extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selectedDataset: {
-        id: null,
-        name: null
-      },
-      menuAnchor: null
-    }
-  }
-
   static propTypes = {
     classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     deleteDataset: PropTypes.func.isRequired,
@@ -94,11 +82,25 @@ class DatasetList extends React.Component {
     datasets: []
   }
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectedDataset: {
+        id: null,
+        name: null
+      },
+      menuAnchor: null
+    }
+
+    this.handleDelete = this.handleDelete.bind(this)
+  }
+
   handleDeleteDialog = (id, name) => {
     this.setState({
       selectedDataset: {
-        id: id,
-        name: name
+        id,
+        name
       }
     });
 
@@ -106,17 +108,17 @@ class DatasetList extends React.Component {
   }
 
   handleDelete = () => {
-    const { deleteDataset, navigation } = this.props;
-    const { id, name } = this.state.selectedDataset;
+    const { deleteDataset, navigation } = this.props
+    const { selectedDataset: { id, name } } = this.state
 
     deleteDataset({ 
-      variables: { id }, refetchQueries: [{ query: datasetListQuery }] 
+      variables: { id }, refetchQueries: [{ query: datasetListQuery }]
     }).then(() => {
-      openSnackbar({ message: `'${name}' was successfully removed.` });
+      openSnackbar({ message: `'${name}' was successfully removed.` })
     }).catch((err) => {
       openSnackbar({ message: err });
       console.log(err);
-    });
+    })
 
     if (id === navigation.currentDataset) {
       navigation.selectDataset(null, null)
@@ -129,12 +131,12 @@ class DatasetList extends React.Component {
 
     return (
       <List component="nav" className={classes.root}>
-        {searchString &&
+        {searchString && (
           <Typography variant="body1" className={classes.searchResults}>
-            Displaying <Pluralize singular="result" count={datasets.length} />
+            Displaying
+            <Pluralize singular="result" count={datasets.length} />
           </Typography>
-          
-        }
+        )}
         {datasets
           .filter(d => d.owner.id === navigation.currentOrg)
           .sort(nameSort)
@@ -163,7 +165,7 @@ class DatasetList extends React.Component {
                             Edit name
                           </MenuItem>
 
-                          <MenuItem 
+                          <MenuItem
                             onClick={() => {
                               popupState.close()
                               this.handleDeleteDialog(id, name)
@@ -181,10 +183,10 @@ class DatasetList extends React.Component {
           ))}
 
         <ConfirmationDialog
-          header={`Remove '${this.state.selectedDataset.name}'?`}
+          header={`Remove '${selectedDataset.name}'?`}
           content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
-          onClose={this.handleDelete.bind(this)}
-          onOpen={(onOpen) => this.onOpen = onOpen}
+          onClose={this.handleDelete}
+          onOpen={onOpen => this.onOpen = onOpen}
         />
       </List>
     )
