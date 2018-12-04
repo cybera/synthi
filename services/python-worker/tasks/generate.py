@@ -32,7 +32,7 @@ def generate_dataset(generate_id, owner_name):
 
     dataset_by_name_query = '''
     MATCH (d:Dataset { name: $name })<-[:OWNER]-(:Organization { name: $org })
-    RETURN d.path AS path
+    RETURN d.uuid AS uuid
     '''
     print(f"Finding '{name}' dataset.")
     results = tx.run(dataset_by_name_query, name=dataset_name, org=org)
@@ -42,7 +42,7 @@ def generate_dataset(generate_id, owner_name):
     if dataset is None:
       raise Exception(f"Dataset {name} not found")
 
-    return storage.read_csv(dataset['path'])
+    return storage.read_csv(f"{dataset['uuid']}/imported.csv")
 
   def dataset_output(name):
     # This is only needed so things don't break if this function is in a transformation
@@ -55,21 +55,20 @@ def generate_dataset(generate_id, owner_name):
     # it's not really necessary to figure that out again via the more brittle name lookup.
     columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
 
-    # TODO: Why is this returning five identical results?
     update_dataset_query = '''
       MATCH (dataset:Dataset { name: $name })<-[:OWNER]-(o:Organization)
       WHERE ID(o) = $owner
       WITH dataset
       UNWIND $columns AS column
       MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
-      WITH dataset
+      WITH DISTINCT dataset
       SET dataset.generating = false
-      RETURN ID(dataset) AS id, dataset.name AS name, dataset.path AS path
+      RETURN ID(dataset) AS id, dataset.name AS name, dataset.uuid AS uuid
     '''
     results = tx.run(update_dataset_query, owner=owner, name=output_name, columns=columns)
     dataset = results.single()
     print(f"Updating calculated '{output_name}' dataset.")
-    storage.write_csv(df, dataset['path'])
+    storage.write_csv(df, f"{dataset['uuid']}/imported.csv")
 
   find_transforms_query = '''
   MATCH full_path = (output:Dataset)<-[*]-(last)

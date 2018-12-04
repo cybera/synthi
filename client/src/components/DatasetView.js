@@ -13,6 +13,7 @@ import { datasetViewQuery } from '../queries'
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 import ToggleVisibility from './ToggleVisibility'
+import UploadParsingOptions from './upload-parsing'
 import DataTableView from './DataTableView'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetColumnChips from './DatasetColumnChips'
@@ -136,6 +137,7 @@ class DatasetView extends React.Component {
             className={classes.text}
           />
           <DatasetUploadButton id={id} />
+          <UploadParsingOptions id={id} error={error} />
         </div>
       )
     }

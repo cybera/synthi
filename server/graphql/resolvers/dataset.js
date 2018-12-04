@@ -1,11 +1,8 @@
 import { AuthenticationError } from 'apollo-server-express'
 
-import { sendToWorkerQueue } from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
-import { storeFS, runTransformation } from '../../lib/util'
 import { pubsub, withFilter } from '../pubsub'
 import * as TransformationRepository from '../../domain/repositories/transformationRepository'
-import DatasetRepository from '../../domain/repositories/datasetRepository'
 import Organization from '../../domain/models/organization'
 import Dataset from '../../domain/models/dataset'
 
@@ -20,54 +17,22 @@ const columnVisible = ({ id, order }) => {
   return visibleColumnCache[id].visible
 }
 
-const processDatasetUpload = async (name, upload, context) => {
-  const { stream, filename } = await upload
-  const { path } = await storeFS({ stream, filename })
-  let dataset
-
-  try {
-    dataset = await DatasetRepository.create(context, { name, path, computed: false })
-
-    sendToWorkerQueue({
-      task: 'import_csv',
-      id: dataset.id
-    })
-  } catch (e) {
-    // TODO: What should we do here?
-    console.log(e.message)
-  }
-
-  return dataset
-}
-
 const processDatasetUpdate = async (datasetProps, context) => {
-  const { id, file, computed, name } = datasetProps
+  const {
+    id,
+    file,
+    computed,
+    name
+  } = datasetProps
 
   // TODO: access control
-  let dataset = await Dataset.get(id)
+  const dataset = await Dataset.get(id)
 
   if (!dataset.canAccess(context.user)) {
     throw new AuthenticationError('Operation not allowed on this resource')
   }
 
-  if (file) {
-    const { stream, filename } = await file
-    const { path } = await storeFS({ stream, filename })
-
-    try {
-      dataset.path = path
-      dataset.computed = false
-
-      await dataset.save()
-      sendToWorkerQueue({
-        task: 'import_csv',
-        id: dataset.id
-      })
-    } catch (e) {
-      // TODO: What should we do here?
-      console.log(e.message)
-    }
-  }
+  if (file) dataset.upload(await file)
 
   let changed = false
   if (computed != null) {
@@ -162,16 +127,10 @@ export default {
       }
       // Only allow importing if the user can access the dataset in the first place
       if (dataset) {
-        sendToWorkerQueue({
-          task: 'import_csv',
-          id,
-          removeExisting,
-          ...options
-        })
+        dataset.importCSV(removeExisting, options)
       }
       return dataset
     },
-    uploadDataset: (_, { name, file }, context) => processDatasetUpload(name, file, context),
     updateDataset: (_, props, context) => processDatasetUpdate(props, context),
     createPlot(_, { jsondef }) {
       return safeQuery(`
@@ -187,7 +146,7 @@ export default {
       }
       dataset.generating = true
       await dataset.save()
-      runTransformation(dataset)
+      dataset.runTransformation()
       return dataset
     },
     toggleColumnVisibility(_, { id }) {
