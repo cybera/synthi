@@ -4,15 +4,9 @@ import Snackbar from '@material-ui/core/Snackbar'
 let openSnackbarFn
 
 export default class Notifier extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      open: false,
-      message: ''
-    }
-
-    this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
+  state = {
+    open: false,
+    message: ''
   }
 
   componentDidMount() {
@@ -34,7 +28,14 @@ export default class Notifier extends React.Component {
   }
 
   render() {
-    const { message, open } = this.state
+    const { state } = this
+
+    const message = (
+      <span
+        id="snackbar-message-id"
+        dangerouslySetInnerHTML={{ __html: state.message }}
+      />
+    )
 
     return (
       <Snackbar
@@ -42,15 +43,11 @@ export default class Notifier extends React.Component {
         message={message}
         autoHideDuration={3000}
         onClose={this.handleSnackbarClose}
-        open={open}
+        open={state.open}
         ContentProps={{
           'aria-describedby': 'snackbar-message-id'
         }}
-      >
-        <span id="snackbar-message-id">
-          {message}
-        </span>
-      </Snackbar>
+      />
     )
   }
 }
