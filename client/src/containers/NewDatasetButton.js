@@ -1,71 +1,57 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import Snackbar from '@material-ui/core/Snackbar'
 
-import gql from "graphql-tag"
-import { Mutation } from "react-apollo"
-import { compose } from '../lib/common'
+let openSnackbarFn
 
-import { withNavigation } from '../context/NavigationContext'
-import { datasetListQuery } from '../queries'
-import Button from '@material-ui/core/Button'
-import AddIcon from '@material-ui/icons/Add'
-
-const CREATE_DATASET = gql`
-  mutation CreateDataset($name: String, $owner: Int) {
-    createDataset(name: $name, owner: $owner) {
-      id
-      name
-    }
-  }
-`
-
-const styles = theme => ({
-  button: {
-    justifyContent: 'left',
-    marginBottom: 5,
-    width: '100%'
-  }
-})
- 
-class NewDatasetButton extends React.Component 
-{
-  constructor(props) {
-    super()
-    this.handleClick.bind(this)
+export default class Notifier extends React.Component {
+  state = {
+    open: false,
+    message: ''
   }
 
-  handleClick = (mutation) => {
-    const { navigation } = this.props
-    mutation().then(results => {
-      const { createDataset } = results.data
-      navigation.selectDataset(createDataset.id, createDataset.name)
+  componentDidMount() {
+    openSnackbarFn = this.openSnackbar
+  }
+
+  openSnackbar = ({ message }) => {
+    this.setState({
+      open: true,
+      message
     })
   }
-  
+
+  handleSnackbarClose = () => {
+    this.setState({
+      open: false,
+      message: ''
+    })
+  }
+
   render() {
-    const { navigation, classes } = this.props
+    const { state } = this
+
+    const message = (
+      <span
+        id="snackbar-message-id"
+        dangerouslySetInnerHTML={{ __html: state.message }}
+      />
+    )
 
     return (
-      <Mutation 
-        mutation={CREATE_DATASET}
-        variables={{ owner: navigation.currentOrg }}
-        refetchQueries={[{ query: datasetListQuery }]}>
-        {(mutate, { data }) => (
-          <Button 
-            className={classes.button}
-            onClick={() => this.handleClick(mutate)} 
-            color="primary"
-          >
-            <AddIcon />
-            Add New Dataset
-          </Button>
-        )}
-      </Mutation>
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        message={message}
+        autoHideDuration={3000}
+        onClose={this.handleSnackbarClose}
+        open={state.open}
+        ContentProps={{
+          'aria-describedby': 'snackbar-message-id'
+        }}
+      />
     )
   }
 }
 
-export default compose(
-  withNavigation,
-  withStyles(styles)
-)(NewDatasetButton)
+export function openSnackbar({ message }) {
+  openSnackbarFn({ message })
+}

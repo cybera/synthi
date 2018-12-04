@@ -481,7 +481,7 @@ const ConnectedDatasetMetadata = (props) => {
 }
 
 ConnectedDatasetMetadata.propTypes = {
-  id: PropTypes.number.isRequired
+  id: PropTypes.number
 }
 
 
