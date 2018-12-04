@@ -484,5 +484,9 @@ ConnectedDatasetMetadata.propTypes = {
   id: PropTypes.number
 }
 
+ConnectedDatasetMetadata.defaultProps = {
+  id: null
+}
+
 
 export default ConnectedDatasetMetadata
