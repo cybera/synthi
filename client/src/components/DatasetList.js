@@ -9,7 +9,6 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import IconButton from '@material-ui/core/IconButton'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
-import DeleteIcon from '@material-ui/icons/Delete'
 import { withStyles } from '@material-ui/core/styles'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -89,8 +88,7 @@ class DatasetList extends React.Component {
       selectedDataset: {
         id: null,
         name: null
-      },
-      menuAnchor: null
+      }
     }
 
     this.handleDelete = this.handleDelete.bind(this)
@@ -111,13 +109,12 @@ class DatasetList extends React.Component {
     const { deleteDataset, navigation } = this.props
     const { selectedDataset: { id, name } } = this.state
 
-    deleteDataset({ 
+    deleteDataset({
       variables: { id }, refetchQueries: [{ query: datasetListQuery }]
     }).then(() => {
       openSnackbar({ message: `'${name}' was successfully removed.` })
     }).catch((err) => {
       openSnackbar({ message: err });
-      console.log(err);
     })
 
     if (id === navigation.currentDataset) {
@@ -126,8 +123,14 @@ class DatasetList extends React.Component {
   }
 
   render() {
-    const { navigation, datasets, classes, searchString } = this.props;
-    const { menuAnchor, selectedDataset } = this.state
+    const {
+      navigation,
+      datasets,
+      classes,
+      searchString
+    } = this.props
+
+    const { selectedDataset } = this.state
 
     return (
       <List component="nav" className={classes.root}>
@@ -154,9 +157,7 @@ class DatasetList extends React.Component {
                     popupState => (
                       <React.Fragment>
                         <IconButton
-                          onClick={(event) => {
-                            popupState.open(event)
-                          }}
+                          {...bindTrigger(popupState)}
                         >
                           <MoreVertIcon />
                         </IconButton>
@@ -186,7 +187,7 @@ class DatasetList extends React.Component {
           header={`Remove '${selectedDataset.name}'?`}
           content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
           onClose={this.handleDelete}
-          onOpen={onOpen => this.onOpen = onOpen}
+          onOpen={(onOpen) => { this.onOpen = onOpen }}
         />
       </List>
     )

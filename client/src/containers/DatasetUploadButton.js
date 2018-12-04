@@ -26,9 +26,6 @@ const DatasetUploadButton = (props) => {
       mutation={uploadDatasetGQL}
       refetchQueries={[{ query: datasetViewQuery, variables: { id } }]}
       awaitRefetchQueries
-      update={(cache, data) => {
-        console.log("Data:", data)
-      }}
     >
       {(uploadFileMutation, { loading }) => (
         <UploadFile

@@ -5,9 +5,8 @@ import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import IconButton from '@material-ui/core/IconButton'
-import ChartIcon from '@material-ui/icons/ShowChart'
 import LinearProgress from '@material-ui/core/LinearProgress'
+import Paper from '@material-ui/core/Paper'
 
 import { datasetViewQuery } from '../queries'
 import { withNavigation } from '../context/NavigationContext'
@@ -16,7 +15,6 @@ import ToggleVisibility from './ToggleVisibility'
 import DataTableView from './DataTableView'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetColumnChips from './DatasetColumnChips'
-import Paper from '@material-ui/core/Paper'
 import WarningBanner from './WarningBanner'
 import DatasetUploadButton from '../containers/DatasetUploadButton'
 import DatasetComputeModeButton from '../containers/DatasetComputeModeButton'
@@ -84,7 +82,8 @@ class DatasetView extends React.Component {
   static propTypes = {
     navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired,
     id: PropTypes.number,
-    classes: PropTypes.object.isRequired // eslint-disable-line react/forbid-prop-types
+    classes: PropTypes.objectOf(PropTypes.any).isRequired,
+    data: PropTypes.objectOf(PropTypes.any).isRequired
   }
 
   static defaultProps = {
@@ -120,7 +119,17 @@ class DatasetView extends React.Component {
   }
 
   render() {
-    const { id, classes, data: { loading, error, refetch, subscribeToMore } } = this.props
+    const {
+      id,
+      classes,
+      data: {
+        loading,
+        error,
+        refetch,
+        subscribeToMore,
+        dataset
+      }
+    } = this.props
 
     if (loading) return <p>Loading...</p>
     if (error) {
@@ -129,7 +138,7 @@ class DatasetView extends React.Component {
           <div className={classes.svgContainer}>
             <WarnSvg color="#303f9f" className={classes.svg} />
           </div>
-          <WarningBanner 
+          <WarningBanner
             message={error.message}
             header="Something's wrong with your file..."
             advice="Please try uploading a new version."
@@ -143,12 +152,11 @@ class DatasetView extends React.Component {
     if (id == null) return <div />
 
     const { errors } = this.state
-    const dataset = this.props.data.dataset[0]
-    const displayColumns = dataset.columns
+    const displayColumns = dataset[0].columns
     const selectedColumns = displayColumns.filter(c => c.visible)
     const dataExists = selectedColumns.length > 0
 
-    if (!dataExists && !dataset.computed) {
+    if (!dataExists && !dataset[0].computed) {
       return (
         <div className={classes.root}>
           <div className={classes.empty}>
@@ -171,7 +179,7 @@ class DatasetView extends React.Component {
       )
     }
 
-    const sampleRows = dataset.samples.map((s) => {
+    const sampleRows = dataset[0].samples.map((s) => {
       const record = JSON.parse(s)
       return selectedColumns.map(c => record[c.originalName || c.name])
     })
@@ -180,16 +188,16 @@ class DatasetView extends React.Component {
 
     return (
       <div className={classes.root}>
-        <DatasetEditor dataset={dataset} dataExists={dataExists} />
+        <DatasetEditor dataset={dataset[0]} dataExists={dataExists} />
         <Typography className={classes.error}>{errors[id]}</Typography>
-        <ToggleVisibility visible={dataset.generating}>
+        <ToggleVisibility visible={dataset[0].generating}>
           <LinearProgress />
         </ToggleVisibility>
-        <ToggleVisibility visible={!dataset.generating && dataExists}>
+        <ToggleVisibility visible={!dataset[0].generating && dataExists}>
           <Paper>
             <DataTableView columns={selectedColumns} rows={sampleRows} />
           </Paper>
-          <DatasetColumnChips dataset={dataset} columns={displayColumns} />
+          <DatasetColumnChips dataset={dataset[0]} columns={displayColumns} />
         </ToggleVisibility>
       </div>
     )

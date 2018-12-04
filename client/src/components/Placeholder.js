@@ -42,14 +42,6 @@ const Placeholder = (props) => {
   const { classes, children } = props
 
   return (
-    // <Paper className={classes.root} elevation={4}>
-    //   <Typography variant="display2" gutterBottom>
-    //     { heading }
-    //   </Typography>
-    //   <Typography variant="headline" gutterBottom>
-    //     { children }
-    //   </Typography>
-    // </Paper>
     <div className={classes.root}>
       <div className={classes.empty}>
         <div className={classes.svgContainer}>
