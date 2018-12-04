@@ -113,7 +113,6 @@ class DatasetView extends React.Component {
         } else {
           this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
         }
-        console.log("hello")
         refetch()
         return prev
       }
@@ -161,7 +160,8 @@ class DatasetView extends React.Component {
                 Add some data to your dataset
               </Typography>
               <Typography variant="subheading" className={classes.subheader}>
-                Upload a CSV file containing the underlying data or generate it from existing datasets.
+                Upload a CSV file containing the underlying data
+                or generate it from existing datasets.
               </Typography>
             </div>
             <DatasetUploadButton id={id} />
@@ -202,8 +202,7 @@ const StyledDatasetView = compose(
   graphql(
     datasetViewQuery, {
       options: props => ({
-        variables: { id: props.id },
-        fetchPolicy: 'network-only'
+        variables: { id: props.id }
       })
     }
   )

@@ -50,6 +50,9 @@ const styles = theme => ({
   },
   primary: {},
   icon: {},
+  placeholderHeading: {
+    marginTop: 15
+  }
 });
 
 class DatasetDetails extends React.Component {
@@ -100,12 +103,16 @@ class DatasetDetails extends React.Component {
       <Tab key={item.name} label={item.name} classes={{ root: classes.tabsRoot, selected: classes.selectedText}} />
     )
 
-    // TODO: Replace with a better placeholder 
     if (!id) {
       return (
-        <div>
-          Welcome to ADI. Select a dataset or create a new dataset to begin.
-        </div>
+        <Placeholder>
+          <Typography variant="display1" className={classes.placeholderHeading}>
+            Welcome to ADI
+          </Typography>
+          <Typography variant="subheading">
+            Select a dataset or create a new dataset to get started.
+          </Typography>
+        </Placeholder>
       )
     }
 

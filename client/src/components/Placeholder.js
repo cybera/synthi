@@ -2,8 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
+
+import FolderSvg from './svg/Folder'
 
 const styles = theme => ({
   root: {
@@ -39,7 +39,7 @@ const styles = theme => ({
 });
 
 const Placeholder = (props) => {
-  const { classes, heading, children } = props
+  const { classes, children } = props
 
   return (
     // <Paper className={classes.root} elevation={4}>
@@ -53,21 +53,19 @@ const Placeholder = (props) => {
     <div className={classes.root}>
       <div className={classes.empty}>
         <div className={classes.svgContainer}>
-          <NoDataSvg color="#303f9f" className={classes.svg} />
+          <FolderSvg color="#303f9f" className={classes.svg} />
         </div>
         <div className={classes.text}>
-          <Typography variant="headline">
-            Add some data to your dataset
-          </Typography>
-          <Typography variant="subheading" className={classes.subheader}>
-            Upload a CSV file containing the underlying data or generate it from existing datasets.
-          </Typography>
+          {children}
         </div>
-        <DatasetUploadButton id={id} />
-        <DatasetComputeModeButton id={id} />
       </div>
     </div>
   )
+}
+
+Placeholder.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  children: PropTypes.node.isRequired
 }
 
 export default withStyles(styles)(Placeholder)
