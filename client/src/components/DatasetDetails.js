@@ -7,6 +7,12 @@ import ConnectionsIcon from '@material-ui/icons/DeviceHub'
 import APIIcon from '@material-ui/icons/ImportExport'
 import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
+import AppBar from '@material-ui/core/AppBar'
+import Tabs from '@material-ui/core/Tabs'
+import Tab from '@material-ui/core/Tab'
+import ChartEditor from '../containers/ChartEditor'
+
 import { withNavigation } from '../context/NavigationContext'
 import { compose } from '../lib/common'
 
@@ -15,10 +21,6 @@ import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
 import APIInfo from './api-info'
 import Placeholder from './Placeholder'
-import Typography from '@material-ui/core/Typography'
-import AppBar from '@material-ui/core/AppBar'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
 
 const styles = theme => ({
   header: {
@@ -64,9 +66,10 @@ class DatasetDetails extends React.Component {
     this.setState({ value })
   }
 
-  setupMenuOptions(id) {
-    // Define the icon and corresponding template for each menu item here
-    return [
+  render() {
+    const { id, classes, navigation } = this.props
+    const { value } = this.state
+    const options = [
       {
         name: 'Preview Data',
         icon: <ViewIcon />,
@@ -83,25 +86,25 @@ class DatasetDetails extends React.Component {
         detailMode: <DatasetTree id={id} />
       },
       {
+        name: 'Chart Editor',
+        icon: <ConnectionsIcon />,
+        detailMode: <ChartEditor datasetID={id} />
+      },
+      {
         name: 'API Info',
         icon: <APIIcon />,
         detailMode: <APIInfo id={id} />
       }
     ]
-  }
-
-  showView(value, menuItems) {
-    const current = menuItems[value].detailMode
-    return current !== undefined ? current : <div />
-  }
-
-  render() {
-    const { id, classes, navigation } = this.props
-    const { value } = this.state
-    const options = this.setupMenuOptions(id)
-    const tabs = options.map((item) =>
-      <Tab key={item.name} label={item.name} classes={{ root: classes.tabsRoot, selected: classes.selectedText}} />
-    )
+    const tabs = options.map((item) => { 
+      return (
+        <Tab 
+          key={item.name} 
+          label={item.name} 
+          classes={{ root: classes.tabsRoot, selected: classes.selectedText }} 
+        />
+      )
+    })
 
     if (!id) {
       return (
@@ -139,7 +142,7 @@ class DatasetDetails extends React.Component {
           </AppBar>
         </Paper>
         <div className={classes.wrapper}>
-          {this.showView(value, options)}
+          {options[value] !== undefined ? options[value].detailMode : <div />}
         </div>
       </div>
     )

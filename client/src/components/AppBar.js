@@ -111,13 +111,6 @@ class ButtonAppBar extends React.Component {
               Datasets
             </ADIButton>
             <ADIButton
-              variant={navigation.currentMode === 'chart-editor' ? 'contained' : 'outlined'}
-              className={classes.menuButton}
-              onClick={() => navigation.switchMode('chart-editor')}
-            >
-              Chart Editor
-            </ADIButton>
-            <ADIButton
               variant={navigation.currentMode === 'scenarios' ? 'contained' : 'outlined'}
               className={classes.menuButton}
               onClick={() => navigation.switchMode('scenarios')}

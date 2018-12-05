@@ -2,12 +2,34 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import Button from '@material-ui/core/Button'
+import Paper from '@material-ui/core/Paper'
+import { withStyles } from '@material-ui/core/styles'
+import SaveIcon from '@material-ui/icons/Save'
 
+import { compose } from '../lib/common'
 import StatelessChartEditor from '../components/ChartEditor'
 import FetchDataset from '../components/FetchDataset'
 import PlotlyDataConverter from '../components/PlotlyDataConverter'
 import PlotlySave from '../components/PlotlySave'
 import Placeholder from '../components/Placeholder'
+
+const styles = theme => ({
+  paper: {
+    padding: theme.spacing.unit
+  },
+  root: {
+    ...theme.mixins.gutters(),
+    marginTop: theme.spacing.unit,
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  button: {
+    marginTop: 20
+  },
+  icon: {
+    marginRight: theme.spacing.unit
+  }
+})
 
 class ChartEditor extends React.Component {
   constructor() {
@@ -16,7 +38,7 @@ class ChartEditor extends React.Component {
   }
 
   render() {
-    const { datasetID } = this.props
+    const { datasetID, classes } = this.props
 
     if (!datasetID) {
       return (
@@ -33,13 +55,22 @@ class ChartEditor extends React.Component {
             {({ savePlot }) => (
               <PlotlyDataConverter dataset={dataset}>
                 {({ columns, columnOptions }) => (
-                  <div>
-                    <StatelessChartEditor
-                      dataSources={columns}
-                      dataSourceOptions={columnOptions}
-                      ref={this.editor}
-                    />
-                    <Button type="submit" color="primary" onClick={() => savePlot(this.editor.current.state)}>
+                  <div className={classes.root}>
+                    <Paper className={classes.paper}>
+                      <StatelessChartEditor
+                        dataSources={columns}
+                        dataSourceOptions={columnOptions}
+                        ref={this.editor}
+                      />
+                    </Paper>
+                    <Button 
+                      type="submit"
+                      color="primary"
+                      variant="contained"
+                      className={classes.button}
+                      onClick={() => savePlot(this.editor.current.state)}
+                    >
+                      <SaveIcon className={classes.icon} />
                       Save Plot
                     </Button>
                   </div>
@@ -55,10 +86,13 @@ class ChartEditor extends React.Component {
 
 ChartEditor.propTypes = {
   datasetID: PropTypes.number,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 ChartEditor.defaultProps = {
   datasetID: null
 }
 
-export default ChartEditor
+export default compose(
+  withStyles(styles),
+)(ChartEditor)
