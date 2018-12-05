@@ -87,8 +87,7 @@ const styles = () => ({
 function MainComponent(props) {
   const { mode, dataset } = props
 
-  if (mode === 'datasets') return <DatasetDetails id={dataset} />
-  if (mode === 'chart-editor') return <ChartEditor datasetID={dataset} />
+  if (mode === 'datasets' || 'chart-editor') return <DatasetDetails id={dataset} />
   if (mode === 'scenarios') return <Scenarios />
 
   return <div>Empty</div>

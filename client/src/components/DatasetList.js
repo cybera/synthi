@@ -1,30 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { graphql } from 'react-apollo'
-
 import List from '@material-ui/core/List'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import IconButton from '@material-ui/core/IconButton'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { withStyles } from '@material-ui/core/styles'
-import Menu from '@material-ui/core/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
-import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state'
-import Pluralize from 'react-pluralize'
-import Typography from '@material-ui/core/Typography'
 
 import { compose } from '../lib/common'
-import { datasetListQuery, deleteDatasetMutation } from '../queries'
 import { withDatasets } from '../containers/DatasetList'
 import { withNavigation } from '../context/NavigationContext'
 
-import ConfirmationDialog from './ConfirmationDialog'
-import { openSnackbar } from './Notifier'
+import DatasetListItem from './DatasetListItem'
+import DisplayingResults from './search/DisplayingResults'
 
-const styles = theme => ({
+const styles = () => ({
   root: {
     display: 'block',
     position: 'absolute',
@@ -32,162 +19,60 @@ const styles = theme => ({
     height: 'calc(100% - 178px)',
     width: '100%',
     overflowY: 'auto'
-  },
-  delete: {
-    color: 'red'
-  },
-  searchResults: {
-    marginLeft: theme.spacing.unit * 3,
-    marginRight: theme.spacing.unit * 3,
-    marginBottom: theme.spacing.unit,
-    color: theme.palette.secondary.light,
-    textAlign: 'right',
-    borderBottom: 'solid 1px',
-    borderBottomColor: theme.palette.secondary.light
   }
 })
 
-class DatasetList extends React.Component {
-  static propTypes = {
-    classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    deleteDataset: PropTypes.func.isRequired,
-    navigation: PropTypes.shape({
-      selectDataset: PropTypes.func,
-      currentDataset: PropTypes.number,
-      currentName: PropTypes.string
-    }).isRequired,
-    datasets: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string
-    }))
-  }
+const DatasetList = (props) => {
+  const {
+    navigation,
+    datasets,
+    classes,
+    searchString
+  } = props
 
-  static defaultProps = {
-    datasets: []
-  }
+  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 
-  constructor(props) {
-    super(props);
+  return (
+    <List component="nav" className={classes.root}>
 
-    this.state = {
-      selectedDataset: {
-        id: null,
-        name: null
-      }
-    }
+      {searchString && <DisplayingResults count={datasets.length} />}
 
-    this.handleDelete = this.handleDelete.bind(this)
-  }
+      {datasets
+        .filter(d => d.owner.id === navigation.currentOrg)
+        .sort(collator.compare)
+        .reverse()
+        .map(dataset => (
+          <DatasetListItem
+            key={dataset.id}
+            dataset={dataset}
+          />
+        ))}
 
-  handleDeleteDialog = (id, name) => {
-    this.setState({
-      selectedDataset: {
-        id,
-        name
-      }
-    });
+    </List>
+  )
+}
 
-    this.onOpen();
-  }
+DatasetList.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  navigation: PropTypes.shape({
+    selectDataset: PropTypes.func,
+    currentDataset: PropTypes.number,
+    currentName: PropTypes.string
+  }).isRequired,
+  datasets: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string
+  })),
+  searchString: PropTypes.string
+}
 
-  handleDelete = () => {
-    const { deleteDataset, navigation } = this.props
-    const { selectedDataset: { id, name } } = this.state
-
-    deleteDataset({
-      variables: { id },
-      refetchQueries: [{
-        query: datasetListQuery,
-        variables: { org: { id: navigation.currentOrg } }
-      }]
-    }).then(() => {
-      openSnackbar({ message: `'${name}' was successfully removed.` })
-    }).catch((err) => {
-      openSnackbar({ message: err })
-    })
-
-    if (id === navigation.currentDataset) {
-      navigation.selectDataset(null, null)
-    }
-  }
-
-  render() {
-    const {
-      navigation,
-      datasets,
-      classes,
-      searchString
-    } = this.props
-
-    const { selectedDataset } = this.state
-    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
-
-    return (
-      <List component="nav" className={classes.root}>
-        {searchString && (
-          <Typography variant="body1" className={classes.searchResults}>
-            Displaying
-            <Pluralize singular="result" count={datasets.length} />
-          </Typography>
-        )}
-        {datasets
-          .filter(d => d.owner.id === navigation.currentOrg)
-          .sort(collator.compare)
-          .reverse()
-          .map(({ id, name }) => (
-            <ListItem
-              button
-              key={id}
-              selected={navigation.currentDataset === id}
-              onClick={() => navigation.selectDataset(id, name)}
-            >
-              <ListItemText primary={name} />
-              <ListItemSecondaryAction>
-                <PopupState variant="popover" popupId="dataset-actions">
-                  {
-                    popupState => (
-                      <React.Fragment>
-                        <IconButton
-                          {...bindTrigger(popupState)}
-                        >
-                          <MoreVertIcon />
-                        </IconButton>
-                        <Menu {...bindMenu(popupState)}>
-                          <MenuItem onClick={popupState.close}>
-                            Edit name
-                          </MenuItem>
-
-                          <MenuItem
-                            onClick={() => {
-                              popupState.close()
-                              this.handleDeleteDialog(id, name)
-                            }}
-                          >
-                            <span className={classes.delete}>Remove</span>
-                          </MenuItem>
-                        </Menu>
-                      </React.Fragment>
-                    )
-                  }
-                </PopupState>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
-
-        <ConfirmationDialog
-          header={`Remove '${selectedDataset.name}'?`}
-          content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
-          onClose={this.handleDelete}
-          onOpen={(onOpen) => { this.onOpen = onOpen }}
-        />
-      </List>
-    )
-  }
+DatasetList.defaultProps = {
+  datasets: [],
+  searchString: null
 }
 
 export default compose(
   withDatasets,
-  graphql(deleteDatasetMutation, { name: 'deleteDataset' }),
   withNavigation,
   withStyles(styles)
 )(DatasetList)

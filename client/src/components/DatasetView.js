@@ -154,7 +154,7 @@ class DatasetView extends React.Component {
 }
 
 const ConnectedDatasetView = (props) => {
-  const {id, classes} = props
+  const { id, classes } = props
 
   return (
     <Query
