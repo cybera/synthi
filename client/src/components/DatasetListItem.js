@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { graphql } from 'react-apollo'
 
 import ListItem from '@material-ui/core/ListItem'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
@@ -11,9 +12,12 @@ import MenuItem from '@material-ui/core/MenuItem'
 import { withStyles } from '@material-ui/core/styles'
 
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state'
-
+import { datasetListQuery, deleteDatasetMutation } from '../queries'
 import { compose } from '../lib/common'
 import { withNavigation } from '../context/NavigationContext'
+import { openSnackbar } from './Notifier'
+
+import ConfirmationDialog from './ConfirmationDialog'
 
 const styles = () => ({
   delete: {
@@ -26,38 +30,66 @@ class DatasetListItem extends React.Component {
     super(props)
 
     this.state = {
-      isDeleting: false
+      isDeleting: false,
+      showDialog: false
     }
 
     this.handleDelete = this.handleDelete.bind(this)
+    this.selectDataset = this.selectDataset.bind(this)
   }
 
-  handleDelete(id, name) {
-    const { onDelete } = this.props
-    onDelete(id, name)
+  selectDataset() {
+    const { dataset: { id, name }, navigation } = this.props
+    navigation.selectDataset(id, name)
   }
 
-  toggleDeletionIcon() {
-    this.setState({ isDeleting: true })
+  handleDeleteDialog() {
+    this.setState({ showDialog: true })
+  }
+
+  handleDelete(agree) {
+    const { deleteDataset, navigation, dataset: { id, name } } = this.props
+
+    this.setState({ showDialog: false })
+
+    if (agree) {
+      deleteDataset({
+        variables: { id },
+        refetchQueries: [{
+          query: datasetListQuery,
+          variables: { org: { id: navigation.currentOrg } }
+        }]
+      }).then(() => {
+        openSnackbar({ message: `'${name}' was successfully removed.` })
+      }).catch((err) => {
+        openSnackbar({ message: err })
+      })
+
+      if (id === navigation.currentDataset) {
+        navigation.selectDataset(null, null)
+      }
+    }
   }
 
   render() {
     const {
-      id,
-      name,
+      dataset: { id, name },
       navigation,
       classes
     } = this.props
-
-    const { isDeleting } = this.state
+    const { isDeleting, showDialog } = this.state
+    const active = navigation.currentDataset === id
 
     return (
       <ListItem
         button
-        selected={navigation.currentDataset === id}
-        onClick={() => navigation.selectDataset(id, name)}
+        selected={active}
       >
-        <ListItemText primary={name} />
+        <ListItemText
+          primary={name}
+          onClick={this.selectDataset}
+        />
+
         <ListItemSecondaryAction>
           { !isDeleting && (
             <PopupState variant="popover" popupId="dataset-actions">
@@ -66,44 +98,57 @@ class DatasetListItem extends React.Component {
                   <IconButton {...bindTrigger(popupState)}>
                     <MoreVertIcon />
                   </IconButton>
+
                   <Menu {...bindMenu(popupState)}>
                     <MenuItem onClick={popupState.close}>
-                      Edit name
+                      Rename
                     </MenuItem>
 
                     <MenuItem
                       onClick={() => {
                         popupState.close()
-                        this.handleDelete(id, name)
+                        this.handleDeleteDialog()
                       }}
+                      className={classes.delete}
                     >
-                      <span className={classes.delete}>Remove</span>
+                      Delete
                     </MenuItem>
                   </Menu>
                 </React.Fragment>
               )}
             </PopupState>
           )}
-          { isDeleting && <span>Hi</span> }
         </ListItemSecondaryAction>
+
+        <ConfirmationDialog
+          header={`Remove '${name}'?`}
+          content="Deleting this dataset will permanently destroy all transformations associated with it. Would you like to continue?"
+          onClose={this.handleDelete}
+          open={showDialog}
+          continueLabel="Discard"
+        />
       </ListItem>
     )
   }
 }
 
 DatasetListItem.propTypes = {
-  onDelete: PropTypes.func.isRequired,
-  id: PropTypes.number,
-  name: PropTypes.string,
+  dataset: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string
+  }),
   classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 DatasetListItem.defaultProps = {
-  id: null,
-  name: null
+  dataset: {
+    id: null,
+    name: null
+  }
 }
 
 export default compose(
   withNavigation,
+  graphql(deleteDatasetMutation, { name: 'deleteDataset' }),
   withStyles(styles)
 )(DatasetListItem)
