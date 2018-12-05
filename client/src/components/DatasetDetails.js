@@ -150,9 +150,13 @@ class DatasetDetails extends React.Component {
 }
 
 DatasetDetails.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.number,
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
   navigation: PropTypes.objectOf(PropTypes.any).isRequired
+}
+
+DatasetDetails.defaultProps = {
+  id: null
 }
 
 export default compose(

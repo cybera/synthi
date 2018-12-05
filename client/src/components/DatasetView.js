@@ -89,7 +89,7 @@ class DatasetView extends React.Component {
       errors: {}
     }
   }
-
+  
   subscribeToDatasetGenerated = (subscribeToMore, refetch) => {
     const { id } = this.props
 
