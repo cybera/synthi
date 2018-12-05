@@ -4,10 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Dialog from '@material-ui/core/Dialog'
-
 import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 
@@ -34,12 +31,13 @@ class UserProfileDialog extends React.Component {
     return (
       <Dialog onClose={this.handleClose} aria-labelledby="user-profile-dialog" fullWidth {...other}>
         <DialogTitle id="user-profile-dialog">
-          User Profile for {user.username}
+          User Profile for
+          {user.username}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={8}>
             <Grid item xs={6}>
-              <TextField 
+              <TextField
                 defaultValue={user.username}
                 InputProps={{
                   readOnly: true,
@@ -50,8 +48,8 @@ class UserProfileDialog extends React.Component {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField 
-                defaultValue={user.apikey || " "}
+              <TextField
+                defaultValue={user.apikey || ''}
                 InputProps={{
                   readOnly: true,
                 }}

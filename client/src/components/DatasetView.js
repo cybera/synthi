@@ -21,14 +21,6 @@ import DatasetComputeModeButton from '../containers/DatasetComputeModeButton'
 import NoDataSvg from './svg/NoData'
 import WarnSvg from './svg/Warn'
 
-// For editing the name without having to go to a form
-/* <Typography variant="headline">
-  <DatasetNameEditor dataset={dataset} />
-  <IconButton aria-label="Chart" onClick={() => navigation.switchMode('chart-editor')}>
-    <ChartIcon />
-  </IconButton>
-</Typography> */
-
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
     datasetGenerated(id: $id) {

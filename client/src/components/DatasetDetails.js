@@ -1,8 +1,8 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import ViewIcon from '@material-ui/icons/ViewColumn'
 import EditIcon from '@material-ui/icons/Edit'
-import TagMultipleIcon from 'mdi-react/TagMultipleIcon'
 import ConnectionsIcon from '@material-ui/icons/DeviceHub'
 import APIIcon from '@material-ui/icons/ImportExport'
 import Paper from '@material-ui/core/Paper'
@@ -42,7 +42,7 @@ const styles = theme => ({
     background: theme.palette.primary.main,
     color: 'red'
   },
-  selectedText: {
+  active: {
     color: theme.palette.primary.main
   },
   content: {
@@ -58,8 +58,14 @@ const styles = theme => ({
 });
 
 class DatasetDetails extends React.Component {
-  state = {
-    value: 0
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      value: 0
+    }
+
+    this.handleChange = this.handleChange.bind(this)
   }
 
   handleChange(_, value) {
@@ -96,15 +102,9 @@ class DatasetDetails extends React.Component {
         detailMode: <APIInfo id={id} />
       }
     ]
-    const tabs = options.map((item) => { 
-      return (
-        <Tab 
-          key={item.name} 
-          label={item.name} 
-          classes={{ root: classes.tabsRoot, selected: classes.selectedText }} 
-        />
-      )
-    })
+    const tabs = options.map(
+      ({ name }) => <Tab key={name} label={name} classes={{ selected: classes.active }} />
+    )
 
     if (!id) {
       return (
@@ -125,14 +125,14 @@ class DatasetDetails extends React.Component {
           <Typography variant="display1" component="h2" className={classes.headerText}>
             {navigation.currentName}
           </Typography>
-          <AppBar 
-            position="static" 
-            className={classes.tabs} 
+          <AppBar
+            position="static"
+            className={classes.tabs}
             color="default"
           >
-            <Tabs 
-              value={value} 
-              onChange={this.handleChange.bind(this)}
+            <Tabs
+              value={value}
+              onChange={this.handleChange}
               TabIndicatorProps={{
                 className: classes.tabIndicator
               }}
@@ -147,6 +147,12 @@ class DatasetDetails extends React.Component {
       </div>
     )
   }
+}
+
+DatasetDetails.propTypes = {
+  id: PropTypes.number.isRequired,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  navigation: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 export default compose(
