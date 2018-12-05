@@ -3,10 +3,15 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
 import Dialog from '@material-ui/core/Dialog'
 
-import UserProfile from './UserProfile'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogActions from '@material-ui/core/DialogActions'
+
+import Grid from '@material-ui/core/Grid'
+import TextField from '@material-ui/core/TextField'
+
+import ADIButton from '../ADIButton'
 
 const styles = {
 }
@@ -14,7 +19,6 @@ const styles = {
 class UserProfileDialog extends React.Component {
   handleClose = () => {
     const { onClose } = this.props
-
     onClose()
   }
 
@@ -33,7 +37,31 @@ class UserProfileDialog extends React.Component {
           User Profile for {user.username}
         </DialogTitle>
         <DialogContent>
-          <UserProfile user={user} regenerateAPIKey={regenerateAPIKey} />
+          <Grid container spacing={8}>
+            <Grid item xs={6}>
+              <TextField 
+                defaultValue={user.username}
+                InputProps={{
+                  readOnly: true,
+                }}
+                margin="normal"
+                label="Username"
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField 
+                defaultValue={user.apikey || " "}
+                InputProps={{
+                  readOnly: true,
+                }}
+                margin="normal"
+                label="API Key"
+                fullWidth
+              />
+            </Grid>
+            <ADIButton onClick={regenerateAPIKey}>Regenerate API Key</ADIButton>
+          </Grid>
         </DialogContent>
       </Dialog>
     );
@@ -41,9 +69,9 @@ class UserProfileDialog extends React.Component {
 }
 
 UserProfileDialog.propTypes = {
-  classes: PropTypes.object.isRequired,
-  onClose: PropTypes.func,
-  user: PropTypes.object
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  onClose: PropTypes.func.isRequired,
+  user: PropTypes.objectOf(PropTypes.any).isRequired
 };
 
 export default withStyles(styles)(UserProfileDialog)
