@@ -50,7 +50,7 @@ class NewDatasetButton extends React.Component {
       <Mutation
         mutation={CREATE_DATASET}
         variables={{ owner: navigation.currentOrg }}
-        refetchQueries={[{ query: datasetListQuery }]}
+        refetchQueries={[{ query: datasetListQuery, variables: { org: { id: navigation.currentOrg } } }]}
       >
         {mutate => (
           <Button

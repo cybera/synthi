@@ -95,11 +95,15 @@ class DatasetList extends React.Component {
     const { selectedDataset: { id, name } } = this.state
 
     deleteDataset({
-      variables: { id }, refetchQueries: [{ query: datasetListQuery }]
+      variables: { id },
+      refetchQueries: [{
+        query: datasetListQuery,
+        variables: { org: { id: navigation.currentOrg } }
+      }]
     }).then(() => {
       openSnackbar({ message: `'${name}' was successfully removed.` })
     }).catch((err) => {
-      openSnackbar({ message: err });
+      openSnackbar({ message: err })
     })
 
     if (id === navigation.currentDataset) {
