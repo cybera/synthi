@@ -95,12 +95,12 @@ docker service update adi_python-worker --image cybera/adi_python-worker --with-
 1. From the cloud portal in the drop down menu on the keft hand side click `Compute -> Instances` 
 2. Click `Launch Instance` on the top right of the screen 
 3. Use the following settings:
-  * `Availabilty Zone`: nova
-  * `Instance Name`: The name of your instance
-  * `Flavor`: `m1.large`
-  * `Number of Instances`:1
-  * `Instance Boot Source`: Boot from image
-  * `Image Name`: Ubuntu 16.04
+     * `Availabilty Zone`: nova
+    * `Instance Name`: The name of your instance
+    * `Flavor`: `m1.large`
+    * `Number of Instances`:1
+    * `Instance Boot Source`: Boot from image
+    * `Image Name`: Ubuntu 16.04
 
 4. To assign a floating IP, after you've launced your instance, click the drop down on your instance and select `Assign Floating IP`
 
