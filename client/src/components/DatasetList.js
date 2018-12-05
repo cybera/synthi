@@ -47,21 +47,6 @@ const styles = theme => ({
   }
 })
 
-const nameSort = (a, b) => {
-  const aNormalized = a.name.toLowerCase()
-  const bNormalized = b.name.toLowerCase()
-
-  if (aNormalized < bNormalized) {
-    return -1
-  }
-
-  if (aNormalized > bNormalized) {
-    return 1
-  }
-
-  return 0
-}
-
 class DatasetList extends React.Component {
   static propTypes = {
     classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
@@ -110,11 +95,15 @@ class DatasetList extends React.Component {
     const { selectedDataset: { id, name } } = this.state
 
     deleteDataset({
-      variables: { id }, refetchQueries: [{ query: datasetListQuery }]
+      variables: { id },
+      refetchQueries: [{
+        query: datasetListQuery,
+        variables: { org: { id: navigation.currentOrg } }
+      }]
     }).then(() => {
       openSnackbar({ message: `'${name}' was successfully removed.` })
     }).catch((err) => {
-      openSnackbar({ message: err });
+      openSnackbar({ message: err })
     })
 
     if (id === navigation.currentDataset) {
@@ -131,6 +120,7 @@ class DatasetList extends React.Component {
     } = this.props
 
     const { selectedDataset } = this.state
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 
     return (
       <List component="nav" className={classes.root}>
@@ -142,7 +132,8 @@ class DatasetList extends React.Component {
         )}
         {datasets
           .filter(d => d.owner.id === navigation.currentOrg)
-          .sort(nameSort)
+          .sort(collator.compare)
+          .reverse()
           .map(({ id, name }) => (
             <ListItem
               button

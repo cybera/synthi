@@ -148,13 +148,14 @@ const LocalDatePicker = (props) => {
 
 LocalDatePicker.propTypes = {
   label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   className: PropTypes.string
 }
 
 LocalDatePicker.defaultProps = {
-  className: ''
+  className: '',
+  value: null
 }
 
 class DatasetMetadata extends React.Component {
@@ -482,6 +483,10 @@ const ConnectedDatasetMetadata = (props) => {
 
 ConnectedDatasetMetadata.propTypes = {
   id: PropTypes.number
+}
+
+ConnectedDatasetMetadata.defaultProps = {
+  id: null
 }
 
 

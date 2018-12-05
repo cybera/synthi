@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
@@ -46,10 +47,10 @@ class NewDatasetButton extends React.Component {
     const { navigation, classes } = this.props
 
     return (
-      <Mutation 
+      <Mutation
         mutation={CREATE_DATASET}
         variables={{ owner: navigation.currentOrg }}
-        refetchQueries={[{ query: datasetListQuery }]}
+        refetchQueries={[{ query: datasetListQuery, variables: { org: { id: navigation.currentOrg } } }]}
       >
         {mutate => (
           <Button
@@ -64,6 +65,11 @@ class NewDatasetButton extends React.Component {
       </Mutation>
     )
   }
+}
+
+NewDatasetButton.propTypes = {
+  navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 export default compose(
