@@ -63,7 +63,7 @@ class ChartEditor extends React.Component {
                         ref={this.editor}
                       />
                     </Paper>
-                    <Button 
+                    <Button
                       type="submit"
                       color="primary"
                       variant="contained"

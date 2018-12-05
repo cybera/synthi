@@ -46,6 +46,7 @@
     "apollo-upload-client": "^8.1.0",
     "apollo-utilities": "^1.0.26",
     "autosuggest-highlight": "^3.1.1",
+    "classnames": "^2.2.6",
     "date-fns": "^2.0.0-alpha.16",
     "graphql": "^14.0.2",
     "graphql-tag": "^2.10.0",
