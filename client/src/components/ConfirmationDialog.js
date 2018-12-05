@@ -8,63 +8,52 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 
-class ConfirmationDialog extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleClose = this.handleClose.bind(this)
-  }
+const ConfirmationDialog = (props) => {
+  const {
+    header,
+    content,
+    cancelLabel,
+    continueLabel,
+    hideCancel,
+    open,
+    onClose
+  } = props
 
-  handleClose(agree) {
-    const { onClose } = this.props
-    onClose(agree)
-  }
-
-  render() {
-    const {
-      header,
-      content,
-      cancelLabel,
-      continueLabel,
-      hideCancel,
-      open
-    } = this.props
-
-    return (
-      <Dialog
-        open={open}
-        onClose={this.handleClose}
-        aria-labelledby="alert-confirmation-title"
-        aria-describedby="alert-confirmation-content"
-      >
-        <DialogTitle id="alert-dataset-removal-title">
-          {header}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dataset-removal-content">
-            {content}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          {!hideCancel && (
-            <Button
-              onClick={() => this.handleClose(false)}
-              variant="contained"
-              color="default"
-            >
-              {cancelLabel}
-            </Button>
-          )}
+  return (
+    <Dialog
+      open={open}
+      onClose={() => onClose(false)}
+      aria-labelledby="alert-confirmation-title"
+      aria-describedby="alert-confirmation-content"
+    >
+      <DialogTitle id="alert-dataset-removal-title">
+        {header}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dataset-removal-content">
+          {content}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        {!hideCancel && (
           <Button
-            onClick={() => this.handleClose(true)}
+            onClick={() => onClose(false)}
             variant="contained"
-            color="primary"
+            color="default"
           >
-            {continueLabel}
+            {cancelLabel}
           </Button>
-        </DialogActions>
-      </Dialog>
-    )
-  }
+        )}
+        <Button
+          onClick={() => onClose(true)}
+          variant="contained"
+          color="primary"
+        >
+          {continueLabel}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
 }
 
 ConfirmationDialog.propTypes = {
