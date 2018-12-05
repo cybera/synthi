@@ -210,7 +210,8 @@ const StyledDatasetView = compose(
   graphql(
     datasetViewQuery, {
       options: props => ({
-        variables: { id: props.id }
+        variables: { id: props.id },
+        pollInterval: 2000
       })
     }
   )
