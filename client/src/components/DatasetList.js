@@ -34,7 +34,9 @@ const DatasetList = (props) => {
 
   return (
     <List component="nav" className={classes.root}>
+
       {searchString && <DisplayingResults count={datasets.length} />}
+
       {datasets
         .filter(d => d.owner.id === navigation.currentOrg)
         .sort(collator.compare)
@@ -45,12 +47,13 @@ const DatasetList = (props) => {
             dataset={dataset}
           />
         ))}
+
     </List>
   )
 }
 
 DatasetList.propTypes = {
-  classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
   navigation: PropTypes.shape({
     selectDataset: PropTypes.func,
     currentDataset: PropTypes.number,
