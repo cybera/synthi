@@ -3,16 +3,15 @@ import PropTypes from 'prop-types'
 
 import List from '@material-ui/core/List'
 import { withStyles } from '@material-ui/core/styles'
-import Pluralize from 'react-pluralize'
-import Typography from '@material-ui/core/Typography'
 
 import { compose } from '../lib/common'
 import { withDatasets } from '../containers/DatasetList'
 import { withNavigation } from '../context/NavigationContext'
 
 import DatasetListItem from './DatasetListItem'
+import DisplayingResults from './search/DisplayingResults'
 
-const styles = theme => ({
+const styles = () => ({
   root: {
     display: 'block',
     position: 'absolute',
@@ -20,15 +19,6 @@ const styles = theme => ({
     height: 'calc(100% - 178px)',
     width: '100%',
     overflowY: 'auto'
-  },
-  searchResults: {
-    marginLeft: theme.spacing.unit * 3,
-    marginRight: theme.spacing.unit * 3,
-    marginBottom: theme.spacing.unit,
-    color: theme.palette.secondary.light,
-    textAlign: 'right',
-    borderBottom: 'solid 1px',
-    borderBottomColor: theme.palette.secondary.light
   }
 })
 
@@ -44,12 +34,7 @@ const DatasetList = (props) => {
 
   return (
     <List component="nav" className={classes.root}>
-      {searchString && (
-        <Typography variant="body1" className={classes.searchResults}>
-          Displaying
-          <Pluralize singular="result" count={datasets.length} />
-        </Typography>
-      )}
+      {searchString && <DisplayingResults count={datasets.length} />}
       {datasets
         .filter(d => d.owner.id === navigation.currentOrg)
         .sort(collator.compare)
