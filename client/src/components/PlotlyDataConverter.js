@@ -22,7 +22,9 @@ const PlotlyDataConverter = ({ dataset, children }) => {
 
   dataset.rows.forEach((s) => {
     const record = JSON.parse(s)
-    Object.keys(record).forEach(k => columns[k].push(toRealType(record[k])))
+    Object.keys(record).forEach((k) => {
+      if (columns[k] !== undefined) columns[k].push(toRealType(record[k]))
+    });
   })
 
   const columnOptions = Object.keys(columns).map(name => ({
