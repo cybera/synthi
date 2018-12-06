@@ -5,7 +5,6 @@ import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import LinearProgress from '@material-ui/core/LinearProgress'
 import Paper from '@material-ui/core/Paper'
 
 import { datasetViewQuery } from '../queries'
@@ -20,6 +19,7 @@ import DatasetComputeModeButton from '../containers/DatasetComputeModeButton'
 import NoDataSvg from './svg/NoData'
 import WarnSvg from './svg/Warn'
 import PanelLoadingState from './PanelLoadingState'
+import GeneratingProgress from './GeneratingProgress'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -152,9 +152,7 @@ class DatasetView extends React.Component {
       <div className={classes.root}>
         <DatasetEditor dataset={dataset} dataExists={dataExists} />
         <Typography className={classes.error}>{errors[id]}</Typography>
-        <ToggleVisibility visible={dataset.generating}>
-          <LinearProgress />
-        </ToggleVisibility>
+        <GeneratingProgress dataset={dataset} />
         <ToggleVisibility visible={!dataset.generating && dataExists}>
           <Paper>
             <DataTableView columns={selectedColumns} rows={sampleRows} />
