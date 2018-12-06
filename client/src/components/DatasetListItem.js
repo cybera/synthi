@@ -11,7 +11,6 @@ import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import { withStyles } from '@material-ui/core/styles'
 
-import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state'
 import { datasetListQuery, deleteDatasetMutation } from '../queries'
 import { compose } from '../lib/common'
 import { withNavigation } from '../context/NavigationContext'
@@ -22,6 +21,20 @@ import ConfirmationDialog from './ConfirmationDialog'
 const styles = () => ({
   delete: {
     color: 'red'
+  },
+  action: {
+    zIndex: 1000
+  },
+  root: {
+    padding: 0
+  },
+  listItem: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingTop: 12,
+    paddingBottom: 12,
+    display: 'block',
+    width: '100%'
   }
 })
 
@@ -31,16 +44,29 @@ class DatasetListItem extends React.Component {
 
     this.state = {
       isDeleting: false,
-      showDialog: false
+      showDialog: false,
+      anchorEl: null
     }
 
     this.handleDelete = this.handleDelete.bind(this)
     this.selectDataset = this.selectDataset.bind(this)
+    this.handleOpenMenu = this.handleOpenMenu.bind(this)
+    this.handleCloseMenu = this.handleCloseMenu.bind(this)
   }
 
-  selectDataset() {
+  selectDataset = () => {
     const { dataset: { id, name }, navigation } = this.props
     navigation.selectDataset(id, name)
+  }
+
+  handleOpenMenu = (event) => {
+    event.stopPropagation()
+    this.setState({ anchorEl: event.currentTarget })
+  }
+
+  handleCloseMenu = (event) => {
+    event.stopPropagation()
+    this.setState({ anchorEl: null })
   }
 
   handleDeleteDialog() {
@@ -71,53 +97,67 @@ class DatasetListItem extends React.Component {
     }
   }
 
+
   render() {
     const {
       dataset: { id, name },
       navigation,
       classes
     } = this.props
-    const { isDeleting, showDialog } = this.state
+
+    const { isDeleting, showDialog, anchorEl } = this.state
     const active = navigation.currentDataset === id
+    const open = Boolean(anchorEl)
 
     return (
       <ListItem
         button
         selected={active}
+        className={classes.root}
       >
         <ListItemText
           primary={name}
-          onClick={this.selectDataset}
+          classes={{ primary: classes.listItem }}
+          onClick={() => this.selectDataset()}
         />
 
-        <ListItemSecondaryAction>
-          { !isDeleting && (
-            <PopupState variant="popover" popupId="dataset-actions">
-              {popupState => (
-                <React.Fragment>
-                  <IconButton {...bindTrigger(popupState)}>
-                    <MoreVertIcon />
-                  </IconButton>
+        <ListItemSecondaryAction
+          className={classes.action}
+          onClick={this.openMenu}
+        >
+          <IconButton
+            aria-owns={open ? `dataset-item-${id}` : undefined}
+            aria-haspopup="true"
+            onClick={this.handleOpenMenu}
+          >
+            <MoreVertIcon />
+          </IconButton>
 
-                  <Menu {...bindMenu(popupState)}>
-                    <MenuItem onClick={popupState.close}>
-                      Rename
-                    </MenuItem>
+          <Menu
+            id={`dataset-item-${id}`}
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+            open={open}
+            onClose={this.handleCloseMenu}
+          >
+            <MenuItem>
+              Rename
+            </MenuItem>
 
-                    <MenuItem
-                      onClick={() => {
-                        popupState.close()
-                        this.handleDeleteDialog()
-                      }}
-                      className={classes.delete}
-                    >
-                      Delete
-                    </MenuItem>
-                  </Menu>
-                </React.Fragment>
-              )}
-            </PopupState>
-          )}
+            <MenuItem
+              onClick={this.handleDeleteDialog}
+              className={classes.delete}
+            >
+              Delete
+            </MenuItem>
+          </Menu>
         </ListItemSecondaryAction>
 
         <ConfirmationDialog
@@ -137,7 +177,9 @@ DatasetListItem.propTypes = {
     id: PropTypes.number,
     name: PropTypes.string
   }),
-  classes: PropTypes.objectOf(PropTypes.any).isRequired
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  deleteDataset: PropTypes.func.isRequired,
+  navigation: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 DatasetListItem.defaultProps = {
