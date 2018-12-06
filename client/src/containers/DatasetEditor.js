@@ -39,7 +39,10 @@ class DatasetEditor extends React.Component {
 
   render() {
     const { dataset, classes, dataExists } = this.props
-
+    let codeExists = false
+    if (dataset && dataset.computed && dataset.inputTransformation) {
+      codeExists = dataset.inputTransformation != null
+    }
     return (
       <div className={classes.root}>
         <ToggleVisibility visible={!dataset.computed}>
@@ -72,7 +75,7 @@ class DatasetEditor extends React.Component {
             {({ generateDataset }) => dataset.computed && (
               <span>
                 <ADIButton
-                  disabled={dataset.generating}
+                  disabled={dataset.generating || !codeExists}
                   onClick={() => generateDataset(dataset.id)}
                 >
                   Generate!
