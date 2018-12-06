@@ -1,5 +1,6 @@
 import AMQP from 'amqplib'
 import { pubsub } from '../graphql/pubsub'
+import Dataset from '../domain/models/dataset'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
@@ -20,6 +21,15 @@ const startQueue = async () => {
 
   startChannel(conn, 'dataset-status', { durable: false, noAck: true }, (msg) => {
     const msgJSON = JSON.parse(msg.content.toString())
+    if (msgJSON.type === 'dataset-updated') {
+      const dataset = Dataset.get(msgJSON.id)
+        .then(dataset => dataset.metadata())
+        .then((metadata) => {
+          metadata.dateUpdated = new Date()
+          metadata.save()
+        })
+        .catch(err => console.log(err))
+    }
     pubsub.publish(DATASET_UPDATED, { datasetGenerated: msgJSON });
   })
 
