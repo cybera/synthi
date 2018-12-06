@@ -8,28 +8,7 @@ import config from 'config'
 
 import Storage from '../storage'
 
-export const runTransformation = async (dataset) => {
-  const conn = await AMQP.connect('amqp://queue')
-  const ch = await conn.createChannel()
-  await ch.assertQueue('python-worker', { durable: false })
-
-  const owner = await dataset.owner()
-  const msg = {
-    task: 'generate',
-    id: dataset.id,
-    ownerName: owner.name
-  }
-
-  ch.sendToQueue('python-worker', Buffer.from(JSON.stringify(msg)))
-}
-
 export const datasetExists = dataset => dataset.path && fs.existsSync(dataset.fullPath())
-
-export const ensureDatasetExists = (dataset) => {
-  if (!datasetExists(dataset) && dataset.computed) {
-    runTransformation(dataset)
-  }
-}
 
 export const fullDatasetPath = (relPath) => {
   const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
@@ -52,9 +31,9 @@ export const waitForFile = relPath => new Promise((resolve, reject) => {
   }, err => (err ? reject(err) : resolve()))
 })
 
-export const storeFS = ({ stream, filename }) => {
+export const storeFS = ({ stream, filename }, unique=false) => {
   const id = shortid.generate()
-  const uniqueFilename = `${id}-${filename}`
+  const uniqueFilename = unique ? `${id}-${filename}` : filename
 
   return new Promise(
     (resolve, reject) => stream

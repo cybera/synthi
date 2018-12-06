@@ -10,6 +10,7 @@ import Paper from '@material-ui/core/Paper'
 
 import { datasetViewQuery } from '../queries'
 import ToggleVisibility from './ToggleVisibility'
+import UploadParsingOptions from './upload-parsing'
 import DataTableView from './DataTableView'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetColumnChips from './DatasetColumnChips'
@@ -95,11 +96,34 @@ class DatasetView extends React.Component {
   }
 
   render() {
+<<<<<<< HEAD
     const {
       id,
       classes,
       dataset
     } = this.props
+=======
+    const { id, classes, data: { loading, error, refetch, subscribeToMore } } = this.props
+
+    if (loading) return <p>Loading...</p>
+    if (error) {
+      return (
+        <div className={classes.empty}>
+          <div className={classes.svgContainer}>
+            <WarnSvg color="#303f9f" className={classes.svg} />
+          </div>
+          <WarningBanner 
+            message={error.message}
+            header="Something's wrong with your file..."
+            advice="Please try uploading a new version."
+            className={classes.text}
+          />
+          <DatasetUploadButton id={id} />
+          <UploadParsingOptions id={id} error={error} />
+        </div>
+      )
+    }
+>>>>>>> 0370dbf7613fbed5b354ad1bd7115fee9c056128
 
     if (id == null) return <div />
 

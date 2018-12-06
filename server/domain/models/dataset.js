@@ -2,9 +2,11 @@ import Base from './base'
 import Organization from './organization'
 import Transformation from './transformation'
 import Column from './column'
+import DatasetMetadata from './dataset-metadata'
 
 import Storage from '../../storage'
-import { fullDatasetPath, csvFromStream } from '../../lib/util'
+import { fullDatasetPath, csvFromStream, storeFS } from '../../lib/util'
+import { sendToWorkerQueue } from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 
 class Dataset extends Base {
@@ -14,6 +16,12 @@ class Dataset extends Base {
 
   constructor(node) {
     super(node)
+
+    this.paths = {
+      original: `${this.uuid}/original.csv`,
+      imported: `${this.uuid}/imported.csv`,
+      sample: `${this.uuid}/sample.csv`
+    }
   }
 
   async columns() {
@@ -33,8 +41,8 @@ class Dataset extends Base {
   }
 
   async rows() {
-    if (this.path && await Storage.exists('datasets', this.path)) {
-      const readStream = await Storage.createReadStream('datasets', this.path)
+    if (this.path && await Storage.exists('datasets', this.paths.imported)) {
+      const readStream = await Storage.createReadStream('datasets', this.paths.imported)
       const csv = await csvFromStream(readStream)
       return csv.map(r => JSON.stringify(r))
     }
@@ -42,8 +50,8 @@ class Dataset extends Base {
   }
 
   async samples() {
-    if (this.path && await Storage.exists('datasets', this.path)) {
-      const readStream = await Storage.createReadStream('datasets', this.path)
+    if (this.path && await Storage.exists('datasets', this.paths.sample)) {
+      const readStream = await Storage.createReadStream('datasets', this.paths.sample)
       const csv = await csvFromStream(readStream, 0, 10)
       return csv.map(r => JSON.stringify(r))
     }
@@ -51,7 +59,7 @@ class Dataset extends Base {
   }
 
   readStream() {
-    return Storage.createReadStream('datasets', this.path)
+    return Storage.createReadStream('datasets', this.paths.imported)
   }
 
   async canAccess(user) {
@@ -126,9 +134,63 @@ class Dataset extends Base {
       console.log(err)
     }
   }
+
+  async upload({stream, filename}) {
+    const { path } = await storeFS({ stream, filename:this.paths.original })
+
+    try {
+      this.path = path
+      this.computed = false
+      this.originalFilename = filename
+
+      await this.save()
+      this.importCSV()
+    } catch (e) {
+      // TODO: What should we do here?
+      console.log(e.message)
+    }
+  }
+
+  async importCSV(removeExisting=false, options={}) {
+    sendToWorkerQueue({
+      task: 'import_csv',
+      uuid: this.uuid,
+      paths: this.paths,
+      id: this.id,
+      removeExisting,
+      ...options
+    })
+  }
+
+  async runTransformation() {
+    const owner = await this.owner()
+    sendToWorkerQueue({
+      task: 'generate',
+      id: this.id,
+      uuid: this.uuid,
+      paths: this.paths,
+      ownerName: owner.name
+    })
+  }
+
+  async metadata() {
+    let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', DatasetMetadata, 'metadata')
+    if (!datasetMetadata) {
+      const query = `
+        MATCH (dataset:Dataset { uuid: $uuid })
+        MERGE (dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)
+        RETURN metadata
+      `
+      const results = await safeQuery(query, this)
+      // Have to re-get after the transaction to ensure a proper uuid
+      datasetMetadata = DatasetMetadata.get(results[0].metadata.identity)
+    }
+
+    return datasetMetadata
+  }
 }
 
 Dataset.label = 'Dataset'
-Dataset.saveProperties = ['name', 'path', 'computed', 'generating']
+Dataset.saveProperties = ['name', 'path', 'computed', 'generating', 'originalFilename']
 
 export default Dataset

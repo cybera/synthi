@@ -24,6 +24,26 @@ def object_store():
 
   return conn.object_store
 
+def exists(relative_path):
+  object_exists = True
+  try:
+    container = config.storage.object.containers['datasets']
+    object_store().get_object_metadata(container=container, obj=relative_path)
+  except openstack.exceptions.ResourceNotFound as error:
+    object_exists = False
+
+  return object_exists
+
+def read_raw(relative_path):
+  container = config.storage.object.containers['datasets']
+  obj = object_store().download_object(relative_path, container)
+  return obj
+
+def write_raw(data, relative_path):
+  container = config.storage.object.containers['datasets']
+  object_store().upload_object(container=container,
+                               name=relative_path,
+                               data=data)
 
 def read_csv(relative_path, params=dict()):
   container = config.storage.object.containers['datasets']
@@ -35,7 +55,7 @@ def write_csv(df, relative_path):
   container = config.storage.object.containers['datasets']
   object_store().upload_object(container=container,
                                name=relative_path,
-                               data=df.to_csv(index=False))
+                               data=df.to_csv(index=False).encode('utf-8'))
 
 def read_script_module(relative_path):
   container = config.storage.object.containers['scripts']

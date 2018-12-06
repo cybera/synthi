@@ -8,28 +8,6 @@ import columnResolvers from './resolvers/column'
 import generalResolvers from './resolvers/general'
 import User from '../domain/models/user'
 
-import { storeFS } from '../lib/util'
-
-const processUpload = async (upload) => {
-  const {
-    stream,
-    filename,
-    mimetype,
-    encoding
-  } = await upload
-
-  const { id, path } = await storeFS({ stream, filename })
-
-  // return storeDB({ id, filename, mimetype, encoding, path })
-  return {
-    id,
-    filename,
-    mimetype,
-    encoding,
-    path
-  }
-}
-
 const mainResolvers = {
   Query: {
     async currentUser(_, params, context) {
@@ -38,7 +16,6 @@ const mainResolvers = {
     }
   },
   Mutation: {
-    uploadFile: (_, { file }) => processUpload(file),
     regenerateAPIKey: async (_, params, context) => {
       const user = await User.get(context.user.id)
       user.regenerateAPIKey()

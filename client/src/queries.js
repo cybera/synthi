@@ -12,15 +12,6 @@ query($searchString: String, $org: OrganizationID) {
 }
 `
 
-export const uploadDatasetMutation = gql`
-mutation UploadDataset($name: String!, $file: Upload!) {
-  uploadDataset(name: $name, file: $file) {
-    id
-    name
-  }
-}
-`
-
 export const deleteDatasetMutation = gql`
 mutation DeleteDataset($id: Int!) {
   deleteDataset(id: $id) {

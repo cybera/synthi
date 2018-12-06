@@ -1,73 +1,42 @@
 import { AuthenticationError } from 'apollo-server-express'
 
-import { sendToWorkerQueue } from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
-import { storeFS, runTransformation } from '../../lib/util'
 import { pubsub, withFilter } from '../pubsub'
 import * as TransformationRepository from '../../domain/repositories/transformationRepository'
-import DatasetRepository from '../../domain/repositories/datasetRepository'
 import Organization from '../../domain/models/organization'
 import Dataset from '../../domain/models/dataset'
 
-// TODO: Move this to a real memcached or similar service and actually tie it to the
-// current user
+// TODO: Move this to the column model and use redis to store
 const visibleColumnCache = {}
 
-const columnVisible = ({ id, order }) => {
-  if (!visibleColumnCache[id]) {
-    visibleColumnCache[id] = { visible: order ? order < 5 : false }
-  }
-  return visibleColumnCache[id].visible
-}
-
-const processDatasetUpload = async (name, upload, context) => {
-  const { stream, filename } = await upload
-  const { path } = await storeFS({ stream, filename })
-  let dataset
-
-  try {
-    dataset = await DatasetRepository.create(context, { name, path, computed: false })
-
-    sendToWorkerQueue({
-      task: 'import_csv',
-      id: dataset.id
-    })
-  } catch (e) {
-    // TODO: What should we do here?
-    console.log(e.message)
+const columnVisible = (user, { id, order }) => {
+  if (!visibleColumnCache[user.uuid]) {
+    visibleColumnCache[user.uuid] = {}
   }
 
-  return dataset
+  if (!visibleColumnCache[user.uuid][id]) {
+    visibleColumnCache[user.uuid][id] = { visible: order ? order < 5 : false }
+  }
+  return visibleColumnCache[user.uuid][id].visible
 }
 
 const processDatasetUpdate = async (datasetProps, context) => {
-  const { id, file, computed, name } = datasetProps
+  const {
+    id,
+    file,
+    computed,
+    name,
+    generating
+  } = datasetProps
 
   // TODO: access control
-  let dataset = await Dataset.get(id)
+  const dataset = await Dataset.get(id)
 
   if (!dataset.canAccess(context.user)) {
     throw new AuthenticationError('Operation not allowed on this resource')
   }
 
-  if (file) {
-    const { stream, filename } = await file
-    const { path } = await storeFS({ stream, filename })
-
-    try {
-      dataset.path = path
-      dataset.computed = false
-
-      await dataset.save()
-      sendToWorkerQueue({
-        task: 'import_csv',
-        id: dataset.id
-      })
-    } catch (e) {
-      // TODO: What should we do here?
-      console.log(e.message)
-    }
-  }
+  if (file) dataset.upload(await file)
 
   let changed = false
   if (computed != null) {
@@ -77,6 +46,11 @@ const processDatasetUpdate = async (datasetProps, context) => {
 
   if (name != null) {
     dataset.name = name
+    changed = true
+  }
+
+  if (generating != null) {
+    dataset.generating = generating
     changed = true
   }
 
@@ -124,9 +98,9 @@ export default {
     },
   },
   Dataset: {
-    async columns(dataset) {
+    async columns(dataset, _, context) {
       const columns = await dataset.columns()
-      return columns.map(c => ({ ...c, visible: columnVisible(c) }))
+      return columns.map(c => ({ ...c, visible: columnVisible(context.user, c) }))
     },
     samples: dataset => dataset.samples(),
     rows: dataset => dataset.rows(),
@@ -143,7 +117,12 @@ export default {
       }
 
       if (await org.canCreateDatasets(context.user)) {
-        return org.createDataset({ name })
+        const dataset = await org.createDataset({ name })
+        // Initialize metadata (this will set some dates to when the dataset is created)
+        const metadata = await dataset.metadata()
+        await metadata.save()
+
+        return dataset
       }
       return null
     },
@@ -162,16 +141,10 @@ export default {
       }
       // Only allow importing if the user can access the dataset in the first place
       if (dataset) {
-        sendToWorkerQueue({
-          task: 'import_csv',
-          id,
-          removeExisting,
-          ...options
-        })
+        dataset.importCSV(removeExisting, options)
       }
       return dataset
     },
-    uploadDataset: (_, { name, file }, context) => processDatasetUpload(name, file, context),
     updateDataset: (_, props, context) => processDatasetUpdate(props, context),
     createPlot(_, { jsondef }) {
       return safeQuery(`
@@ -187,13 +160,13 @@ export default {
       }
       dataset.generating = true
       await dataset.save()
-      runTransformation(dataset)
+      dataset.runTransformation()
       return dataset
     },
-    toggleColumnVisibility(_, { id }) {
-      const isVisible = columnVisible({ id })
-      visibleColumnCache[id].visible = !isVisible
-      return visibleColumnCache[id].visible
+    toggleColumnVisibility(_, { id }, context) {
+      const isVisible = columnVisible(context.user, { id })
+      visibleColumnCache[context.user.uuid][id].visible = !isVisible
+      return visibleColumnCache[context.user.uuid][id].visible
     },
     async saveInputTransformation(_, { id, code }, context) {
       const dataset = await Dataset.get(id)
