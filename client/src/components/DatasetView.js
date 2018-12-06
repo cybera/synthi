@@ -189,6 +189,7 @@ const ConnectedDatasetView = (props) => {
                   className={classes.text}
                 />
                 <DatasetUploadButton id={id} />
+                <UploadParsingOptions id={id} error={error} />
               </div>
             )
           }
