@@ -49,10 +49,10 @@ const DatasetNameEditor = (props) => {
 
             if (oldName !== newName) {
               updateMutation({ variables: { id: dataset.id, name: newName } })
-              .then(() => openSnackbar({ message: `Renamed '${oldName}' to '${newName}'` }))
-              .catch(e => openSnackbar({ message: e.message }))
+                .then(() => openSnackbar({ message: `Renamed '${oldName}' to '${newName}'` }))
+                .catch(e => openSnackbar({ message: e.message }))
             }
-            
+
             changeMode(false)
           }}
         />
