@@ -26,7 +26,6 @@ class DatasetListItem extends React.Component {
   }
 
   changeEditMode = (newState) => {
-    console.log('Hello')
     this.setState({ editing: newState })
   }
 
