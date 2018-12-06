@@ -248,7 +248,7 @@ class DatasetMetadata extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Typography variant="headline" className={classes.title}>
+        <Typography variant="h5" className={classes.title}>
           General
         </Typography>
         <Paper className={classes.paper}>

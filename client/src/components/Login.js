@@ -147,7 +147,7 @@ class Login extends React.Component {
               alt=""
               className={classes.img}
             />
-            <Typography component="h1" variant="title" gutterBottom>
+            <Typography component="h1" variant="h6" gutterBottom>
               Welcome to the ADI Platform
             </Typography>
             <Typography component="h1" variant="body1">

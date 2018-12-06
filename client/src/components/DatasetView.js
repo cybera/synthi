@@ -115,10 +115,10 @@ class DatasetView extends React.Component {
               <NoDataSvg color="#303f9f" className={classes.svg} />
             </div>
             <div className={classes.text}>
-              <Typography variant="headline">
+              <Typography variant="h5">
                 Add some data to your dataset
               </Typography>
-              <Typography variant="subheading" className={classes.subheader}>
+              <Typography variant="subtitle1" className={classes.subheader}>
                 Upload a CSV file containing the underlying data
                 or generate it from existing datasets.
               </Typography>

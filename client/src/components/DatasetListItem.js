@@ -36,7 +36,7 @@ class DatasetListItem extends React.Component {
         onClick={this.selectDataset}
       >
         <ListItemText
-          primary={<Typography variant="subheading" component="span">{dataset.name}</Typography>}
+          primary={<Typography variant="subtitle1" component="span">{dataset.name}</Typography>}
           disableTypography
         />
         <DatasetListItemMenu dataset={dataset} />

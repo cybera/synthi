@@ -28,7 +28,7 @@ class WarningBanner extends React.Component {
     const {header, message, advice, classes} = this.props
     return(
       <div className={classes.root}>
-        <Typography variant="headline" className={classes.error}>
+        <Typography variant="h5" className={classes.error}>
           {header}
         </Typography>
         <Typography variant="body2" className={classes.message}>

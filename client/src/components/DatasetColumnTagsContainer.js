@@ -40,7 +40,7 @@ class DatasetColumnTagsContainer extends React.Component {
               
               return(
                 <div>
-                  <Typography variant="headline" className={classes.title}>
+                  <Typography variant="h5" className={classes.title}>
                     Column Settings
                   </Typography>
                   <Paper>

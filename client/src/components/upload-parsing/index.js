@@ -11,7 +11,7 @@ const ParsingOptions = (props) => {
 
   const ErrorMessage = () => (error ? (
     <Fragment>
-      <Typography component="h2" variant="title" color="error">
+      <Typography component="h2" variant="h6" color="error">
         Error Message:
       </Typography>
       <Typography color="error">{error.message}</Typography>
@@ -21,10 +21,10 @@ const ParsingOptions = (props) => {
 
   return (
     <div>
-      <Typography component="h2" variant="headline">
+      <Typography component="h2" variant="h5">
         More information required
       </Typography>
-      <Typography variant="subheading" gutterBottom>
+      <Typography variant="subtitle1" gutterBottom>
         The file you uploaded could not be processed automatically. Please provide some more
         information about the file contents.
       </Typography>

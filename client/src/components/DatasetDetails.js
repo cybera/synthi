@@ -94,7 +94,7 @@ class DatasetDetails extends React.Component {
       {
         name: 'Chart Editor',
         icon: <ConnectionsIcon />,
-        detailMode: <ChartEditor datasetID={id} />
+        detailMode: <ChartEditor datasetID={id} />,
       },
       {
         name: 'API Info',
@@ -109,10 +109,10 @@ class DatasetDetails extends React.Component {
     if (!id) {
       return (
         <Placeholder>
-          <Typography variant="display1" className={classes.placeholderHeading}>
+          <Typography variant="h4" className={classes.placeholderHeading}>
             Welcome to ADI
           </Typography>
-          <Typography variant="subheading">
+          <Typography variant="subtitle1">
             Select a dataset or create a new dataset to get started.
           </Typography>
         </Placeholder>
@@ -122,7 +122,7 @@ class DatasetDetails extends React.Component {
     return (
       <div>
         <Paper className={classes.header} square>
-          <Typography variant="display1" component="h2" className={classes.headerText}>
+          <Typography variant="h4" component="h2" className={classes.headerText}>
             {navigation.currentName}
           </Typography>
           <AppBar
