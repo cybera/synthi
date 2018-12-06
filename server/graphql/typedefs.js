@@ -12,7 +12,7 @@ const DatasetMetadata = `
   description: String
   source: String
   identifier: String
-  theme: String
+  topic: [String]
 `
 
 // PATCH: Handle and reject parsing errors
