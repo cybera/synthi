@@ -24,7 +24,7 @@ class ComputeButton extends React.Component {
 
     return(
       <span className={classes.button}>
-        <Button variant="raised" component="span" color="secondary" onClick={handleMode}>
+        <Button variant="contained" component="span" color="secondary" onClick={handleMode}>
           <CodeIcon className={classes.icon} />
           Compute
         </Button>

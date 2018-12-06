@@ -42,12 +42,10 @@ const DatasetList = (props) => {
         .sort(collator.compare)
         .reverse()
         .map(dataset => (
-          <div onClick={() => navigation.selectDataset(dataset.id, dataset.name)} key={dataset.id}>
-            <DatasetListItem
-              key={dataset.id}
-              dataset={dataset}
-            />
-          </div>
+          <DatasetListItem
+            key={dataset.id}
+            dataset={dataset}
+          />
         ))}
 
     </List>

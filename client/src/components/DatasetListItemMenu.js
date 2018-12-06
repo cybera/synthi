@@ -27,7 +27,6 @@ class DatasetListItemMenu extends React.Component {
     super(props)
 
     this.state = {
-      isDeleting: false,
       showDialog: false,
       anchorEl: null
     }
@@ -47,7 +46,8 @@ class DatasetListItemMenu extends React.Component {
     this.setState({ anchorEl: null })
   }
 
-  handleDeleteDialog() {
+  handleDeleteDialog = (event) => {
+    event.stopPropagation()
     this.setState({ showDialog: true })
   }
 

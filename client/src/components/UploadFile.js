@@ -49,7 +49,7 @@ class UploadFile extends React.Component {
           onChange={this.handleChange}
         />
         <label htmlFor="raised-button-file">
-          <Button variant="raised" component="span" color="primary" className={classes.button}>
+          <Button variant="contained" component="span" color="primary" className={classes.button}>
             { !loading && <CloudUploadIcon className={classes.icon} />}
             { loading && <CircularProgress className={classes.icon} size={22} color="inherit" />}
             { text }

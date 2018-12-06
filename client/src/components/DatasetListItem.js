@@ -28,7 +28,6 @@ class DatasetListItem extends React.Component {
     } = this.props
 
     const active = navigation.currentDataset === dataset.id
-    
 
     return (
       <ListItem
@@ -36,7 +35,10 @@ class DatasetListItem extends React.Component {
         selected={active}
         onClick={this.selectDataset}
       >
-        <ListItemText primary={<Typography variant="subheading" component="span">{dataset.name}</Typography>} disableTypography />
+        <ListItemText
+          primary={<Typography variant="subheading" component="span">{dataset.name}</Typography>}
+          disableTypography
+        />
         <DatasetListItemMenu dataset={dataset} />
       </ListItem>
     )
