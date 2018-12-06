@@ -48,12 +48,14 @@ class DatasetListItemMenu extends React.Component {
 
   handleDeleteDialog = (event) => {
     event.stopPropagation()
+    this.handleCloseMenu(event)
     this.setState({ showDialog: true })
   }
 
-  handleDelete(agree) {
+  handleDelete(event, agree) {
     const { deleteDataset, navigation, dataset: { id, name } } = this.props
 
+    event.stopPropagation()
     this.setState({ showDialog: false })
 
     if (agree) {
@@ -76,7 +78,15 @@ class DatasetListItemMenu extends React.Component {
   }
 
   render() {
-    const { classes, dataset: { id, name } } = this.props
+    const {
+      classes,
+      dataset: {
+        id,
+        name
+      },
+      onRename
+    } = this.props
+
     const { showDialog, anchorEl } = this.state
 
     const open = Boolean(anchorEl)
@@ -106,7 +116,11 @@ class DatasetListItemMenu extends React.Component {
             open={open}
             onClose={this.handleCloseMenu}
           >
-            <MenuItem>
+            <MenuItem onClick={(event) => {
+              onRename(true)
+              this.handleCloseMenu(event)
+            }}
+            >
               Rename
             </MenuItem>
 
@@ -133,12 +147,13 @@ class DatasetListItemMenu extends React.Component {
 
 DatasetListItemMenu.propTypes = {
   deleteDataset: PropTypes.func.isRequired,
+  onRename: PropTypes.func.isRequired,
   dataset: PropTypes.shape({
     id: PropTypes.number,
     name: PropTypes.string
   }),
   navigation: PropTypes.objectOf(PropTypes.any).isRequired,
-  classes: PropTypes.objectOf(PropTypes.any).isRequired
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
 }
 
 DatasetListItemMenu.defaultProps = {
