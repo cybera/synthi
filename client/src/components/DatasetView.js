@@ -90,8 +90,19 @@ class DatasetView extends React.Component {
   }
 
   componentDidMount() {
-    const { subscribeToDatasetGenerated } = this.props
-    subscribeToDatasetGenerated()
+    const { subscribeToDatasetGenerated, id } = this.props
+    this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
+      const { errors } = this.state
+      if (status === 'failed') {
+        this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
+      } else {
+        this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
   }
 
   render() {
@@ -190,20 +201,15 @@ const ConnectedDatasetView = (props) => {
             <DatasetView
               {...props}
               dataset={data.dataset[0]}
-              subscribeToDatasetGenerated={() => {
-                subscribeToMore({
+              subscribeToDatasetGenerated={(handleStatus) => {
+                return subscribeToMore({
                   document: DATASET_GENERATION_SUBSCRIPTION,
                   variables: { id },
                   updateQuery: (prev, { subscriptionData }) => {
                     if (!subscriptionData.data) return prev
 
-                    const { status, message } = subscriptionData.data.datasetGenerated
-                    const { errors } = this.state
-                    if (status === 'failed') {
-                      this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
-                    } else {
-                      this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
-                    }
+                    handleStatus(subscriptionData.data.datasetGenerated)
+
                     refetch()
                     return prev
                   }
