@@ -99,15 +99,40 @@ class Base {
     return true
   }
 
+  update(bulkProperties) {
+    Object.assign(this, bulkProperties)
+  }
+
+  // Carry out any actions on the object before it is committed
+  // to the database. This method should return an object in the
+  // following form:
+  //
+  // { proceed: true }
+  // { proceed: false, message: 'Cannot save because...' }
+  //
+  // The default implementation simply returns { proceed: true }
+  beforeSave() {
+    return { proceed: true }
+  }
+
   async save() {
-    const saveValues = lodash.pick(this, this.__saveProperties)
+    const preSave = this.beforeSave()
+    if (!preSave.proceed) throw new Error(preSave.message)
 
     const query = [`
       MATCH (node:${this.__label} { uuid: $node.uuid })
-      SET node += $saveValues
-    `, { node: this, saveValues }]
+      SET node += $values
+    `, { node: this, values: this.valuesForNeo4J() }]
 
     await safeQuery(...query)
+  }
+
+  // Can be overridden to specially prepare values for saving to the database
+  // This can return a simple object/hash, as long as it has the same keys.
+  // Subclass should call the superclass method first to get the subset of
+  // properties that are valid to save.
+  valuesForNeo4J() {
+    return lodash.pick(this, this.__saveProperties)
   }
 
   async delete() {

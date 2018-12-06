@@ -143,7 +143,12 @@ export default {
       }
 
       if (await org.canCreateDatasets(context.user)) {
-        return org.createDataset({ name })
+        const dataset = await org.createDataset({ name })
+        // Initialize metadata (this will set some dates to when the dataset is created)
+        const metadata = await dataset.metadata()
+        await metadata.save()
+
+        return dataset
       }
       return null
     },

@@ -43,7 +43,10 @@ class Organization extends Base {
 
     // Normally we shouldn't use the raw id value, but a uuid doesn't get
     // created until the first transaction completes.
-    return Dataset.get(datasetId)
+    const dataset = await Dataset.get(datasetId)
+    // Re-save the dataset to trigger any automatic value setting
+    await dataset.save()
+    return dataset
   }
 
   async uniqueDefaultDatasetName() {
