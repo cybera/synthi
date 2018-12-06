@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { graphql } from 'react-apollo'
+import { graphql, Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
@@ -9,8 +9,6 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import Paper from '@material-ui/core/Paper'
 
 import { datasetViewQuery } from '../queries'
-import { withNavigation } from '../context/NavigationContext'
-import { compose } from '../lib/common'
 import ToggleVisibility from './ToggleVisibility'
 import DataTableView from './DataTableView'
 import DatasetEditor from '../containers/DatasetEditor'
@@ -72,10 +70,10 @@ const styles = theme => ({
 
 class DatasetView extends React.Component {
   static propTypes = {
-    navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired,
     id: PropTypes.number,
     classes: PropTypes.objectOf(PropTypes.any).isRequired,
-    data: PropTypes.objectOf(PropTypes.any).isRequired
+    dataset: PropTypes.objectOf(PropTypes.any).isRequired,
+    subscribeToDatasetGenerated: PropTypes.func.isRequired
   }
 
   static defaultProps = {
@@ -89,66 +87,27 @@ class DatasetView extends React.Component {
       errors: {}
     }
   }
-  
-  subscribeToDatasetGenerated = (subscribeToMore, refetch) => {
-    const { id } = this.props
 
-    subscribeToMore({
-      document: DATASET_GENERATION_SUBSCRIPTION,
-      variables: { id },
-      updateQuery: (prev, { subscriptionData }) => {
-        const { status, message } = subscriptionData.data.datasetGenerated
-        const { errors } = this.state
-        if (status === 'failed') {
-          this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
-        } else {
-          this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
-        }
-        refetch()
-        return prev
-      }
-    })
+  componentDidMount() {
+    const { subscribeToDatasetGenerated } = this.props
+    subscribeToDatasetGenerated()
   }
 
   render() {
     const {
       id,
       classes,
-      data: {
-        loading,
-        error,
-        refetch,
-        subscribeToMore,
-        dataset
-      }
+      dataset
     } = this.props
-
-    if (loading) return <p>Loading...</p>
-    if (error) {
-      return (
-        <div className={classes.empty}>
-          <div className={classes.svgContainer}>
-            <WarnSvg color="#303f9f" className={classes.svg} />
-          </div>
-          <WarningBanner
-            message={error.message}
-            header="Something's wrong with your file..."
-            advice="Please try uploading a new version."
-            className={classes.text}
-          />
-          <DatasetUploadButton id={id} />
-        </div>
-      )
-    }
 
     if (id == null) return <div />
 
     const { errors } = this.state
-    const displayColumns = dataset[0].columns
+    const displayColumns = dataset.columns
     const selectedColumns = displayColumns.filter(c => c.visible)
     const dataExists = selectedColumns.length > 0
 
-    if (!dataExists && !dataset[0].computed) {
+    if (!dataExists && !dataset.computed) {
       return (
         <div className={classes.root}>
           <div className={classes.empty}>
@@ -171,42 +130,90 @@ class DatasetView extends React.Component {
       )
     }
 
-    const sampleRows = dataset[0].samples.map((s) => {
+    const sampleRows = dataset.samples.map((s) => {
       const record = JSON.parse(s)
       return selectedColumns.map(c => record[c.originalName || c.name])
     })
 
-    this.subscribeToDatasetGenerated(subscribeToMore, refetch)
-
     return (
       <div className={classes.root}>
-        <DatasetEditor dataset={dataset[0]} dataExists={dataExists} />
+        <DatasetEditor dataset={dataset} dataExists={dataExists} />
         <Typography className={classes.error}>{errors[id]}</Typography>
-        <ToggleVisibility visible={dataset[0].generating}>
+        <ToggleVisibility visible={dataset.generating}>
           <LinearProgress />
         </ToggleVisibility>
-        <ToggleVisibility visible={!dataset[0].generating && dataExists}>
+        <ToggleVisibility visible={!dataset.generating && dataExists}>
           <Paper>
             <DataTableView columns={selectedColumns} rows={sampleRows} />
           </Paper>
-          <DatasetColumnChips dataset={dataset[0]} columns={displayColumns} />
+          <DatasetColumnChips dataset={dataset} columns={displayColumns} />
         </ToggleVisibility>
       </div>
     )
   }
 }
 
-const StyledDatasetView = compose(
-  withStyles(styles),
-  withNavigation,
-  graphql(
-    datasetViewQuery, {
-      options: props => ({
-        variables: { id: props.id },
-        pollInterval: 2000
-      })
-    }
-  )
-)(DatasetView)
+const ConnectedDatasetView = (props) => {
+  const { id, classes } = props
 
-export default StyledDatasetView
+  return (
+    <Query
+      query={datasetViewQuery}
+      variables={{ id }}
+    >
+      {
+        ({ subscribeToMore, error, loading, data, refetch }) => {
+          if (error) {
+            return (
+              <div className={classes.empty}>
+                <div className={classes.svgContainer}>
+                  <WarnSvg color="#303f9f" className={classes.svg} />
+                </div>
+                <WarningBanner
+                  message={error.message}
+                  header="Something's wrong with your file..."
+                  advice="Please try uploading a new version."
+                  className={classes.text}
+                />
+                <DatasetUploadButton id={id} />
+              </div>
+            )
+          }
+      
+          // Not sure why dataset can sometimes be undefined, even when loading is true, as
+          // the GraphQL resolver should at least return an empty array. But something's going
+          // on to thwart that assumption, so we have to check it here.
+          if (loading || !data.dataset) return <p>Loading...</p>
+
+          return (
+            <DatasetView
+              {...props}
+              dataset={data.dataset[0]}
+              subscribeToDatasetGenerated={() => {
+                subscribeToMore({
+                  document: DATASET_GENERATION_SUBSCRIPTION,
+                  variables: { id },
+                  updateQuery: (prev, { subscriptionData }) => {
+                    if (!subscriptionData.data) return prev
+
+                    const { status, message } = subscriptionData.data.datasetGenerated
+                    const { errors } = this.state
+                    if (status === 'failed') {
+                      this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
+                    } else {
+                      this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
+                    }
+                    refetch()
+                    return prev
+                  }
+                })
+              }}
+            />
+          )
+        }
+      }
+    </Query>
+  )
+}
+
+export default withStyles(styles)(ConnectedDatasetView)
