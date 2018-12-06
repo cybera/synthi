@@ -44,7 +44,7 @@ const processDatasetUpload = async (name, upload, context) => {
 }
 
 const processDatasetUpdate = async (datasetProps, context) => {
-  const { id, file, computed, name } = datasetProps
+  const { id, file, computed, name, generating } = datasetProps
 
   // TODO: access control
   let dataset = await Dataset.get(id)
@@ -80,6 +80,11 @@ const processDatasetUpdate = async (datasetProps, context) => {
 
   if (name != null) {
     dataset.name = name
+    changed = true
+  }
+
+  if (generating != null) {
+    dataset.generating = generating
     changed = true
   }
 

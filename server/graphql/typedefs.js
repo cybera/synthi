@@ -143,7 +143,7 @@ type Mutation {
   importCSV(id: Int!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
-  updateDataset(id: Int!, file:Upload, computed:Boolean, name:String): Dataset
+  updateDataset(id: Int!, file:Upload, computed:Boolean, name:String, generating:Boolean): Dataset
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean
