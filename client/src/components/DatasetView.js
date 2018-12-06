@@ -166,6 +166,53 @@ class DatasetView extends React.Component {
   }
 }
 
+/* eslint-disable react/no-multi-comp */
+class SubscribedWarningBanner extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      errors: {}
+    }
+  }
+
+  componentDidMount() {
+    const { subscribeToDatasetGenerated, id } = this.props
+    this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
+      const { errors } = this.state
+      if (status === 'failed') {
+        this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
+      } else {
+        this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
+  }
+
+  render() {
+    const { classes, id, error } = this.props
+
+    return (
+      <div className={classes.empty}>
+        <div className={classes.svgContainer}>
+          <WarnSvg color="#303f9f" className={classes.svg} />
+        </div>
+        <WarningBanner
+          message={error.message}
+          header="Something's wrong with your file..."
+          advice="Please try uploading a new version."
+          className={classes.text}
+        />
+        <DatasetUploadButton id={id} />
+        <UploadParsingOptions id={id} error={error} />
+      </div>
+    )
+  }
+}
+/* eslint-enable react/no-multi-comp */
+
 const ConnectedDatasetView = (props) => {
   const { id, classes } = props
 
@@ -178,22 +225,28 @@ const ConnectedDatasetView = (props) => {
         ({ subscribeToMore, error, loading, data, refetch }) => {
           if (error) {
             return (
-              <div className={classes.empty}>
-                <div className={classes.svgContainer}>
-                  <WarnSvg color="#303f9f" className={classes.svg} />
-                </div>
-                <WarningBanner
-                  message={error.message}
-                  header="Something's wrong with your file..."
-                  advice="Please try uploading a new version."
-                  className={classes.text}
-                />
-                <DatasetUploadButton id={id} />
-                <UploadParsingOptions id={id} error={error} />
-              </div>
+              <SubscribedWarningBanner
+                classes={classes}
+                id={id}
+                error={error}
+                subscribeToDatasetGenerated={(handleStatus) => {
+                  return subscribeToMore({
+                    document: DATASET_GENERATION_SUBSCRIPTION,
+                    variables: { id },
+                    updateQuery: (prev, { subscriptionData }) => {
+                      if (!subscriptionData.data) return prev
+  
+                      handleStatus(subscriptionData.data.datasetGenerated)
+  
+                      refetch()
+                      return prev
+                    }
+                  })
+                }}
+              />
             )
           }
-      
+
           // Not sure why dataset can sometimes be undefined, even when loading is true, as
           // the GraphQL resolver should at least return an empty array. But something's going
           // on to thwart that assumption, so we have to check it here.
