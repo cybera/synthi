@@ -9,15 +9,18 @@ import DatasetRepository from '../../domain/repositories/datasetRepository'
 import Organization from '../../domain/models/organization'
 import Dataset from '../../domain/models/dataset'
 
-// TODO: Move this to a real memcached or similar service and actually tie it to the
-// current user
+// TODO: Move this to the column model and use redis to store
 const visibleColumnCache = {}
 
-const columnVisible = ({ id, order }) => {
-  if (!visibleColumnCache[id]) {
-    visibleColumnCache[id] = { visible: order ? order < 5 : false }
+const columnVisible = (user, { id, order }) => {
+  if (!visibleColumnCache[user.uuid]) {
+    visibleColumnCache[user.uuid] = {}
   }
-  return visibleColumnCache[id].visible
+
+  if (!visibleColumnCache[user.uuid][id]) {
+    visibleColumnCache[user.uuid][id] = { visible: order ? order < 5 : false }
+  }
+  return visibleColumnCache[user.uuid][id].visible
 }
 
 const processDatasetUpload = async (name, upload, context) => {
@@ -124,9 +127,9 @@ export default {
     },
   },
   Dataset: {
-    async columns(dataset) {
+    async columns(dataset, _, context) {
       const columns = await dataset.columns()
-      return columns.map(c => ({ ...c, visible: columnVisible(c) }))
+      return columns.map(c => ({ ...c, visible: columnVisible(context.user, c) }))
     },
     samples: dataset => dataset.samples(),
     rows: dataset => dataset.rows(),
@@ -195,10 +198,10 @@ export default {
       runTransformation(dataset)
       return dataset
     },
-    toggleColumnVisibility(_, { id }) {
-      const isVisible = columnVisible({ id })
-      visibleColumnCache[id].visible = !isVisible
-      return visibleColumnCache[id].visible
+    toggleColumnVisibility(_, { id }, context) {
+      const isVisible = columnVisible(context.user, { id })
+      visibleColumnCache[context.user.uuid][id].visible = !isVisible
+      return visibleColumnCache[context.user.uuid][id].visible
     },
     async saveInputTransformation(_, { id, code }, context) {
       const dataset = await Dataset.get(id)
