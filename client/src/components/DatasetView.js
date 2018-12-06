@@ -1,36 +1,25 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { graphql } from 'react-apollo'
+import { graphql, Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import IconButton from '@material-ui/core/IconButton'
-import ChartIcon from '@material-ui/icons/ShowChart'
 import LinearProgress from '@material-ui/core/LinearProgress'
+import Paper from '@material-ui/core/Paper'
 
 import { datasetViewQuery } from '../queries'
-import { withNavigation } from '../context/NavigationContext'
-import { compose } from '../lib/common'
 import ToggleVisibility from './ToggleVisibility'
 import UploadParsingOptions from './upload-parsing'
 import DataTableView from './DataTableView'
 import DatasetEditor from '../containers/DatasetEditor'
 import DatasetColumnChips from './DatasetColumnChips'
-import Paper from '@material-ui/core/Paper'
 import WarningBanner from './WarningBanner'
 import DatasetUploadButton from '../containers/DatasetUploadButton'
 import DatasetComputeModeButton from '../containers/DatasetComputeModeButton'
 import NoDataSvg from './svg/NoData'
 import WarnSvg from './svg/Warn'
-
-// For editing the name without having to go to a form
-/* <Typography variant="headline">
-  <DatasetNameEditor dataset={dataset} />
-  <IconButton aria-label="Chart" onClick={() => navigation.switchMode('chart-editor')}>
-    <ChartIcon />
-  </IconButton>
-</Typography> */
+import PanelLoadingState from './PanelLoadingState'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -83,9 +72,10 @@ const styles = theme => ({
 
 class DatasetView extends React.Component {
   static propTypes = {
-    navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired,
     id: PropTypes.number,
-    classes: PropTypes.object.isRequired // eslint-disable-line react/forbid-prop-types
+    classes: PropTypes.objectOf(PropTypes.any).isRequired,
+    dataset: PropTypes.objectOf(PropTypes.any).isRequired,
+    subscribeToDatasetGenerated: PropTypes.func.isRequired
   }
 
   static defaultProps = {
@@ -100,69 +90,50 @@ class DatasetView extends React.Component {
     }
   }
 
-  subscribeToDatasetGenerated = (subscribeToMore, refetch) => {
-    const { id } = this.props
-
-    subscribeToMore({
-      document: DATASET_GENERATION_SUBSCRIPTION,
-      variables: { id },
-      updateQuery: (prev, { subscriptionData }) => {
-        const { status, message } = subscriptionData.data.datasetGenerated
-        const { errors } = this.state
-        if (status === 'failed') {
-          this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
-        } else {
-          this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
-        }
-        refetch()
-        return prev
+  componentDidMount() {
+    const { subscribeToDatasetGenerated, id } = this.props
+    this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
+      const { errors } = this.state
+      if (status === 'failed') {
+        this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
+      } else {
+        this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
       }
     })
   }
 
-  render() {
-    const { id, classes, data: { loading, error, refetch, subscribeToMore } } = this.props
+  componentWillUnmount() {
+    this.unsubscribe()
+  }
 
-    if (loading) return <p>Loading...</p>
-    if (error) {
-      return (
-        <div className={classes.empty}>
-          <div className={classes.svgContainer}>
-            <WarnSvg color="#303f9f" className={classes.svg} />
-          </div>
-          <WarningBanner 
-            message={error.message}
-            header="Something's wrong with your file..."
-            advice="Please try uploading a new version."
-            className={classes.text}
-          />
-          <DatasetUploadButton id={id} />
-          <UploadParsingOptions id={id} error={error} />
-        </div>
-      )
-    }
+  render() {
+    const {
+      id,
+      classes,
+      dataset
+    } = this.props
 
     if (id == null) return <div />
 
     const { errors } = this.state
-    const dataset = this.props.data.dataset[0]
     const displayColumns = dataset.columns
     const selectedColumns = displayColumns.filter(c => c.visible)
     const dataExists = selectedColumns.length > 0
 
     if (!dataExists && !dataset.computed) {
-      return(
+      return (
         <div className={classes.root}>
           <div className={classes.empty}>
             <div className={classes.svgContainer}>
               <NoDataSvg color="#303f9f" className={classes.svg} />
             </div>
             <div className={classes.text}>
-              <Typography variant="headline">
+              <Typography variant="h5">
                 Add some data to your dataset
               </Typography>
-              <Typography variant="subheading" className={classes.subheader}>
-                Upload a CSV file containing the underlying data or generate it from existing datasets.
+              <Typography variant="subtitle1" className={classes.subheader}>
+                Upload a CSV file containing the underlying data
+                or generate it from existing datasets.
               </Typography>
             </div>
             <DatasetUploadButton id={id} />
@@ -176,8 +147,6 @@ class DatasetView extends React.Component {
       const record = JSON.parse(s)
       return selectedColumns.map(c => record[c.originalName || c.name])
     })
-
-    this.subscribeToDatasetGenerated(subscribeToMore, refetch)
 
     return (
       <div className={classes.root}>
@@ -197,17 +166,63 @@ class DatasetView extends React.Component {
   }
 }
 
-const StyledDatasetView = compose(
-  withStyles(styles),
-  withNavigation,
-  graphql(
-    datasetViewQuery, {
-      options: (props) =>({
-        variables: { id: props.id },
-        fetchPolicy: 'network-only'
-      })
-    }
-  )
-)(DatasetView)
+const ConnectedDatasetView = (props) => {
+  const { id, classes } = props
 
-export default StyledDatasetView
+  return (
+    <Query
+      query={datasetViewQuery}
+      variables={{ id }}
+    >
+      {
+        ({ subscribeToMore, error, loading, data, refetch }) => {
+          if (error) {
+            return (
+              <div className={classes.empty}>
+                <div className={classes.svgContainer}>
+                  <WarnSvg color="#303f9f" className={classes.svg} />
+                </div>
+                <WarningBanner
+                  message={error.message}
+                  header="Something's wrong with your file..."
+                  advice="Please try uploading a new version."
+                  className={classes.text}
+                />
+                <DatasetUploadButton id={id} />
+                <UploadParsingOptions id={id} error={error} />
+              </div>
+            )
+          }
+      
+          // Not sure why dataset can sometimes be undefined, even when loading is true, as
+          // the GraphQL resolver should at least return an empty array. But something's going
+          // on to thwart that assumption, so we have to check it here.
+          if (loading || !data.dataset) return <PanelLoadingState />
+
+          return (
+            <DatasetView
+              {...props}
+              dataset={data.dataset[0]}
+              subscribeToDatasetGenerated={(handleStatus) => {
+                return subscribeToMore({
+                  document: DATASET_GENERATION_SUBSCRIPTION,
+                  variables: { id },
+                  updateQuery: (prev, { subscriptionData }) => {
+                    if (!subscriptionData.data) return prev
+
+                    handleStatus(subscriptionData.data.datasetGenerated)
+
+                    refetch()
+                    return prev
+                  }
+                })
+              }}
+            />
+          )
+        }
+      }
+    </Query>
+  )
+}
+
+export default withStyles(styles)(ConnectedDatasetView)

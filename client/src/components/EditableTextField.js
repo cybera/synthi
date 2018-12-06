@@ -1,68 +1,91 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 
+const styles = () => ({
+  input: {
+
+  }
+})
+
 class EditableTextField extends React.Component {
-  state = {
-    editing: false,
-    value: ''
-  }
+  constructor(props) {
+    super(props)
 
-  changeMode = (editing) => {
-    const { text, commit } = this.props
-    const { value } = this.state
+    const { text } = props
 
-    this.setState({ editing, value: text })
-    if (!editing) {
-      if (value !== text) {
-        commit(value)
-      }
+    this.state = {
+      value: text
     }
+
+    this.keyPress = this.keyPress.bind(this)
   }
 
-  handleChange = name => (event) => {
+  saveChanges = () => {
+    const { value } = this.state
+    const { commit } = this.props
+    commit(value)
+  }
+
+  handleChange = (event) => {
     this.setState({
-      [name]: event.target.value,
+      value: event.target.value,
     })
   }
 
   keyPress = (event) => {
     if (event.keyCode === 13) {
-      this.changeMode(false)
+      this.saveChanges()
     }
   }
 
   render() {
-    const { text } = this.props
-    const { editing, value } = this.state
+    const {
+      text,
+      variant,
+      editing,
+      classes
+    } = this.props
+
+    const { value } = this.state
+
     if (editing) {
       return (
         <TextField
-          id="dataset-name"
-          label="Dataset Name"
           value={value}
-          onChange={this.handleChange('value')}
-          margin="normal"
-          variant="outlined"
+          className={classes.input}
+          onChange={this.handleChange}
+          margin="none"
           autoFocus
           onKeyDown={this.keyPress}
-          onBlur={() => this.changeMode(false)}
         />
       )
     }
-    // TODO: We should come up with a better way of editing here instead of silencing the warning
-    /* eslint-disable jsx-a11y/click-events-have-key-events,
-                      jsx-a11y/no-static-element-interactions */
-    return <span onClick={() => this.changeMode(true)}>{text}</span>
-    /* eslint-enable jsx-a11y/click-events-have-key-events,
-                     jsx-a11y/no-static-element-interactions */
+
+    return (
+      <Typography
+        variant={variant}
+        component="span"
+      >
+        {text}
+      </Typography>
+    )
   }
 }
 
 EditableTextField.propTypes = {
   text: PropTypes.string.isRequired,
-  commit: PropTypes.func.isRequired
+  commit: PropTypes.func.isRequired,
+  variant: PropTypes.string,
+  editing: PropTypes.bool.isRequired,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
-export default EditableTextField
+EditableTextField.defaultProps = {
+  variant: 'subtitle1'
+}
+
+export default withStyles(styles)(EditableTextField)

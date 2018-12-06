@@ -17,10 +17,9 @@ import ADILogo from '../images/ckan-logo.png'
 import UserMenu from './UserMenu'
 import Sidebar from './Sidebar'
 
-
 const drawerWidth = 300
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
     flexGrow: 1,
   },
@@ -76,10 +75,20 @@ class ButtonAppBar extends React.Component {
     open: true
   }
 
-  toggleDrawer = () => {
-    const current = this.state.open
+  constructor(props) {
+    super(props)
 
-    this.setState({ open: !current })
+    this.state = {
+      open: true
+    }
+
+    this.toggleDrawer = this.toggleDrawer.bind(this)
+  }
+
+  toggleDrawer = () => {
+    const { open } = this.state
+
+    this.setState({ open: !open })
   }
 
   render() {
@@ -89,9 +98,10 @@ class ButtonAppBar extends React.Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar position="fixed" className={classNames(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}>
+        <AppBar
+          position="fixed"
+          className={classNames(classes.appBar, { [classes.appBarShift]: open })}
+        >
           <Toolbar disableGutters={!open}>
             <IconButton
               color="default"
@@ -111,13 +121,6 @@ class ButtonAppBar extends React.Component {
               Datasets
             </ADIButton>
             <ADIButton
-              variant={navigation.currentMode === 'chart-editor' ? 'contained' : 'outlined'}
-              className={classes.menuButton}
-              onClick={() => navigation.switchMode('chart-editor')}
-            >
-              Chart Editor
-            </ADIButton>
-            <ADIButton
               variant={navigation.currentMode === 'scenarios' ? 'contained' : 'outlined'}
               className={classes.menuButton}
               onClick={() => navigation.switchMode('scenarios')}
@@ -129,11 +132,15 @@ class ButtonAppBar extends React.Component {
             <UserMenu />
           </Toolbar>
         </AppBar>
-        <Sidebar open={open} handleSidebarToggle={this.toggleDrawer.bind(this)}/>
+        <Sidebar
+          open={open}
+          handleSidebarToggle={this.toggleDrawer}
+        />
         <main
           className={classNames(classes.content, {
             [classes.contentShift]: open
-          })}>
+          })}
+        >
           {children}
         </main>
       </div>
@@ -142,8 +149,9 @@ class ButtonAppBar extends React.Component {
 }
 
 ButtonAppBar.propTypes = {
-  classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired,
+  children: PropTypes.node.isRequired
 }
 
 export default compose(

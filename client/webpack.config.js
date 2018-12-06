@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 // const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 const config = {
@@ -17,6 +18,15 @@ const config = {
       title: 'Alberta Data Institute',
       template: './src/index.html'
     }),
+    new CopyWebpackPlugin([
+      { from: './public/favicon.ico' },
+      { from: './public/favicon-16x16.png' },
+      { from: './public/favicon-32x32.png' },
+      { from: './public/apple-touch-icon.png' },
+      { from: './public/safari-pinned-tab.svg' },
+      { from: './public/site.webmanifest' },
+      { from: './public/browserconfig.xml' }
+    ]),
     new webpack.NamedModulesPlugin()
   ],
   module: {

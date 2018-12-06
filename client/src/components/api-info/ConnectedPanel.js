@@ -1,12 +1,14 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
-import { compose } from '../../lib/common'
-
-import Panel from './Panel'
 import Paper from '@material-ui/core/Paper'
+
+import { compose } from '../../lib/common'
+import Panel from './Panel'
+import PanelLoadingState from '../PanelLoadingState'
 
 export const datasetQuery = gql`
 query DatasetAndAPIKey ($id: Int) {
@@ -20,7 +22,7 @@ query DatasetAndAPIKey ($id: Int) {
 }
 `
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
     ...theme.mixins.gutters(),
     paddingTop: 16,
@@ -36,10 +38,10 @@ const ConnectedPanel = (props) => {
     <Query query={datasetQuery} variables={{ id }}>
       {
         ({ loading, error, data }) => {
-          if (loading) return <p>Loading...</p>
-          if (error) return <p>Error!</p>
+          if (loading) return <PanelLoadingState />
+          if (error) return <p>Error Occurred</p>
 
-          return(
+          return (
             <div className={classes.root}>
               <Paper>
                 <Panel dataset={data.dataset[0]} apikey={data.currentUser.apikey} />
@@ -50,6 +52,15 @@ const ConnectedPanel = (props) => {
       }
     </Query>
   )
+}
+
+ConnectedPanel.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  id: PropTypes.number
+}
+
+ConnectedPanel.defaultProps = {
+  id: null
 }
 
 export default compose(

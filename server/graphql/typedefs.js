@@ -117,7 +117,7 @@ type Plot {
 }
 
 type Query {
-  dataset(id: Int, name: String, searchString: String, org:OrganizationID): [Dataset]
+  dataset(id: Int, name: String, searchString: String, org:OrganizationID): [Dataset]!
   plots(id: Int): [Plot]
   uploads: [File]
   currentUser: User

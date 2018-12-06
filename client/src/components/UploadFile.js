@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 const styles = theme => ({
   input: {
@@ -18,7 +19,8 @@ class UploadFile extends React.Component {
   static propTypes = {
     handleFileChange: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    text: PropTypes.string
+    text: PropTypes.string,
+    loading: PropTypes.bool.isRequired // eslint-disable-line react/forbid-prop-types
   }
 
   static defaultProps = {
@@ -34,7 +36,7 @@ class UploadFile extends React.Component {
   }
 
   render() {
-    const { classes, text } = this.props
+    const { classes, text, loading } = this.props
 
     return (
       <span>
@@ -47,8 +49,9 @@ class UploadFile extends React.Component {
           onChange={this.handleChange}
         />
         <label htmlFor="raised-button-file">
-          <Button variant="raised" component="span" color="primary" className={classes.button}>
-            <CloudUploadIcon className={classes.icon} />
+          <Button variant="contained" component="span" color="primary" className={classes.button}>
+            { !loading && <CloudUploadIcon className={classes.icon} />}
+            { loading && <CircularProgress className={classes.icon} size={22} color="inherit" />}
             { text }
           </Button>
         </label>
