@@ -43,7 +43,7 @@ const SearchEmptyState = (props) => {
       <div className={classes.svgContainer}>
         <EmptySvg color="#303f9f" className={classes.svg} />
       </div>
-      <Typography variant="subheading" guttertop="true" className={classes.heading}>
+      <Typography variant="subtitle1" guttertop="true" className={classes.heading}>
         There&apos;s nothing here.
       </Typography>
       <Typography variant="body1" className={classes.subheading}>

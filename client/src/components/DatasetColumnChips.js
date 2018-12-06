@@ -29,7 +29,7 @@ const DatasetColumnChips = (props) => {
   return (
     <div className={classes.root}>
       <Typography 
-        variant="title"
+        variant="h6"
         className={classes.heading}
       >
         Enabled Columns

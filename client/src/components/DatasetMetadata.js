@@ -20,6 +20,7 @@ import * as Ramda from 'ramda'
 
 import ADIButton from './ADIButton'
 import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
+import PanelLoadingState from './PanelLoadingState'
 
 export const datasetMetadataQuery = gql`
 query($id: Int) {
@@ -248,7 +249,7 @@ class DatasetMetadata extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Typography variant="headline" className={classes.title}>
+        <Typography variant="h5" className={classes.title}>
           General
         </Typography>
         <Paper className={classes.paper}>
@@ -458,7 +459,7 @@ const ConnectedDatasetMetadata = (props) => {
       { updateDatasetMetadata => (
         <Query query={datasetMetadataQuery} variables={{ id }}>
           {({ loading, error, data }) => {
-            if (loading) return <p>Loading...</p>;
+            if (loading) return <PanelLoadingState />
             if (error) return <p>Error!</p>;
 
             const fieldKeys = Object.keys(DatasetMetadata.defaultProps.fields)

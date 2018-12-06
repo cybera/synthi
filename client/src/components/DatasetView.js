@@ -18,6 +18,7 @@ import DatasetUploadButton from '../containers/DatasetUploadButton'
 import DatasetComputeModeButton from '../containers/DatasetComputeModeButton'
 import NoDataSvg from './svg/NoData'
 import WarnSvg from './svg/Warn'
+import PanelLoadingState from './PanelLoadingState'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($id: Int!) {
@@ -126,10 +127,10 @@ class DatasetView extends React.Component {
               <NoDataSvg color="#303f9f" className={classes.svg} />
             </div>
             <div className={classes.text}>
-              <Typography variant="headline">
+              <Typography variant="h5">
                 Add some data to your dataset
               </Typography>
-              <Typography variant="subheading" className={classes.subheader}>
+              <Typography variant="subtitle1" className={classes.subheader}>
                 Upload a CSV file containing the underlying data
                 or generate it from existing datasets.
               </Typography>
@@ -194,7 +195,7 @@ const ConnectedDatasetView = (props) => {
           // Not sure why dataset can sometimes be undefined, even when loading is true, as
           // the GraphQL resolver should at least return an empty array. But something's going
           // on to thwart that assumption, so we have to check it here.
-          if (loading || !data.dataset) return <p>Loading...</p>
+          if (loading || !data.dataset) return <PanelLoadingState />
 
           return (
             <DatasetView

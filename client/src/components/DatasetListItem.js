@@ -2,8 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import Typography from '@material-ui/core/Typography'
+import DatasetNameEditor from '../containers/DatasetNameEditor'
 
 import { compose } from '../lib/common'
 import { withNavigation } from '../context/NavigationContext'
@@ -13,6 +12,11 @@ import DatasetListItemMenu from './DatasetListItemMenu'
 class DatasetListItem extends React.Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      editing: false
+    }
+
     this.selectDataset = this.selectDataset.bind(this)
   }
 
@@ -21,11 +25,17 @@ class DatasetListItem extends React.Component {
     navigation.selectDataset(id, name)
   }
 
+  changeEditMode = (newState) => {
+    this.setState({ editing: newState })
+  }
+
   render() {
     const {
       dataset,
       navigation
     } = this.props
+
+    const { editing } = this.state
 
     const active = navigation.currentDataset === dataset.id
 
@@ -35,11 +45,16 @@ class DatasetListItem extends React.Component {
         selected={active}
         onClick={this.selectDataset}
       >
-        <ListItemText
-          primary={<Typography variant="subheading" component="span">{dataset.name}</Typography>}
-          disableTypography
+        <DatasetNameEditor
+          dataset={dataset}
+          editing={editing}
+          changeMode={this.changeEditMode}
+          variant="subtitle1"
         />
-        <DatasetListItemMenu dataset={dataset} />
+        <DatasetListItemMenu
+          dataset={dataset}
+          onRename={this.changeEditMode}
+        />
       </ListItem>
     )
   }
@@ -50,7 +65,7 @@ DatasetListItem.propTypes = {
     id: PropTypes.number,
     name: PropTypes.string
   }),
-  navigation: PropTypes.objectOf(PropTypes.any).isRequired
+  navigation: PropTypes.objectOf(PropTypes.any).isRequired,
 }
 
 DatasetListItem.defaultProps = {

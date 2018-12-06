@@ -37,7 +37,7 @@ const ConfirmationDialog = (props) => {
       <DialogActions>
         {!hideCancel && (
           <Button
-            onClick={() => onClose(false)}
+            onClick={event => onClose(event, false)}
             variant="contained"
             color="default"
           >
@@ -45,7 +45,7 @@ const ConfirmationDialog = (props) => {
           </Button>
         )}
         <Button
-          onClick={() => onClose(true)}
+          onClick={event => onClose(event, true)}
           variant="contained"
           color="primary"
         >

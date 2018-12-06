@@ -19,22 +19,21 @@ const styles = theme => ({
   }
 })
 
-const SearchLoadingState = (props) => {
-  const { classes, content } = props
+const PanelLoadingState = (props) => {
+  const { classes } = props
 
   return (
     <div className={classes.root}>
       <CircularProgress className={classes.loading} color="secondary" />
-      <Typography variant="subtitle1">
-        {content}
+      <Typography variant="body2">
+        Loading...
       </Typography>
     </div>
   )
 }
 
-SearchLoadingState.propTypes = {
-  classes: PropTypes.objectOf(PropTypes.any).isRequired,
-  content: PropTypes.string.isRequired
+PanelLoadingState.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
-export default withStyles(styles)(SearchLoadingState)
+export default withStyles(styles)(PanelLoadingState)
