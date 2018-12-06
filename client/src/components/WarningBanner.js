@@ -1,9 +1,10 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import PropTypes from 'prop-types'
 
+import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 
-const styles = (theme) => ({
+const styles = () => ({
   root: {
     marginBottom: 15,
     marginTop: 20
@@ -19,27 +20,34 @@ const styles = (theme) => ({
   }
 })
 
-class WarningBanner extends React.Component {
-  constructor(props) {
-    super(props)
-  }
+const WarningBanner = (props) => {
+  const {
+    header,
+    message,
+    advice,
+    classes
+  } = props
 
-  render() {
-    const {header, message, advice, classes} = this.props
-    return(
-      <div className={classes.root}>
-        <Typography variant="h5" className={classes.error}>
-          {header}
-        </Typography>
-        <Typography variant="body2" className={classes.message}>
-          {message}
-        </Typography>
-        <Typography variant="body1">
-          {advice}
-        </Typography>
-      </div>
-    )
-  }
+  return (
+    <div className={classes.root}>
+      <Typography variant="h5" className={classes.error}>
+        {header}
+      </Typography>
+      <Typography variant="body2" className={classes.message}>
+        {message}
+      </Typography>
+      <Typography variant="body1">
+        {advice}
+      </Typography>
+    </div>
+  )
+}
+
+WarningBanner.propTypes = {
+  header: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
+  advice: PropTypes.string.isRequired,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 export default withStyles(styles)(WarningBanner)
