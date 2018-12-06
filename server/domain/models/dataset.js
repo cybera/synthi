@@ -2,6 +2,7 @@ import Base from './base'
 import Organization from './organization'
 import Transformation from './transformation'
 import Column from './column'
+import DatasetMetadata from './dataset-metadata'
 
 import Storage from '../../storage'
 import { fullDatasetPath, csvFromStream, storeFS } from '../../lib/util'
@@ -170,6 +171,22 @@ class Dataset extends Base {
       paths: this.paths,
       ownerName: owner.name
     })
+  }
+
+  async metadata() {
+    let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', DatasetMetadata, 'metadata')
+    if (!datasetMetadata) {
+      const query = `
+        MATCH (dataset:Dataset { uuid: $uuid })
+        MERGE (dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)
+        RETURN metadata
+      `
+      const results = await safeQuery(query, this)
+      // Have to re-get after the transaction to ensure a proper uuid
+      datasetMetadata = DatasetMetadata.get(results[0].metadata.identity)
+    }
+
+    return datasetMetadata
   }
 }
 

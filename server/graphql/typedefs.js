@@ -12,7 +12,7 @@ const DatasetMetadata = `
   description: String
   source: String
   identifier: String
-  theme: String
+  topic: [String]
 `
 
 // PATCH: Handle and reject parsing errors
@@ -148,7 +148,9 @@ type Mutation {
   createDataset(name: String, owner: Int): Dataset
   deleteDataset(id: Int!): Dataset
   importCSV(id: Int!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
-  updateDataset(id: Int!, file:Upload, computed:Boolean, name:String): Dataset
+  uploadFile(file: Upload!): File!
+  uploadDataset(name: String!, file:Upload!): Dataset
+  updateDataset(id: Int!, file:Upload, computed:Boolean, name:String, generating:Boolean): Dataset
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean

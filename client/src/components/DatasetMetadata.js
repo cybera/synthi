@@ -13,6 +13,7 @@ import Select from '@material-ui/core/Select'
 import Input from '@material-ui/core/Input'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
+import ChipInput from 'material-ui-chip-input'
 import { Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 import * as Ramda from 'ramda'
@@ -37,7 +38,7 @@ query($id: Int) {
       description
       source
       identifier
-      theme
+      topic
     }
   }
 }
@@ -155,7 +156,7 @@ class DatasetMetadata extends React.Component {
       description: '',
       source: '',
       identifier: '',
-      theme: ''
+      topic: []
     }
   }
 
@@ -176,6 +177,10 @@ class DatasetMetadata extends React.Component {
     })
   }
 
+  handleChipsChange = name => chips => this.handleChange(
+    chips => chips
+  )(name)(chips)
+  
   handleStringChange = name => event => this.handleChange(
     e => e.target.value
   )(name)(event)
@@ -251,14 +256,6 @@ class DatasetMetadata extends React.Component {
                 />
               </Grid>
               <Grid item xs={4}>
-                <TextField
-                  id="metadata-theme"
-                  label="Theme"
-                  className={classes.textField}
-                  value={fields.theme}
-                  onChange={this.handleStringChange('theme')}
-                  margin="normal"
-                />
               </Grid>
               <Grid item xs={4}>
                 <TextField
@@ -364,6 +361,17 @@ class DatasetMetadata extends React.Component {
                   value={fields.source}
                   onChange={this.handleStringChange('source')}
                   margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} style={{paddingRight: 120}}>
+                <ChipInput
+                  onChange={(chips) => this.handleChipsChange('topic')(chips)}
+                  defaultValue={fields.topic}
+                  margin="normal"
+                  fullWidth
+                  fullWidthInput
+                  label="Topic"
+                  style={{marginLeft:10}}
                 />
               </Grid>
               <Grid item xs={12} style={{paddingRight: 120}}>
