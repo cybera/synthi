@@ -9,9 +9,10 @@ const styles = theme => ({
   root: {
     marginLeft: theme.spacing.unit * 3,
     marginRight: theme.spacing.unit * 3,
+    marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit,
     color: theme.palette.secondary.light,
-    textAlign: 'right',
+    textAlign: 'left',
     borderBottom: 'solid 1px',
     borderBottomColor: theme.palette.secondary.light
   }
@@ -23,7 +24,7 @@ const DisplayingResults = (props) => {
 
   return (
     <Typography variant="body1" className={classes.root}>
-      Displaying <Pluralize singular="result" count={count} />
+      Retrieved <Pluralize singular="result" count={count} />
     </Typography>
   )
 }
