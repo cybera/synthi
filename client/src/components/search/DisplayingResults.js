@@ -23,8 +23,7 @@ const DisplayingResults = (props) => {
 
   return (
     <Typography variant="body1" className={classes.root}>
-      Displaying
-      <Pluralize singular="result" count={count} />
+      Displaying <Pluralize singular="result" count={count} />
     </Typography>
   )
 }
