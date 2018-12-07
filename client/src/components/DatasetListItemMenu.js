@@ -65,7 +65,7 @@ class DatasetListItemMenu extends React.Component {
     this.setState({ showDialog: false })
 
     if (agree) {
-      if (id === navigation.currentDataset) navigation.selectDataset(null, null)
+      if (id === navigation.currentDataset) navigation.selectDataset(null)
       onDelete()
       deleteDataset({
         variables: { id },

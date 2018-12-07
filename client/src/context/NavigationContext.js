@@ -7,7 +7,7 @@ const NavigationContext = React.createContext({
   currentOrg: null,
   user: null,
   switchMode: (mode) => {},
-  selectDataset: (id, name) => {},
+  selectDataset: (id) => {},
   setUser: (user) => {},
   setOrg: (org) => {}
 });

@@ -47,7 +47,7 @@ class UserMenu extends React.Component {
       .then((response) => {
         if (response.ok) {
           navigation.setUser(null)
-          navigation.selectDataset(null, null)
+          navigation.selectDataset(null)
           localStorage.removeItem('user')
         }
       })

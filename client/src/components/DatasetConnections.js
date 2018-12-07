@@ -190,7 +190,7 @@ const RenderRelations = (props) => {
             The  {node.kind.toLowerCase()} {node.name} is the result of the transformations and datasets below.
             {/* TODO: Find a better navigation Icon */}
             <ToggleVisibility visible={node.kind === "Dataset"}>
-              <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(node.id, node.name)}>
+              <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(node.id)}>
                 <NavigationIcon />
               </IconButton>
             </ToggleVisibility>
@@ -201,7 +201,7 @@ const RenderRelations = (props) => {
             The {node.kind.toLowerCase()} {node.name} is the origin {node.kind.toLowerCase()} to the above branch of transformations; 
             it has no contributing transformations.
             <ToggleVisibility visible={node.kind === "Dataset"}>
-              <IconButton aria-label="Navigate" onClick={() => navigation.selectDataset(node.id, node.name)}>
+              <IconButton aria-label="Navigate" onClick={() => navigation.selectDataset(node.id)}>
                 <NavigationIcon />
               </IconButton>
             </ToggleVisibility>

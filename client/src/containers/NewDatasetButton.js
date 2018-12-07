@@ -39,7 +39,7 @@ class NewDatasetButton extends React.Component {
     const { navigation } = this.props
     mutation().then((results) => {
       const { createDataset } = results.data
-      navigation.selectDataset(createDataset.id, createDataset.name)
+      navigation.selectDataset(createDataset.id)
     })
   }
 

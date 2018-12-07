@@ -255,9 +255,9 @@ const ConnectedDatasetView = (props) => {
                     variables: { id },
                     updateQuery: (prev, { subscriptionData }) => {
                       if (!subscriptionData.data) return prev
-  
+
                       handleStatus(subscriptionData.data.datasetGenerated)
-  
+
                       refetch()
                       return prev
                     }
