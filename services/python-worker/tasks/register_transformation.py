@@ -5,7 +5,6 @@ import os
 import importlib
 import pandas as pd
 from importlib.machinery import SourceFileLoader
-from neo4j.v1 import GraphDatabase
 
 # get around sibling import problem
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -14,8 +13,6 @@ sys.path.insert(0, os.path.join(script_dir,'..'))
 import storage
 from common import neo4j_driver, load_transform, parse_params
 
-neo4j_uri = "bolt://neo4j:7687"
-neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=('neo4j','password'))
 session = neo4j_driver.session()
 tx = session.begin_transaction()
 
