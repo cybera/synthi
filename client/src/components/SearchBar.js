@@ -15,7 +15,9 @@ const styles = theme => ({
   },
   iconButton: {
     paddingTop: 0,
-    paddingBottom: 0
+    paddingBottom: 0,
+    height: 40,
+    width: 40,
   }
 })
 
