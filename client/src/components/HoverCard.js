@@ -52,7 +52,7 @@ function MediaCard(props) {
       </CardContent>
       <CardActions>
       <ToggleVisibility visible={ifDataset(nodeData.kind)}>
-        <Button size="small" onClick={() => navigation.selectDataset(nodeData.attributes.id, nodeData.attributes.name)} >Go to Dataset</Button>
+        <Button size="small" onClick={() => navigation.selectDataset(nodeData.attributes.id)} >Go to Dataset</Button>
       </ToggleVisibility>
       </CardActions>
     </Card>

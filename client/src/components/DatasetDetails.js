@@ -21,15 +21,13 @@ import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
 import APIInfo from './api-info'
 import Placeholder from './Placeholder'
+import DatasetTitle from '../containers/DatasetTitle'
 
 const styles = theme => ({
   header: {
     paddingLeft: theme.spacing.unit * 3,
     paddingTop: theme.spacing.unit * 7,
     paddingBottom: 0
-  },
-  headerText: {
-    marginBottom: theme.spacing.unit * 2
   },
   wrapper: {
     padding: theme.spacing.unit,
@@ -73,7 +71,7 @@ class DatasetDetails extends React.Component {
   }
 
   render() {
-    const { id, classes, navigation } = this.props
+    const { id, classes } = this.props
     const { value } = this.state
     const options = [
       {
@@ -122,9 +120,7 @@ class DatasetDetails extends React.Component {
     return (
       <div>
         <Paper className={classes.header} square>
-          <Typography variant="h4" component="h2" className={classes.headerText}>
-            {navigation.currentName}
-          </Typography>
+          <DatasetTitle id={id} />
           <AppBar
             position="static"
             className={classes.tabs}
@@ -151,8 +147,7 @@ class DatasetDetails extends React.Component {
 
 DatasetDetails.propTypes = {
   id: PropTypes.number,
-  classes: PropTypes.objectOf(PropTypes.any).isRequired,
-  navigation: PropTypes.objectOf(PropTypes.any).isRequired
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 DatasetDetails.defaultProps = {

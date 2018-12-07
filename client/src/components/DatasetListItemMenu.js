@@ -37,28 +37,36 @@ class DatasetListItemMenu extends React.Component {
   }
 
   handleOpenMenu = (event) => {
-    event.stopPropagation()
     this.setState({ anchorEl: event.currentTarget })
   }
 
-  handleCloseMenu = (event) => {
-    event.stopPropagation()
+  handleCloseMenu = () => {
     this.setState({ anchorEl: null })
   }
 
-  handleDeleteDialog = (event) => {
-    event.stopPropagation()
-    this.handleCloseMenu(event)
+  handleDeleteDialog = () => {
+    this.handleCloseMenu()
     this.setState({ showDialog: true })
   }
 
   handleDelete(event, agree) {
-    const { deleteDataset, navigation, dataset: { id, name } } = this.props
+    const {
+      deleteDataset,
+      navigation,
+      dataset: {
+        id,
+        name
+      },
+      onDelete
+    } = this.props
 
     event.stopPropagation()
+
     this.setState({ showDialog: false })
 
     if (agree) {
+      if (id === navigation.currentDataset) navigation.selectDataset(null)
+      onDelete()
       deleteDataset({
         variables: { id },
         refetchQueries: [{
@@ -70,10 +78,6 @@ class DatasetListItemMenu extends React.Component {
       }).catch((err) => {
         openSnackbar({ message: err })
       })
-
-      if (id === navigation.currentDataset) {
-        navigation.selectDataset(null, null)
-      }
     }
   }
 
@@ -154,6 +158,7 @@ DatasetListItemMenu.propTypes = {
   }),
   navigation: PropTypes.objectOf(PropTypes.any).isRequired,
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  onDelete: PropTypes.func.isRequired
 }
 
 DatasetListItemMenu.defaultProps = {

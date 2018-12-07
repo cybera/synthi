@@ -34,7 +34,8 @@ const DatasetNameEditor = (props) => {
           variables: { id: dataset.id }
         },
         {
-          query: datasetListQuery
+          query: datasetListQuery,
+          variables: { org: { id: dataset.owner.id } }
         }
       ]}
     >

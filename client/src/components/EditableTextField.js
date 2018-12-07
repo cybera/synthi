@@ -22,6 +22,9 @@ class EditableTextField extends React.Component {
     }
 
     this.keyPress = this.keyPress.bind(this)
+    this.autofocus = this.autofocus.bind(this)
+    this.saveChanges = this.saveChanges.bind(this)
+    this.handleBlur = this.handleBlur.bind(this)
   }
 
   saveChanges = () => {
@@ -42,14 +45,23 @@ class EditableTextField extends React.Component {
     }
   }
 
+  autofocus = (input) => {
+    if (input) setTimeout(() => { input.focus() }, 100)
+  }
+
+  handleBlur = () => {
+    setTimeout(() => { this.saveChanges() }, 100)
+  }
+
   render() {
     const {
-      text,
       variant,
       editing,
       classes
     } = this.props
 
+    // Using the current value (which is set by default to the "text" prop)
+    // prevents a flash of the old name when the input is blurred
     const { value } = this.state
 
     if (editing) {
@@ -59,8 +71,9 @@ class EditableTextField extends React.Component {
           className={classes.input}
           onChange={this.handleChange}
           margin="none"
-          autoFocus
           onKeyDown={this.keyPress}
+          inputRef={input => this.autofocus(input)}
+          inputProps={{ onBlur: () => this.handleBlur() }}
         />
       )
     }
@@ -70,7 +83,7 @@ class EditableTextField extends React.Component {
         variant={variant}
         component="span"
       >
-        {text}
+        {value}
       </Typography>
     )
   }
