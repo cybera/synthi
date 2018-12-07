@@ -15,6 +15,8 @@ from common import load_transform, parse_params
 
 import storage
 
+from import_csv import store_csv
+
 def generate_dataset(generate_id, owner_name):
   session = neo4j_driver.session()
   tx = session.begin_transaction()
@@ -67,8 +69,8 @@ def generate_dataset(generate_id, owner_name):
     '''
     results = tx.run(update_dataset_query, owner=owner, name=output_name, columns=columns)
     dataset = results.single()
-    print(f"Updating calculated '{output_name}' dataset.")
-    storage.write_csv(df, f"{dataset['uuid']}/imported.csv")
+    print(f"Updating calculated '{output_name}' dataset: {dataset['uuid']}/imported.csv.")
+    store_csv(df, dataset)
 
   find_transforms_query = '''
   MATCH full_path = (output:Dataset)<-[*]-(last)
