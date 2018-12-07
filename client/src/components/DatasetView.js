@@ -4,6 +4,8 @@ import { graphql, Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
+import Divider from '@material-ui/core/Divider'
+import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 
@@ -47,6 +49,9 @@ const styles = theme => ({
   },
   empty: {
     textAlign: 'center'
+  },
+  adviceContainer: {
+    marginTop: 40,
   },
   svgContainer: {
     marginTop: 40,
@@ -193,18 +198,35 @@ class SubscribedWarningBanner extends React.Component {
     const { classes, id, error } = this.props
 
     return (
-      <div className={classes.empty}>
-        <div className={classes.svgContainer}>
-          <WarnSvg color="#303f9f" className={classes.svg} />
-        </div>
-        <WarningBanner
-          message={error.message}
-          header="Something's wrong with your file..."
-          advice="Please try uploading a new version."
-          className={classes.text}
-        />
-        <DatasetUploadButton id={id} />
-        <UploadParsingOptions id={id} error={error} />
+      <div>
+        <Grid container columns spacing={24}>
+          <Grid item xs={6}>
+            <div className={classes.empty}>
+              <div className={classes.svgContainer}>
+                <WarnSvg color="#303f9f" className={classes.svg} />
+              </div>
+              <WarningBanner
+                message={error.message}
+                header="Something's wrong with your file..."
+                className={classes.text}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={6}>
+            <div className={classes.adviceContainer}>
+              <Typography variant="subtitle1" gutterBottom>
+                You can try uploading your file again.
+              </Typography>
+              <DatasetUploadButton id={id} />
+            </div>
+            <div className={classes.adviceContainer}>
+              <Typography variant="subtitle1" gutterBottom>
+                Or you can try providing some more information and rescanning:
+              </Typography>
+              <UploadParsingOptions id={id} error={error} />
+            </div>
+          </Grid>
+        </Grid>
       </div>
     )
   }

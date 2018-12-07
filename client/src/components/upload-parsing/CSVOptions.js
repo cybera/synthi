@@ -7,19 +7,30 @@ import FormGroup from '@material-ui/core/FormGroup'
 import FormControl from '@material-ui/core/FormControl'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormLabel from '@material-ui/core/FormLabel'
+import Grid from '@material-ui/core/Grid'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import Switch from '@material-ui/core/Switch'
 import TextField from '@material-ui/core/TextField'
+import LoopIcon from '@material-ui/icons/Loop'
+
+import { withStyles } from '@material-ui/core/styles'
 
 import ToggleVisibility from '../ToggleVisibility'
 import ADIButton from '../ADIButton'
+
+const styles = theme => ({
+  icon: {
+    marginRight: theme.spacing.unit
+  }
+})
 
 const DelimiterSelector = (props) => {
   const { handler, delimiter, options } = props
 
   return (
     <Select
+      fullWidth
       value={delimiter}
       onChange={handler}
       inputProps={{
@@ -48,12 +59,12 @@ class CSVOptions extends React.Component {
   }
 
   render() {
-    const { importHandler, id } = this.props
+    const { importHandler, id, classes } = this.props
     const { delimiter, header, customDelimiter } = this.state
 
     return (
-      <div>
-        <FormGroup row>
+      <div style={{ width: '80%' }}>
+        <FormGroup>
           <FormControlLabel
             control={(
               <Switch
@@ -63,38 +74,48 @@ class CSVOptions extends React.Component {
                 color="primary"
               />
             )}
-            label="Contains header row"
+            labelPlacement="end"
+            label="Does your file contains a header row?"
+            fullWidth
           />
         </FormGroup>
-        <FormGroup row>
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Delimiter</FormLabel>
+        <FormGroup style={{ marginTop: 20 }}>
+          <FormControl component="fieldset" fullWidth>
+            <FormLabel component="legend">What delimiter separates column values?</FormLabel>
             <DelimiterSelector
               delimiter={delimiter}
               handler={this.handleChange('delimiter')}
               options={['comma', 'tab', 'semicolon', 'other']}
             />
           </FormControl>
-          <ToggleVisibility visible={delimiter === 'other'}>
+        </FormGroup>
+        <ToggleVisibility visible={delimiter === 'other'}>
+          <FormGroup style={{ marginTop: 20 }}>
             <TextField
               value={customDelimiter}
               onChange={this.handleChange('customDelimiter')}
+              placeholder="Enter a custom delimiter"
+              fullWidth
             />
-          </ToggleVisibility>
-        </FormGroup>
-        <FormGroup row>
-          <ADIButton
-            onClick={
-              () => importHandler({
-                variables: {
-                  id,
-                  options: { delimiter, header, customDelimiter }
-                }
-              })
-            }
-          >
-            Rescan Metadata
-          </ADIButton>
+          </FormGroup>
+        </ToggleVisibility>
+        <FormGroup style={{ marginTop: 20 }}>
+          <div>
+            <ADIButton
+              fullWidth={false}
+              onClick={
+                () => importHandler({
+                  variables: {
+                    id,
+                    options: { delimiter, header, customDelimiter }
+                  }
+                })
+              }
+            >
+              <LoopIcon className={classes.icon} />
+              Rescan Metadata
+            </ADIButton>
+          </div>
         </FormGroup>
       </div>
     )
@@ -116,4 +137,4 @@ const ConnectedCSVOptions = props => (
   </Mutation>
 )
 
-export default ConnectedCSVOptions
+export default withStyles(styles)(ConnectedCSVOptions)

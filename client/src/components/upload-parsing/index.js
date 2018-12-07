@@ -21,14 +21,14 @@ const ParsingOptions = (props) => {
 
   return (
     <div>
-      <Typography component="h2" variant="h5">
+      {/* <Typography component="h2" variant="h5">
         More information required
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         The file you uploaded could not be processed automatically. Please provide some more
         information about the file contents.
       </Typography>
-      <ErrorMessage />
+      <ErrorMessage /> */}
       <CSVOptions {...props} />
     </div>
   )
