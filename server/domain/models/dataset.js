@@ -50,6 +50,7 @@ class Dataset extends Base {
   }
 
   async samples() {
+    console.log(`looking for samples for: ${this.uuid} / ${this.id}`)
     if (this.path && await Storage.exists('datasets', this.paths.sample)) {
       const readStream = await Storage.createReadStream('datasets', this.paths.sample)
       const csv = await csvFromStream(readStream, 0, 10)
@@ -59,6 +60,7 @@ class Dataset extends Base {
   }
 
   readStream() {
+    console.log(`Reading ${this.paths.imported}`)
     return Storage.createReadStream('datasets', this.paths.imported)
   }
 
@@ -135,18 +137,21 @@ class Dataset extends Base {
     }
   }
 
-  async upload({stream, filename}) {
-    const { path } = await storeFS({ stream, filename:this.paths.original })
-
+  async upload({ stream, filename }) {
     try {
+      console.log(`Uploading: ${filename}`)
+      const { path } = await storeFS({ stream, filename: this.paths.original })
+
       this.path = path
       this.computed = false
       this.originalFilename = filename
-
+      console.log('Saving upload info')
       await this.save()
+      console.log('Triggering import...')
       this.importCSV()
     } catch (e) {
       // TODO: What should we do here?
+      console.log('Error in upload resolver:')
       console.log(e.message)
     }
   }

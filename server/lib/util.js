@@ -31,23 +31,32 @@ export const waitForFile = relPath => new Promise((resolve, reject) => {
   }, err => (err ? reject(err) : resolve()))
 })
 
-export const storeFS = ({ stream, filename }, unique=false) => {
+export const storeFS = ({ stream, filename }, unique = false) => {
   const id = shortid.generate()
   const uniqueFilename = unique ? `${id}-${filename}` : filename
-
+  console.log(`Storing ${filename}`)
   return new Promise(
     (resolve, reject) => stream
       .on('error', (error) => {
+        console.log('Error reading upload stream:')
         console.log(error)
         if (stream.truncated) {
+          console.log('Truncated stream...')
           // Delete the truncated file
-          Storage.remove('datasets', uniqueFilename)
+          Storage.cleanupOnError('datasets', uniqueFilename)
         }
         reject(error)
       })
       .pipe(Storage.createWriteStream('datasets', uniqueFilename))
-      .on('error', error => reject(error))
-      .on('finish', () => resolve({ id, path: uniqueFilename }))
+      .on('error', (error) => {
+        console.log('Error piping to write stream:')
+        console.log(error)
+        reject(error)
+      })
+      .on('finish', () => {
+        console.log(`Finishing upload of ${filename}`)
+        return resolve({ id, path: uniqueFilename })
+      })
   )
 }
 
