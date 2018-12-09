@@ -36,7 +36,40 @@ const processDatasetUpdate = async (datasetProps, context) => {
     throw new AuthenticationError('Operation not allowed on this resource')
   }
 
-  if (file) dataset.upload(await file)
+  if (file) {
+    /*
+      This is so important I'm leaving it in two lines and adding this big comment. There's a part
+      in the "Tips" section of graphql-upload that's easy to miss the significance of: "Promisify
+      and await file upload streams in resolvers or the server will send a response to the client
+      before uploads are complete, causing a disconnect." Here's the link to that section:
+
+      https://github.com/jaydenseric/graphql-upload#tips
+
+      I moved some of the original upload handling that was more focused on stream handling (as
+      opposed to *getting* the stream, filename, etc.), which is in the first line. This makes
+      it easier to handle uploads consistently for datasets, putting logic for picking storage
+      devices, etc. outside of the resolver. This is good. However, it does make the code less
+      like the example code for graphql-upload. There's an 'await' call from that example now
+      tucked away in dataset.upload. It's theoretically doing what that tip points out. And,
+      within that function, everything's being done properly. However, back in *this* resolver,
+      we now have to really make sure we await dataset.upload. Otherwise this resolver will
+      return way too soon for a larger file, even if the code in the upload function is handling
+      promises properly.
+
+      What are the consequences of not awaiting the dataset.upload function? Well, seemingly
+      weird behaviour, where smaller files will usually upload alright, but larger ones (and
+      by 'larger', not actually *that* large... a 1 MB file could trigger the problem depending
+      on the connection speed) would simply not make it to object storage (or whatever storage)
+      is being used. On the current version of the MacOS Docker client, this could ultimately
+      result in needing to restart Docker. The problems in staging/production environments on
+      Linux hosts seemed as you would expect: uploads of larger files simply would not work.
+
+      However, with this simple extra await, the resolver waits properly, not disconnecting
+      during upload, and larger files once again work.
+    */
+    const uploadInfo = await file
+    await dataset.upload(uploadInfo)
+  }
 
   let changed = false
   if (computed != null) {
