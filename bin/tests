@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker-compose exec server npx babel-node tests/storage.js
