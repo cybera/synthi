@@ -305,7 +305,7 @@ class DatasetMetadata extends React.Component {
               <Grid item xs={4}>
                 <LocalDatePicker
                   label="Date Added"
-                  value={fields.dateAdded}
+                  value={new Date(fields.dateAdded)}
                   onChange={this.handleDateChange('dateAdded')}
                   className={classes.dateField}
                 />
@@ -313,7 +313,7 @@ class DatasetMetadata extends React.Component {
               <Grid item xs={4}>
                 <LocalDatePicker
                   label="Date Created"
-                  value={fields.dateCreated}
+                  value={new Date(fields.dateCreated)}
                   onChange={this.handleDateChange('dateCreated')}
                   className={classes.dateField}
                 />
@@ -321,7 +321,7 @@ class DatasetMetadata extends React.Component {
               <Grid item xs={4}>
                 <LocalDatePicker
                   label="Date Updated"
-                  value={fields.dateUpdated}
+                  value={new Date(fields.dateUpdated)}
                   onChange={this.handleDateChange('dateUpdated')}
                   className={classes.dateField}
                 />
