@@ -19,17 +19,21 @@ const startChannel = async (conn, channelName, { durable, noAck }, callback) => 
 const startQueue = async () => {
   const conn = await AMQP.connect('amqp://queue')
 
-  startChannel(conn, 'dataset-status', { durable: false, noAck: true }, (msg) => {
+  startChannel(conn, 'dataset-status', { durable: false, noAck: true }, async (msg) => {
     const msgJSON = JSON.parse(msg.content.toString())
     if (msgJSON.type === 'dataset-updated') {
-      Dataset.get(msgJSON.id)
+      console.log(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
+      await Dataset.get(msgJSON.id)
         .then(dataset => dataset.metadata())
         .then((metadata) => {
           metadata.dateUpdated = new Date()
           metadata.save()
+        }).then(() => {
+          console.log('Saved metadata')
         })
         .catch(err => console.log(err))
     }
+    console.log('Publishing to clients...')
     pubsub.publish(DATASET_UPDATED, { datasetGenerated: msgJSON });
   })
 
