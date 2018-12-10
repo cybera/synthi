@@ -65,10 +65,12 @@ const sendToWorkerQueue = async (msg) => {
 
 const prepareDownload = async (dataset, callback) => {
   // TODO: Pass a unique download ID (have tasks send JSON as argument)
+  const owner = await dataset.owner()
+
   sendToWorkerQueue({
     task: 'prepare_download',
     id: dataset.id,
-    ownerName: dataset.owner.name
+    ownerName: owner.name
   })
 
   // TODO: Create a unique download ID
