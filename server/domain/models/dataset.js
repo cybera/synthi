@@ -25,7 +25,8 @@ class Dataset extends Base {
   }
 
   async columns() {
-    return this.relatedMany('<-[:BELONGS_TO]-', Column, 'column')
+    const columns = await this.relatedMany('<-[:BELONGS_TO]-', Column, 'column')
+    return columns.sort((c1, c2) => c1.order - c2.order)
   }
 
   async owner() {
