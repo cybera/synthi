@@ -9,4 +9,4 @@ COPY . ./
 EXPOSE 3001
 EXPOSE 3002
 
-CMD [ "gitbook", "--port 3001", "--lrport 3002", "serve" ]
+CMD [ "gitbook", "--port", "3001", "--lrport", "3002", "serve" ]
