@@ -474,7 +474,6 @@ const ConnectedDatasetMetadata = (props) => {
           query={datasetMetadataQuery}
           variables={{ id }}
           fetchPolicy="cache-and-network"
-          partialRefetch
         >
           {({ loading, error, data }) => {
             if (loading) return <PanelLoadingState />

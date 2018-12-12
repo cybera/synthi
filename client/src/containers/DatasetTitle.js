@@ -22,6 +22,7 @@ const DatasetTitle = (props) => {
       query={datasetViewQuery}
       variables={{ id }}
       fetchPolicy="cache-and-network"
+      partialRefetch
     >
       {
         ({ data }) => {
