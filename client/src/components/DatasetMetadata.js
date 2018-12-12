@@ -480,8 +480,6 @@ const ConnectedDatasetMetadata = (props) => {
             if (loading) return <PanelLoadingState />
             if (error) return <p>Error!</p>;
 
-            console.log(data)
-
             const fieldKeys = Object.keys(DatasetMetadata.defaultProps.fields)
             let fields = {}
 
