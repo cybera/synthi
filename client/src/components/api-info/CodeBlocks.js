@@ -13,13 +13,13 @@ export const CurlBlock = (props) => {
 
   const downloadCode = `curl -s ${host}/dataset/${dataset.id} \\
 -H "Authorization: Api-Key ${apikey}" \\
->${dataset.name}.csv`
+>"${dataset.name}.csv"`
 
   const columnNamesCode = `curl -s ${host}/graphql \\
 -X POST \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Api-Key ${apikey}" \\
---data @- << EOS >${dataset.name}.columns.json
+--data @- << EOS >"${dataset.name}.columns.json"
 {
   "query": "{
     dataset(id: ${dataset.id}) {
@@ -37,7 +37,7 @@ EOS`
 -X POST \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Api-Key ${apikey}" \\
---data @- << EOS >${dataset.name}.metadata.json
+--data @- << EOS >"${dataset.name}.metadata.json"
 {
   "query": "{
     dataset(id: ${dataset.id}) {
@@ -66,17 +66,17 @@ EOS`
 
   return (
     <div>
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Download {dataset.name}
         <CodeSnippetCopyButton code={downloadCode} />
       </Typography>
       <CodeSnippet language="sh" code={downloadCode} />
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Get column information for {dataset.name}
         <CodeSnippetCopyButton code={columnNamesCode} />
       </Typography>
       <CodeSnippet language="sh" code={columnNamesCode} />
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Get metadata for {dataset.name}
         <CodeSnippetCopyButton code={metadataCode} />
       </Typography>
@@ -99,7 +99,7 @@ df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))`
 
   return (
     <div>
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Read <em>{dataset.name}</em> into a data frame
         <CodeSnippetCopyButton code={downloadCode} />
       </Typography>
@@ -126,13 +126,13 @@ df <- content(req, type='text/csv')`
 
   return (
     <div>
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Install required packages
         <CodeSnippetCopyButton code={dependencyCode} />
       </Typography>
       <CodeSnippet language="r" code={dependencyCode} />
 
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Read {dataset.name} into a data frame
         <CodeSnippetCopyButton code={downloadCode} />
       </Typography>
@@ -146,7 +146,7 @@ export const ExcelBlock = (props) => {
 
   return (
     <div>
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Import {dataset.name} into Excel
       </Typography>
       <Typography variant="body1" gutterBottom align="left">
@@ -180,7 +180,7 @@ export const SASSBlock = (props) => {
 
   return (
     <div>
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Import {dataset.name} into SASS
       </Typography>
       <Typography variant="body1" gutterBottom align="left">
@@ -195,7 +195,7 @@ export const SPSSBlock = (props) => {
 
   return (
     <div>
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Import {dataset.name} into SPSS
       </Typography>
       <Typography variant="body1" gutterBottom align="left">
@@ -210,7 +210,7 @@ export const MatlabBlock = (props) => {
 
   return (
     <div>
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Import {dataset.name} into Matlab
       </Typography>
       <Typography variant="body1" gutterBottom align="left">
@@ -225,7 +225,7 @@ export const TableauBlock = (props) => {
 
   return (
     <div>
-      <Typography component="h2" variant="title" gutterBottom>
+      <Typography component="h2" variant="h6" gutterBottom>
         Import {dataset.name} into Tableau
       </Typography>
       <Typography variant="body1" gutterBottom align="left">

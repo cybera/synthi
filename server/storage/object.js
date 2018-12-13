@@ -42,10 +42,14 @@ const exists = (area, relativePath) => {
   })
 }
 
+// Object storage won't have the file in the first place if there was a failure
+const cleanupOnError = (area, relativePath) => console.log(`Object storage cleanup: ${area}:${relativePath} (doing nothing)`)
+
 export {
   createWriteStream,
   createReadStream,
   remove,
+  cleanupOnError,
   exists,
   connection
 }

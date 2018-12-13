@@ -8,27 +8,7 @@ import config from 'config'
 
 import Storage from '../storage'
 
-export const runTransformation = async (dataset) => {
-  const conn = await AMQP.connect('amqp://queue')
-  const ch = await conn.createChannel()
-  await ch.assertQueue('python-worker', { durable: false })
-
-  const msg = {
-    task: 'generate',
-    id: dataset.id,
-    ownerName: dataset.owner.name
-  }
-
-  ch.sendToQueue('python-worker', Buffer.from(JSON.stringify(msg)))
-}
-
 export const datasetExists = dataset => dataset.path && fs.existsSync(dataset.fullPath())
-
-export const ensureDatasetExists = (dataset) => {
-  if (!datasetExists(dataset) && dataset.computed) {
-    runTransformation(dataset)
-  }
-}
 
 export const fullDatasetPath = (relPath) => {
   const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
@@ -51,23 +31,32 @@ export const waitForFile = relPath => new Promise((resolve, reject) => {
   }, err => (err ? reject(err) : resolve()))
 })
 
-export const storeFS = ({ stream, filename }) => {
+export const storeFS = ({ stream, filename }, unique = false) => {
   const id = shortid.generate()
-  const uniqueFilename = `${id}-${filename}`
-
+  const uniqueFilename = unique ? `${id}-${filename}` : filename
+  console.log(`Storing ${filename}`)
   return new Promise(
     (resolve, reject) => stream
       .on('error', (error) => {
+        console.log('Error reading upload stream:')
         console.log(error)
         if (stream.truncated) {
+          console.log('Truncated stream...')
           // Delete the truncated file
-          Storage.remove('datasets', uniqueFilename)
+          Storage.cleanupOnError('datasets', uniqueFilename)
         }
         reject(error)
       })
       .pipe(Storage.createWriteStream('datasets', uniqueFilename))
-      .on('error', error => reject(error))
-      .on('finish', () => resolve({ id, path: uniqueFilename }))
+      .on('error', (error) => {
+        console.log('Error piping to write stream:')
+        console.log(error)
+        reject(error)
+      })
+      .on('finish', () => {
+        console.log(`Finishing upload of ${filename}`)
+        return resolve({ id, path: uniqueFilename })
+      })
   )
 }
 
@@ -83,20 +72,15 @@ export const csvFromStream = async (stream, from, to) => {
   const parser = csvParse(options)
 
   const output = []
-
   const parseStream = new Promise((resolve, reject) => parser
     .on('readable', () => {
-      try {
-        let record
-        while ((record = parser.read())) {
-          output.push(record)
-        }
-      } catch (err) {
-        console.log(err)
+      let record
+      while ((record = parser.read())) {
+        output.push(record)
       }
     })
     .on('end', resolve)
-    .on('error', reject))
+    .on('error', err => reject(err)))
 
   stream.pipe(parser)
 

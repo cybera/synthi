@@ -1,22 +1,13 @@
 import gql from 'graphql-tag';
 
 export const datasetListQuery = gql`
-query($searchString: String) {
-  dataset(searchString: $searchString) {
+query($searchString: String, $org: OrganizationID) {
+  dataset(searchString: $searchString, org: $org) {
     id,
     name,
     owner {
       id
     }
-  }
-}
-`
-
-export const uploadDatasetMutation = gql`
-mutation UploadDataset($name: String!, $file: Upload!) {
-  uploadDataset(name: $name, file: $file) {
-    id
-    name
   }
 }
 `

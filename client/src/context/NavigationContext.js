@@ -3,6 +3,7 @@ import React from 'react'
 const NavigationContext = React.createContext({
   currentMode: 'datasets',
   currentDataset: null,
+  currentName: null,
   currentOrg: null,
   user: null,
   switchMode: (mode) => {},

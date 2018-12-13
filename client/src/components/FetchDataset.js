@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import gql from 'graphql-tag'
 import { Query } from 'react-apollo'
 
+import PanelLoadingState from './PanelLoadingState'
+
 const FetchDataset = ({ children, datasetID }) => {
   const fetchDatasetQuery = gql`
     query FetchDataset($id: Int) {
@@ -22,7 +24,7 @@ const FetchDataset = ({ children, datasetID }) => {
   return (
     <Query query={fetchDatasetQuery} variables={{ id: datasetID }}>
       {({ loading, error, data }) => {
-        if (loading) return <p>Loading...</p>;
+        if (loading) return <PanelLoadingState />
         if (error) return <p>Error!</p>;
 
         const dataset = data.dataset[0]

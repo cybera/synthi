@@ -1,5 +1,5 @@
 import { safeQuery } from '../../neo4j/connection'
-import { sendToWorkerQueue } from '../../lib/queue'
+import DefaultQueue from '../../lib/queue'
 import Transformation from '../models/transformation'
 import shortid from 'shortid'
 
@@ -57,10 +57,12 @@ export const saveInputTransformation = async (context, dataset, code) => {
       await safeQuery(...setDefaultPathQuery)
     }
 
-    sendToWorkerQueue({
+    const owner = await dataset.owner()
+
+    DefaultQueue.sendToWorker({
       task: 'register_transformation',
       id: transformation.id,
-      ownerName: dataset.owner.name
+      ownerName: owner.name
     })
 
     return transformation

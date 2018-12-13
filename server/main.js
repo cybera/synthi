@@ -22,10 +22,11 @@ import { graphqlUploadExpress } from 'graphql-upload'
 
 import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
+import schemaDirectives from './graphql/directives'
 
-import { startQueue, prepareDownload } from './lib/queue'
-import UserRepository from './domain/repositories/userRepository'
-import DatasetRepository from './domain/repositories/datasetRepository'
+import DefaultQueue from './lib/queue'
+import User from './domain/models/user'
+import Dataset from './domain/models/dataset'
 import { checkConfig } from './lib/startup-checks'
 
 
@@ -48,11 +49,11 @@ const authenticateUser = async ({ username, password, apikey }) => {
   let valid = false
 
   if (apikey) {
-    user = await UserRepository.getByAPIKey(apikey)
+    user = await User.getByAPIKey(apikey)
     if (user) user.viaAPI = true
     valid = true
   } else {
-    user = await UserRepository.getByUsername(username)
+    user = await User.getByUsername(username)
     if (user) user.viaAPI = false
     valid = user && await user.validPassword(password)
   }
@@ -90,7 +91,7 @@ passport.deserializeUser(async (id, done) => {
   console.log(`deserializeUser: ${id}`)
   let user
   try {
-    user = await UserRepository.get(id)
+    user = await User.get(id)
     if (!user) {
       return done(new Error('User not found'))
     }
@@ -131,6 +132,7 @@ app.use((req, res, next) => {
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
+  schemaDirectives,
   context: ({ req }) => {
     // TODO: Actual websocket authentication
     if (req) {
@@ -164,7 +166,16 @@ apolloServer.applyMiddleware({ app })
 
 app.post('/login',
   passport.authenticate('local'),
-  (req, res) => res.json({ user: req.user }))
+  async (req, res) => {
+    // NOTE: This may be required again at some point, but now that the issue here:
+    // https://github.com/apollographql/apollo-client/issues/4125
+    // has been resolved, it looks like I can roll back some rollbacks.
+    // const passbackUser = {}
+    // Object.assign(passbackUser, req.user)
+    // passbackUser.orgs = await req.user.orgs()
+    // res.json({ user: passbackUser })
+    res.json({ user: req.user })
+  })
 
 app.get('/logout', (req, res) => { req.logout(); res.send('Logged out') })
 
@@ -177,10 +188,10 @@ app.get('/whoami', (req, res) => {
 })
 
 app.get('/dataset/:id', async (req, res) => {
-  const dataset = await DatasetRepository.get({ user: req.user }, req.params.id)
+  const dataset = await Dataset.get(req.params.id)
 
-  if (dataset) {
-    prepareDownload(dataset, () => {
+  if (dataset && await dataset.canAccess(req.user)) {
+    DefaultQueue.prepareDownload(dataset, () => {
       res.attachment(`${dataset.name}.csv`)
       dataset.readStream().pipe(res)
     })
@@ -201,11 +212,11 @@ const server = httpServer.listen(PORT, (err) => {
   console.log(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
 })
 
-const queueConnection = startQueue()
+DefaultQueue.start()
 
 // Close all connections on shutdown
 onExit(() => {
   console.log('Shutting down...')
   server.close()
-  queueConnection.close()
+  DefaultQueue.close()
 }, { alwaysLast: true })

@@ -7,11 +7,10 @@ const styles = (theme) => ({
   root: {
     ...theme.mixins.gutters(),
     paddingTop: 16,
-    paddingBottom: 16,
     marginTop: theme.spacing.unit
   },
   form: {
-    marginTop: 30,
+    marginTop: 10,
     display: 'block'
   }
 })
@@ -25,9 +24,6 @@ class DatasetColumnTagsForm extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Typography variant="headline">
-          Column Metadata
-        </Typography>
         <form noValidate autoComplete="off" className={classes.form}>
           {columnFields}
         </form>

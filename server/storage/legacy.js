@@ -48,9 +48,13 @@ const exists = async (area, relativePath) => {
   })
 }
 
+// Object storage won't have the file in the first place if there was a failure
+const cleanupOnError = (area, relativePath) => remove(area, relativePath)
+
 export {
   createWriteStream,
   createReadStream,
   remove,
+  cleanupOnError,
   exists
 }

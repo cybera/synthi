@@ -4,7 +4,6 @@ import { Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import Chip from '@material-ui/core/Chip'
-import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
@@ -16,10 +15,11 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'left',
     flexWrap: 'wrap',
-    padding: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2
+    marginTop: theme.spacing.unit * 5,
+    padding: 0
   },
-  chip: {
+  heading: {
+    marginBottom: theme.spacing.unit
   }
 })
 
@@ -27,23 +27,26 @@ const DatasetColumnChips = (props) => {
   const { classes, columns, toggleColumnVisibility } = props
 
   return (
-    <Paper className={classes.root}>
-      <Typography variant="subheading">Columns:</Typography>
-      <Grid container spacing={2}>
+    <div className={classes.root}>
+      <Typography 
+        variant="h6"
+        className={classes.heading}
+      >
+        Enabled Columns
+      </Typography>
+      <Grid container spacing={8}>
         {columns.map(({ id, name, visible }) => (
-          <Grid item>
+          <Grid item key={id}>
             <Chip
               clickable
               color={visible ? 'primary' : 'default'}
               onClick={() => toggleColumnVisibility(id)}
               label={name}
-              key={id}
-              className={classes.chip}
             />
           </Grid>
         ))}
       </Grid>
-    </Paper>
+    </div>
   )
 }
 

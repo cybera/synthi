@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
@@ -17,23 +18,64 @@ const updateDatasetGQL = gql`
 `
 
 const DatasetNameEditor = (props) => {
-  const { dataset } = props
+  const {
+    dataset,
+    variant,
+    editing,
+    changeMode
+  } = props
+
   return (
     <Mutation
       mutation={updateDatasetGQL}
-      refetchQueries={[{ query: datasetViewQuery, variables: { id: dataset.id } }, { query: datasetListQuery }]}
+      refetchQueries={[
+        {
+          query: datasetViewQuery,
+          variables: { id: dataset.id }
+        },
+        {
+          query: datasetListQuery,
+          variables: { org: { id: dataset.owner.id } }
+        }
+      ]}
     >
       { updateMutation => (
         <EditableTextField
           text={dataset.name}
-          commit={(value) => {
-            updateMutation({ variables: { id: dataset.id, name: value } })
-              .catch(e => openSnackbar({ message: e.message }))
+          variant={variant}
+          editing={editing}
+          changeMode={changeMode}
+          commit={(newName) => {
+            const oldName = dataset.name
+
+            if (oldName !== newName) {
+              updateMutation({ variables: { id: dataset.id, name: newName } })
+                .then(() => openSnackbar({ message: `Renamed '${oldName}' to '${newName}'` }))
+                .catch(e => openSnackbar({ message: e.message }))
+            }
+
+            changeMode(false)
           }}
         />
       )}
     </Mutation>
   )
+}
+
+DatasetNameEditor.propTypes = {
+  dataset: PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.number
+  }),
+  variant: PropTypes.string,
+  editing: PropTypes.bool,
+  changeMode: PropTypes.func.isRequired
+}
+
+DatasetNameEditor.defaultProps = {
+  dataset: null,
+  variant: 'subtitle1',
+  editing: false
 }
 
 export default DatasetNameEditor

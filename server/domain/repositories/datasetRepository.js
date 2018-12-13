@@ -1,9 +1,10 @@
 import { safeQuery } from '../../neo4j/connection'
-import Dataset from '../models/dataset'
+import Dataset from '../models/dataset-old'
 import canAccessDataset from '../policies/canAccessDataset'
 import utils from './utils'
 
 export default class DatasetRepository {
+  /*
   static async get(context, id) {
     id = parseInt(id, 10)
     const query = this.buildQuery('WHERE ID(d) = toInteger($id)')
@@ -24,7 +25,8 @@ export default class DatasetRepository {
     const dataset = await utils.createDataset(result[0])
     return canAccessDataset(context.user, dataset) ? dataset : null
   }
-
+  */
+  /*
   static async getAll(context, searchString) {
     const query = [this.buildQuery('', searchString !== undefined)]
     if (searchString) {
@@ -34,7 +36,8 @@ export default class DatasetRepository {
     const datasets = await Promise.all(results.map(d => utils.createDataset(d)))
     return datasets.filter(d => canAccessDataset(context.user, d))
   }
-
+  */
+  /*
   static async create(context, data) {
     let { name } = data
     if (!name) {
@@ -63,7 +66,9 @@ export default class DatasetRepository {
 
     return dataset
   }
+  */
 
+  /*
   static async save(context, dataset) {
     if (!canAccessDataset(context.user, dataset)) {
       throw new Error('Not authorized')
@@ -85,7 +90,8 @@ export default class DatasetRepository {
 
     await safeQuery(...query)
   }
-
+  */
+  /*
   static async delete(context, dataset) {
     if (typeof (dataset) === 'number') {
       dataset = await this.get(context, dataset)
@@ -111,7 +117,8 @@ export default class DatasetRepository {
 
     return dataset
   }
-
+  */
+  /*
   static buildQuery(where, indexSearch) {
     // If indexSearch is true, instead of trying to match among all the datasets,
     // we add an APOC call to do an index search and return only the subset of
@@ -145,7 +152,8 @@ export default class DatasetRepository {
         o AS owner
       `
   }
-
+  */
+  /*
   static async uniqueDefaultName(owner) {
     const query = `
       MATCH (d:Dataset)<-[:OWNER]-(o:Organization)
@@ -163,7 +171,9 @@ export default class DatasetRepository {
 
     return `New Dataset ${maxIndex + 1}`
   }
+  */
 
+  /*
   static async isUnique(dataset) {
     const query = [`
       MATCH (d:Dataset { name: $dataset.name })<-[:OWNER]-(o:Organization)
@@ -174,7 +184,8 @@ export default class DatasetRepository {
 
     return results.length === 0
   }
-
+  */
+  /*
   static async datasetConnections(dataset) {
     const query = `MATCH (root:Dataset)
     WHERE ID(root) = toInteger($id)
@@ -205,4 +216,5 @@ export default class DatasetRepository {
     const connections = await safeQuery(query, { id: dataset.id })
     return JSON.stringify(connections)
   }
+  */
 }

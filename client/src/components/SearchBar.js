@@ -15,12 +15,20 @@ const styles = theme => ({
   },
   iconButton: {
     paddingTop: 0,
-    paddingBottom: 0
+    paddingBottom: 0,
+    height: 40,
+    width: 40,
   }
 })
 
 const SearchBar = (props) => {
-  const { onRequestSearch, onCancelSearch, onChange, classes } = props
+  const {
+    onRequestSearch,
+    onCancelSearch,
+    onChange,
+    classes
+  } = props
+
   return (
     <MUISearchBar
       classes={classes}
@@ -35,7 +43,12 @@ SearchBar.propTypes = {
   onRequestSearch: PropTypes.func,
   onCancelSearch: PropTypes.func.isRequired,
   onChange: PropTypes.func,
-  classes: PropTypes.object.isRequired // eslint-disable-line react/forbid-prop-types
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
+}
+
+SearchBar.defaultProps = {
+  onRequestSearch: null,
+  onChange: null
 }
 
 export default withStyles(styles)(SearchBar)

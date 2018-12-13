@@ -1,30 +1,17 @@
 import shortid from 'shortid'
 
-import DatasetRepository from '../repositories/datasetRepository'
 import { fullScriptPath } from '../../lib/util'
 import Storage from '../../storage'
+import Base from './base'
 
-export default class Transformation {
-  constructor(neo4jNode, context) {
-    if (neo4jNode) {
-      const { inputs, outputs, ...rest } = neo4jNode.properties
+class Transformation extends Base {
+  constructor(node) {
+    super(node)
+    if (!this.script) {
+      const id = shortid.generate()
+      const uniqueFilename = `${id}-${this.name}.py`.replace(/ /g, '_')
 
-      Object.assign(this, rest)
-
-      this.id = neo4jNode.identity
-      this.inputs = inputs.map(inputName => DatasetRepository.getByName(context, inputName))
-      this.outputs = outputs.map(outputName => DatasetRepository.getByName(context, outputName))
-
-      if (!this.name) {
-        [this.name] = this.outputs
-      }
-
-      if (!this.script) {
-        const id = shortid.generate()
-        const uniqueFilename = `${id}-${this.name}.py`.replace(/ /g, '_')
-
-        this.script = uniqueFilename
-      }
+      this.script = uniqueFilename
     }
   }
 
@@ -54,4 +41,14 @@ export default class Transformation {
       console.log(err)
     }
   }
+
+  async canAccess(user) {
+    console.log('Implement ME!')
+    return true
+  }
 }
+
+Transformation.label = 'Transformation'
+Transformation.saveProperties = ['script', 'name']
+
+export default Transformation

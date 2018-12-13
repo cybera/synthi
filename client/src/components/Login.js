@@ -9,6 +9,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
+import { withApollo } from 'react-apollo'
+import gql from 'graphql-tag'
 
 import { compose } from '../lib/common'
 import { withNavigation } from '../context/NavigationContext'
@@ -16,6 +18,21 @@ import { openSnackbar } from './Notifier'
 import ADIButton from './ADIButton'
 import ADILogo from '../images/ckan-logo.png'
 
+const currentUserQuery = gql`
+  query CurrentUser {
+    currentUser {
+      id
+      uuid
+      username
+      apikey
+      organizations {
+        id
+        uuid
+        name
+      }
+    }
+  }
+`
 const styles = theme => ({
   layout: {
     width: 'auto',
@@ -45,6 +62,9 @@ const styles = theme => ({
   img: {
     paddingBottom: theme.spacing.unit * 2,
   },
+  hidden: {
+    display: 'none'
+  }
 })
 
 class Login extends React.Component {
@@ -83,13 +103,30 @@ class Login extends React.Component {
       }
       return response.json()
     }).then((obj) => {
-      props.navigation.setUser(obj.user)
-      localStorage.setItem('user', JSON.stringify(obj.user))
-      let homeOrg = obj.user.orgs.find(o => o.name === obj.user.username)
-      if (!homeOrg) {
-        [homeOrg] = obj.user.orgs
-      }
-      props.navigation.setOrg(homeOrg.id)
+      // NOTE: This may be required again at some point, but now that the issue here:
+      // https://github.com/apollographql/apollo-client/issues/4125
+      // has been resolved, it looks like I can roll back some rollbacks.
+      // props.navigation.setUser(obj.user)
+      // localStorage.setItem('user', JSON.stringify(obj.user))
+      // let homeOrg = obj.user.orgs.find(o => o.name === obj.user.username)
+      // if (!homeOrg) {
+      //   [homeOrg] = obj.user.orgs
+      // }
+      // props.navigation.setOrg(homeOrg.id)
+      // Now that we have a proper session established, let's grab a proper
+      // current user object.
+      props.client.query({ query: currentUserQuery }).then(({ data }) => {
+        const { currentUser } = data
+        currentUser.orgs = currentUser.organizations
+        props.navigation.setUser(currentUser)
+        localStorage.setItem('user', JSON.stringify(currentUser))
+        let homeOrg = currentUser.orgs.find(o => o.name === currentUser.username)
+        if (!homeOrg) {
+          [homeOrg] = currentUser.orgs
+        }
+        props.navigation.setOrg(homeOrg.id)
+        props.client.resetStore()
+      })
     }).catch((err) => {
       console.log(err)
       openSnackbar({ message: 'Login failed' })
@@ -110,7 +147,7 @@ class Login extends React.Component {
               alt=""
               className={classes.img}
             />
-            <Typography component="h1" variant="title" gutterBottom>
+            <Typography component="h1" variant="h6" gutterBottom>
               Welcome to the ADI Platform
             </Typography>
             <Typography component="h1" variant="body1">
@@ -140,7 +177,7 @@ class Login extends React.Component {
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
-                style={{ display: 'none' }}
+                className={classes.hidden}
               />
               <ADIButton
                 type="submit"
@@ -166,7 +203,8 @@ Login.propTypes = {
 
 const StyledLogin = compose(
   withStyles(styles),
-  withNavigation
+  withNavigation,
+  withApollo
 )(Login)
 
 export default StyledLogin

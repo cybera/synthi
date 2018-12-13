@@ -2,19 +2,25 @@ import React from 'react'
 import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core/styles'
-import ADIButton from './ADIButton'
+import Button from '@material-ui/core/Button'
+import CloudUploadIcon from '@material-ui/icons/CloudUpload'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 const styles = theme => ({
   input: {
     display: 'none',
   },
+  icon: {
+    marginRight: theme.spacing.unit
+  }
 })
 
 class UploadFile extends React.Component {
   static propTypes = {
     handleFileChange: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    text: PropTypes.string
+    text: PropTypes.string,
+    loading: PropTypes.bool.isRequired // eslint-disable-line react/forbid-prop-types
   }
 
   static defaultProps = {
@@ -30,10 +36,10 @@ class UploadFile extends React.Component {
   }
 
   render() {
-    const { classes, text } = this.props
+    const { classes, text, loading } = this.props
 
     return (
-      <label htmlFor="raised-button-file">
+      <span>
         <input
           accept=".csv"
           className={classes.input}
@@ -42,10 +48,14 @@ class UploadFile extends React.Component {
           type="file"
           onChange={this.handleChange}
         />
-        <ADIButton variant="raised" component="span" className={classes.button}>
-          { text }
-        </ADIButton>
-      </label>
+        <label htmlFor="raised-button-file">
+          <Button variant="contained" component="span" color="primary" className={classes.button}>
+            { !loading && <CloudUploadIcon className={classes.icon} />}
+            { loading && <CircularProgress className={classes.icon} size={22} color="inherit" />}
+            { text }
+          </Button>
+        </label>
+      </span>
     )
   }
 }

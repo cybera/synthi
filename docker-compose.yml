@@ -36,6 +36,7 @@ services:
     build: ./client
     ports:
       - "8080:8080"
+      - "8888:8888"
     volumes:
       - ./client:/usr/src/app
       - client_node_modules:/usr/src/app/node_modules

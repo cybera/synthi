@@ -1,11 +1,9 @@
 import React from 'react'
-import DescriptionIcon from '@material-ui/icons/Description'
-import { withStyles } from '@material-ui/core/styles'
+import PropTypes from 'prop-types'
+import gql from 'graphql-tag'
+import { Mutation } from 'react-apollo'
 
-import gql from "graphql-tag"
-import { Mutation } from "react-apollo"
-import { compose } from '../lib/common'
-
+import { datasetViewQuery } from '../queries'
 import UploadFile from '../components/UploadFile'
 
 const uploadDatasetGQL = gql`
@@ -13,24 +11,35 @@ const uploadDatasetGQL = gql`
     updateDataset(id: $id, file: $file) {
       id
       name
+      columns {
+        name
+      }
     }
   }
 `
 
 const DatasetUploadButton = (props) => {
-  const { dataset } = props
-  const { id } = dataset
+  const { id } = props
 
   return (
-    <Mutation mutation={uploadDatasetGQL}>
-      { uploadFileMutation => (
-        <UploadFile 
-          handleFileChange={file => uploadFileMutation({variables: { id, file }})} 
-          text='Upload'
+    <Mutation
+      mutation={uploadDatasetGQL}
+      refetchQueries={[{ query: datasetViewQuery, variables: { id } }]}
+      awaitRefetchQueries
+    >
+      {(uploadFileMutation, { loading }) => (
+        <UploadFile
+          handleFileChange={file => uploadFileMutation({ variables: { id, file } })}
+          text="Upload"
+          loading={loading}
         />
       )}
     </Mutation>
   )
+}
+
+DatasetUploadButton.propTypes = {
+  id: PropTypes.number.isRequired
 }
 
 export default DatasetUploadButton

@@ -1,63 +1,74 @@
-import { sendToWorkerQueue } from '../../lib/queue'
+import { AuthenticationError } from 'apollo-server-express'
+
 import { safeQuery } from '../../neo4j/connection'
-import { storeFS, runTransformation } from '../../lib/util'
 import { pubsub, withFilter } from '../pubsub'
 import * as TransformationRepository from '../../domain/repositories/transformationRepository'
-import DatasetRepository from '../../domain/repositories/datasetRepository'
-import OrganizationRepository from '../../domain/repositories/organizationRepository'
+import Organization from '../../domain/models/organization'
+import Dataset from '../../domain/models/dataset'
 
-// TODO: Move this to a real memcached or similar service and actually tie it to the
-// current user
+// TODO: Move this to the column model and use redis to store
 const visibleColumnCache = {}
 
-const columnVisible = ({ id, order }) => {
-  if (!visibleColumnCache[id]) {
-    visibleColumnCache[id] = { visible: order ? order < 5 : false }
-  }
-  return visibleColumnCache[id].visible
-}
-
-const processDatasetUpload = async (name, upload, context) => {
-  const { stream, filename } = await upload
-  const { path } = await storeFS({ stream, filename })
-  let dataset
-
-  try {
-    dataset = await DatasetRepository.create(context, { name, path, computed: false })
-
-    sendToWorkerQueue({
-      task: 'import_csv',
-      id: dataset.id
-    })
-  } catch (e) {
-    // TODO: What should we do here?
-    console.log(e.message)
+const columnVisible = (user, { id, order }) => {
+  if (!visibleColumnCache[user.uuid]) {
+    visibleColumnCache[user.uuid] = {}
   }
 
-  return dataset
+  if (!visibleColumnCache[user.uuid][id]) {
+    visibleColumnCache[user.uuid][id] = { visible: order ? order < 5 : false }
+  }
+  return visibleColumnCache[user.uuid][id].visible
 }
 
 const processDatasetUpdate = async (datasetProps, context) => {
-  const { id, file, computed, name } = datasetProps
-  let dataset = await DatasetRepository.get(context, id)
+  const {
+    id,
+    file,
+    computed,
+    name,
+    generating
+  } = datasetProps
+
+  // TODO: access control
+  const dataset = await Dataset.get(id)
+
+  if (!dataset.canAccess(context.user)) {
+    throw new AuthenticationError('Operation not allowed on this resource')
+  }
 
   if (file) {
-    const { stream, filename } = await file
-    const { path } = await storeFS({ stream, filename })
+    /*
+      This is so important I'm leaving it in two lines and adding this big comment. There's a part
+      in the "Tips" section of graphql-upload that's easy to miss the significance of: "Promisify
+      and await file upload streams in resolvers or the server will send a response to the client
+      before uploads are complete, causing a disconnect." Here's the link to that section:
 
-    try {
-      dataset.path = path
-      dataset.computed = false
+      https://github.com/jaydenseric/graphql-upload#tips
 
-      await DatasetRepository.save(context, dataset)
-      sendToWorkerQueue({
-        task: 'import_csv',
-        id: dataset.id
-      })
-    } catch (e) {
-      // TODO: What should we do here?
-      console.log(e.message)
-    }
+      I moved some of the original upload handling that was more focused on stream handling (as
+      opposed to *getting* the stream, filename, etc.), which is in the first line. This makes
+      it easier to handle uploads consistently for datasets, putting logic for picking storage
+      devices, etc. outside of the resolver. This is good. However, it does make the code less
+      like the example code for graphql-upload. There's an 'await' call from that example now
+      tucked away in dataset.upload. It's theoretically doing what that tip points out. And,
+      within that function, everything's being done properly. However, back in *this* resolver,
+      we now have to really make sure we await dataset.upload. Otherwise this resolver will
+      return way too soon for a larger file, even if the code in the upload function is handling
+      promises properly.
+
+      What are the consequences of not awaiting the dataset.upload function? Well, seemingly
+      weird behaviour, where smaller files will usually upload alright, but larger ones (and
+      by 'larger', not actually *that* large... a 1 MB file could trigger the problem depending
+      on the connection speed) would simply not make it to object storage (or whatever storage)
+      is being used. On the current version of the MacOS Docker client, this could ultimately
+      result in needing to restart Docker. The problems in staging/production environments on
+      Linux hosts seemed as you would expect: uploads of larger files simply would not work.
+
+      However, with this simple extra await, the resolver waits properly, not disconnecting
+      during upload, and larger files once again work.
+    */
+    const uploadInfo = await file
+    await dataset.upload(uploadInfo)
   }
 
   let changed = false
@@ -71,8 +82,13 @@ const processDatasetUpdate = async (datasetProps, context) => {
     changed = true
   }
 
+  if (generating != null) {
+    dataset.generating = generating
+    changed = true
+  }
+
   if (changed) {
-    await DatasetRepository.save(context, dataset)
+    await dataset.save()
   }
 
   return dataset
@@ -80,45 +96,88 @@ const processDatasetUpdate = async (datasetProps, context) => {
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
+const findOrganization = async (org) => {
+  if (!org) return null
+
+  const { id, uuid, name } = org
+
+  if (typeof uuid !== 'undefined') {
+    return Organization.getByUuid(uuid)
+  }
+
+  if (typeof id !== 'undefined') {
+    return Organization.get(org.id)
+  }
+
+  if (typeof name !== 'undefined') {
+    return Organization.getByName(org.name)
+  }
+
+  return null
+}
+
 export default {
   Query: {
-    async dataset(_, { id, name, searchString }, context) {
+    async dataset(_, { id, name, searchString, org }, context) {
       let datasets = []
 
-      if (id != null) datasets.push(await DatasetRepository.get(context, id))
-      else if (name != null) datasets.push(await DatasetRepository.getByName(context, name))
-      else datasets = await DatasetRepository.getAll(context, searchString)
+      const organization = await findOrganization(org)
+
+      if (id != null) datasets.push(await Dataset.get(id))
+      else if (name != null) datasets.push(await Dataset.getByName(organization, name))
+      else datasets = await organization.datasets(searchString)
 
       return datasets
     },
   },
   Dataset: {
-    async columns(dataset) {
-      return dataset.columns.map(c => ({ ...c, visible: columnVisible(c) }))
+    async columns(dataset, _, context) {
+      const columns = await dataset.columns()
+      return columns.map(c => ({ ...c, visible: columnVisible(context.user, c) }))
     },
-    async samples(dataset) {
-      return dataset.samples()
-    },
-    async rows(dataset) {
-      return dataset.rows()
-    },
-    inputTransformation(dataset, _, context) {
-      return TransformationRepository.inputTransformation(context, dataset)
-    },
-    async connections(dataset) {
-      const results = await DatasetRepository.datasetConnections(dataset)
-      return results
-    }
+    samples: dataset => dataset.samples(),
+    rows: dataset => dataset.rows(),
+    owner: dataset => dataset.owner(),
+    inputTransformation: dataset => dataset.inputTransformation(),
+    connections: dataset => dataset.connections()
   },
   Mutation: {
     async createDataset(_, { name, owner }, context) {
-      const org = await OrganizationRepository.get(owner)
-      return DatasetRepository.create(context, { name, owner: org })
+      // TODO: context.user.createDataset(org, { name })
+      const org = await Organization.get(owner)
+      if (!await org.canAccess(context.user)) {
+        throw new AuthenticationError('You cannot create datasets for this organization')
+      }
+
+      if (await org.canCreateDatasets(context.user)) {
+        const dataset = await org.createDataset({ name })
+        // Initialize metadata (this will set some dates to when the dataset is created)
+        const metadata = await dataset.metadata()
+        await metadata.save()
+
+        return dataset
+      }
+      return null
     },
     async deleteDataset(_, { id }, context) {
-      return DatasetRepository.delete(context, id)
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
+      await dataset.delete()
+      return dataset
     },
-    uploadDataset: (_, { name, file }, context) => processDatasetUpload(name, file, context),
+    async importCSV(_, { id, removeExisting, options }, context) {
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
+      // Only allow importing if the user can access the dataset in the first place
+      if (dataset) {
+        dataset.importCSV(removeExisting, options)
+      }
+      return dataset
+    },
     updateDataset: (_, props, context) => processDatasetUpdate(props, context),
     createPlot(_, { jsondef }) {
       return safeQuery(`
@@ -128,19 +187,25 @@ export default {
       { jsondef }).then(results => results[0])
     },
     async generateDataset(_, { id }, context) {
-      const dataset = await DatasetRepository.get(context, id)
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
       dataset.generating = true
-      await DatasetRepository.save(context, dataset)
-      runTransformation(dataset)
+      await dataset.save()
+      dataset.runTransformation()
       return dataset
     },
-    toggleColumnVisibility(_, { id }) {
-      const isVisible = columnVisible({ id })
-      visibleColumnCache[id].visible = !isVisible
-      return visibleColumnCache[id].visible
+    toggleColumnVisibility(_, { id }, context) {
+      const isVisible = columnVisible(context.user, { id })
+      visibleColumnCache[context.user.uuid][id].visible = !isVisible
+      return visibleColumnCache[context.user.uuid][id].visible
     },
     async saveInputTransformation(_, { id, code }, context) {
-      const dataset = await DatasetRepository.get(context, id)
+      const dataset = await Dataset.get(id)
+      if (!await dataset.canAccess(context.user)) {
+        throw new AuthenticationError('Operation not allowed on this resource')
+      }
       return TransformationRepository.saveInputTransformation(context, dataset, code)
     }
   },
