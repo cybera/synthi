@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 
-import { updateDatasetColumnsMutation, datasetColumnTagsQuery } from '../queries'
+import { updateDatasetColumnsMutation, datasetColumnTagsQuery, datasetViewQuery } from '../queries'
 import DatasetColumnTagsForm from './DatasetColumnTagsForm'
 import PanelLoadingState from './PanelLoadingState'
 
@@ -25,7 +25,8 @@ const DatasetColumnTagsContainer = (props) => {
     <Mutation
       mutation={updateDatasetColumnsMutation}
       refetchQueries={[
-        { query: datasetColumnTagsQuery, variables: { id } }
+        { query: datasetColumnTagsQuery, variables: { id } },
+        { query: datasetViewQuery, variables: { id } }
       ]}
     >
       { updateColumn => (

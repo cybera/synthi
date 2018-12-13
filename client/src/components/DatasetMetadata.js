@@ -22,10 +22,13 @@ import * as Ramda from 'ramda'
 import ADIButton from './ADIButton'
 import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
 import PanelLoadingState from './PanelLoadingState'
+import { datasetViewQuery } from '../queries'
 
 export const datasetMetadataQuery = gql`
 query($id: Int) {
   dataset(id: $id) {
+    name
+    id
     metadata {
       title
       contributor
@@ -150,7 +153,7 @@ const LocalDatePicker = (props) => {
 
 LocalDatePicker.propTypes = {
   label: PropTypes.string.isRequired,
-  value: PropTypes.string,
+  value: PropTypes.number,
   onChange: PropTypes.func.isRequired,
   className: PropTypes.string
 }
@@ -461,19 +464,29 @@ const ConnectedDatasetMetadata = (props) => {
     <Mutation
       mutation={updateDatasetMetadataMutation}
       refetchQueries={[
-        { query: datasetMetadataQuery, variables: { id } }
+        { query: datasetMetadataQuery, variables: { id } },
+        { query: datasetViewQuery, variables: { id } }
       ]}
+      awaitRefetchQueries
     >
       { updateDatasetMetadata => (
-        <Query query={datasetMetadataQuery} variables={{ id }}>
+        <Query 
+          query={datasetMetadataQuery}
+          variables={{ id }}
+          fetchPolicy="cache-and-network"
+        >
           {({ loading, error, data }) => {
             if (loading) return <PanelLoadingState />
             if (error) return <p>Error!</p>;
 
             const fieldKeys = Object.keys(DatasetMetadata.defaultProps.fields)
-            let fields = Ramda.pick(fieldKeys, data.dataset[0].metadata)
-            fields = Ramda.reject(field => field == null, fields)
-            fields = Ramda.merge(DatasetMetadata.defaultProps.fields, fields)
+            let fields = {}
+
+            if (data.dataset) {
+              fields = Ramda.pick(fieldKeys, data.dataset[0].metadata)
+              fields = Ramda.reject(field => field == null, fields)
+              fields = Ramda.merge(DatasetMetadata.defaultProps.fields, fields)
+            }
 
             return (
               <StyledDatasetMetadata
