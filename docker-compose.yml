@@ -62,15 +62,16 @@ services:
     build: ./manual
     image: cybera/adi-manual:latest
     ports:
-      - "3001:3001"
-      - "3002:3002"
+      - "4000:4000"
+      - "35729:35729"
     networks:
       - default
     volumes:
       - ./manual/src:/usr/src/app
+      - ./manual/outputs:/usr/src/outputs
       - manual_node_modules:/usr/src/app/node_modules
       - manual_gitbook_comp:/usr/src/app/_book
-    command: gitbook --port 3001 --lrport 3002 serve
+    command: gitbook serve
   redis:
     image: redis:4.0
     networks:
