@@ -2,6 +2,7 @@
 
 ### Getting Started
 * [Introduction](README.md)
+* [About this manual](sections/Manual.md)
 
 ### Managing Datasets
 * [Uploading a Dataset](sections/UploadingADataset.md)
@@ -9,6 +10,3 @@
 
 ### Exploring Datasets
 * [Visualizing Data](sections/Visualizing.md)
-
-### Help & Troubleshooting
-* [About this manual](sections/Manual.md)

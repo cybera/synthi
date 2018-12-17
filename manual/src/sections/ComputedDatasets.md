@@ -1,4 +1,4 @@
-## What are computed datasets?
+# Computed Datasets
 
 A computed dataset is like a regular dataset in almost every way, except instead of uploading data to them, you supply a code block that outputs a dataset.
 
