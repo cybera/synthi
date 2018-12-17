@@ -40,4 +40,6 @@ ADI expects CSV files to have column values separated by commas. If you use a di
 
 ![Example of using a different delimiter](../images/new-dataset-delimiter.png)
 
-In order for your dataset to appear correctly, you'll need to edit your CSV in the text editor of your choice and replace all delimiters with a comma (most text editors have a "Find & Replace" tool that can handle this task automatically). Once you've saved your file, select the **Upload** button on the **Preview Data** screen to upload the new version of your dataset.
+In order for your dataset to appear correctly, you'll need to edit your CSV in the text editor of your choice and replace all delimiters with a comma (most text editors have a "Find & Replace" tool that can handle this task automatically). 
+
+Once you've saved the comma-delimited version of your CSV in the text editor, select the **Upload** button on the **Preview Data** tab to upload it. After a few moments, the tab will load the new version and the data will be properly formatted in the table.
