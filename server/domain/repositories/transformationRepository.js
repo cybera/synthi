@@ -62,7 +62,8 @@ export const saveInputTransformation = async (context, dataset, code) => {
     DefaultQueue.sendToWorker({
       task: 'register_transformation',
       id: transformation.id,
-      ownerName: owner.name
+      ownerName: owner.name,
+      userUuid: context.user.uuid
     })
 
     return transformation

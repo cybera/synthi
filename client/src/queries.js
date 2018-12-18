@@ -39,6 +39,7 @@ query($id: Int) {
     inputTransformation {
       id
       code
+      error
     }
   }
 }
