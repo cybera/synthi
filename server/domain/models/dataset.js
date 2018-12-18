@@ -6,7 +6,7 @@ import DatasetMetadata from './dataset-metadata'
 
 import Storage from '../../storage'
 import { fullDatasetPath, csvFromStream, storeFS } from '../../lib/util'
-import { sendToWorkerQueue } from '../../lib/queue'
+import DefaultQueue from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 
 class Dataset extends Base {
@@ -158,7 +158,7 @@ class Dataset extends Base {
   }
 
   async importCSV(removeExisting=false, options={}) {
-    sendToWorkerQueue({
+    DefaultQueue.sendToWorker({
       task: 'import_csv',
       uuid: this.uuid,
       paths: this.paths,
@@ -170,7 +170,7 @@ class Dataset extends Base {
 
   async runTransformation() {
     const owner = await this.owner()
-    sendToWorkerQueue({
+    DefaultQueue.sendToWorker({
       task: 'generate',
       id: this.id,
       uuid: this.uuid,

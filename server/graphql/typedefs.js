@@ -109,6 +109,7 @@ type Transformation @authCanAccess {
   inputs: [Dataset]
   outputs: [Dataset]
   code: String
+  error: String
 }
 
 type Plot {

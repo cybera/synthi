@@ -1,23 +1,27 @@
-import AMQP from 'amqplib'
+import AMQPManager from 'amqp-connection-manager'
 import { pubsub } from '../graphql/pubsub'
 import Dataset from '../domain/models/dataset'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
-let pendingDownloads = {}
+const pendingDownloads = {}
 
-const startChannel = async (conn, channelName, { durable, noAck }, callback) => {
+const startChannel = (conn, channelName, { durable, noAck }, callback) => {
   const queueName = channelName
-  const ch = await conn.createChannel()
-  await ch.assertExchange(queueName, 'fanout', { durable })
-  await ch.assertQueue(channelName, { durable })
-  await ch.bindQueue(queueName, queueName, '')
-  await ch.consume(channelName, callback, { noAck })
-  return ch
+  conn.createChannel({
+    json: true,
+    setup: async (ch) => {
+      await ch.assertExchange(queueName, 'fanout', { durable })
+      await ch.assertQueue(channelName, { durable })
+      await ch.bindQueue(queueName, queueName, '')
+      await ch.consume(channelName, callback, { noAck })
+      return ch
+    }
+  })
 }
 
-const startQueue = async () => {
-  const conn = await AMQP.connect('amqp://queue')
+const startQueue = () => {
+  const conn = AMQPManager.connect(['amqp://queue'])
 
   startChannel(conn, 'dataset-status', { durable: false, noAck: true }, async (msg) => {
     const msgJSON = JSON.parse(msg.content.toString())
@@ -55,26 +59,38 @@ const startQueue = async () => {
   return conn
 }
 
-const sendToWorkerQueue = async (msg) => {
-  const conn = await AMQP.connect('amqp://queue')
-  const ch = await conn.createChannel()
-  const ok = await ch.assertQueue('python-worker', { durable: false })
-  ch.sendToQueue('python-worker', Buffer.from(JSON.stringify(msg)))
+class AMQP {
+  async start() {
+    this.conn = startQueue()
+    this.worker = await this.conn.createChannel({
+      json: true,
+      setup: ch => ch.assertQueue('python-worker', { durable: false })
+    })
+  }
+
+  async sendToWorker(msg) {
+    this.worker.sendToQueue('python-worker', msg)
+  }
+
+  async prepareDownload(dataset, callback) {
+    // TODO: Pass a unique download ID (have tasks send JSON as argument)
+    const owner = await dataset.owner()
+
+    this.sendToWorker({
+      task: 'prepare_download',
+      id: dataset.id,
+      ownerName: owner.name
+    })
+
+    // TODO: Create a unique download ID
+    pendingDownloads[`${dataset.id}`] = callback
+  }
+
+  close() {
+    this.conn.close()
+  }
 }
 
+const DefaultQueue = new AMQP()
 
-const prepareDownload = async (dataset, callback) => {
-  // TODO: Pass a unique download ID (have tasks send JSON as argument)
-  const owner = await dataset.owner()
-
-  sendToWorkerQueue({
-    task: 'prepare_download',
-    id: dataset.id,
-    ownerName: owner.name
-  })
-
-  // TODO: Create a unique download ID
-  pendingDownloads[`${dataset.id}`] = callback
-}
-
-export { startQueue, sendToWorkerQueue, prepareDownload }
+export default DefaultQueue
