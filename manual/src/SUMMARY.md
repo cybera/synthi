@@ -6,3 +6,4 @@
 * [About this manual](sections/Manual.md)
 * [Visualizing Data](sections/Visualizing.md)
 * [Exporting and Importing Data](sections/ExportingAndImporting.md)
+* [Metadata](sections/Metadata.md)
