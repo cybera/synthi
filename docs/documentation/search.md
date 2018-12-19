@@ -32,7 +32,7 @@ DatasetMetadata:
 - description
 - source
 - identifier
-- theme
+- topic
 
 Column:
 

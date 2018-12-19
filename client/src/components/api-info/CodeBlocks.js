@@ -57,7 +57,7 @@ EOS`
         description
         source
         identifier
-        theme
+        topic
       }
     }
   }"
