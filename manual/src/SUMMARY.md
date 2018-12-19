@@ -7,6 +7,7 @@
 ### Managing Datasets
 * [Uploading a Dataset](sections/UploadingADataset.md)
 * [Computed Datasets](sections/ComputedDatasets.md)
+* [Metadata](sections/Metadata.md)
 
 ### Exploring Datasets
 * [Visualizing Data](sections/Visualizing.md)
