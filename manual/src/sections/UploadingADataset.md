@@ -5,10 +5,10 @@ description: Learn how to upload a dataset from a CSV file and troubleshoot comm
 # Uploading a Dataset
 
 {% hint style='info' %}
-There are two different methods of adding datasets to an account. This section will cover how to upload a dataset from a file. For information on how to generate a dataset from existing datasets, visit the [Computed Datasets](./ComputedDatasets.md) section.
+There are two different methods of adding datasets to an account. This section will cover how to upload a dataset from a file. For information on how to generate a dataset from existing data on your account, visit the **[Computed Datasets](./ComputedDatasets.md)** section.
 {% endhint %}
 
-To begin, select the green **Add New Dataset** button from the sidebar. ADI will automatically navigate to the new dataset.
+To begin, select the green **Add New Dataset** button from the sidebar on the left. ADI will automatically navigate to the new dataset.
 
 ![New dataset screen](../images/new-dataset.png)
 
@@ -20,11 +20,11 @@ If there are no issues with the CSV's format, a sample of the data should load o
 
 ## Troubleshooting
 
-Sometimes a CSV file might be in a format that ADI doesn't expect. When this happens, an error message will appear on the screen.
+Sometimes a CSV file might be in a format that ADI doesn't expect. When this happens, an error message will appear on the screen or your data will be poorly formatted.
 
 #### Uploading a CSV without headers
 
-If the first line of your CSV file contains raw data instead of headers, ADI will automatically create headers for you.
+If the first line of your CSV file contains raw data instead of headers, ADI will display an error page and offer the option to automatically generate headers for you (you can rename them later).
 
 Ensure that the toggle button for **Does your file contain a header row?** is deselected (moved to the left, it should turn white instead of green) and click the **Rescan Metadata** button to resubmit the CSV file to our servers.
 
@@ -36,7 +36,7 @@ Ensure that the toggle button for **Does your file contain a header row?** is de
 You will be able to define custom CSV delimiters in a future version of ADI. Until then, you'll need to handle this issue manually.
 {% endhint %}
 
-ADI expects CSV files to have column values separated by commas. If you use a different delimiter, such as a semi-colon, your dataset may appear in a single-column table once it has finished uploading.
+ADI expects CSV files to have column values separated by commas. If you use a different delimiter, such as a semicolon, your dataset may appear in a single-column table once it has finished uploading.
 
 ![Example of using a different delimiter](../images/new-dataset-delimiter.png)
 
