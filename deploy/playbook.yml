@@ -35,6 +35,28 @@
         - restart docker
     - name: initialize docker swarm
       command: docker swarm init
+    - name: create create-user script
+      template:
+        src: templates/create-user.j2
+        dest: /usr/local/bin/create-user
+        owner: ubuntu
+        group: ubuntu
+        mode: 0744
+    - name: create create-org script
+      template:
+        src: templates/create-org.j2
+        dest: /usr/local/bin/create-org
+        owner: ubuntu
+        group: ubuntu
+        mode: 0744
+    - name: create add-user-to-org script
+      template:
+        src: templates/add-user-to-org.j2
+        dest: /usr/local/bin/add-user-to-org
+        owner: ubuntu
+        group: ubuntu
+        mode: 0744
+    
   handlers:
     - name: restart nginx
       service:
