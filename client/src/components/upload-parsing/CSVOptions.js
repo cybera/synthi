@@ -75,13 +75,13 @@ class CSVOptions extends React.Component {
               />
             )}
             labelPlacement="end"
-            label="Does your file contains a header row?"
+            label="Does your file contain a header row?"
             fullWidth
           />
         </FormGroup>
         <FormGroup style={{ marginTop: 20 }}>
           <FormControl component="fieldset" fullWidth>
-            <FormLabel component="legend">What delimiter separates column values?</FormLabel>
+            <FormLabel component="legend">Which delimiter separates column values?</FormLabel>
             <DelimiterSelector
               delimiter={delimiter}
               handler={this.handleChange('delimiter')}
