@@ -12,3 +12,9 @@
 ### Exploring Datasets
 * [Visualizing Data](sections/Visualizing.md)
 * [Exporting and Importing Data](sections/ExportingAndImporting.md)
+
+### Managing Users
+* [Logging In](sections/LoggingIn.md)
+* [Signing Out](sections/SigningOut.md)
+* [Creating Users & Organizations](sections/CreatingUsersAndOrganizations.md)
+
