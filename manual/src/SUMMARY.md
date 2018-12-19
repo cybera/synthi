@@ -9,6 +9,7 @@
 * [Metadata](sections/Metadata.md)
 
 ### User Management
-* [Logging In & Signing Out](sections/LoggingInAndOut.md)
-* Creating Users
+* [Logging In](sections/LoggingIn.md)
+* [Signing Out](sections/SigningOut.md)
+* [Creating Users & Organizations](sections/CreatingUsersAndOrganizations.md)
 
