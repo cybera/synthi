@@ -7,6 +7,7 @@ import 'brace/theme/xcode'
 
 import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
+import ToggleVisibility from '../components/ToggleVisibility'
 
 const styles = theme => ({
   root: {
@@ -92,7 +93,18 @@ class TransformationEditor extends React.Component {
   }
 
   render() {
-    return <StyledMUIEditor {...this.props} code={this.state.code} onChange={this.onChange}/>
+    const { dataset } = this.props
+    const { inputTransformation } = dataset
+    const { error } = inputTransformation || {}
+
+    return (
+      <div>
+        <StyledMUIEditor {...this.props} code={this.state.code} onChange={this.onChange}/>
+        <ToggleVisibility visible={error} key={dataset.id}>
+          <div style={{ color: 'red', marginBottom: 10 }}><b>Transformation Code Error:</b> {error}</div>
+        </ToggleVisibility>
+      </div>
+    )
   }
 }
 

@@ -79,7 +79,7 @@ def generate_dataset(generate_id, owner_name):
   WITH full_path, output
   MATCH (t:Transformation)
   MATCH individual_path = (output)<-[*]-(t)
-  WHERE t IN nodes(full_path)
+  WHERE t IN nodes(full_path) AND NOT EXISTS(t.error)
   WITH DISTINCT(individual_path), t
   MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
   RETURN

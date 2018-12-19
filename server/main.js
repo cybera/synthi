@@ -24,7 +24,7 @@ import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
 import schemaDirectives from './graphql/directives'
 
-import { startQueue, prepareDownload } from './lib/queue'
+import DefaultQueue from './lib/queue'
 import User from './domain/models/user'
 import Dataset from './domain/models/dataset'
 import { checkConfig } from './lib/startup-checks'
@@ -191,7 +191,7 @@ app.get('/dataset/:id', async (req, res) => {
   const dataset = await Dataset.get(req.params.id)
 
   if (dataset && await dataset.canAccess(req.user)) {
-    prepareDownload(dataset, () => {
+    DefaultQueue.prepareDownload(dataset, () => {
       res.attachment(`${dataset.name}.csv`)
       dataset.readStream().pipe(res)
     })
@@ -212,11 +212,11 @@ const server = httpServer.listen(PORT, (err) => {
   console.log(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
 })
 
-const queueConnection = startQueue()
+DefaultQueue.start()
 
 // Close all connections on shutdown
 onExit(() => {
   console.log('Shutting down...')
   server.close()
-  queueConnection.close()
+  DefaultQueue.close()
 }, { alwaysLast: true })
