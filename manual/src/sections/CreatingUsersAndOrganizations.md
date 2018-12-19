@@ -16,7 +16,7 @@ From your SSH console, run `usr/local/bin/create-org <organization_name>`, repla
 
 The script should run and complete without any further information.
 
-## Linking a User & Organization
+## Linking Users & Organizations
 
 From your SSH console, run `usr/local/bin/add-user-to-org <username> <organization_name>`. 
 
