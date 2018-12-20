@@ -3,6 +3,7 @@
 ### Getting Started
 * [Introduction](README.md)
 * [About this manual](sections/Manual.md)
+* [Limitations](sections/Limitations.md)
 
 ### Managing Datasets
 * [Uploading a Dataset](sections/UploadingADataset.md)
@@ -18,4 +19,3 @@
 * [Logging In](sections/LoggingIn.md)
 * [Signing Out](sections/SigningOut.md)
 * [Creating Users & Organizations](sections/CreatingUsersAndOrganizations.md)
-
