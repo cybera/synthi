@@ -12,6 +12,7 @@ import FetchDataset from '../components/FetchDataset'
 import PlotlyDataConverter from '../components/PlotlyDataConverter'
 import PlotlySave from '../components/PlotlySave'
 import Placeholder from '../components/Placeholder'
+import './ChartEditor.css'
 
 const styles = theme => ({
   paper: {
