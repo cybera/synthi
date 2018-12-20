@@ -14,7 +14,13 @@ To begin, select the green **Add New Dataset** button from the sidebar on the le
 
 From the **Preview Data** tab, select the green **Upload** button. A file browser will appear on your screen. Select the CSV file that you wish to import into ADI.
 
+{% hint style='info' %}
+You can currently only upload CSV files to ADI. It is ideal if those CSV files have a standard header of column names in the first row, but the ADI platform does provide a way to upload CSV files without header rows, providing default column names in this event.
+{% endhint %}
+
 If there are no issues with the CSV's format, a sample of the data should load on the screen within a few seconds.
+
+Note that the uploaded dataset will be available to anyone in the active organization. The drop down menu on the top right of the next image displays the active organization. There is always a default organization for every user with the same name as the username. However, they can be added to other organizations by a system administrator.
 
 ![Upload completed successfully](../images/new-dataset-uploaded.png)
 

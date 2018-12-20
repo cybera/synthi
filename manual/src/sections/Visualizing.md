@@ -1,5 +1,7 @@
 # Visualizing data
 
+The ADI platform uses [Plot.ly](https://plot.ly) to provide easy, interactive, customizable visualizations. Plot.ly itself has some [great tutorials](https://help.plot.ly/tutorials/) and [API documentation](https://plot.ly/javascript/), but we'll go through some of the basics here.
+
 ## Visualizing data within ADI
 
 Under every dataset, you can switch to a Chart Editor tab that allows you to create visualizations within ADI:
@@ -73,7 +75,30 @@ The 'Save Plot' button at the bottom of the chart editor will allow you to save 
 
 
 {% hint style='info' %}
-Note that the 'Scenarios' area is largely unfinished. When you save plots to this area, they are not attached to a specific user. Anyone who can log into ADI can see all the charts saved by going to the 'Scenarios' area of ADI.
+Note that the 'Scenarios' area is largely unfinished. When you save plots to this area, they are not attached to a specific user or organization. Anyone who can log into ADI can see all the charts saved by going to the 'Scenarios' area of ADI.
 
-As well, there's currently no ability to re-open a chart in the Chart Editor if you want to change something. However, you could export the JSON definition of the chart, edit it by hand, and then re-import it (or include it directly on a webpage that uses the Plot.ly Javascript library).
+As well, there's currently no ability to re-open a chart in the Chart Editor if you want to change something. However, you could open the chart in Plot.ly's chart editor service to edit it further.
+
+![export-to-chart-studio](../images/export-to-chart-studio.png)
+
+Or with access to the database, you could export the JSON definition of the chart, edit it by hand, and then re-import it (or include it directly on a webpage that uses the Plot.ly Javascript library).
+
+```
+// Exporting JSON from the backend database
+:param uuid: "your-plot-uuid"
+
+MATCH (p:Plot { uuid: $uuid })
+RETURN p.jsondef
+
+// Importing JSON to the backend database
+:param uuid: "your-plot-uuid"
+:param jsondef: "your-json-string"
+
+MATCH (p:Plot { uuid: $uuid })
+SET p.jsondef = $jsondef
+```
+
+You can also save the chart as a .png image.
+
+![png-download](../images/png-download.png)
 {% endhint %}

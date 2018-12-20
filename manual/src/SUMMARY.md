@@ -3,7 +3,11 @@
 ### Getting Started
 * [Introduction](README.md)
 * [About this manual](sections/Manual.md)
-* [Limitations](sections/Limitations.md)
+
+### Managing Users
+* [Logging In](sections/LoggingIn.md)
+* [Signing Out](sections/SigningOut.md)
+* [Creating Users & Organizations](sections/CreatingUsersAndOrganizations.md)
 
 ### Managing Datasets
 * [Uploading a Dataset](sections/UploadingADataset.md)
@@ -14,8 +18,7 @@
 ### Exploring Datasets
 * [Visualizing Data](sections/Visualizing.md)
 * [Exporting and Importing Data](sections/ExportingAndImporting.md)
+* [Connections](sections/Connections.md)
 
-### Managing Users
-* [Logging In](sections/LoggingIn.md)
-* [Signing Out](sections/SigningOut.md)
-* [Creating Users & Organizations](sections/CreatingUsersAndOrganizations.md)
+### Addendum
+* [Limitations](sections/Limitations.md)
