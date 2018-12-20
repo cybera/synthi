@@ -8,7 +8,10 @@
 ### Managing Datasets
 * [Uploading a Dataset](sections/UploadingADataset.md)
 * [Computed Datasets](sections/ComputedDatasets.md)
-* [About this manual](sections/Manual.md)
+* [Metadata](sections/Metadata.md)
+* [Search](sections/Search.md)
+
+### Exploring Datasets
 * [Visualizing Data](sections/Visualizing.md)
 * [Exporting and Importing Data](sections/ExportingAndImporting.md)
 
