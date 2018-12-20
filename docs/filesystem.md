@@ -19,7 +19,7 @@ The server will stream the upload to an object storage (or directory) path based
 
 `4ff5f490-f4bf-11e8-8418-0242ac120003/data/original.csv`
 
-There will also be a metadata file stored with any metadata that can be determined during the immediate upload (for example, original filename and timestamp):
+(Not implemented yet) There will also be a metadata file stored with any metadata that can be determined during the immediate upload (for example, original filename and timestamp):
 
 `4ff5f490-f4bf-11e8-8418-0242ac120003/metadata/original.json`
 
@@ -31,7 +31,7 @@ We'll attempt to normalize the data, and the normalized format may change. Right
 
 ## When a file is downloaded
 
-Between a file first being processed and a download, certain things may happen that change what we want to provide in a download. In particular, the user may change column names, which should be reflected in the newly downloaded CSV file. Thus, when a file is downloaded, the following will be generated and ultimately the file that is streamed to the end user:
+(Not implemented yet) Between a file first being processed and a download, certain things may happen that change what we want to provide in a download. In particular, the user may change column names, which should be reflected in the newly downloaded CSV file. Thus, when a file is downloaded, the following will be generated and ultimately the file that is streamed to the end user:
 
 `4ff5f490-f4bf-11e8-8418-0242ac120003/data/download.csv`
 

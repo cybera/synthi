@@ -75,7 +75,7 @@ class DatasetEditor extends React.Component {
             {({ generateDataset }) => dataset.computed && (
               <span>
                 <ADIButton
-                  disabled={dataset.generating || !codeExists}
+                  disabled={dataset.generating || !codeExists || (dataset.inputTransformation.error)}
                   onClick={() => generateDataset(dataset.id)}
                 >
                   Generate!
