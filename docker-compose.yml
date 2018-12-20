@@ -58,6 +58,20 @@ services:
       - ./data/scripts:/mnt/scripts
     depends_on:
       - queue
+  manual:
+    build: ./manual
+    image: cybera/adi-manual:latest
+    ports:
+      - "4000:4000"
+      - "35729:35729"
+    networks:
+      - default
+    volumes:
+      - ./manual/src:/usr/src/app
+      - ./manual/outputs:/usr/src/outputs
+      - manual_node_modules:/usr/src/app/node_modules
+      - manual_gitbook_comp:/usr/src/app/_book
+    command: gitbook serve
   redis:
     image: redis:4.0
     networks:
@@ -67,3 +81,5 @@ volumes:
   neo4j_data:
   server_node_modules:
   client_node_modules:
+  manual_node_modules:
+  manual_gitbook_comp:

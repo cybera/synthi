@@ -1,0 +1,16 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$(dirname $SCRIPT_DIR)"
+
+action=$1
+
+if [[ $action == 'start' ]]; then
+  docker-compose -f $PROJECT_DIR/docker-compose.yml up -d manual
+elif [[ $action == 'stop' ]]; then
+  docker-compose -f $PROJECT_DIR/docker-compose.yml stop manual
+elif [[ $action == 'pdf' ]]; then
+  docker-compose run manual gitbook pdf ./ ../outputs/adi.pdf
+elif [[ $action == 'epub' ]]; then
+  docker-compose run manual gitbook epub ./ ../outputs/adi.epub
+fi
