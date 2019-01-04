@@ -17,7 +17,7 @@ const logger = createLogger({
 
 logger.morganStream = {
   write: (message) => {
-    logger.info(message)
+    logger.info(message.trim())
   }
 }
 
