@@ -24,6 +24,7 @@ import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
 import schemaDirectives from './graphql/directives'
 
+import logger from './config/winston'
 import DefaultQueue from './lib/queue'
 import User from './domain/models/user'
 import Dataset from './domain/models/dataset'
@@ -68,7 +69,7 @@ passport.use(new LocalStrategy(
   (username, password, done) => {
     authenticateUser({ username, password })
       .then(result => done(null, result))
-      .catch((err) => { console.log(err.message); done(err) })
+      .catch((err) => { logger.error(err.message); done(err) })
   }
 ));
 
@@ -78,17 +79,17 @@ passport.use(new HeaderAPIKeyStrategy(
   (apikey, done) => {
     authenticateUser({ apikey })
       .then(user => done(null, user))
-      .catch((err) => { console.log(err.message); done(err) })
+      .catch((err) => { logger.error(err.message); done(err) })
   }
 ))
 
 passport.serializeUser((user, done) => {
-  console.log(`serializeUser: ${user.id}`)
+  logger.debug(`serializeUser: ${user.id}`)
   done(null, user.id)
 });
 
 passport.deserializeUser(async (id, done) => {
-  console.log(`deserializeUser: ${id}`)
+  logger.debug(`deserializeUser: ${id}`)
   let user
   try {
     user = await User.get(id)
@@ -101,7 +102,7 @@ passport.deserializeUser(async (id, done) => {
   return done(null, user)
 })
 
-app.use(morgan('combined'))
+app.use(morgan('short', { stream: logger.morganStream }))
 // Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
 // logging in.
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -143,7 +144,7 @@ const apolloServer = new ApolloServer({
     return ({})
   },
   formatError: (error) => {
-    console.log(error)
+    logger.error(error)
     return error
   },
   // PATCH: Handle and reject parsing errors
@@ -206,17 +207,17 @@ apolloServer.installSubscriptionHandlers(httpServer)
 const PORT = 3000
 const server = httpServer.listen(PORT, (err) => {
   if (err) {
-    console.log(err)
+    logger.error(err)
   }
-  console.log(`Server ready at http://server:${PORT}${apolloServer.graphqlPath}`)
-  console.log(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
+  logger.info(`Server ready at http://server:${PORT}${apolloServer.graphqlPath}`)
+  logger.info(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
 })
 
 DefaultQueue.start()
 
 // Close all connections on shutdown
 onExit(() => {
-  console.log('Shutting down...')
+  logger.info('Shutting down...')
   server.close()
   DefaultQueue.close()
 }, { alwaysLast: true })

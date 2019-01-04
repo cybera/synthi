@@ -1,5 +1,7 @@
-import { safeQuery } from '../../neo4j/connection'
 import lodash from 'lodash'
+
+import { safeQuery } from '../../neo4j/connection'
+import logger from '../../config/winston'
 
 class Base {
   constructor(node) {
@@ -52,7 +54,7 @@ class Base {
     `
 
     if (!this.uuid) {
-      console.log('Deprecated: All models should have a uuid. Falling back to id.')
+      logger.warn('Deprecated: All models should have a uuid. Falling back to id.')
       identityMatch = `
         MATCH (node:${this.__label})
         WHERE ID(node) = toInteger($node.id)
@@ -95,7 +97,7 @@ class Base {
   }
 
   async canAccess(user) {
-    console.log('This should be implemented in a subclass')
+    logger.warn('This should be implemented in a subclass')
     return true
   }
 
