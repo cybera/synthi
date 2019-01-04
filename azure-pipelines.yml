@@ -10,8 +10,14 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- script: bin/build-client
+- script: docker-compose build client
+  displayName: 'build client'
+
+- script: docker-compose run client npm run dist
   displayName: 'webpack client'
+
+- script: cp -r client/dist server/dist
+  displayName: 'copy webpack'
 
 - script: docker-compose build
   displayName: 'build images'
