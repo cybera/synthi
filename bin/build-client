@@ -6,6 +6,5 @@ PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 rm -rf "$PROJECT_DIR/client/dist"
 rm -rf "$PROJECT_DIR/server/dist"
 
-cd $PROJECT_DIR/client
-npm run dist
-cp -r dist "$PROJECT_DIR/server/"
+docker-compose run client npm run dist
+cp -r "$PROJECT_DIR/client/dist "$PROJECT_DIR/server/"
