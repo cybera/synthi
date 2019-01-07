@@ -3,10 +3,6 @@ pipeline {
     node { label 'docker' }
   }
 
-  environment {
-    PATH = '/usr/local/bin:$PATH'
-  }
-
   stages {
     stage('build client') {
       steps {
