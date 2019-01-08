@@ -4,6 +4,7 @@ import { fullScriptPath } from '../../lib/util'
 import Storage from '../../storage'
 import Base from './base'
 import logger from '../../config/winston'
+import Dataset from './dataset'
 
 class Transformation extends Base {
   constructor(node) {
@@ -43,9 +44,13 @@ class Transformation extends Base {
     }
   }
 
+  async outputDataset() {
+    return this.relatedOne('-[:OUTPUT]->', Dataset, 'output')
+  }
+
   async canAccess(user) {
-    logger.warn('Implement ME!')
-    return true
+    const output = await this.outputDataset()
+    return output.canAccess(user)
   }
 }
 
