@@ -8,6 +8,7 @@ import Storage from '../../storage'
 import { fullDatasetPath, csvFromStream, storeFS } from '../../lib/util'
 import DefaultQueue from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
+import logger from '../../config/winston'
 
 class Dataset extends Base {
   static async getByName(organization, name) {
@@ -51,7 +52,7 @@ class Dataset extends Base {
   }
 
   async samples() {
-    console.log(`looking for samples for: ${this.uuid} / ${this.id}`)
+    logger.info(`looking for samples for: ${this.uuid} / ${this.id}`)
     if (this.path && await Storage.exists('datasets', this.paths.sample)) {
       const readStream = await Storage.createReadStream('datasets', this.paths.sample)
       const csv = await csvFromStream(readStream, 0, 10)
@@ -61,7 +62,7 @@ class Dataset extends Base {
   }
 
   readStream() {
-    console.log(`Reading ${this.paths.imported}`)
+    logger.info(`Reading ${this.paths.imported}`)
     return Storage.createReadStream('datasets', this.paths.imported)
   }
 
@@ -134,26 +135,25 @@ class Dataset extends Base {
     try {
       Storage.remove('datasets', this.path)
     } catch(err) {
-      console.log(err)
+      logger.error(err)
     }
   }
 
   async upload({ stream, filename }) {
     try {
-      console.log(`Uploading: ${filename}`)
+      logger.info(`Uploading: ${filename}`)
       const { path } = await storeFS({ stream, filename: this.paths.original })
 
       this.path = path
       this.computed = false
       this.originalFilename = filename
-      console.log('Saving upload info')
+      logger.debug('Saving upload info')
       await this.save()
-      console.log('Triggering import...')
+      logger.debug('Triggering import...')
       this.importCSV()
     } catch (e) {
       // TODO: What should we do here?
-      console.log('Error in upload resolver:')
-      console.log(e.message)
+      logger.error(`Error in upload resolver: ${e.message}`)
     }
   }
 

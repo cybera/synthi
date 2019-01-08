@@ -1,4 +1,5 @@
 import config from 'config'
+import logger from '../config/winston'
 
 const neo4j = require('neo4j-driver').v1
 
@@ -15,7 +16,7 @@ const safeQuery = (query, params) => {
   return session.run(query, params).then(result => (
     result.records.map(record => record.toObject())
   )).catch((e) => {
-    console.log(e)
+    logger.error(e)
     return []
   }).then((result) => {
     session.close()

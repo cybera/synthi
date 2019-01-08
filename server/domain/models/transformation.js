@@ -3,6 +3,7 @@ import shortid from 'shortid'
 import { fullScriptPath } from '../../lib/util'
 import Storage from '../../storage'
 import Base from './base'
+import logger from '../../config/winston'
 
 class Transformation extends Base {
   constructor(node) {
@@ -26,7 +27,7 @@ class Transformation extends Base {
         return fileString
       }
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
 
     return null
@@ -38,12 +39,12 @@ class Transformation extends Base {
       writeStream.write(code, 'utf8')
       writeStream.end()
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   }
 
   async canAccess(user) {
-    console.log('Implement ME!')
+    logger.warn('Implement ME!')
     return true
   }
 }

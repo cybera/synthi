@@ -1,6 +1,7 @@
 import pkgcloud from 'pkgcloud'
-
 import config from 'config'
+
+import logger from '../config/winston'
 
 let openstack
 
@@ -26,7 +27,7 @@ const createReadStream = (area, relativePath) => connection().download({
 const remove = (area, relativePath) => connection().removeFile(
   config.get('storage.object.containers')[area],
   relativePath,
-  (err) => console.log(err)
+  (err) => logger.error(err)
 )
 
 const exists = (area, relativePath) => {
@@ -43,7 +44,7 @@ const exists = (area, relativePath) => {
 }
 
 // Object storage won't have the file in the first place if there was a failure
-const cleanupOnError = (area, relativePath) => console.log(`Object storage cleanup: ${area}:${relativePath} (doing nothing)`)
+const cleanupOnError = (area, relativePath) => logger.info(`Object storage cleanup: ${area}:${relativePath} (doing nothing)`)
 
 export {
   createWriteStream,

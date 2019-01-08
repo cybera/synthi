@@ -1,7 +1,9 @@
 import config from 'config'
+import getStream from 'get-stream'
+
 import * as ObjectStorage from './object'
 import * as LegacyStorage from './legacy'
-import getStream from 'get-stream'
+import logger from '../config/winston'
 
 const storageType = config.get('storage.type')
 
@@ -13,7 +15,7 @@ if (storageType === 'object') {
   // If legacy storage isn't explicitly being used, we'll still have
   // to fall back to it if there are no better options, but we should
   // warn about that.
-  console.log('Unknown storage.type. Defaulting to legacy storage.')
+  logger.warn('Unknown storage.type. Defaulting to legacy storage.')
 }
 
 const read = (area, relativePath) => getStream(Storage.createReadStream(area, relativePath))
