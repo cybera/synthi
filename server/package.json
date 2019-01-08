@@ -22,6 +22,7 @@
     "express-session": "^1.15.6",
     "get-stream": "^4.1.0",
     "graphql": "^14.0.2",
+    "graphql-tools": "^4.0.3",
     "graphql-upload": "^8.0.2",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
@@ -33,6 +34,7 @@
     "pkgcloud": "^1.6.0",
     "shortid": "^2.2.14",
     "signal-exit": "^3.0.2",
+    "subscriptions-transport-ws": "^0.9.15",
     "toml": "^2.3.3",
     "wait-on": "^3.2.0",
     "winston": "^3.1.0"

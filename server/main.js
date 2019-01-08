@@ -5,6 +5,7 @@ import bodyParser from 'body-parser'
 import express from 'express'
 
 import { ApolloServer, ForbiddenError } from 'apollo-server-express'
+import { SubscriptionServer } from 'subscriptions-transport-ws'
 
 import cors from 'cors'
 
@@ -18,7 +19,9 @@ import morgan from 'morgan'
 
 import onExit from 'signal-exit'
 
+import { execute, subscribe } from 'graphql'
 import { graphqlUploadExpress } from 'graphql-upload'
+import { makeExecutableSchema } from 'graphql-tools'
 
 import resolvers from './graphql/resolvers'
 import typeDefs from './graphql/typedefs'
@@ -135,7 +138,6 @@ const apolloServer = new ApolloServer({
   resolvers,
   schemaDirectives,
   context: ({ req }) => {
-    // TODO: Actual websocket authentication
     if (req) {
       const { user } = req
       if (!user) throw new ForbiddenError('Not logged in')
@@ -202,7 +204,45 @@ app.get('/dataset/:id', async (req, res) => {
 })
 
 const httpServer = http.createServer(app)
-apolloServer.installSubscriptionHandlers(httpServer)
+
+SubscriptionServer.create(
+  {
+    schema: makeExecutableSchema({ typeDefs, resolvers }),
+    execute,
+    subscribe,
+    onOperation: async (message, params) => {
+      const token = message.payload.authToken
+
+      if (!token) {
+        throw new ForbiddenError('Missing auth token')
+      }
+
+      let user
+
+      try {
+        user = await User.getByAPIKey(token)
+      } catch (err) {
+        throw new ForbiddenError('Not authorized')
+      }
+
+      const context = { user }
+
+      return {
+        ...params,
+        context: {
+          ...params.context,
+          ...context,
+        },
+      }
+    },
+  },
+  {
+    server: httpServer,
+    path: '/graphql'
+  }
+)
+
+// apolloServer.installSubscriptionHandlers(httpServer)
 // run server on port 3000
 const PORT = 3000
 const server = httpServer.listen(PORT, (err) => {

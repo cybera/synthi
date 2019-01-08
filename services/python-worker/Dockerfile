@@ -14,4 +14,4 @@ WORKDIR /usr/src/app
 ADD build/wait-for-it.sh /
 ADD . ./
 
-CMD [ "/wait-for-it.sh", "queue:5672", "--", "./main.py"]
+CMD [ "/wait-for-it.sh", "-t", "60", "queue:5672", "--", "./main.py"]
