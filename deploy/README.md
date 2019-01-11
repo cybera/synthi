@@ -86,8 +86,8 @@ Then services can be updated to the new images:
 
 ```
 eval "$(docker-machine env adi-<environment>)"
-docker service update adi_server --image cybera/adi_server --with-registry-auth
-docker service update adi_neo4j --image cybera/adi_neo4j --with-registry-auth
+docker service update adi_server --image cybera/adi-server --with-registry-auth
+docker service update adi_neo4j --image cybera/adi-neo4j --with-registry-auth
 docker service update adi_python-worker --image cybera/adi_python-worker --with-registry-auth
 ```
 # <a name="instance"></a>Starting an Instance on RAC
