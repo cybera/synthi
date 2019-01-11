@@ -15,7 +15,6 @@ import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 
 import DatasetDetails from './components/DatasetDetails'
-import ChartEditor from './containers/ChartEditor'
 import Scenarios from './components/Scenarios'
 import StyledLogin from './components/Login'
 import Notifier from './components/Notifier'
@@ -33,9 +32,20 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production') {
 const wsLink = new WebSocketLink({
   uri,
   options: {
-    reconnect: true
+    reconnect: true,
   }
 });
+
+const subscriptionMiddleware = {
+  applyMiddleware: async (options, next) => {
+    const user = JSON.parse(localStorage.getItem('user'))
+    const apikey = user ? user.apikey : null
+    options.authToken = apikey
+    next()
+  },
+}
+
+wsLink.subscriptionClient.use([subscriptionMiddleware])
 
 const httpLink = ApolloLink.from([createUploadLink({ uri: '/graphql', credentials: 'include' })])
 
@@ -48,7 +58,7 @@ const link = split(
     return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
-  httpLink,
+  httpLink
 );
 
 const client = new ApolloClient({

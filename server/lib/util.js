@@ -7,6 +7,7 @@ import csvParse from 'csv-parse'
 import config from 'config'
 
 import Storage from '../storage'
+import logger from '../config/winston'
 
 export const datasetExists = dataset => dataset.path && fs.existsSync(dataset.fullPath())
 
@@ -34,14 +35,13 @@ export const waitForFile = relPath => new Promise((resolve, reject) => {
 export const storeFS = ({ stream, filename }, unique = false) => {
   const id = shortid.generate()
   const uniqueFilename = unique ? `${id}-${filename}` : filename
-  console.log(`Storing ${filename}`)
+  logger.info(`Storing ${filename}`)
   return new Promise(
     (resolve, reject) => stream
       .on('error', (error) => {
-        console.log('Error reading upload stream:')
-        console.log(error)
+        logger.error(`Error reading upload stream: ${error}`)
         if (stream.truncated) {
-          console.log('Truncated stream...')
+          logger.info('Truncated stream...')
           // Delete the truncated file
           Storage.cleanupOnError('datasets', uniqueFilename)
         }
@@ -49,12 +49,11 @@ export const storeFS = ({ stream, filename }, unique = false) => {
       })
       .pipe(Storage.createWriteStream('datasets', uniqueFilename))
       .on('error', (error) => {
-        console.log('Error piping to write stream:')
-        console.log(error)
+        logger.error(`Error piping to write stream: ${error}`)
         reject(error)
       })
       .on('finish', () => {
-        console.log(`Finishing upload of ${filename}`)
+        logger.info(`Finishing upload of ${filename}`)
         return resolve({ id, path: uniqueFilename })
       })
   )

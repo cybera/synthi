@@ -1,6 +1,7 @@
 import AMQPManager from 'amqp-connection-manager'
 import { pubsub } from '../graphql/pubsub'
 import Dataset from '../domain/models/dataset'
+import logger from '../config/winston'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
@@ -26,18 +27,18 @@ const startQueue = () => {
   startChannel(conn, 'dataset-status', { durable: false, noAck: true }, async (msg) => {
     const msgJSON = JSON.parse(msg.content.toString())
     if (msgJSON.type === 'dataset-updated') {
-      console.log(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
+      logger.info(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
       await Dataset.get(msgJSON.id)
         .then(dataset => dataset.metadata())
         .then((metadata) => {
           metadata.dateUpdated = new Date()
           metadata.save()
         }).then(() => {
-          console.log('Saved metadata')
+          logger.debug('Saved metadata')
         })
-        .catch(err => console.log(err))
+        .catch(err => logger.error(err))
     }
-    console.log('Publishing to clients...')
+    logger.debug('Publishing to clients...')
     pubsub.publish(DATASET_UPDATED, { datasetGenerated: msgJSON });
   })
 
@@ -51,10 +52,10 @@ const startQueue = () => {
       pendingDownloadCallback()
     }
 
-    console.log(msgJSON)
+    logger.info(msgJSON)
   })
 
-  console.log(' [*] Waiting for messages. To exit press CTRL+C');
+  logger.info(' [*] Waiting for messages. To exit press CTRL+C');
 
   return conn
 }

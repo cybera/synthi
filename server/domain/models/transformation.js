@@ -3,6 +3,8 @@ import shortid from 'shortid'
 import { fullScriptPath } from '../../lib/util'
 import Storage from '../../storage'
 import Base from './base'
+import logger from '../../config/winston'
+import Dataset from './dataset'
 
 class Transformation extends Base {
   constructor(node) {
@@ -26,7 +28,7 @@ class Transformation extends Base {
         return fileString
       }
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
 
     return null
@@ -38,13 +40,17 @@ class Transformation extends Base {
       writeStream.write(code, 'utf8')
       writeStream.end()
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   }
 
+  async outputDataset() {
+    return this.relatedOne('-[:OUTPUT]->', Dataset, 'output')
+  }
+
   async canAccess(user) {
-    console.log('Implement ME!')
-    return true
+    const output = await this.outputDataset()
+    return output.canAccess(user)
   }
 }
 
