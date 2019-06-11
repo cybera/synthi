@@ -155,7 +155,7 @@ class App extends React.Component {
     this.setState({ loading: true })
 
     const res = await fetch('/whoami', { credentials: 'include' })
-    const body = res.text()
+    const body = await res.text()
 
     if (body === 'not logged in') {
       this.setState({
