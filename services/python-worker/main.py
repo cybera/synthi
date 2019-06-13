@@ -30,9 +30,9 @@ def callback(ch, method, properties, body):
 
   sys.stdout.flush()
 
-channel.basic_consume(callback,
-                      queue='python-worker',
-                      no_ack=True)
+channel.basic_consume('python-worker',
+                      callback,
+                      auto_ack=True)
 
 print(' [*] Waiting for messages. To exit press CTRL+C')
 sys.stdout.flush()
