@@ -7,7 +7,9 @@ RUN apt-get update && \
                 neo4j-driver \
                 bcrypt \
                 openstacksdk \
-                toml
+                toml \
+                spacy && \
+    python -m spacy download en_core_web_sm
 
 WORKDIR /usr/src/app
 
