@@ -88,6 +88,10 @@ def generate_dataset(generate_id, owner_name):
     results = tx.run(update_dataset_query, owner=owner, name=output_name)
     dataset = results.single()
     print(f"Updating calculated '{output_name}' dataset: {dataset['uuid']}/imported.csv.")
+    # TODO: There's some weirdness here because with raw files, there's no
+    # import step. So we need to write both versions. Yet another reason
+    # why this area needs some rethink going forward.
+    storage.write_raw(outval, f"{dataset['uuid']}/original.csv")
     storage.write_raw(outval, f"{dataset['uuid']}/imported.csv")
 
   def write_output(outval, owner, output_name):
