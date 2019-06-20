@@ -21,7 +21,7 @@ def generate_dataset(generate_id, owner_name):
   session = neo4j_driver.session()
   tx = session.begin_transaction()
 
-  def dataset_input(name):
+  def dataset_input(name, raw=False):
     names = name.split(":")
 
     if len(names) > 2:
@@ -44,7 +44,12 @@ def generate_dataset(generate_id, owner_name):
     if dataset is None:
       raise Exception(f"Dataset {name} not found")
 
-    return storage.read_csv(f"{dataset['uuid']}/imported.csv")
+    if raw:
+      # TODO: When we're dealing with more than CSV files, it becomes weird to have
+      # this file with a .csv extension. We should revise the naming scheme.
+      return storage.read_raw(f"{dataset['uuid']}/original.csv")
+    else:
+      return storage.read_csv(f"{dataset['uuid']}/imported.csv")
 
   def dataset_output(name):
     # This is only needed so things don't break if this function is in a transformation
@@ -52,7 +57,7 @@ def generate_dataset(generate_id, owner_name):
     # here, we have enough hooked up in the graph to figure out the output node.
     pass
 
-  def write_output(df, owner, output_name):
+  def write_csv_output(df, owner, output_name):
     # TODO: Since we can now figure out the exact path from the transformations query,
     # it's not really necessary to figure that out again via the more brittle name lookup.
     columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
@@ -71,6 +76,25 @@ def generate_dataset(generate_id, owner_name):
     dataset = results.single()
     print(f"Updating calculated '{output_name}' dataset: {dataset['uuid']}/imported.csv.")
     store_csv(df, dataset)
+
+  def write_raw_output(outval, owner, output_name):
+    update_dataset_query = '''
+      MATCH (dataset:Dataset { name: $name })<-[:OWNER]-(o:Organization)
+      WHERE ID(o) = $owner
+      WITH dataset
+      SET dataset.generating = false
+      RETURN ID(dataset) AS id, dataset.name AS name, dataset.uuid AS uuid
+    '''
+    results = tx.run(update_dataset_query, owner=owner, name=output_name)
+    dataset = results.single()
+    print(f"Updating calculated '{output_name}' dataset: {dataset['uuid']}/imported.csv.")
+    storage.write_raw(outval, f"{dataset['uuid']}/imported.csv")
+
+  def write_output(outval, owner, output_name):
+    if type(outval) is pd.DataFrame:
+      write_csv_output(outval, owner, output_name)
+    else:
+      write_raw_output(outval, owner, output_name)
 
   find_transforms_query = '''
   MATCH full_path = (output:Dataset)<-[*]-(last)

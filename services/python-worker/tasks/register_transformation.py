@@ -57,7 +57,7 @@ def clear_transformation_errors():
     REMOVE t.error
   ''', uuid=transformation['uuid'])
 
-def dataset_input(name):
+def dataset_input(name, raw=False):
   names = name.split(':')
 
   if len(names) > 2:
