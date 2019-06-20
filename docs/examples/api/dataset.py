@@ -277,3 +277,24 @@ def generate(id_or_name, host=None, api_key=None):
   result = gql_query(query, variables={'id':id}, host=host, api_key=api_key)
   
   return result['generateDataset']
+
+def delete(id_or_name, host=None, api_key=None):    
+  if isinstance(id_or_name, str):
+    info = meta(id_or_name, host=host, api_key=api_key)
+    if not info:
+      raise ValueError("Can't find the dataset to delete")
+    id = info['id']
+  else:
+    id = id_or_name
+
+  query = '''
+  mutation DeleteDataset($id: Int!) {
+    deleteDataset(id: $id) {
+      id
+      name
+    }
+  }
+  '''
+  result = gql_query(query, variables={'id':id}, host=host, api_key=api_key)
+  
+  return result['deleteDataset']
