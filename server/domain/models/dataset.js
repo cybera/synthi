@@ -214,8 +214,8 @@ class Dataset extends Base {
 
     if (results[0] && results[0].t) {
       const transformation = new Transformation(results[0].t)
-      console.log("transformation:")
-      console.log(transformation)
+      logger.info('transformation:%o\n', transformation)
+
       transformation.storeCode(code)
 
       const saveQuery = [`
@@ -248,7 +248,7 @@ class Dataset extends Base {
       return transformation
     }
 
-    console.log("Couldn't save transformation")
+    logger.error("Couldn't save transformation")
     return null
   }
 
