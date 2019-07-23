@@ -6,7 +6,12 @@ const myFormat = format.printf((info) => {
 
 const logger = createLogger({
   level: 'debug',
-  format: format.combine(format.colorize(), format.timestamp(), myFormat),
+  format: format.combine(
+    format.colorize(),
+    format.timestamp(),
+    format.splat(),
+    myFormat
+  ),
   transports: [
     new transports.Console()
   ],
