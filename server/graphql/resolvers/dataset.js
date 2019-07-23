@@ -206,7 +206,7 @@ export default {
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
-      return TransformationRepository.saveInputTransformation(context, dataset, code)
+      return dataset.saveInputTransformation(code, context.user)
     }
   },
   Subscription: {

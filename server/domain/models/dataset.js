@@ -1,3 +1,5 @@
+import shortid from 'shortid'
+
 import Base from './base'
 import Organization from './organization'
 import Transformation from './transformation'
@@ -177,6 +179,77 @@ class Dataset extends Base {
       paths: this.paths,
       ownerName: owner.name
     })
+  }
+
+  // A user can belong to multiple organizations. If you've got access
+  // to a dataset, you can save a transformation to it, so we don't need
+  // the current user to determine that. However, a dataset is only
+  // connected to an owning organization, and we do allow a user to use
+  // input datasets from other organizations that they are connected to,
+  // so we need to know who's trying to save the transformation to know
+  // whether or not we should allow access to those other datasets that
+  // cross organizational boundaries.
+  //
+  // TODO: This should be way more explicit. Ideally, each organization
+  // would allow certain users to add a permission for certain other
+  // organizations to derive datasets using certain datasets as input.
+  // Then we wouldn't need to worry about the current user at this point.
+  // We'd simply make sure the existing permissions check out. It would
+  // also allow those organizations to effectively revoke future access.
+  // However, the cross-organizational aspects aren't particularly pressing
+  // at the moment, so we'll leave it this way until we get there.
+  async saveInputTransformation(code, user) {
+    const query = [`
+      MATCH (d:Dataset)
+      WHERE ID(d) = toInteger($dataset.id)
+      MERGE (t:Transformation)-[:OUTPUT]->(d)
+      ON CREATE SET
+        t.name = $dataset.name,
+        t.inputs = [],
+        t.outputs = []
+      RETURN t
+    `, { dataset: this }]
+
+    const results = await safeQuery(...query)
+
+    if (results[0] && results[0].t) {
+      const transformation = new Transformation(results[0].t)
+      console.log("transformation:")
+      console.log(transformation)
+      transformation.storeCode(code)
+
+      const saveQuery = [`
+        MATCH (t:Transformation)
+        WHERE ID(t) = toInteger($transformation.id)
+        SET t.script = $transformation.script
+      `, { transformation }]
+
+      await safeQuery(...saveQuery)
+
+      if (!this.path) {
+        this.path = `${shortid.generate()}-${this.name}.csv`.replace(/ /g, '_')
+        const setDefaultPathQuery = [`
+          MATCH (d:Dataset)
+          WHERE ID(d) = toInteger($dataset.id)
+          SET d.path = $dataset.path
+        `, { dataset: this }]
+        await safeQuery(...setDefaultPathQuery)
+      }
+
+      const owner = await this.owner()
+
+      DefaultQueue.sendToWorker({
+        task: 'register_transformation',
+        id: transformation.id,
+        ownerName: owner.name,
+        userUuid: user.uuid
+      })
+
+      return transformation
+    }
+
+    console.log("Couldn't save transformation")
+    return null
   }
 
   async metadata() {
