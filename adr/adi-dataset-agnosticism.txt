@@ -1,6 +1,6 @@
 ADI Dataset agnosticism
 
-Status: draft
+Status: Adopted (if present in master branch)
 
 Context:
 
