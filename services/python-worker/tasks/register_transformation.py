@@ -68,7 +68,7 @@ transform_mod = load_transform(transformation_script,
 
 body = {
   "type": "dataset-updated",
-  "action": "register-transformation",
+  "task": "register_transformation",
   "id": output_dataset_id,
   "status": "success",
   "message": "",

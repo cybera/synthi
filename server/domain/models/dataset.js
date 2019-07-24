@@ -276,7 +276,7 @@ class Dataset extends Base {
 
     if (status === 'error') {
       await this.transformationError(message)
-    } else if (msg.action === 'register-transformation') {
+    } else if (msg.task === 'register_transformation') {
       const { inputs, outputs } = msg.data
       await this.registerTransformation(inputs, outputs)
     }
