@@ -242,7 +242,9 @@ class Dataset extends Base {
         task: 'register_transformation',
         id: transformation.id,
         ownerName: owner.name,
-        userUuid: user.uuid
+        userUuid: user.uuid,
+        outputDatasetId: this.id,
+        transformationScript: transformation.script
       })
 
       return transformation
@@ -270,6 +272,56 @@ class Dataset extends Base {
 
   async handleQueueUpdate(msg) {
     logger.info(`message for dataset: ${this.id}\n%o`, msg)
+    const { message, status } = msg
+
+    if (status === 'error') {
+      await this.transformationError(message)
+    } else if (msg.action === 'register-transformation') {
+      const { inputs, outputs } = msg.data
+      await this.registerTransformation(inputs, outputs)
+    }
+  }
+
+  async registerTransformation(inputs, outputs) {
+    const inputQuery = `
+      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
+      WHERE ID(dataset) = toInteger($id)
+      SET t.inputs = [ x in $inputs | x[0] + ':' + x[1] ]
+      WITH t
+      UNWIND $inputs AS input
+      MATCH (d:Dataset { name: input[1] })<-[:OWNER]-(o:Organization { name: input[0] })
+      MERGE (d)-[:INPUT]->(t)
+    `
+
+    const outputQuery = `
+      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
+      WHERE ID(dataset) = toInteger($id)
+      SET t.outputs = [ x in $outputs | x[0] + ':' + x[1] ]
+      WITH t UNWIND $outputs AS output
+      MERGE (d:Dataset { name: output[1] })<-[:OWNER]-(o:Organization { name: output[0] })
+      MERGE (d)<-[:OUTPUT]-(t)
+      SET d.computed = true, d.path = (output[1] + ".csv")
+    `
+
+    await safeQuery(inputQuery, { id: this.id, inputs })
+    await safeQuery(outputQuery, { id: this.id, outputs })
+
+    const clearErrorsQuery = `
+      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
+      WHERE ID(dataset) = toInteger($id)
+      REMOVE t.error
+    `
+
+    await safeQuery(clearErrorsQuery, { id: this.id })
+  }
+
+  async transformationError(message) {
+    const query = `
+      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
+      WHERE ID(dataset) = toInteger($id)
+      SET t.error = $message
+    `
+    await safeQuery(query, { id: this.id, message })
   }
 }
 
