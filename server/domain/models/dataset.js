@@ -171,13 +171,16 @@ class Dataset extends Base {
   }
 
   async runTransformation() {
+    const transformations = await this.parentTransformations()
     const owner = await this.owner()
+
     DefaultQueue.sendToWorker({
       task: 'generate',
       id: this.id,
       uuid: this.uuid,
       paths: this.paths,
-      ownerName: owner.name
+      ownerName: owner.name,
+      transformations
     })
   }
 
@@ -322,6 +325,30 @@ class Dataset extends Base {
       SET t.error = $message
     `
     await safeQuery(query, { id: this.id, message })
+  }
+
+  async parentTransformations() {
+    const query = `MATCH full_path = (output:Dataset)<-[*]-(last)
+      WHERE ID(output) = toInteger($output_id) AND
+            ((last:Dataset AND last.computed = false) OR last:Transformation)
+      WITH full_path, output
+      MATCH (t:Transformation)
+      MATCH individual_path = (output)<-[*]-(t)
+      WHERE t IN nodes(full_path) AND NOT EXISTS(t.error)
+      WITH DISTINCT(individual_path), t
+      MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
+      RETURN
+        t.name AS name,
+        t.script AS script,
+        length(individual_path) AS distance,
+        ID(individual_output) AS output_id,
+        individual_output.name AS output_name,
+        individual_output.path AS output_path,
+        ID(o) AS owner
+      ORDER BY distance DESC`
+
+    const results = await safeQuery(query, { output_id: this.id })
+    return results.map(t => ({ script: t.script, output_name: t.output_name, owner: t.owner }))
   }
 }
 

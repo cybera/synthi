@@ -85,11 +85,13 @@ class AMQP {
   async prepareDownload(dataset, callback) {
     // TODO: Pass a unique download ID (have tasks send JSON as argument)
     const owner = await dataset.owner()
+    const transformations = await dataset.parentTransformations()
 
     this.sendToWorker({
       task: 'prepare_download',
       id: dataset.id,
-      ownerName: owner.name
+      ownerName: owner.name,
+      transformations
     })
 
     // TODO: Create a unique download ID
