@@ -27,16 +27,25 @@ const startQueue = () => {
   startChannel(conn, 'dataset-status', { durable: false, noAck: true }, async (msg) => {
     const msgJSON = JSON.parse(msg.content.toString())
     if (msgJSON.type === 'dataset-updated') {
-      logger.info(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
-      await Dataset.get(msgJSON.id)
-        .then(dataset => dataset.metadata())
-        .then((metadata) => {
-          metadata.dateUpdated = new Date()
-          metadata.save()
-        }).then(() => {
-          logger.debug('Saved metadata')
-        })
-        .catch(err => logger.error(err))
+      try {
+        logger.info(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
+        const dataset = await Dataset.get(msgJSON.id)
+        // TODO:
+        // 1. We shouldn't just blindly trust this message. One way of dealing with the
+        //    trust is to send a token along with the original queue message and expect
+        //    that to come back to confirm.
+        // 2. Additionally, there should be some sort of Task intermediary. It would
+        //    provide an extra level of narrowing the focus, as Datasets could go back
+        //    to not caring about events directly from outside like this. It would also
+        //    narrow attack vectors to a Task currently unfinished, vs any dataset.
+        await dataset.handleQueueUpdate(msgJSON)
+        const metadata = await dataset.metadata()
+        metadata.dateUpdated = new Date()
+        await metadata.save()
+        logger.debug('Saved metadata')
+      } catch (err) {
+        logger.error(err)
+      }
     }
     logger.debug('Publishing to clients...')
     pubsub.publish(DATASET_UPDATED, { datasetGenerated: msgJSON });

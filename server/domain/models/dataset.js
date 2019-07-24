@@ -267,6 +267,10 @@ class Dataset extends Base {
 
     return datasetMetadata
   }
+
+  async handleQueueUpdate(msg) {
+    logger.info(`message for dataset: ${this.id}\n%o`, msg)
+  }
 }
 
 Dataset.label = 'Dataset'
