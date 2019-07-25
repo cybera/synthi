@@ -2,7 +2,7 @@ import shortid from 'shortid'
 
 import Base from './base'
 import Organization from './organization'
-import Transformation, { inputDatasetMap } from './transformation'
+import Transformation, { datasetStorageMap } from './transformation'
 import Column from './column'
 import DatasetMetadata from './dataset-metadata'
 
@@ -173,7 +173,8 @@ class Dataset extends Base {
   async runTransformation() {
     const transformations = await this.parentTransformations()
     const owner = await this.owner()
-    const inputs = await inputDatasetMap(transformations.map(t => t.id))
+    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported')
+    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample')
 
     DefaultQueue.sendToWorker({
       task: 'generate',
@@ -182,7 +183,8 @@ class Dataset extends Base {
       paths: this.paths,
       ownerName: owner.name,
       transformations,
-      inputs
+      storagePaths,
+      samplePaths
     })
   }
 
@@ -284,6 +286,9 @@ class Dataset extends Base {
     } else if (msg.task === 'register_transformation') {
       const { inputs, outputs } = msg.data
       await this.registerTransformation(inputs, outputs)
+    } else if (msg.task === 'generate') {
+      const { datasetColumns } = msg.data
+      logger.info('columns:\n%o', datasetColumns)
     }
   }
 

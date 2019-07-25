@@ -1,7 +1,7 @@
 import AMQPManager from 'amqp-connection-manager'
 import { pubsub } from '../graphql/pubsub'
 import Dataset from '../domain/models/dataset'
-import { inputDatasetMap } from '../domain/models/transformation'
+import { datasetStorageMap } from '../domain/models/transformation'
 import logger from '../config/winston'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
@@ -87,7 +87,7 @@ class AMQP {
     // TODO: Pass a unique download ID (have tasks send JSON as argument)
     const owner = await dataset.owner()
     const transformations = await dataset.parentTransformations()
-    const inputs = await inputDatasetMap(transformations.map(t => t.id))
+    const inputs = await datasetStorageMap(transformations.map(t => t.id))
 
     this.sendToWorker({
       task: 'prepare_download',

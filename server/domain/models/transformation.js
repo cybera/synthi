@@ -62,11 +62,11 @@ Transformation.saveProperties = ['script', 'name']
 /*
   Given an array of Transformation IDs, return a mapping
   of fully qualified dataset names to the storage location
-  that represents their input datasets.
+  that represents their input and output datasets.
 */
-export const inputDatasetMap = async (transformationIds) => {
+export const datasetStorageMap = async (transformationIds, pathType) => {
   const query = `
-    MATCH (org:Organization)-->(dataset:Dataset)-[:INPUT]->(t:Transformation)
+    MATCH (org:Organization)-->(dataset:Dataset)-[:INPUT|OUTPUT]-(t:Transformation)
     WHERE ID(t) IN $transformationIds
     RETURN dataset, org
   `
@@ -78,7 +78,7 @@ export const inputDatasetMap = async (transformationIds) => {
 
   const mapping = {}
   inputs.forEach((input) => {
-    mapping[`${input.org.name}:${input.dataset.name}`] = input.dataset.paths.imported
+    mapping[`${input.org.name}:${input.dataset.name}`] = input.dataset.paths[pathType]
   })
 
   return mapping

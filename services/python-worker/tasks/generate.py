@@ -15,7 +15,7 @@ from common import load_transform, parse_params
 
 import storage
 
-from import_csv import store_csv
+SAMPLE_SIZE = 100
 
 def generate_dataset(params):
   generate_id = params["id"]
@@ -24,20 +24,11 @@ def generate_dataset(params):
   tx = session.begin_transaction()
 
   def dataset_input(name):
-    names = name.split(":")
+    full_name = get_full_name(name, owner_name)
 
-    if len(names) > 2:
-      raise Exception(f"Cannot parse dataset name {name}")
-    elif len(names) == 2:
-      org, dataset_name = names
-    else:
-      org = owner_name
-      dataset_name = names[0]
-
-    full_name = f'{org}:{dataset_name}'
-    if full_name in params['inputs']:
-      return storage.read_csv(params['inputs'][full_name])
-
+    if full_name in params['storagePaths']:
+      return storage.read_csv(params['storagePaths'][full_name])
+    
     # If we don't have the dataset in our list of inputs, not much we can do
     raise Exception(f"Dataset {full_name} not found")
 
@@ -64,8 +55,11 @@ def generate_dataset(params):
     '''
     results = tx.run(update_dataset_query, owner=owner, name=output_name, columns=columns)
     dataset = results.single()
-    print(f"Updating calculated '{output_name}' dataset: {dataset['uuid']}/imported.csv.")
-    store_csv(df, dataset)
+    full_name = get_full_name(output_name, owner_name)
+    path = params["storagePaths"][full_name]
+
+    print(f"Updating calculated '{output_name}' dataset: {path}")
+    store_csv(df, path, params["samplePaths"][full_name])
 
   body = {
     "type": "dataset-updated",
@@ -97,6 +91,29 @@ def generate_dataset(params):
   tx.commit()
 
   status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
+
+def store_csv(df, path, sample_path):
+  # Write out normalized versions of the CSV file. These will have header
+  # rows, even if the original data has none (auto-generated headers will
+  # be generic: 'Column_1', 'Column_2', etc.). This makes it easier for
+  # anything reading this data, as it can assume a single way of storing
+  # CSV files that we can't assume during the import process.
+  sample_size = min(df.shape[0], SAMPLE_SIZE)
+  storage.write_csv(df, path)
+  storage.write_csv(df.sample(sample_size), sample_path)
+
+def get_full_name(name, owner_name):
+    names = name.split(":")
+
+    if len(names) > 2:
+      raise Exception(f"Cannot parse dataset name {name}")
+    elif len(names) == 2:
+      org, dataset_name = names
+    else:
+      org = owner_name
+      dataset_name = names[0]
+
+    return f'{org}:{dataset_name}'
 
 if __name__ == "__main__":
   params = parse_params()
