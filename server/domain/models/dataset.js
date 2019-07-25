@@ -2,7 +2,7 @@ import shortid from 'shortid'
 
 import Base from './base'
 import Organization from './organization'
-import Transformation from './transformation'
+import Transformation, { inputDatasetMap } from './transformation'
 import Column from './column'
 import DatasetMetadata from './dataset-metadata'
 
@@ -173,6 +173,7 @@ class Dataset extends Base {
   async runTransformation() {
     const transformations = await this.parentTransformations()
     const owner = await this.owner()
+    const inputs = await inputDatasetMap(transformations.map(t => t.id))
 
     DefaultQueue.sendToWorker({
       task: 'generate',
@@ -180,7 +181,8 @@ class Dataset extends Base {
       uuid: this.uuid,
       paths: this.paths,
       ownerName: owner.name,
-      transformations
+      transformations,
+      inputs
     })
   }
 
@@ -339,6 +341,7 @@ class Dataset extends Base {
       MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
       RETURN
         t.name AS name,
+        ID(t) AS id,
         t.script AS script,
         length(individual_path) AS distance,
         ID(individual_output) AS output_id,
@@ -348,7 +351,12 @@ class Dataset extends Base {
       ORDER BY distance DESC`
 
     const results = await safeQuery(query, { output_id: this.id })
-    return results.map(t => ({ script: t.script, output_name: t.output_name, owner: t.owner }))
+    return results.map(t => ({
+      id: t.id,
+      script: t.script,
+      output_name: t.output_name,
+      owner: t.owner
+    }))
   }
 }
 

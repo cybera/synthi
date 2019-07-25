@@ -5,6 +5,8 @@ import Storage from '../../storage'
 import Base from './base'
 import logger from '../../config/winston'
 import Dataset from './dataset'
+import { safeQuery } from '../../neo4j/connection';
+import Organization from './organization';
 
 class Transformation extends Base {
   constructor(node) {
@@ -56,5 +58,30 @@ class Transformation extends Base {
 
 Transformation.label = 'Transformation'
 Transformation.saveProperties = ['script', 'name']
+
+/*
+  Given an array of Transformation IDs, return a mapping
+  of fully qualified dataset names to the storage location
+  that represents their input datasets.
+*/
+export const inputDatasetMap = async (transformationIds) => {
+  const query = `
+    MATCH (org:Organization)-->(dataset:Dataset)-[:INPUT]->(t:Transformation)
+    WHERE ID(t) IN $transformationIds
+    RETURN dataset, org
+  `
+  const results = await safeQuery(query, { transformationIds })
+  const inputs = results.map(r => ({
+    dataset: new Dataset(r.dataset),
+    org: new Organization(r.org)
+  }))
+
+  const mapping = {}
+  inputs.forEach((input) => {
+    mapping[`${input.org.name}:${input.dataset.name}`] = input.dataset.paths.imported
+  })
+
+  return mapping
+}
 
 export default Transformation

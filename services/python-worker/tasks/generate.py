@@ -34,19 +34,12 @@ def generate_dataset(params):
       org = owner_name
       dataset_name = names[0]
 
-    dataset_by_name_query = '''
-    MATCH (d:Dataset { name: $name })<-[:OWNER]-(:Organization { name: $org })
-    RETURN d.uuid AS uuid
-    '''
-    print(f"Finding '{name}' dataset.")
-    results = tx.run(dataset_by_name_query, name=dataset_name, org=org)
-    # TODO: more checking here
-    dataset = results.single()
+    full_name = f'{org}:{dataset_name}'
+    if full_name in params['inputs']:
+      return storage.read_csv(params['inputs'][full_name])
 
-    if dataset is None:
-      raise Exception(f"Dataset {name} not found")
-
-    return storage.read_csv(f"{dataset['uuid']}/imported.csv")
+    # If we don't have the dataset in our list of inputs, not much we can do
+    raise Exception(f"Dataset {full_name} not found")
 
   def dataset_output(name):
     # This is only needed so things don't break if this function is in a transformation
