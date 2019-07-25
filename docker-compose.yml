@@ -59,7 +59,8 @@ services:
     depends_on:
       - queue
   tika:
-    image: logicalspark/docker-tikaserver
+    build: ./services/tika
+    image: cybera/tika:latest
     ports:
       - "9998:9998"
     networks:
