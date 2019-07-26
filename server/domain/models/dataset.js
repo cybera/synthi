@@ -17,6 +17,19 @@ class Dataset extends Base {
     return organization.datasetByName(name)
   }
 
+  static async getByFullName(fullName) {
+    const parts = fullName.split(':')
+
+    if (parts.length !== 2) {
+      throw Error('This function should only be used with fully qualified dataset names')
+    }
+
+    const [orgName, datasetName] = parts
+
+    const organization = await Organization.getByName(orgName)
+    return organization.datasetByName(datasetName)
+  }
+
   constructor(node) {
     super(node)
 
