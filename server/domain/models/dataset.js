@@ -3,14 +3,34 @@ import shortid from 'shortid'
 import Base from './base'
 import Organization from './organization'
 import Transformation, { datasetStorageMap } from './transformation'
-import Column from './column'
 import DatasetMetadata from './dataset-metadata'
 
 import Storage from '../../storage'
-import { fullDatasetPath, csvFromStream, storeFS } from '../../lib/util'
+import { fullDatasetPath, storeFS } from '../../lib/util'
 import DefaultQueue from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
+import { Map } from 'core-js';
+
+class DatasetFactory {
+  static register(type, datasetClass) {
+    if (!this._types.has(type) && datasetClass.prototype instanceof Dataset) {
+      this._types.set(type, datasetClass)
+    }
+  }
+
+  static create(node) {
+    const type = node['type']
+
+    if (!this._types.has(type)) {
+      logger.error(`dataset type ${type} is not registered`)
+    }
+
+    return new this._types.get(type)(node)
+  }
+}
+
+DatasetFactory._types = new Map()
 
 class Dataset extends Base {
   static async getByName(organization, name) {
@@ -32,17 +52,6 @@ class Dataset extends Base {
 
   constructor(node) {
     super(node)
-
-    this.paths = {
-      original: `${this.uuid}/original.csv`,
-      imported: `${this.uuid}/imported.csv`,
-      sample: `${this.uuid}/sample.csv`
-    }
-  }
-
-  async columns() {
-    const columns = await this.relatedMany('<-[:BELONGS_TO]-', Column, 'column')
-    return columns.sort((c1, c2) => c1.order - c2.order)
   }
 
   async owner() {
@@ -55,25 +64,6 @@ class Dataset extends Base {
 
   fullPath() {
     return fullDatasetPath(this.path)
-  }
-
-  async rows() {
-    if (this.path && await Storage.exists('datasets', this.paths.imported)) {
-      const readStream = await Storage.createReadStream('datasets', this.paths.imported)
-      const csv = await csvFromStream(readStream)
-      return csv.map(r => JSON.stringify(r))
-    }
-    return []
-  }
-
-  async samples() {
-    logger.info(`looking for samples for: ${this.uuid} / ${this.id}`)
-    if (this.path && await Storage.exists('datasets', this.paths.sample)) {
-      const readStream = await Storage.createReadStream('datasets', this.paths.sample)
-      const csv = await csvFromStream(readStream, 0, 10)
-      return csv.map(r => JSON.stringify(r))
-    }
-    return []
   }
 
   readStream() {
@@ -142,9 +132,8 @@ class Dataset extends Base {
     const query = [`
       MATCH (d:Dataset)
       WHERE ID(d) = toInteger($dataset.id)
-      OPTIONAL MATCH (d)<--(c:Column)
       OPTIONAL MATCH (t:Transformation)-[:OUTPUT]->(d)
-      DETACH DELETE d, c, t`, { dataset: this }]
+      DETACH DELETE d, t`, { dataset: this }]
     safeQuery(...query)
 
     try {
@@ -165,16 +154,16 @@ class Dataset extends Base {
       logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
-      this.importCSV()
+      this.import()
     } catch (e) {
       // TODO: What should we do here?
       logger.error(`Error in upload resolver: ${e.message}`)
     }
   }
 
-  async importCSV(removeExisting=false, options={}) {
+  async import(removeExisting=false, options={}) {
     DefaultQueue.sendToWorker({
-      task: 'import_csv',
+      task: this.import_task,
       uuid: this.uuid,
       paths: this.paths,
       id: this.id,
@@ -247,7 +236,7 @@ class Dataset extends Base {
       await safeQuery(...saveQuery)
 
       if (!this.path) {
-        this.path = `${shortid.generate()}-${this.name}.csv`.replace(/ /g, '_')
+        this.path = `${shortid.generate()}-${this.name}.${this.type}`.replace(/ /g, '_')
         const setDefaultPathQuery = [`
           MATCH (d:Dataset)
           WHERE ID(d) = toInteger($dataset.id)
@@ -299,9 +288,6 @@ class Dataset extends Base {
     } else if (msg.task === 'register_transformation') {
       const { inputs, outputs } = msg.data
       await this.registerTransformation(inputs, outputs)
-    } else if (msg.task === 'generate') {
-      const { datasetColumns } = msg.data
-      logger.info('columns:\n%o', datasetColumns)
     }
   }
 
@@ -323,11 +309,11 @@ class Dataset extends Base {
       WITH t UNWIND $outputs AS output
       MERGE (d:Dataset { name: output[1] })<-[:OWNER]-(o:Organization { name: output[0] })
       MERGE (d)<-[:OUTPUT]-(t)
-      SET d.computed = true, d.path = (output[1] + ".csv")
+      SET d.computed = true, d.path = (output[1] + ".$type")
     `
 
     await safeQuery(inputQuery, { id: this.id, inputs })
-    await safeQuery(outputQuery, { id: this.id, outputs })
+    await safeQuery(outputQuery, { id: this.id, type: this.type, outputs })
 
     const clearErrorsQuery = `
       MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
@@ -396,6 +382,6 @@ class Dataset extends Base {
 }
 
 Dataset.label = 'Dataset'
-Dataset.saveProperties = ['name', 'path', 'computed', 'generating', 'originalFilename']
+Dataset.saveProperties = ['name', 'type', 'path', 'computed', 'generating', 'originalFilename']
 
 export default Dataset
