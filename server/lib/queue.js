@@ -80,14 +80,16 @@ class AMQP {
     // TODO: Pass a unique download ID (have tasks send JSON as argument)
     const owner = await dataset.owner()
     const transformations = await dataset.parentTransformations()
-    const inputs = await datasetStorageMap(transformations.map(t => t.id))
+    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported')
+    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample')
 
     this.sendToWorker({
       task: 'prepare_download',
       id: dataset.id,
       ownerName: owner.name,
       transformations,
-      inputs
+      storagePaths,
+      samplePaths
     })
 
     // TODO: Create a unique download ID
