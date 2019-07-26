@@ -38,24 +38,16 @@ def generate_dataset(params):
     # here, we have enough hooked up in the graph to figure out the output node.
     pass
 
+  dataset_info = {}
+
   def write_output(df, owner, output_name):
+    full_name = get_full_name(output_name, owner_name)
+
     # TODO: Since we can now figure out the exact path from the transformations query,
     # it's not really necessary to figure that out again via the more brittle name lookup.
     columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
+    dataset_info[full_name] = columns
 
-    update_dataset_query = '''
-      MATCH (dataset:Dataset { name: $name })<-[:OWNER]-(o:Organization)
-      WHERE ID(o) = $owner
-      WITH dataset
-      UNWIND $columns AS column
-      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
-      WITH DISTINCT dataset
-      SET dataset.generating = false
-      RETURN ID(dataset) AS id, dataset.name AS name, dataset.uuid AS uuid
-    '''
-    results = tx.run(update_dataset_query, owner=owner, name=output_name, columns=columns)
-    dataset = results.single()
-    full_name = get_full_name(output_name, owner_name)
     path = params["storagePaths"][full_name]
 
     print(f"Updating calculated '{output_name}' dataset: {path}")
@@ -63,9 +55,13 @@ def generate_dataset(params):
 
   body = {
     "type": "dataset-updated",
+    "task": "generate",
     "id": generate_id,
     "status": "success",
-    "message": ""
+    "message": "",
+    "data": {
+      "datasetColumnUpdates": dataset_info
+    }
   }
 
   try:
