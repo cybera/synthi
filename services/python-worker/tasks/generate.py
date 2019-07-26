@@ -10,7 +10,7 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import neo4j_driver, status_channel, queue_conn, parse_params
+from common import status_channel, queue_conn, parse_params
 from common import load_transform, parse_params
 
 import storage
@@ -20,8 +20,6 @@ SAMPLE_SIZE = 100
 def generate_dataset(params):
   generate_id = params["id"]
   owner_name = params["ownerName"]
-  session = neo4j_driver.session()
-  tx = session.begin_transaction()
 
   def dataset_input(name):
     full_name = get_full_name(name, owner_name)
