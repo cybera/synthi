@@ -338,6 +338,21 @@ class Dataset extends Base {
     await safeQuery(clearErrorsQuery, { id: this.id })
   }
 
+  async handleColumnUpdate(columnList) {
+    logger.debug(`Column List for ${this.id}:\n%o`, columnList)
+
+    const query = `
+      MATCH (dataset:Dataset)
+      WHERE ID(dataset) = toInteger($dataset.id)
+      WITH dataset
+      UNWIND $columns AS column
+      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
+      WITH DISTINCT dataset
+      SET dataset.generating = false
+    `
+    await safeQuery(query, { dataset: this, columns: columnList })
+  }
+
   async transformationError(message) {
     const query = `
       MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)

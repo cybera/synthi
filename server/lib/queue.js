@@ -2,6 +2,7 @@ import AMQPManager from 'amqp-connection-manager'
 import { pubsub } from '../graphql/pubsub'
 import Dataset from '../domain/models/dataset'
 import { datasetStorageMap } from '../domain/models/transformation'
+import { handleQueueUpdate } from '../domain/models/task'
 import logger from '../config/winston'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
@@ -31,15 +32,7 @@ const startQueue = () => {
       try {
         logger.info(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
         const dataset = await Dataset.get(msgJSON.id)
-        // TODO:
-        // 1. We shouldn't just blindly trust this message. One way of dealing with the
-        //    trust is to send a token along with the original queue message and expect
-        //    that to come back to confirm.
-        // 2. Additionally, there should be some sort of Task intermediary. It would
-        //    provide an extra level of narrowing the focus, as Datasets could go back
-        //    to not caring about events directly from outside like this. It would also
-        //    narrow attack vectors to a Task currently unfinished, vs any dataset.
-        await dataset.handleQueueUpdate(msgJSON)
+        await handleQueueUpdate(msgJSON)
         const metadata = await dataset.metadata()
         metadata.dateUpdated = new Date()
         await metadata.save()
