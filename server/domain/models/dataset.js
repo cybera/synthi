@@ -354,6 +354,7 @@ class Dataset extends Base {
   }
 
   async transformationError(message) {
+    logger.warn(`transformationError: ${message}`)
     const query = `
       MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
       WHERE ID(dataset) = toInteger($id)
