@@ -76,7 +76,6 @@ def generate_dataset(params):
       transform_result = transform_mod.transform()
       write_output(transform_result, t['owner'], t['output_name'])
   except Exception as e:
-    raise(e)
     body["status"] = "failed"
     body["message"] = repr(e)
 
