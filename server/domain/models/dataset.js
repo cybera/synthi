@@ -359,6 +359,7 @@ class Dataset extends Base {
       MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
       WHERE ID(dataset) = toInteger($id)
       SET t.error = $message
+      SET dataset.generating = false
     `
     await safeQuery(query, { id: this.id, message })
   }

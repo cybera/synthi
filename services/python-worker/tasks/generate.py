@@ -75,16 +75,6 @@ def generate_dataset(params):
     body["status"] = "error"
     body["message"] = repr(e)
 
-  # Just in case, we know we're done trying at this point and should
-  # reset the dataset's generating status.
-  tx.run('''
-  MATCH (d:Dataset)
-  WHERE ID(d) = toInteger($id)
-  SET d.generating = false
-  ''', id=generate_id)
-
-  tx.commit()
-
   status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
 
 def store_csv(df, path, sample_path):
