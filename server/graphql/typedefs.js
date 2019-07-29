@@ -89,6 +89,7 @@ type Dataset @authCanAccess {
   uuid: String!
   name: String!
   owner: Organization!
+  type: String!
   columns: [Column]
   samples: [String]
   rows: [String]
