@@ -1,0 +1,59 @@
+version: '3'
+services:
+  neo4j:
+    build: ../neo4j
+    image: cybera/adi-neo4j:latest
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - default
+    environment:
+      NEO4J_AUTH: neo4j/password
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_apoc_autoIndex_enabled: "true"
+      NEO4J_com_graphaware_runtime_enabled: "true"
+      NEO4J_com_graphaware_module_UIDM_1: "com.graphaware.module.uuid.UuidBootstrapper"
+  server:
+    build: ../server
+    image: cybera/adi-server:latest
+    volumes:
+      - ../server:/usr/src/app
+      - ../config/testing.toml:/usr/src/app/config/development.toml
+      - ../data/uploads:/mnt/data
+      - ../data/scripts:/mnt/scripts
+      - server_node_modules:/usr/src/app/node_modules
+    networks:
+      - default
+    command: npm run devStart
+  queue:
+    image: rabbitmq:3.7
+    networks:
+      - default
+  python-worker:
+    build: ../services/python-worker
+    image: cybera/adi-python-worker:latest
+    networks:
+      - default
+    volumes:
+      - ../services/python-worker:/usr/src/app
+      - ../config/testing.toml:/usr/src/app/config/development.toml
+      - ../data/uploads:/mnt/data
+      - ../data/scripts:/mnt/scripts
+    depends_on:
+      - queue
+  redis:
+    image: redis:4.0
+    networks:
+      - default
+  test-runner:
+    build: .
+    image: cybera/adi-test-runner:latest
+    volumes:
+      - ./integration:/usr/src/app
+
+volumes:
+  neo4j_data:
+  server_node_modules:
+  client_node_modules:
+  manual_node_modules:
+  manual_gitbook_comp:
