@@ -46,6 +46,7 @@ class DatasetCSV extends Dataset {
   async delete() {
     const query = [`
       MATCH (d:Dataset)
+      WHERE ID(d) = toInteger($dataset.id)
       OPTIONAL MATCH (d)<--(c:Column)
       DETACH DELETE c`, { dataset: this }]
     safeQuery(...query)
