@@ -96,10 +96,13 @@ class Base {
     return []
   }
 
+  /* eslint-disable class-methods-use-this, no-unused-vars */
   async canAccess(user) {
     logger.warn('This should be implemented in a subclass')
     return true
   }
+  /* eslint-enable class-methods-use-this, no-unused-vars */
+
 
   update(bulkProperties) {
     Object.assign(this, bulkProperties)
@@ -113,9 +116,11 @@ class Base {
   // { proceed: false, message: 'Cannot save because...' }
   //
   // The default implementation simply returns { proceed: true }
+  /* eslint-disable class-methods-use-this */
   beforeSave() {
     return { proceed: true }
   }
+  /* eslint-enable class-methods-use-this */
 
   async save() {
     const preSave = this.beforeSave()
