@@ -2,6 +2,7 @@ import lodash from 'lodash'
 
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
+import * as ModelFactory from './modelFactory'
 
 class Base {
   constructor(node) {
@@ -149,5 +150,8 @@ class Base {
     safeQuery(...query)
   }
 }
+
+// Set this here to avoid circular dependency issues
+Base.ModelFactory = ModelFactory
 
 export default Base
