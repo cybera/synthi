@@ -14,10 +14,6 @@ class Organization extends Base {
     return this.getByUniqueMatch(query, { name })
   }
 
-  constructor(node) {
-    super(node)
-  }
-
   async datasets(searchString, searchIndex = 'DefaultDatasetSearchIndex') {
     return this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
   }

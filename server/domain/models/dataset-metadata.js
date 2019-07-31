@@ -3,10 +3,6 @@ import { safeQuery, neo4j } from '../../neo4j/connection'
 import { mapValues, isDate } from 'lodash'
 
 class DatasetMetadata extends Base {
-  constructor(node) {
-    super(node)
-  }
-
   valuesForNeo4J() {
     return mapValues(super.valuesForNeo4J(), (v) => {
       if (isDate(v)) {
