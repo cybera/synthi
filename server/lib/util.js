@@ -85,3 +85,25 @@ export const csvFromStream = async (stream, from, to) => {
 
   return parseStream.then(() => output)
 }
+
+/*
+  Return true if all properties in the 2nd parameter
+  exist in the first and are equal.
+
+  Note that this assumes a relatively flat map. Equality
+  depends on whatever Javascript thinks it is using the
+  === operator. This works well enough for the current
+  intended purpose, but if you want deeper comparisons
+  you might need to do some more testing and modifications.
+*/
+export const containsProperties = (obj, properties) => {
+  let contained = true
+
+  Object.keys(properties).forEach((key) => {
+    if (!(key in obj && obj[key] === properties[key])) {
+      contained = false
+    }
+  })
+
+  return contained
+}
