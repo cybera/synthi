@@ -121,7 +121,7 @@ class Dataset extends Base {
 
     try {
       Storage.remove('datasets', this.path)
-    } catch(err) {
+    } catch (err) {
       logger.error(err)
     }
   }
@@ -144,7 +144,7 @@ class Dataset extends Base {
     }
   }
 
-  async import(removeExisting=false, options={}) {
+  async import(removeExisting = false, options = {}) {
     DefaultQueue.sendToWorker({
       task: this.importTask,
       uuid: this.uuid,
