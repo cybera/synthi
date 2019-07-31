@@ -1,6 +1,6 @@
 import AMQPManager from 'amqp-connection-manager'
 import { pubsub } from '../graphql/pubsub'
-import Dataset from '../domain/models/dataset'
+import { ModelFactory } from '../domain/models'
 import { datasetStorageMap } from '../domain/models/transformation'
 import { handleQueueUpdate } from '../domain/models/task'
 import logger from '../config/winston'
@@ -31,7 +31,7 @@ const startQueue = () => {
     if (msgJSON.type === 'dataset-updated') {
       try {
         logger.info(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
-        const dataset = await Dataset.get(msgJSON.id)
+        const dataset = await ModelFactory.get(msgJSON.id)
         await handleQueueUpdate(msgJSON)
         const metadata = await dataset.metadata()
         metadata.dateUpdated = new Date()

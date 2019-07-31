@@ -2,9 +2,8 @@ import { AuthenticationError } from 'apollo-server-express'
 
 import { safeQuery } from '../../neo4j/connection'
 import { pubsub, withFilter } from '../pubsub'
-import * as TransformationRepository from '../../domain/repositories/transformationRepository'
 import Organization from '../../domain/models/organization'
-import Dataset from '../../domain/models/dataset'
+import { Dataset, ModelFactory } from '../../domain/models'
 
 // TODO: Move this to the column model and use redis to store
 const visibleColumnCache = {}
@@ -30,8 +29,8 @@ const processDatasetUpdate = async (datasetProps, context) => {
   } = datasetProps
 
   // TODO: access control
-  const dataset = await Dataset.get(id)
-
+  const dataset = await ModelFactory.get(id)
+  
   if (!dataset.canAccess(context.user)) {
     throw new AuthenticationError('Operation not allowed on this resource')
   }
@@ -123,7 +122,7 @@ export default {
 
       const organization = await findOrganization(org)
 
-      if (id != null) datasets.push(await Dataset.get(id))
+      if (id != null) datasets.push(await ModelFactory.get(id))
       else if (name != null) datasets.push(await Dataset.getByName(organization, name))
       else datasets = await organization.datasets(searchString)
 
@@ -160,7 +159,7 @@ export default {
       return null
     },
     async deleteDataset(_, { id }, context) {
-      const dataset = await Dataset.get(id)
+      const dataset = await ModelFactory.get(id)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
@@ -168,7 +167,7 @@ export default {
       return dataset
     },
     async importCSV(_, { id, removeExisting, options }, context) {
-      const dataset = await Dataset.get(id)
+      const dataset = await ModelFactory.get(id)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
@@ -187,7 +186,7 @@ export default {
       { jsondef }).then(results => results[0])
     },
     async generateDataset(_, { id }, context) {
-      const dataset = await Dataset.get(id)
+      const dataset = await ModelFactory.get(id)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
@@ -202,7 +201,7 @@ export default {
       return visibleColumnCache[context.user.uuid][id].visible
     },
     async saveInputTransformation(_, { id, code }, context) {
-      const dataset = await Dataset.get(id)
+      const dataset = await ModelFactory.get(id)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
