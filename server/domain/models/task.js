@@ -1,12 +1,15 @@
 import Base from './base'
-import Dataset from './dataset'
 import logger from '../../config/winston'
 
 export default class Task extends Base {
 
 }
 
+Base.ModelFactory.register(Task)
+
 export async function handleGeneratedInfo(msg) {
+  const Dataset = Base.ModelFactory.getClass('Dataset')
+
   logger.debug('%o', msg)
   const { datasetColumnUpdates } = msg.data
 
@@ -19,6 +22,8 @@ export async function handleGeneratedInfo(msg) {
 }
 
 export async function handleQueueUpdate(msgJSON) {
+  const Dataset = Base.ModelFactory.deriveClass('Dataset', { type: 'csv' })
+
   if (msgJSON.type === 'dataset-updated'
       && msgJSON.task === 'generate'
       && msgJSON.status === 'success') {

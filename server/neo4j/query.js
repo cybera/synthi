@@ -1,5 +1,5 @@
 import { safeQuery } from './connection'
-import { Dataset, DatasetFactory } from '../domain/models/dataset'
+import * as ModelFactory from '../domain/models/modelFactory'
 
 class Query {
   constructor(MainReturnType, mainReturnRef) {
@@ -34,11 +34,7 @@ class Query {
     Object.assign(finalParameters, extraParams)
     const results = await safeQuery(this.toString(finalParameters), finalParameters)
 
-    if (this.MainReturnType.prototype instanceof Dataset) {
-      return results.map(result => DatasetFactory.create(result[this.mainReturnRef]))
-    } else {
-      return results.map(result => new this.MainReturnType(result[this.mainReturnRef]))
-    }
+    return results.map(result => ModelFactory.derive(result[this.mainReturnRef]))
   }
 }
 

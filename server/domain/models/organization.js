@@ -1,6 +1,4 @@
 import Base from './base'
-import Dataset from './dataset'
-import User from './user'
 
 import { safeQuery } from '../../neo4j/connection'
 import Query from '../../neo4j/query'
@@ -19,10 +17,14 @@ class Organization extends Base {
   }
 
   datasetByName(name) {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
     return this.relatedOne('-[:OWNER]->', Dataset, 'dataset', { name })
   }
 
   async createDataset(initialProperties = {}) {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
     let { name } = initialProperties
     if (!name) {
       name = await this.uniqueDefaultDatasetName()
@@ -39,15 +41,14 @@ class Organization extends Base {
       MATCH (o:Organization { uuid: $organization.uuid })
       CREATE (o)-[:OWNER]->(d:Dataset { name: $datasetProperties.name })
       SET d += $datasetProperties
-      RETURN ID(d) AS id
+      RETURN d
     `, { datasetProperties, organization: this }]
 
     const result = await safeQuery(...query)
-    const datasetId = result[0].id
 
     // Normally we shouldn't use the raw id value, but a uuid doesn't get
     // created until the first transaction completes.
-    const dataset = await Dataset.get(datasetId)
+    const dataset = Dataset.ModelFactory.derive(result[0])
     // Re-save the dataset to trigger any automatic value setting
     await dataset.save()
     return dataset
@@ -72,6 +73,8 @@ class Organization extends Base {
   }
 
   async members() {
+    const User = Base.ModelFactory.getClass('User')
+
     return this.relatedMany('<-[:MEMBER]-', User, 'user')
   }
 
@@ -93,6 +96,8 @@ class Organization extends Base {
 
   /* eslint-disable class-methods-use-this */
   allDatasetsQuery() {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
     const allDatasetsQuery = new Query(Dataset, 'dataset')
     allDatasetsQuery.addPart(({ searchString }) => {
       if (searchString) {
@@ -113,5 +118,7 @@ class Organization extends Base {
 
 Organization.label = 'Organization'
 Organization.saveProperties = []
+
+Base.ModelFactory.register(Organization)
 
 export default Organization

@@ -1,8 +1,8 @@
-import { Dataset, DatasetFactory } from './dataset'
+import Dataset from './dataset'
 import Column from './column'
 
 import Storage from '../../storage'
-import csvFromStream from '../../lib/util'
+import { csvFromStream } from '../../lib/util'
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
 
@@ -66,6 +66,6 @@ class DatasetCSV extends Dataset {
   }
 }
 
-DatasetFactory.register('csv', DatasetCSV)
+Dataset.ModelFactory.register(DatasetCSV, 'Dataset', { type: 'csv' })
 
 export default DatasetCSV
