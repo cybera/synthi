@@ -31,6 +31,7 @@ class Organization extends Base {
     }
 
     const datasetProperties = {
+      type: 'csv',
       computed: false,
       generating: false
     }
