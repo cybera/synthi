@@ -146,7 +146,7 @@ class Dataset extends Base {
 
   async import(removeExisting=false, options={}) {
     DefaultQueue.sendToWorker({
-      task: this.import_task,
+      task: this.importTask,
       uuid: this.uuid,
       paths: this.paths,
       id: this.id,
