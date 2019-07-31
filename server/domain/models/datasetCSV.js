@@ -57,11 +57,11 @@ class DatasetCSV extends Dataset {
     logger.info(`message for dataset: ${this.id}\n%o`, msg)
     const { status } = msg
 
-    if (status != 'error' && msg.task === 'generate') {
+    if (status !== 'error' && msg.task === 'generate') {
       const { datasetColumns } = msg.data
       logger.info('columns:\n%o', datasetColumns)
     } else {
-      super().handleQueueUpdate(msg)
+      super.handleQueueUpdate(msg)
     }
   }
 }
