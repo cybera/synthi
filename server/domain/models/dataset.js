@@ -1,36 +1,13 @@
 import shortid from 'shortid'
 
 import Base from './base'
-import Organization from './organization'
-import Transformation, { datasetStorageMap } from './transformation'
-import DatasetMetadata from './dataset-metadata'
+import { datasetStorageMap } from './transformation'
 
 import Storage from '../../storage'
 import { fullDatasetPath, storeFS } from '../../lib/util'
 import DefaultQueue from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
-import { Map } from 'core-js';
-
-class DatasetFactory {
-  static register(type, datasetClass) {
-    if (!this._types.has(type) && datasetClass.prototype instanceof Dataset) {
-      this._types.set(type, datasetClass)
-    }
-  }
-
-  static create(node) {
-    const type = node['type']
-
-    if (!this._types.has(type)) {
-      logger.error(`dataset type ${type} is not registered`)
-    }
-
-    return new this._types.get(type)(node)
-  }
-}
-
-DatasetFactory._types = new Map()
 
 class Dataset extends Base {
   static async getByName(organization, name) {
@@ -38,6 +15,8 @@ class Dataset extends Base {
   }
 
   static async getByFullName(fullName) {
+    const Organization = Base.ModelFactory.getClass('Organization')
+
     const parts = fullName.split(':')
 
     if (parts.length !== 2) {
@@ -55,10 +34,14 @@ class Dataset extends Base {
   }
 
   async owner() {
+    const Organization = Base.ModelFactory.getClass('Organization')
+
     return this.relatedOne('<-[:OWNER]-', Organization, 'owner')
   }
 
   async inputTransformation() {
+    const Transformation = Base.ModelFactory.getClass('Transformation')
+
     return this.relatedOne('<-[:OUTPUT]-', Transformation, 'transformation')
   }
 
@@ -208,6 +191,8 @@ class Dataset extends Base {
   // However, the cross-organizational aspects aren't particularly pressing
   // at the moment, so we'll leave it this way until we get there.
   async saveInputTransformation(code, user) {
+    const Transformation = Base.ModelFactory.getClass('Transformation')
+
     const query = [`
       MATCH (d:Dataset)
       WHERE ID(d) = toInteger($dataset.id)
@@ -264,6 +249,8 @@ class Dataset extends Base {
   }
 
   async metadata() {
+    const DatasetMetadata = Base.ModelFactory.getClass('DatasetMetadata')
+
     let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', DatasetMetadata, 'metadata')
     if (!datasetMetadata) {
       const query = `
@@ -383,5 +370,7 @@ class Dataset extends Base {
 
 Dataset.label = 'Dataset'
 Dataset.saveProperties = ['name', 'type', 'path', 'computed', 'generating', 'originalFilename']
+
+Base.ModelFactory.register(Dataset)
 
 export default Dataset

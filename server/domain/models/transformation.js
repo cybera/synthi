@@ -4,9 +4,7 @@ import { fullScriptPath } from '../../lib/util'
 import Storage from '../../storage'
 import Base from './base'
 import logger from '../../config/winston'
-import Dataset from './dataset'
 import { safeQuery } from '../../neo4j/connection';
-import Organization from './organization';
 
 class Transformation extends Base {
   constructor(node) {
@@ -47,6 +45,8 @@ class Transformation extends Base {
   }
 
   async outputDataset() {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
     return this.relatedOne('-[:OUTPUT]->', Dataset, 'output')
   }
 
@@ -59,12 +59,16 @@ class Transformation extends Base {
 Transformation.label = 'Transformation'
 Transformation.saveProperties = ['script', 'name']
 
+Base.ModelFactory.register(Transformation)
+
 /*
   Given an array of Transformation IDs, return a mapping
   of fully qualified dataset names to the storage location
   that represents their input and output datasets.
 */
 export const datasetStorageMap = async (transformationIds, pathType) => {
+  const Organization = Base.ModelFactory.getClass('Organization')
+
   const query = `
     MATCH (org:Organization)-->(dataset:Dataset)-[:INPUT|OUTPUT]-(t:Transformation)
     WHERE ID(t) IN $transformationIds
@@ -72,7 +76,7 @@ export const datasetStorageMap = async (transformationIds, pathType) => {
   `
   const results = await safeQuery(query, { transformationIds })
   const inputs = results.map(r => ({
-    dataset: new Dataset(r.dataset),
+    dataset: Base.ModelFactory.derive(r.dataset),
     org: new Organization(r.org)
   }))
 

@@ -1,6 +1,7 @@
-import Base from './base'
-import { safeQuery, neo4j } from '../../neo4j/connection'
 import { mapValues, isDate } from 'lodash'
+
+import Base from './base'
+import { neo4j } from '../../neo4j/connection'
 
 class DatasetMetadata extends Base {
   valuesForNeo4J() {
@@ -38,5 +39,7 @@ DatasetMetadata.saveProperties = [
   'identifier',
   'topic'
 ]
+
+Base.ModelFactory.register(DatasetMetadata)
 
 export default DatasetMetadata
