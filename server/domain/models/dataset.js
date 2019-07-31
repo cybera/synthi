@@ -31,6 +31,8 @@ class Dataset extends Base {
 
   constructor(node) {
     super(node)
+    this.paths = {
+    }
   }
 
   async owner() {
@@ -365,6 +367,13 @@ class Dataset extends Base {
       output_name: t.output_name,
       owner: t.owner
     }))
+  }
+  async columns() {
+    return []
+  }
+
+  async samples() {
+    return []
   }
 }
 
