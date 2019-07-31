@@ -40,16 +40,18 @@ class Organization extends Base {
 
     const query = [`
       MATCH (o:Organization { uuid: $organization.uuid })
-      CREATE (o)-[:OWNER]->(d:Dataset { name: $datasetProperties.name })
-      SET d += $datasetProperties
-      RETURN d
+      CREATE (o)-[:OWNER]->(dataset:Dataset { name: $datasetProperties.name })
+      SET dataset += $datasetProperties
+      RETURN dataset
     `, { datasetProperties, organization: this }]
 
     const result = await safeQuery(...query)
 
-    // Normally we shouldn't use the raw id value, but a uuid doesn't get
-    // created until the first transaction completes.
-    const dataset = Dataset.ModelFactory.derive(result[0])
+    // We have to actually reload this. We can't just derive it from the return results.
+    // Why? The package in Neo4J that adds the uuid doesn't execute until the transaction
+    // completes. And so the properties returned by the result of the last query won't
+    // contain the uuid.
+    const dataset = await Dataset.ModelFactory.get(result[0].dataset.identity)
     // Re-save the dataset to trigger any automatic value setting
     await dataset.save()
     return dataset
