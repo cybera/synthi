@@ -30,7 +30,7 @@ import schemaDirectives from './graphql/directives'
 import logger from './config/winston'
 import DefaultQueue from './lib/queue'
 import User from './domain/models/user'
-import Dataset from './domain/models/dataset'
+import { ModelFactory } from './domain/models'
 import { checkConfig } from './lib/startup-checks'
 
 
@@ -191,7 +191,7 @@ app.get('/whoami', (req, res) => {
 })
 
 app.get('/dataset/:id', async (req, res) => {
-  const dataset = await Dataset.get(req.params.id)
+  const dataset = await ModelFactory.get(req.params.id)
 
   if (dataset && await dataset.canAccess(req.user)) {
     DefaultQueue.prepareDownload(dataset, () => {
