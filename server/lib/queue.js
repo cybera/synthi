@@ -1,6 +1,6 @@
 import AMQPManager from 'amqp-connection-manager'
 import { pubsub } from '../graphql/pubsub'
-import { ModelFactory } from '../domain/models'
+import * as ModelFactory from '../domain/models/modelFactory'
 import { datasetStorageMap } from '../domain/models/transformation'
 import { handleQueueUpdate } from '../domain/models/task'
 import logger from '../config/winston'
