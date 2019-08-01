@@ -20,11 +20,13 @@ class UploadFile extends React.Component {
     handleFileChange: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     text: PropTypes.string,
-    loading: PropTypes.bool.isRequired // eslint-disable-line react/forbid-prop-types
+    loading: PropTypes.bool.isRequired, // eslint-disable-line react/forbid-prop-types
+    uploadTypes: PropTypes.arrayOf(PropTypes.string)
   }
 
   static defaultProps = {
-    text: 'Choose File...'
+    text: 'Choose File...',
+    uploadTypes: ['.csv']
   }
 
   handleChange = (event) => {
@@ -36,12 +38,12 @@ class UploadFile extends React.Component {
   }
 
   render() {
-    const { classes, text, loading } = this.props
+    const { classes, text, loading, uploadTypes } = this.props
 
     return (
       <span>
         <input
-          accept=".csv"
+          accept={uploadTypes}
           className={classes.input}
           id="raised-button-file"
           multiple
