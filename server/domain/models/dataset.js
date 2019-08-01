@@ -368,10 +368,13 @@ class Dataset extends Base {
       owner: t.owner
     }))
   }
+
+  // eslint-disable-next-line class-methods-use-this
   async columns() {
     return []
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async samples() {
     return []
   }
