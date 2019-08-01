@@ -2,6 +2,7 @@ import Column from './models/column'
 import DatasetMetadata from './models/dataset-metadata'
 import Dataset from './models/dataset'
 import DatasetCSV from './models/datasetCSV'
+import DocumentDataset from './models/documentDataset'
 import Organization from './models/organization'
 import Task from './models/task'
 import Transformation from './models/transformation'
@@ -14,6 +15,7 @@ export {
   DatasetMetadata,
   Dataset,
   DatasetCSV,
+  DocumentDataset,
   Organization,
   Task,
   Transformation,
