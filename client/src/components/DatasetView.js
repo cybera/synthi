@@ -99,7 +99,7 @@ class DatasetView extends React.Component {
     const { subscribeToDatasetGenerated, id } = this.props
     this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
       const { errors } = this.state
-      if (status === 'failed') {
+      if (status === 'error') {
         this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
       } else {
         this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
@@ -182,7 +182,7 @@ class SubscribedWarningBanner extends React.Component {
     const { subscribeToDatasetGenerated, id } = this.props
     this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
       const { errors } = this.state
-      if (status === 'failed') {
+      if (status === 'error') {
         this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
       } else {
         this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })

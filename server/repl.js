@@ -5,6 +5,7 @@ import Storage from './storage'
 import util from './lib/util'
 import Dataset from './domain/models/dataset'
 import Base from './domain/models/base'
+import Organization from './domain/models/organization'
 import { datasetStorageMap } from './domain/models/transformation'
 
 
@@ -15,6 +16,7 @@ global.util = util
 global.neo4j = require('neo4j-driver').v1
 global.lodash = lodash
 global.Dataset = Dataset
+global.Organization = Organization
 global.Base = Base
 global.datasetStorageMap = datasetStorageMap
 

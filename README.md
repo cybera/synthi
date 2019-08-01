@@ -128,3 +128,56 @@ Some changes will require data updates. There is a simple migration system in pl
 Migrations will be run in the order the names would be sorted, so you know for sure a migration shouldn't be run until another one has been run, you can affect the order by appropriate naming. The current convention is to prefix the migration name with a double digit integer to indicate order (`00_`, `01_`, etc).
 
 One important assumption you should consider when making migrations is that all migrations are idempotent. That is, if they will do their own checking to see whether they need to change anything, based on the current state, and if there's nothing to change, they'll have no effect. Your migration script should be able to be run any number of times and only change data when it's not in the state it should be. This means you can also add to existing migrations if it makes sense, but it also means that there isn't really a concept of rolling back.
+
+### Integration Tests
+
+With a little setup, you can run integration tests in a completely separate environment. The only truly manual thing you need to do at the moment is setup swift containers specifically for testing:
+
+```bash
+source YOUR_SWIFT_CREDENTIALS.sh
+swift post adi-YOURNAME-testing-datasets
+swift post adi-YOURNAME-testing-scripts
+```
+
+Now create a copy of your _development.toml_ file called _testing.toml_:
+
+```bash
+cp config/development.toml config/testing.toml
+```
+
+Finally, edit the object storage section to point to the containers you just created:
+
+```toml
+[storage.object.containers]
+
+datasets = "adi-YOURNAME-testing-datasets"
+scripts = "adi-YOURNAME-testing-scripts"
+```
+
+The test environment does take a bit of time to set up and tear down, so you may want to leave it running between test runs (though then you'll have to make sure to clean up after a test run).
+
+To start up the test environment:
+
+```bash
+bin/testenv start
+```
+
+This will create a new user called *test*, with a password of *password* and an apikey of *test-token*. Obviously, this is about the furthest from secure passwords and tokens you can imagine, so you don't want to expose the testing environment to the outside world, and by default you shouldn't even be able to access it from the host machine.
+
+To actually run tests:
+
+```bash
+bin/testenv_run
+```
+
+Currently this just runs _test/integration/main.py_ within a simple python container that has access to the testing environment.
+
+If you need to check out something inside the test environment, you can still look inside of it by going to the _./test_ directory and running `docker-compose` commands from there. Doing a `docker-compose ps`, for example will show you all the instances running in the test environment.
+
+To shut down the test environment, run:
+
+```bash
+bin/testenv stop
+```
+
+This will also get rid of the volumes Docker creates for the test instances, so you'll be starting from a completely clean slate the next time around (one exception: anything still residing in your swift storage containers isn't deleted at the moment).

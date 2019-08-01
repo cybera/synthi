@@ -17,6 +17,19 @@ class Dataset extends Base {
     return organization.datasetByName(name)
   }
 
+  static async getByFullName(fullName) {
+    const parts = fullName.split(':')
+
+    if (parts.length !== 2) {
+      throw Error('This function should only be used with fully qualified dataset names')
+    }
+
+    const [orgName, datasetName] = parts
+
+    const organization = await Organization.getByName(orgName)
+    return organization.datasetByName(datasetName)
+  }
+
   constructor(node) {
     super(node)
 
@@ -325,11 +338,28 @@ class Dataset extends Base {
     await safeQuery(clearErrorsQuery, { id: this.id })
   }
 
+  async handleColumnUpdate(columnList) {
+    logger.debug(`Column List for ${this.id}:\n%o`, columnList)
+
+    const query = `
+      MATCH (dataset:Dataset)
+      WHERE ID(dataset) = toInteger($dataset.id)
+      WITH dataset
+      UNWIND $columns AS column
+      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
+      WITH DISTINCT dataset
+      SET dataset.generating = false
+    `
+    await safeQuery(query, { dataset: this, columns: columnList })
+  }
+
   async transformationError(message) {
+    logger.warn(`transformationError: ${message}`)
     const query = `
       MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
       WHERE ID(dataset) = toInteger($id)
       SET t.error = $message
+      SET dataset.generating = false
     `
     await safeQuery(query, { id: this.id, message })
   }
