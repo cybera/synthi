@@ -375,6 +375,10 @@ class Dataset extends Base {
   async samples() {
     return []
   }
+
+  downloadName() {
+    return `${this.originalFilename}`
+  }
 }
 
 Dataset.label = 'Dataset'

@@ -199,7 +199,7 @@ app.get('/dataset/:id', async (req, res) => {
 
   if (dataset && await dataset.canAccess(req.user)) {
     DefaultQueue.prepareDownload(dataset, () => {
-      res.attachment(`${dataset.name}.csv`)
+      res.attachment(dataset.downloadName())
       dataset.readStream().pipe(res)
     })
   } else {
