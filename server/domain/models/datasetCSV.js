@@ -10,7 +10,10 @@ class DatasetCSV extends Dataset {
   constructor(node) {
     super(node)
 
-    this.type = 'csv'
+    if (!this.type) {
+      this.type = 'csv'
+    }
+
     this.importTask = 'import_csv'
     this.paths = {
       original: `${this.uuid}/original.csv`,
