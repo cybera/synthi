@@ -68,6 +68,10 @@ class DatasetCSV extends Dataset {
       super.handleQueueUpdate(msg)
     }
   }
+
+  downloadName() {
+    return `${this.name}.csv`
+  }
 }
 
 Dataset.ModelFactory.register(DatasetCSV, 'Dataset', { type: 'csv' })
