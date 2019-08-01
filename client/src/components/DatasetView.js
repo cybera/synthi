@@ -125,27 +125,50 @@ class DatasetView extends React.Component {
     const selectedColumns = displayColumns.filter(c => c.visible)
     const dataExists = selectedColumns.length > 0
 
-    if (!dataExists && !dataset.computed) {
-      return (
-        <div className={classes.root}>
-          <div className={classes.empty}>
-            <div className={classes.svgContainer}>
-              <NoDataSvg color="#303f9f" className={classes.svg} />
+    if (!dataset.computed) {
+      if (dataset.type != 'csv') {
+        return (
+          <div className={classes.root}>
+            <div className={classes.empty}>
+              <div className={classes.text}>
+                <Typography variant="h5">
+                  You've uploaded a document that cannot be previewed right now.
+                </Typography>
+                <Typography variant="subtitle1" className={classes.subheader}>
+                  ...but you can download it or upload a new one!
+                </Typography>
+                <br />
+                <DatasetEditor dataset={dataset} dataExists />
+              </div>
             </div>
-            <div className={classes.text}>
-              <Typography variant="h5">
-                Add some data to your dataset
-              </Typography>
-              <Typography variant="subtitle1" className={classes.subheader}>
-                Upload a CSV file containing the underlying data
-                or generate it from existing datasets.
-              </Typography>
-            </div>
-            <DatasetUploadButton id={id} />
-            <DatasetComputeModeButton id={id} />
           </div>
-        </div>
-      )
+        )
+      // Not sure why the linter goes crazy here because there's still a chance that this
+      // clause won't match (it's not an else, it's an else if). However, it's probably
+      // a good indication that we should break things down further into smaller components.
+      // eslint-disable-next-line no-else-return
+      } else if (!dataExists) {
+        return (
+          <div className={classes.root}>
+            <div className={classes.empty}>
+              <div className={classes.svgContainer}>
+                <NoDataSvg color="#303f9f" className={classes.svg} />
+              </div>
+              <div className={classes.text}>
+                <Typography variant="h5">
+                  Add some data to your dataset
+                </Typography>
+                <Typography variant="subtitle1" className={classes.subheader}>
+                  Upload a CSV file containing the underlying data
+                  or generate it from existing datasets.
+                </Typography>
+              </div>
+              <DatasetUploadButton id={id} type={dataset.type} />
+              <DatasetComputeModeButton id={id} />
+            </div>
+          </div>
+        )
+      }
     }
 
     const sampleRows = dataset.samples.map((s) => {
@@ -217,7 +240,7 @@ class SubscribedWarningBanner extends React.Component {
               <Typography variant="subtitle1" gutterBottom>
                 You can try uploading your file again.
               </Typography>
-              <DatasetUploadButton id={id} />
+              <DatasetUploadButton id={id} type="csv" />
             </div>
             <div className={classes.adviceContainer}>
               <Typography variant="subtitle1" gutterBottom>

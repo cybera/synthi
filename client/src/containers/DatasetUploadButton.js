@@ -19,7 +19,14 @@ const uploadDatasetGQL = gql`
 `
 
 const DatasetUploadButton = (props) => {
-  const { id } = props
+  const { id, type } = props
+
+  let uploadTypes = []
+  if (type === 'csv') {
+    uploadTypes = ['.csv']
+  } else if (type === 'document') {
+    uploadTypes = ['.pdf', '.txt', '.doc', '.docx']
+  }
 
   return (
     <Mutation
@@ -29,8 +36,9 @@ const DatasetUploadButton = (props) => {
     >
       {(uploadFileMutation, { loading }) => (
         <UploadFile
+          uploadTypes={uploadTypes}
           handleFileChange={file => uploadFileMutation({ variables: { id, file } })}
-          text="Upload"
+          text={`Upload ${type}`}
           loading={loading}
         />
       )}
@@ -39,7 +47,12 @@ const DatasetUploadButton = (props) => {
 }
 
 DatasetUploadButton.propTypes = {
-  id: PropTypes.number.isRequired
+  id: PropTypes.number.isRequired,
+  type: PropTypes.string
+}
+
+DatasetUploadButton.defaultProps = {
+  type: 'csv'
 }
 
 export default DatasetUploadButton

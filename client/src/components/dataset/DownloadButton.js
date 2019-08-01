@@ -16,6 +16,8 @@ const DownloadButton = (props) => {
     <Button variant="contained" color="secondary" onClick={() => handleDownload(url)}>
       <CloudDownloadIcon style={{ marginRight: 10 }} />
       Download
+      {' '}
+      {dataset.type}
     </Button>
   )
 }
