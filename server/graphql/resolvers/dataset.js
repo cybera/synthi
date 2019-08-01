@@ -30,7 +30,7 @@ const processDatasetUpdate = async (datasetProps, context) => {
 
   // TODO: access control
   const dataset = await ModelFactory.get(id)
-  
+
   if (!dataset.canAccess(context.user)) {
     throw new AuthenticationError('Operation not allowed on this resource')
   }
@@ -142,6 +142,11 @@ export default {
   },
   Mutation: {
     async createDataset(_, { name, owner, type }, context) {
+      let datasetType = type
+      if (!datasetType) {
+        datasetType = 'csv'
+      }
+
       // TODO: context.user.createDataset(org, { name })
       const org = await Organization.get(owner)
       if (!await org.canAccess(context.user)) {
@@ -149,7 +154,7 @@ export default {
       }
 
       if (await org.canCreateDatasets(context.user)) {
-        const dataset = await org.createDataset({ name, type })
+        const dataset = await org.createDataset({ name, type: datasetType })
         // Initialize metadata (this will set some dates to when the dataset is created)
         const metadata = await dataset.metadata()
         await metadata.save()
