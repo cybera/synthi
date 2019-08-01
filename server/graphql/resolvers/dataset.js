@@ -141,7 +141,7 @@ export default {
     connections: dataset => dataset.connections()
   },
   Mutation: {
-    async createDataset(_, { name, owner }, context) {
+    async createDataset(_, { name, owner, type }, context) {
       // TODO: context.user.createDataset(org, { name })
       const org = await Organization.get(owner)
       if (!await org.canAccess(context.user)) {
@@ -149,7 +149,7 @@ export default {
       }
 
       if (await org.canCreateDatasets(context.user)) {
-        const dataset = await org.createDataset({ name })
+        const dataset = await org.createDataset({ name, type })
         // Initialize metadata (this will set some dates to when the dataset is created)
         const metadata = await dataset.metadata()
         await metadata.save()

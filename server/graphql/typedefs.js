@@ -32,6 +32,11 @@ enum FrequencyUnit {
   months
 }
 
+enum DatasetType {
+  csv
+  document
+}
+
 directive @authCanAccess on OBJECT | FIELD_DEFINITION
 
 type File {
@@ -86,10 +91,10 @@ type DatasetStoragePaths {
 
 type Dataset @authCanAccess {
   id: Int!
+  type: DatasetType!
   uuid: String!
   name: String!
   owner: Organization!
-  type: String!
   columns: [Column]
   samples: [String]
   rows: [String]
@@ -147,7 +152,7 @@ input CSVImportOptions {
 }
 
 type Mutation {
-  createDataset(name: String, owner: Int): Dataset
+  createDataset(name: String, owner: Int, type: DatasetType = csv): Dataset
   deleteDataset(id: Int!): Dataset
   importCSV(id: Int!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
   uploadFile(file: Upload!): File!
