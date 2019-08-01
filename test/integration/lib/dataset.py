@@ -150,15 +150,16 @@ def list(host=None, api_key=None):
   
   return results['dataset']
 
-def create(name, host=None, api_key=None):
+def create(name, host=None, api_key=None, type=None):
   orgid = default_org()
 
   query = '''
-  mutation ($ownerId: Int!, $datasetName: String!) {
-    createDataset(name: $datasetName, owner: $ownerId) {
+  mutation ($ownerId: Int!, $datasetName: String!, $type: DatasetType) {
+    createDataset(name: $datasetName, owner: $ownerId, type: $type) {
       name
       id
       uuid
+      type
     }
   }
   '''
@@ -167,16 +168,19 @@ def create(name, host=None, api_key=None):
     ownerId = orgid,
     datasetName = name
   )
+
+  if type:
+    variables['type'] = type
   
   result = gql_query(query, variables=variables, host=host, api_key=api_key)
   
   return result['createDataset']
 
-def upload(id_or_name, file, host=None, api_key=None):
+def upload(id_or_name, file, host=None, api_key=None, type=None):
   info = meta(id_or_name, host=host, api_key=api_key)
 
   if not info:
-    info = create(id_or_name, host=host, api_key=api_key)
+    info = create(id_or_name, host=host, api_key=api_key, type=type)
   
   if isinstance(id_or_name, str):
     id = info['id']
