@@ -10,18 +10,82 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import neo4j_driver, status_channel, queue_conn, parse_params
+from common import status_channel, queue_conn, parse_params
 from common import load_transform, parse_params
 
 import storage
 
-from import_csv import store_csv
+SAMPLE_SIZE = 100
 
-def generate_dataset(generate_id, owner_name):
-  session = neo4j_driver.session()
-  tx = session.begin_transaction()
+def generate_dataset(params):
+  generate_id = params["id"]
+  owner_name = params["ownerName"]
 
   def dataset_input(name):
+    full_name = get_full_name(name, owner_name)
+
+    if full_name in params['storagePaths']:
+      return storage.read_csv(params['storagePaths'][full_name])
+    
+    # If we don't have the dataset in our list of inputs, not much we can do
+    raise Exception(f"Dataset {full_name} not found")
+
+  def dataset_output(name):
+    # This is only needed so things don't break if this function is in a transformation
+    # It's only really relevant when registering the transformation. By the time we get
+    # here, we have enough hooked up in the graph to figure out the output node.
+    pass
+
+  dataset_info = {}
+
+  def write_output(df, owner, output_name):
+    full_name = get_full_name(output_name, owner_name)
+
+    # TODO: Since we can now figure out the exact path from the transformations query,
+    # it's not really necessary to figure that out again via the more brittle name lookup.
+    columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
+    dataset_info[full_name] = columns
+
+    path = params["storagePaths"][full_name]
+
+    print(f"Updating calculated '{output_name}' dataset: {path}")
+    store_csv(df, path, params["samplePaths"][full_name])
+
+  body = {
+    "type": "dataset-updated",
+    "task": "generate",
+    "id": generate_id,
+    "status": "success",
+    "message": "",
+    "data": {
+      "datasetColumnUpdates": dataset_info
+    }
+  }
+
+  try:
+    for t in params["transformations"]:
+      transform_script = t['script']
+      print(f"Running {transform_script}")
+      transform_mod = load_transform(transform_script, dataset_input, dataset_output)
+      transform_result = transform_mod.transform()
+      write_output(transform_result, t['owner'], t['output_name'])
+  except Exception as e:
+    body["status"] = "error"
+    body["message"] = repr(e)
+
+  status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
+
+def store_csv(df, path, sample_path):
+  # Write out normalized versions of the CSV file. These will have header
+  # rows, even if the original data has none (auto-generated headers will
+  # be generic: 'Column_1', 'Column_2', etc.). This makes it easier for
+  # anything reading this data, as it can assume a single way of storing
+  # CSV files that we can't assume during the import process.
+  sample_size = min(df.shape[0], SAMPLE_SIZE)
+  storage.write_csv(df, path)
+  storage.write_csv(df.sample(sample_size), sample_path)
+
+def get_full_name(name, owner_name):
     names = name.split(":")
 
     if len(names) > 2:
@@ -32,100 +96,9 @@ def generate_dataset(generate_id, owner_name):
       org = owner_name
       dataset_name = names[0]
 
-    dataset_by_name_query = '''
-    MATCH (d:Dataset { name: $name })<-[:OWNER]-(:Organization { name: $org })
-    RETURN d.uuid AS uuid
-    '''
-    print(f"Finding '{name}' dataset.")
-    results = tx.run(dataset_by_name_query, name=dataset_name, org=org)
-    # TODO: more checking here
-    dataset = results.single()
-
-    if dataset is None:
-      raise Exception(f"Dataset {name} not found")
-
-    return storage.read_csv(f"{dataset['uuid']}/imported.csv")
-
-  def dataset_output(name):
-    # This is only needed so things don't break if this function is in a transformation
-    # It's only really relevant when registering the transformation. By the time we get
-    # here, we have enough hooked up in the graph to figure out the output node.
-    pass
-
-  def write_output(df, owner, output_name):
-    # TODO: Since we can now figure out the exact path from the transformations query,
-    # it's not really necessary to figure that out again via the more brittle name lookup.
-    columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
-
-    update_dataset_query = '''
-      MATCH (dataset:Dataset { name: $name })<-[:OWNER]-(o:Organization)
-      WHERE ID(o) = $owner
-      WITH dataset
-      UNWIND $columns AS column
-      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
-      WITH DISTINCT dataset
-      SET dataset.generating = false
-      RETURN ID(dataset) AS id, dataset.name AS name, dataset.uuid AS uuid
-    '''
-    results = tx.run(update_dataset_query, owner=owner, name=output_name, columns=columns)
-    dataset = results.single()
-    print(f"Updating calculated '{output_name}' dataset: {dataset['uuid']}/imported.csv.")
-    store_csv(df, dataset)
-
-  find_transforms_query = '''
-  MATCH full_path = (output:Dataset)<-[*]-(last)
-  WHERE ID(output) = toInteger($output_id) AND
-        ((last:Dataset AND last.computed = false) OR last:Transformation)
-  WITH full_path, output
-  MATCH (t:Transformation)
-  MATCH individual_path = (output)<-[*]-(t)
-  WHERE t IN nodes(full_path) AND NOT EXISTS(t.error)
-  WITH DISTINCT(individual_path), t
-  MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
-  RETURN
-    t.name AS name,
-    t.script AS script,
-    length(individual_path) AS distance,
-    ID(individual_output) AS output_id,
-    individual_output.name AS output_name,
-    individual_output.path AS output_path,
-    ID(o) AS owner
-  ORDER BY distance DESC
-  '''
-  print(f"Finding and ordering transforms for ID: {generate_id}.")
-  transforms = tx.run(find_transforms_query, output_id=generate_id)
-
-  body = {
-    "type": "dataset-updated",
-    "id": generate_id,
-    "status": "success",
-    "message": ""
-  }
-
-  try:
-    for t in transforms:
-      transform_script = t['script']
-      print(f"Running {transform_script}")
-      transform_mod = load_transform(transform_script, dataset_input, dataset_output)
-      transform_result = transform_mod.transform()
-      write_output(transform_result, t['owner'], t['output_name'])
-  except Exception as e:
-    body["status"] = "failed"
-    body["message"] = repr(e)
-
-  # Just in case, we know we're done trying at this point and should
-  # reset the dataset's generating status.
-  tx.run('''
-  MATCH (d:Dataset)
-  WHERE ID(d) = toInteger($id)
-  SET d.generating = false
-  ''', id=generate_id)
-
-  tx.commit()
-
-  status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
+    return f'{org}:{dataset_name}'
 
 if __name__ == "__main__":
   params = parse_params()
-  generate_dataset(params['id'], params['ownerName'])
+  generate_dataset(params)
   queue_conn.close()

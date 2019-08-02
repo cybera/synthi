@@ -1,12 +1,12 @@
 import Base from './base'
 
 class Column extends Base {
-  constructor(node) {
-    super(node)
-  }
+
 }
 
 Column.label = 'Column'
 Column.saveProperties = ['name', 'order']
+
+Base.ModelFactory.register(Column)
 
 export default Column

@@ -12,8 +12,6 @@ from common import status_channel, queue_conn, parse_params
 from generate import generate_dataset
 
 params = parse_params()
-dataset_id = params['id']
-owner_name = params['ownerName']
 
 # We need a more robust job queue... one where jobs can schedule other jobs and
 # wait on jobs they schedule to finish before finishing themselves. Since we don't
@@ -21,16 +19,16 @@ owner_name = params['ownerName']
 # queue). Since downloading involves making sure any generation has been done, we're
 # calling generate_dataset from the generate task here.
 
-generate_dataset(dataset_id, owner_name)
+generate_dataset(params)
 
 body = {
   "type": "download-status",
-  "id": dataset_id,
+  "id": params["id"],
   "status": "ready",
   "message": ""
 }
 
-print(f"Download ready for {dataset_id}")
+print(f"Download ready for {id}")
 status_channel.basic_publish(exchange='download-status', routing_key='', body=json.dumps(body))
 
 queue_conn.close()

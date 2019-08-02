@@ -28,9 +28,13 @@ import typeDefs from './graphql/typedefs'
 import schemaDirectives from './graphql/directives'
 
 import logger from './config/winston'
+// Even if the direct need for ModelFactory is removed from the startup, it's important
+// that this import runs as early as possible, as it makes sure that all models are
+// registered without having to directly import them in places where that could cause
+// dependency cycles.
+import { ModelFactory } from './domain/models'
 import DefaultQueue from './lib/queue'
 import User from './domain/models/user'
-import Dataset from './domain/models/dataset'
 import { checkConfig } from './lib/startup-checks'
 
 
@@ -191,11 +195,11 @@ app.get('/whoami', (req, res) => {
 })
 
 app.get('/dataset/:id', async (req, res) => {
-  const dataset = await Dataset.get(req.params.id)
+  const dataset = await ModelFactory.get(req.params.id)
 
   if (dataset && await dataset.canAccess(req.user)) {
     DefaultQueue.prepareDownload(dataset, () => {
-      res.attachment(`${dataset.name}.csv`)
+      res.attachment(dataset.downloadName())
       dataset.readStream().pipe(res)
     })
   } else {

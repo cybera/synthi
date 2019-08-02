@@ -25,6 +25,7 @@ export const datasetViewQuery = gql`
 query($id: Int) {
   dataset(id: $id) {
     id
+    type
     name
     columns {
       id

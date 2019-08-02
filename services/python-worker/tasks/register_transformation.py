@@ -20,42 +20,25 @@ tx = session.begin_transaction()
 
 params = parse_params()
 transformation_id = params['id']
+output_dataset_id = params['outputDatasetId']
 owner_name = params['ownerName']
 user_uuid = params['userUuid']
+transformation_script = params['transformationScript']
 
 valid_org_names = db.valid_org_names(tx, user_uuid)
-
-transformation_info = tx.run('''
-  MATCH (t:Transformation)-[:OUTPUT]->(d:Dataset)
-  WHERE ID(t) = toInteger($id)
-  RETURN t, d
-''', id=transformation_id).single()
-transformation = transformation_info['t']
-output_dataset = transformation_info['d']
 
 inputs = []
 outputs = []
 
 def transformation_error(message):
-  results = tx.run('''
-    MATCH (t:Transformation { uuid: $uuid })
-    SET t.error = $message
-  ''', uuid=transformation['uuid'], message=message)
-  tx.commit()
   body = {
     "type": "dataset-updated",
-    "id": output_dataset.id,
+    "id": output_dataset_id,
     "status": "error",
     "message": message
   }
   status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
   raise Exception(message)
-
-def clear_transformation_errors():
-  tx.run('''
-    MATCH (t:Transformation { uuid: $uuid })
-    REMOVE t.error
-  ''', uuid=transformation['uuid'])
 
 def dataset_input(name):
   names = name.split(':')
@@ -79,41 +62,20 @@ def dataset_output(name):
     print("Transformations can currently only have one output")
     exit(0)
 
-transform_mod = load_transform(transformation['script'],
+transform_mod = load_transform(transformation_script,
                                dataset_input,
                                dataset_output)
 
-input_query = '''
-  MATCH (t:Transformation)
-  WHERE ID(t) = toInteger($id)
-  SET t.inputs = [ x in $inputs | x[0] + ':' + x[1] ]
-  WITH t
-  UNWIND $inputs AS input
-  MATCH (d:Dataset { name: input[1] })<-[:OWNER]-(o:Organization { name: input[0] })
-  MERGE (d)-[:INPUT]->(t)
-'''
-
-output_query = '''
-  MATCH (t:Transformation)
-  WHERE ID(t) = toInteger($id)
-  SET t.outputs = [ x in $outputs | x[0] + ':' + x[1] ]
-  WITH t UNWIND $outputs AS output
-  MERGE (d:Dataset { name: output[1] })<-[:OWNER]-(o:Organization { name: output[0] })
-  MERGE (d)<-[:OUTPUT]-(t)
-  SET d.computed = true, d.path = (output[1] + ".csv")
-'''
-
-results = tx.run(input_query, id=transformation_id, inputs=inputs)
-results = tx.run(output_query, id=transformation_id, outputs=outputs)
-
-clear_transformation_errors()
-
-tx.commit()
-
 body = {
   "type": "dataset-updated",
-  "id": output_dataset.id,
+  "task": "register_transformation",
+  "id": output_dataset_id,
   "status": "success",
-  "message": ""
+  "message": "",
+  "data": {
+    "inputs": inputs,
+    "outputs": outputs
+  }
 }
+
 status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))

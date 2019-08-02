@@ -1,12 +1,9 @@
-import Base from './base'
-import { safeQuery, neo4j } from '../../neo4j/connection'
 import { mapValues, isDate } from 'lodash'
 
-class DatasetMetadata extends Base {
-  constructor(node) {
-    super(node)
-  }
+import Base from './base'
+import { neo4j } from '../../neo4j/connection'
 
+class DatasetMetadata extends Base {
   valuesForNeo4J() {
     return mapValues(super.valuesForNeo4J(), (v) => {
       if (isDate(v)) {
@@ -42,5 +39,7 @@ DatasetMetadata.saveProperties = [
   'identifier',
   'topic'
 ]
+
+Base.ModelFactory.register(DatasetMetadata)
 
 export default DatasetMetadata

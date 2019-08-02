@@ -1,6 +1,5 @@
 import { safeQuery } from '../../neo4j/connection'
 import Base from './base'
-import Organization from './organization'
 
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
@@ -23,6 +22,8 @@ class User extends Base {
   }
 
   async orgs() {
+    const Organization = Base.ModelFactory.getClass('Organization')
+
     return this.relatedMany('-[:MEMBER]->', Organization, 'organization')
   }
 
@@ -57,5 +58,7 @@ class User extends Base {
 
 User.label = 'User'
 User.saveProperties = ['apikey', 'username', 'password']
+
+Base.ModelFactory.register(User)
 
 export default User

@@ -1,13 +1,15 @@
 import Base from './base'
-import Dataset from './dataset'
-import User from './user'
 
 import { safeQuery } from '../../neo4j/connection'
 import Query from '../../neo4j/query'
 
 class Organization extends Base {
-  constructor(node) {
-    super(node)
+  static async getByName(name) {
+    const query = `
+      MATCH (node:${this.label} { name: $name })
+      RETURN node
+    `
+    return this.getByUniqueMatch(query, { name })
   }
 
   async datasets(searchString, searchIndex = 'DefaultDatasetSearchIndex') {
@@ -15,16 +17,21 @@ class Organization extends Base {
   }
 
   datasetByName(name) {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
     return this.relatedOne('-[:OWNER]->', Dataset, 'dataset', { name })
   }
 
   async createDataset(initialProperties = {}) {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
     let { name } = initialProperties
     if (!name) {
       name = await this.uniqueDefaultDatasetName()
     }
 
     const datasetProperties = {
+      type: 'csv',
       computed: false,
       generating: false
     }
@@ -33,17 +40,18 @@ class Organization extends Base {
 
     const query = [`
       MATCH (o:Organization { uuid: $organization.uuid })
-      CREATE (o)-[:OWNER]->(d:Dataset { name: $datasetProperties.name })
-      SET d += $datasetProperties
-      RETURN ID(d) AS id
+      CREATE (o)-[:OWNER]->(dataset:Dataset { name: $datasetProperties.name })
+      SET dataset += $datasetProperties
+      RETURN dataset
     `, { datasetProperties, organization: this }]
 
     const result = await safeQuery(...query)
-    const datasetId = result[0].id
 
-    // Normally we shouldn't use the raw id value, but a uuid doesn't get
-    // created until the first transaction completes.
-    const dataset = await Dataset.get(datasetId)
+    // We have to actually reload this. We can't just derive it from the return results.
+    // Why? The package in Neo4J that adds the uuid doesn't execute until the transaction
+    // completes. And so the properties returned by the result of the last query won't
+    // contain the uuid.
+    const dataset = await Dataset.ModelFactory.get(result[0].dataset.identity)
     // Re-save the dataset to trigger any automatic value setting
     await dataset.save()
     return dataset
@@ -68,6 +76,8 @@ class Organization extends Base {
   }
 
   async members() {
+    const User = Base.ModelFactory.getClass('User')
+
     return this.relatedMany('<-[:MEMBER]-', User, 'user')
   }
 
@@ -89,6 +99,8 @@ class Organization extends Base {
 
   /* eslint-disable class-methods-use-this */
   allDatasetsQuery() {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
     const allDatasetsQuery = new Query(Dataset, 'dataset')
     allDatasetsQuery.addPart(({ searchString }) => {
       if (searchString) {
@@ -109,5 +121,7 @@ class Organization extends Base {
 
 Organization.label = 'Organization'
 Organization.saveProperties = []
+
+Base.ModelFactory.register(Organization)
 
 export default Organization

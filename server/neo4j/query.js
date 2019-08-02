@@ -1,4 +1,5 @@
 import { safeQuery } from './connection'
+import * as ModelFactory from '../domain/models/modelFactory'
 
 class Query {
   constructor(MainReturnType, mainReturnRef) {
@@ -32,8 +33,8 @@ class Query {
     Object.assign(finalParameters, this.parameters)
     Object.assign(finalParameters, extraParams)
     const results = await safeQuery(this.toString(finalParameters), finalParameters)
-    const objs = results.map(result => new this.MainReturnType(result[this.mainReturnRef]))
-    return objs
+
+    return results.map(result => ModelFactory.derive(result[this.mainReturnRef]))
   }
 }
 

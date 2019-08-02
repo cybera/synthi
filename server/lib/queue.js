@@ -1,6 +1,8 @@
 import AMQPManager from 'amqp-connection-manager'
 import { pubsub } from '../graphql/pubsub'
-import Dataset from '../domain/models/dataset'
+import * as ModelFactory from '../domain/models/modelFactory'
+import { datasetStorageMap } from '../domain/models/transformation'
+import { handleQueueUpdate } from '../domain/models/task'
 import logger from '../config/winston'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
@@ -27,16 +29,17 @@ const startQueue = () => {
   startChannel(conn, 'dataset-status', { durable: false, noAck: true }, async (msg) => {
     const msgJSON = JSON.parse(msg.content.toString())
     if (msgJSON.type === 'dataset-updated') {
-      logger.info(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
-      await Dataset.get(msgJSON.id)
-        .then(dataset => dataset.metadata())
-        .then((metadata) => {
-          metadata.dateUpdated = new Date()
-          metadata.save()
-        }).then(() => {
-          logger.debug('Saved metadata')
-        })
-        .catch(err => logger.error(err))
+      try {
+        logger.info(`Received dataset-status message: Dataset ${msgJSON.id} was updated.`)
+        const dataset = await ModelFactory.get(msgJSON.id)
+        await handleQueueUpdate(msgJSON)
+        const metadata = await dataset.metadata()
+        metadata.dateUpdated = new Date()
+        await metadata.save()
+        logger.debug('Saved metadata')
+      } catch (err) {
+        logger.error(err)
+      }
     }
     logger.debug('Publishing to clients...')
     pubsub.publish(DATASET_UPDATED, { datasetGenerated: msgJSON });
@@ -76,11 +79,17 @@ class AMQP {
   async prepareDownload(dataset, callback) {
     // TODO: Pass a unique download ID (have tasks send JSON as argument)
     const owner = await dataset.owner()
+    const transformations = await dataset.parentTransformations()
+    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported')
+    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample')
 
     this.sendToWorker({
       task: 'prepare_download',
       id: dataset.id,
-      ownerName: owner.name
+      ownerName: owner.name,
+      transformations,
+      storagePaths,
+      samplePaths
     })
 
     // TODO: Create a unique download ID

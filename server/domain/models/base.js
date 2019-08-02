@@ -2,6 +2,7 @@ import lodash from 'lodash'
 
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
+import * as ModelFactory from './modelFactory'
 
 class Base {
   constructor(node) {
@@ -96,10 +97,13 @@ class Base {
     return []
   }
 
+  /* eslint-disable class-methods-use-this, no-unused-vars */
   async canAccess(user) {
     logger.warn('This should be implemented in a subclass')
     return true
   }
+  /* eslint-enable class-methods-use-this, no-unused-vars */
+
 
   update(bulkProperties) {
     Object.assign(this, bulkProperties)
@@ -113,9 +117,11 @@ class Base {
   // { proceed: false, message: 'Cannot save because...' }
   //
   // The default implementation simply returns { proceed: true }
+  /* eslint-disable class-methods-use-this */
   beforeSave() {
     return { proceed: true }
   }
+  /* eslint-enable class-methods-use-this */
 
   async save() {
     const preSave = this.beforeSave()
@@ -144,5 +150,8 @@ class Base {
     safeQuery(...query)
   }
 }
+
+// Set this here to avoid circular dependency issues
+Base.ModelFactory = ModelFactory
 
 export default Base
