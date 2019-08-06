@@ -2,6 +2,15 @@ Add and use Tasks to better manage work coordination
 
 Status: Proposed
 
+Problem: We need a way to track the state of ongoing/upcoming jobs in
+ADI, that will better enable us to
+
+- reason about the status of a job (done, waiting for something else,
+  error, lost to the ether)
+
+- understand and act on information about the relationships between
+  jobs (ie, job dependencies)
+
 Context:
 
 We're starting to outgrow the existing implementation of
@@ -81,7 +90,7 @@ back to verify).
 
 Alternatives:
 
-1. Adding Tasks
+1. Build out the concept of "tasks" ourselves in ADI.
 
 Pros:
 
@@ -99,6 +108,9 @@ them to be exactly what we need.
 
 Cons:
 
+It's going to take time for us to build and maintain our own task/job
+implementation.
+
 We're turning this more into a job system. The more we go towards
 that, the more we have to question whether or not we should just
 grab one off the shelf. The advantage of being able to specialize
@@ -106,6 +118,10 @@ this to our needs may eventually turn into a liability where we
 couldn't use an off the shelf job system. We can mitigate this a
 bit by keeping an eye on how regular job systems operate and making
 sure to not stray too far from that.
+
+If we're careful to add the Task abstraction correctly, it would set
+ups up better to use another job system even if we ended up going that
+route later.
 
 2. Adopting an existing job queue that supports multiple
 languages.
@@ -137,19 +153,19 @@ be adding some extra logic to associate things with our main data
 model in the graph database). It may do much more than we actually
 need and would likely take longer to implement than the first option.
 
-Suggested Alternative:
+Delaying having a task system available is causing us to push adhoc
+fixes/workaround downsteam.
 
-Right now, our lack of any system is pushing adhoc fixes downstream.
-While in the long run, it's probably best to implement some 3rd party
-job system, we would benefit immediately from simply having a Task
-abstraction. We shouldn't be backing ourselves into anymore of a hole
-by going this route, as long as we're careful to not increase the
-complexity of what we communicate back and forth (keeping it to a
-single queuing of work and getting a response that it's done with
-some results). And adding a Task abstraction would set us up better
-to use another job system even if we ended up going that route later.
+Decision:
 
-As long as we can invest a minimal amount of time in Option 1, we
-should pursue that to make things better than they are now. We can
-add onto that better documentation and separation of concerns with
-our tasks in order to make it easier to swap out later.
+Implement option 1:
+
+- Build out a tasks implementation in ADI ourselves.
+
+- Minimize the amount of time we spend build it
+
+- Ensure we document it, and have a clear separation of concerns with
+  our tasks, in order to make it easier to swap out later.
+
+- Limit scope to simple queuing of work and getting a response that
+  it's done with results.
