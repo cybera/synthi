@@ -362,22 +362,31 @@ class Dataset extends Base {
       WITH DISTINCT(individual_path), t
       MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
       RETURN
-        t.name AS name,
-        ID(t) AS id,
-        t.script AS script,
+        t AS transformation,
         length(individual_path) AS distance,
-        ID(individual_output) AS output_id,
-        individual_output.name AS output_name,
-        individual_output.path AS output_path,
-        ID(o) AS owner
-      ORDER BY distance DESC`
+        individual_output AS output,
+        o AS owner
+      ORDER BY distance DESC
+    `
 
     const results = await safeQuery(query, { output_id: this.id })
-    return results.map(t => ({
-      id: t.id,
-      script: t.script,
-      output_name: t.output_name,
-      owner: t.owner
+
+    /*
+      This seems like extra complication at first, but I'd like us to consider it
+      a best practice going forward when retrieving results from the database.
+      Instead of trying to pass back a bunch of individual properties, pass back
+      full nodes as much as possible, and then convert them into their respective
+      model objects before going further.
+    */
+    return results.map(r => ({
+      transformation: Base.ModelFactory.derive(r.transformation),
+      output: Base.ModelFactory.derive(r.output),
+      owner: Base.ModelFactory.derive(r.owner)
+    })).map(({ transformation, output, owner }) => ({
+      id: transformation.id,
+      script: transformation.script,
+      output_name: output.name,
+      owner: owner.id
     }))
   }
 
