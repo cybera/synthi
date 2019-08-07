@@ -70,19 +70,20 @@ export const datasetStorageMap = async (transformationIds, pathType) => {
   const Organization = Base.ModelFactory.getClass('Organization')
 
   const query = `
-    MATCH (org:Organization)-->(dataset:Dataset)-[:INPUT|OUTPUT]-(t:Transformation)
+    MATCH (org:Organization)-->(dataset:Dataset)-[ioEdge:INPUT|OUTPUT]-(t:Transformation)
     WHERE ID(t) IN $transformationIds
-    RETURN dataset, org
+    RETURN dataset, org, ioEdge
   `
   const results = await safeQuery(query, { transformationIds })
-  const inputs = results.map(r => ({
-    dataset: Base.ModelFactory.derive(r.dataset),
-    org: new Organization(r.org)
+  const inputs = results.map(({ dataset, org, ioEdge }) => ({
+    dataset: Base.ModelFactory.derive(dataset),
+    org: new Organization(org),
+    alias: ioEdge.type === 'INPUT' ? ioEdge.properties.alias : undefined
   }))
 
   const mapping = {}
-  inputs.forEach((input) => {
-    mapping[`${input.org.name}:${input.dataset.name}`] = input.dataset.paths[pathType]
+  inputs.forEach(({ dataset, org, alias }) => {
+    mapping[`${org.name}:${alias || dataset.name}`] = dataset.paths[pathType]
   })
 
   return mapping
