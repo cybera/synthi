@@ -340,7 +340,19 @@ class Dataset extends Base {
   }
 
   async parentTransformations() {
-    const query = `MATCH full_path = (output:Dataset)<-[*]-(last)
+    /*
+      TODO: There's the following line in this query:
+
+      WHERE t IN nodes(full_path) AND NOT EXISTS(t.error)
+
+      I suspect we shouldn't have the 'NOT EXISTS(t.error)' part, and instead
+      we should just be checking that property later on. Otherwise, when there
+      is an error, we're pretending the transformation doesn't even exist in
+      the chain, which probably has some unintended results when reporting and
+      recovering from errors in transformation code.
+    */
+    const query = `
+      MATCH full_path = (output:Dataset)<-[*]-(last)
       WHERE ID(output) = toInteger($output_id) AND
             ((last:Dataset AND last.computed = false) OR last:Transformation)
       WITH full_path, output
