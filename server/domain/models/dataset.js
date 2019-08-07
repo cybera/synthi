@@ -361,8 +361,10 @@ class Dataset extends Base {
       WHERE t IN nodes(full_path) AND NOT EXISTS(t.error)
       WITH DISTINCT(individual_path), t
       MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
+      OPTIONAL MATCH (t)-[:ALIAS_OF]->(template:Transformation)
       RETURN
         t AS transformation,
+        template,
         length(individual_path) AS distance,
         individual_output AS output,
         o AS owner
@@ -381,10 +383,16 @@ class Dataset extends Base {
     return results.map(r => ({
       transformation: Base.ModelFactory.derive(r.transformation),
       output: Base.ModelFactory.derive(r.output),
-      owner: Base.ModelFactory.derive(r.owner)
-    })).map(({ transformation, output, owner }) => ({
+      owner: Base.ModelFactory.derive(r.owner),
+      template: r.template ? Base.ModelFactory.derive(r.template) : null
+    })).map(({
+      transformation,
+      output,
+      owner,
+      template
+    }) => ({
       id: transformation.id,
-      script: transformation.script,
+      script: template ? template.script : transformation.script,
       output_name: output.name,
       owner: owner.id
     }))
