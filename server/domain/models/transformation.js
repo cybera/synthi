@@ -8,14 +8,11 @@ import logger from '../../config/winston'
 import { safeQuery } from '../../neo4j/connection';
 
 class Transformation extends Base {
-  constructor(node) {
-    super(node)
-    if (!this.script) {
-      const id = shortid.generate()
-      const uniqueFilename = `${id}-${this.name}.py`.replace(/ /g, '_')
-
-      this.script = uniqueFilename
-    }
+  static async create(properties) {
+    const { code, ...rest } = properties
+    const transformation = await super.create(rest)
+    await transformation.storeCode(code)
+    return transformation
   }
 
   fullPath() {
@@ -35,8 +32,16 @@ class Transformation extends Base {
     return null
   }
 
-  storeCode(code) {
+  async storeCode(code) {
     try {
+      if (!this.script) {
+        const id = shortid.generate()
+        const uniqueFilename = `${id}-${this.name}.py`.replace(/ /g, '_')
+
+        this.script = uniqueFilename
+        await this.save()
+      }
+
       const writeStream = Storage.createWriteStream('scripts', this.script)
       writeStream.write(code, 'utf8')
       writeStream.end()

@@ -25,7 +25,7 @@ export default {
         throw new AuthenticationError('You cannot create transformations for this organization')
       }
 
-      const transformation = org.createTransformation(name, inputs, code)
+      const transformation = await org.createTransformation(name, inputs, code)
 
       logger.debug('%o', transformation)
 

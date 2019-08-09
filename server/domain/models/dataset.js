@@ -200,7 +200,8 @@ class Dataset extends Base {
       ON CREATE SET
         t.name = $dataset.name,
         t.inputs = [],
-        t.outputs = []
+        t.outputs = [],
+        t.uuid = randomUUID()
       RETURN t
     `, { dataset: this }]
 
@@ -210,15 +211,7 @@ class Dataset extends Base {
       const transformation = new Transformation(results[0].t)
       logger.info('transformation:%o\n', transformation)
 
-      transformation.storeCode(code)
-
-      const saveQuery = [`
-        MATCH (t:Transformation)
-        WHERE ID(t) = toInteger($transformation.id)
-        SET t.script = $transformation.script
-      `, { transformation }]
-
-      await safeQuery(...saveQuery)
+      await transformation.storeCode(code)
 
       if (!this.path) {
         this.path = `${shortid.generate()}-${this.name}.${this.type}`.replace(/ /g, '_')
