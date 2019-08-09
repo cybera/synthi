@@ -4,6 +4,7 @@ import { safeQuery } from '../../neo4j/connection'
 import { pubsub, withFilter } from '../pubsub'
 import Organization from '../../domain/models/organization'
 import { Dataset, ModelFactory } from '../../domain/models'
+import { findOrganization } from '../util'
 
 // TODO: Move this to the column model and use redis to store
 const visibleColumnCache = {}
@@ -94,26 +95,6 @@ const processDatasetUpdate = async (datasetProps, context) => {
 }
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
-
-const findOrganization = async (org) => {
-  if (!org) return null
-
-  const { id, uuid, name } = org
-
-  if (typeof uuid !== 'undefined') {
-    return Organization.getByUuid(uuid)
-  }
-
-  if (typeof id !== 'undefined') {
-    return Organization.get(org.id)
-  }
-
-  if (typeof name !== 'undefined') {
-    return Organization.getByName(org.name)
-  }
-
-  return null
-}
 
 export default {
   Query: {
