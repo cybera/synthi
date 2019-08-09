@@ -1,6 +1,7 @@
 import shortid from 'shortid'
 
 import { fullScriptPath } from '../../lib/util'
+import { memberOfOwnerOrg } from '../util'
 import Storage from '../../storage'
 import Base from './base'
 import logger from '../../config/winston'
@@ -50,9 +51,20 @@ class Transformation extends Base {
     return this.relatedOne('-[:OUTPUT]->', Dataset, 'output')
   }
 
+  async owner() {
+    const Organization = Base.ModelFactory.getClass('Organization')
+
+    return this.relatedOne('<-[:OWNER]-', Organization, 'owner')
+  }
+
   async canAccess(user) {
     const output = await this.outputDataset()
-    return output.canAccess(user)
+
+    if (output) {
+      return output.canAccess(user)
+    }
+
+    return memberOfOwnerOrg(user, this)
   }
 }
 
