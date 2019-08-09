@@ -8,6 +8,7 @@ import { fullDatasetPath, storeFS } from '../../lib/util'
 import DefaultQueue from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
+import { memberOfOwnerOrg } from '../util'
 
 class Dataset extends Base {
   static async getByName(organization, name) {
@@ -57,10 +58,7 @@ class Dataset extends Base {
   }
 
   async canAccess(user) {
-    const owner = await this.owner()
-    const orgs = await user.orgs()
-    const match = orgs.find(org => org.uuid === owner.uuid)
-    return typeof match !== 'undefined'
+    return memberOfOwnerOrg(user, this)
   }
 
   async save() {
