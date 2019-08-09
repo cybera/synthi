@@ -49,6 +49,17 @@ class Base {
     return this.getByUniqueMatch(query, { uuid })
   }
 
+  static async create(properties) {
+    const query = `
+      CREATE (node:${this.label} { uuid: randomUUID() })
+      SET node += $properties
+      return node
+    `
+    const results = await safeQuery(query, { properties })
+
+    return ModelFactory.derive(results[0].node)
+  }
+
   async relatedRaw(relation, ModelClass, name, relatedProps = {}) {
     let identityMatch = `
       MATCH (node:${this.__label} { uuid: $node.uuid })
@@ -133,6 +144,16 @@ class Base {
     `, { node: this, values: this.valuesForNeo4J() }]
 
     await safeQuery(...query)
+  }
+
+  async saveRelation(relation, domainObject) {
+    const query = [`
+      MATCH (node:${this.__label} { uuid: $node.uuid })
+      MATCH (relatedNode:${domainObject.__label} { uuid: $relatedNode.uuid })
+      MERGE (node)${relation}(relatedNode)
+    `, { node: this, relatedNode: domainObject }]
+
+    safeQuery(...query)
   }
 
   // Can be overridden to specially prepare values for saving to the database
