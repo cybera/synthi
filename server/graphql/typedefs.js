@@ -165,6 +165,7 @@ type Mutation {
   updateDatasetMetadata(id: Int!, metadata:DatasetMetadataInput): DatasetMetadata
   regenerateAPIKey: User
   updateColumn(uuid:String!, values:ColumnInput, tagNames:[String]): Column
+  createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationID!): Transformation
 }
 
 type Subscription {
