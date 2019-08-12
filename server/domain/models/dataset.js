@@ -402,6 +402,10 @@ class Dataset extends Base {
   downloadName() {
     return `${this.originalFilename}`
   }
+
+  debugSummary() {
+    return `${this.name} (${this.uuid})`
+  }
 }
 
 Dataset.label = 'Dataset'
