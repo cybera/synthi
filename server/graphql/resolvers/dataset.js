@@ -4,7 +4,8 @@ import { safeQuery } from '../../neo4j/connection'
 import { pubsub, withFilter } from '../pubsub'
 import Organization from '../../domain/models/organization'
 import { Dataset, ModelFactory } from '../../domain/models'
-import { findOrganization } from '../util'
+import { findOrganization, findTransformation, findTransformationInputs } from '../util'
+import logger from '../../config/winston';
 
 // TODO: Move this to the column model and use redis to store
 const visibleColumnCache = {}
@@ -186,12 +187,28 @@ export default {
       visibleColumnCache[context.user.uuid][id].visible = !isVisible
       return visibleColumnCache[context.user.uuid][id].visible
     },
-    async saveInputTransformation(_, { id, code }, context) {
+    async saveInputTransformation(_, {
+      id,
+      code,
+      template,
+      inputs
+    }, context) {
       const dataset = await ModelFactory.get(id)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
-      return dataset.saveInputTransformation(code, context.user)
+
+      if (code && !template && !inputs) {
+        return dataset.saveInputTransformation(code, context.user)
+      } else if (!code && template && inputs) {
+        const templateObj = await findTransformation(template)
+        const inputObjs = await findTransformationInputs(inputs)
+        logger.debug(`Transformation Ref: ${templateObj.name} (${templateObj.uuid})`)
+        logger.debug(`Inputs: {\n${inputObjs.map(inputObj => `${inputObj.placeholder}: ${inputObj.dataset.debugSummary()}`).join('\n')}\n}`)
+        return dataset.saveInputTransformationRef(templateObj, inputObjs, context.user)
+      }
+
+      throw Error('Please provide either code or a transformation reference and inputs')
     }
   },
   Subscription: {

@@ -178,7 +178,7 @@ type Mutation {
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean
-  saveInputTransformation(id: Int!, code:String): Transformation
+  saveInputTransformation(id: Int!, code:String, template:TemplateRef, inputs:[TransformationInputMapping]): Transformation
   updateDatasetMetadata(id: Int!, metadata:DatasetMetadataInput): DatasetMetadata
   regenerateAPIKey: User
   updateColumn(uuid:String!, values:ColumnInput, tagNames:[String]): Column

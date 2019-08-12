@@ -241,6 +241,10 @@ class Dataset extends Base {
     return null
   }
 
+  async saveInputTransformationRef(template, inputs, user) {
+    logger.info(`Called saveInputTransformationRef on ${this.debugSummary()}`)
+  }
+
   async metadata() {
     const DatasetMetadata = Base.ModelFactory.getClass('DatasetMetadata')
 
