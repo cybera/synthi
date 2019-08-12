@@ -151,6 +151,23 @@ input CSVImportOptions {
   customDelimiter: String
 }
 
+input TemplateRef {
+  name: String,
+  uuid: String,
+  id: Int
+}
+
+input DatasetRef {
+  name: String,
+  uuid: String,
+  id: Int
+}
+
+input TransformationInputMapping {
+  placeholder: String!,
+  dataset: DatasetRef!
+}
+
 type Mutation {
   createDataset(name: String, owner: Int, type: DatasetType = csv): Dataset
   deleteDataset(id: Int!): Dataset
