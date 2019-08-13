@@ -13,7 +13,7 @@ class Transformation extends Base {
     const transformation = await super.create(rest)
 
     if (code) {
-    await transformation.storeCode(code)
+      await transformation.storeCode(code)
     }
 
     return transformation
@@ -27,6 +27,12 @@ class Transformation extends Base {
     try {
       if (this.script && Storage.exists('scripts', this.script)) {
         const fileString = await Storage.read('scripts', this.script)
+        return fileString
+      }
+
+      const template = await this.template()
+      if (template && template.script && Storage.exists('scripts', template.script)) {
+        const fileString = await Storage.read('scripts', template.script)
         return fileString
       }
     } catch (err) {
@@ -52,6 +58,10 @@ class Transformation extends Base {
     } catch (err) {
       logger.error(err)
     }
+  }
+
+  async template() {
+    return this.relatedOne('-[:ALIAS_OF]->', Transformation, 'template')
   }
 
   async outputDataset() {
