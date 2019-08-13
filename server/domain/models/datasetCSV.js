@@ -28,7 +28,7 @@ class DatasetCSV extends Dataset {
   }
 
   async rows() {
-    if (this.path && await Storage.exists('datasets', this.paths.imported)) {
+    if (await Storage.exists('datasets', this.paths.imported)) {
       const readStream = await Storage.createReadStream('datasets', this.paths.imported)
       const csv = await csvFromStream(readStream)
       return csv.map(r => JSON.stringify(r))
@@ -38,7 +38,7 @@ class DatasetCSV extends Dataset {
 
   async samples() {
     logger.info(`looking for samples for: ${this.uuid} / ${this.id}`)
-    if (this.path && await Storage.exists('datasets', this.paths.sample)) {
+    if (await Storage.exists('datasets', this.paths.sample)) {
       const readStream = await Storage.createReadStream('datasets', this.paths.sample)
       const csv = await csvFromStream(readStream, 0, 10)
       return csv.map(r => JSON.stringify(r))
