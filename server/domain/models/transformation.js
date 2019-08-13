@@ -11,7 +11,11 @@ class Transformation extends Base {
   static async create(properties) {
     const { code, ...rest } = properties
     const transformation = await super.create(rest)
+
+    if (code) {
     await transformation.storeCode(code)
+    }
+
     return transformation
   }
 
