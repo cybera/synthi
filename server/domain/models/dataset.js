@@ -241,8 +241,26 @@ class Dataset extends Base {
     return null
   }
 
-  async saveInputTransformationRef(template, inputs, user) {
-    logger.info(`Called saveInputTransformationRef on ${this.debugSummary()}`)
+  async saveInputTransformationRef(template, inputs) {
+    const Transformation = Base.ModelFactory.getClass('Transformation')
+    let transformation = await this.inputTransformation()
+    if (!transformation) {
+      transformation = await Transformation.create({
+        name: this.name,
+        outputs: [],
+        inputs: [],
+        reusable: true
+      })
+
+      await super.saveRelation(transformation, '-[:OUTPUT]->')
+      await super.saveRelation(transformation, '-[:ALIAS_OF]->', template)
+    }
+
+    await Promise.all(inputs.map(input => (
+      super.saveRelation(transformation, '<-[:INPUT]-', input.dataset)
+    )))
+
+    return transformation
   }
 
   async metadata() {
