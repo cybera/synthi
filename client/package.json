@@ -60,7 +60,7 @@
     "prop-types": "^15.6.2",
     "ramda": "^0.25.0",
     "react": "^16.5.2",
-    "react-ace": "^6.2.0",
+    "react-ace": "^7.0.2",
     "react-apollo": "^2.3.2",
     "react-autosuggest": "^9.4.2",
     "react-chart-editor": "^0.30.0",
