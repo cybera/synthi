@@ -37,9 +37,9 @@ const MUIEditor = (props) => {
         name={`transformation-editor-${dataset.name}`}
         editorProps={{ $blockScrolling: true }}
         fontSize={14}
-        showPrintMargin
+        showPrintMargin={!readOnly}
         showGutter
-        highlightActiveLine
+        highlightActiveLine={!readOnly}
         width="100%"
         height="200px"
         value={code}
