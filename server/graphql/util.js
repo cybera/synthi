@@ -53,8 +53,14 @@ export const findTransformation = async (ref, orgRef) => findRef(ref, orgRef, 'T
 
 export const findTransformationInputs = async (inputRefs) => {
   return Promise.all(inputRefs.map(async (inputRef) => {
-    const { placeholder, dataset } = inputRef
+    const { alias, dataset } = inputRef
     const datasetObj = await findDataset(dataset)
-    return { placeholder, dataset: datasetObj }
+    return { alias, dataset: datasetObj }
   }))
 }
+
+export const debugTransformationInputObjs = inputObjs => (
+  inputObjs.map(inputObj => (
+    `${inputObj.alias}: ${inputObj.dataset.debugSummary()}`
+  )).join('\n')
+)

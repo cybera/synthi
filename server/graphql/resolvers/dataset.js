@@ -4,7 +4,12 @@ import { safeQuery } from '../../neo4j/connection'
 import { pubsub, withFilter } from '../pubsub'
 import Organization from '../../domain/models/organization'
 import { Dataset, ModelFactory } from '../../domain/models'
-import { findOrganization, findTransformation, findTransformationInputs } from '../util'
+import {
+  findOrganization,
+  findTransformation,
+  findTransformationInputs,
+  debugTransformationInputObjs
+} from '../util'
 import logger from '../../config/winston';
 
 // TODO: Move this to the column model and use redis to store
@@ -203,9 +208,11 @@ export default {
       } else if (!code && template && inputs) {
         const templateObj = await findTransformation(template)
         const inputObjs = await findTransformationInputs(inputs)
+
         logger.debug(`Transformation Ref: ${templateObj.name} (${templateObj.uuid})`)
-        logger.debug(`Inputs: {\n${inputObjs.map(inputObj => `${inputObj.placeholder}: ${inputObj.dataset.debugSummary()}`).join('\n')}\n}`)
-        return dataset.saveInputTransformationRef(templateObj, inputObjs, context.user)
+        logger.debug(`Inputs: {\n${debugTransformationInputObjs(inputObjs)}\n}`)
+
+        return dataset.saveInputTransformationRef(templateObj, inputObjs)
       }
 
       throw Error('Please provide either code or a transformation reference and inputs')
