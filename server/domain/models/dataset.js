@@ -256,9 +256,10 @@ class Dataset extends Base {
       await super.saveRelation(transformation, '-[:ALIAS_OF]->', template)
     }
 
-    await Promise.all(inputs.map(input => (
-      super.saveRelation(transformation, '<-[:INPUT]-', input.dataset)
-    )))
+    await Promise.all(inputs.map((input) => {
+      const { alias, dataset } = input
+      return super.saveRelation(transformation, '<-[r:INPUT]-', dataset, 'r', { alias })
+    }))
 
     return transformation
   }

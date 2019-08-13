@@ -146,14 +146,26 @@ class Base {
     await safeQuery(...query)
   }
 
-  async saveRelation(left, relation, right = this) {
-    const query = [`
+  // When specifying a relation where we want to attach properties to that relation,
+  // we need the relationName, from -[relationName:SOME_RELATION]->. Right now, that's
+  // all we need it for. In theory, we could parse out the relation string passed in
+  // and auto insert the reference, or we could make the user spell out the relation
+  // in a more explicit way. If we start to need this in more than a few places, we
+  // should rethink this solution.
+  async saveRelation(left, relation, right = this, relationName, relationProps) {
+    let query = `
       MATCH (right:${right.__label} { uuid: $right.uuid })
       MATCH (left:${left.__label} { uuid: $left.uuid })
       MERGE (left)${relation}(right)
-    `, { left, right }]
+    `
 
-    safeQuery(...query)
+    if (relationName && relationProps) {
+      query += `
+        SET ${relationName} += $relationProps
+      `
+    }
+
+    safeQuery(query, { left, right, relationProps })
   }
 
   // Can be overridden to specially prepare values for saving to the database

@@ -164,7 +164,7 @@ input DatasetRef {
 }
 
 input TransformationInputMapping {
-  placeholder: String!,
+  alias: String!,
   dataset: DatasetRef!
 }
 
