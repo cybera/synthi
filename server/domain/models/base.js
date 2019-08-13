@@ -146,12 +146,12 @@ class Base {
     await safeQuery(...query)
   }
 
-  async saveRelation(relation, domainObject) {
+  async saveRelation(left, relation, right = this) {
     const query = [`
-      MATCH (node:${this.__label} { uuid: $node.uuid })
-      MATCH (relatedNode:${domainObject.__label} { uuid: $relatedNode.uuid })
-      MERGE (node)${relation}(relatedNode)
-    `, { node: this, relatedNode: domainObject }]
+      MATCH (right:${right.__label} { uuid: $right.uuid })
+      MATCH (left:${left.__label} { uuid: $left.uuid })
+      MERGE (left)${relation}(right)
+    `, { left, right }]
 
     safeQuery(...query)
   }

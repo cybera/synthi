@@ -106,7 +106,7 @@ class Organization extends Base {
       code
     })
 
-    await super.saveRelation('-[:OWNER]->', transformation)
+    await super.saveRelation(transformation, '<-[:OWNER]-')
 
     return transformation
   }
