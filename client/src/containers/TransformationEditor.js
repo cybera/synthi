@@ -20,7 +20,13 @@ const styles = theme => ({
 })
 
 const MUIEditor = (props) => {
-  const { dataset, classes, code, onChange } = props
+  const {
+    dataset,
+    classes,
+    code,
+    onChange,
+    readOnly
+  } = props
 
   return (
     <Paper className={classes.root}>
@@ -29,11 +35,11 @@ const MUIEditor = (props) => {
         theme="xcode"
         onChange={onChange}
         name={`transformation-editor-${dataset.name}`}
-        editorProps={{$blockScrolling: true}}
+        editorProps={{ $blockScrolling: true }}
         fontSize={14}
-        showPrintMargin={true}
-        showGutter={true}
-        highlightActiveLine={true}
+        showPrintMargin
+        showGutter
+        highlightActiveLine
         width="100%"
         height="200px"
         value={code}
@@ -44,6 +50,7 @@ const MUIEditor = (props) => {
           showLineNumbers: true,
           tabSize: 2,
         }}
+        readOnly={readOnly}
       />
     </Paper>
   )

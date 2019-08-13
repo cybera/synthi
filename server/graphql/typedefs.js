@@ -116,6 +116,7 @@ type Transformation @authCanAccess {
   outputs: [Dataset]
   code: String
   error: String
+  virtual: Boolean
 }
 
 type Plot {

@@ -41,6 +41,7 @@ query($id: Int) {
       id
       code
       error
+      virtual
     }
   }
 }

@@ -249,7 +249,7 @@ class Dataset extends Base {
         name: this.name,
         outputs: [],
         inputs: [],
-        reusable: true
+        virtual: true
       })
 
       await super.saveRelation(transformation, '-[:OUTPUT]->')

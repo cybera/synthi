@@ -7,6 +7,9 @@ export default {
   Transformation: {
     code(transformation) {
       return transformation.code()
+    },
+    virtual(transformation) {
+      return transformation.virtual ? transformation.virtual : false
     }
   },
   Mutation: {

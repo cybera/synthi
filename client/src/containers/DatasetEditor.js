@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
 
 import ADIButton from '../components/ADIButton'
 import DatasetGenerator from '../components/DatasetGenerator'
@@ -39,10 +40,10 @@ class DatasetEditor extends React.Component {
 
   render() {
     const { dataset, classes, dataExists } = this.props
-    let codeExists = false
-    if (dataset && dataset.computed && dataset.inputTransformation) {
-      codeExists = dataset.inputTransformation != null
-    }
+
+    const { inputTransformation } = dataset
+    const codeExists = dataset && dataset.computed && inputTransformation
+    const virtualTransformation = inputTransformation && inputTransformation.virtual
     return (
       <div className={classes.root}>
         <ToggleVisibility visible={!dataset.computed}>
@@ -52,8 +53,14 @@ class DatasetEditor extends React.Component {
         </ToggleVisibility>
 
         <ToggleVisibility visible={dataset.computed}>
+          <ToggleVisibility visible={virtualTransformation}>
+            <Typography variant="h6">
+              Virtual Transformation (non-editable):
+            </Typography>
+          </ToggleVisibility>
           <TransformationEditor
             dataset={dataset}
+            readOnly={virtualTransformation}
             ref={this.transformationEditor}
           />
         </ToggleVisibility>
@@ -65,7 +72,7 @@ class DatasetEditor extends React.Component {
         </ToggleVisibility>
 
         <div className={classes.buttonsRight}>
-          <ToggleVisibility visible={dataset.computed}>
+          <ToggleVisibility visible={dataset.computed && !virtualTransformation}>
             <span className={classes.editorButton}>
               <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />
             </span>
