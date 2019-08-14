@@ -165,7 +165,7 @@ class Base {
       `
     }
 
-    safeQuery(query, { left, right, relationProps })
+    await safeQuery(query, { left, right, relationProps })
   }
 
   // Can be overridden to specially prepare values for saving to the database
