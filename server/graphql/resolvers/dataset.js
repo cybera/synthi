@@ -104,14 +104,24 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 
 export default {
   Query: {
-    async dataset(_, { id, name, searchString, org }, context) {
+    async dataset(_, {
+      id,
+      name,
+      searchString,
+      org
+    }, context) {
       let datasets = []
 
-      const organization = await findOrganization(org)
-
-      if (id != null) datasets.push(await ModelFactory.get(id))
-      else if (name != null) datasets.push(await Dataset.getByName(organization, name))
-      else datasets = await organization.datasets(searchString)
+      if (id != null) {
+        datasets.push(await ModelFactory.get(id))
+      } else if (org) {
+        const organization = await findOrganization(org, context.user)
+        if (name) {
+          datasets.push(await Dataset.getByName(organization, name))
+        } else {
+          datasets = await organization.datasets(searchString)
+        }
+      }
 
       return datasets
     },
@@ -196,7 +206,8 @@ export default {
       id,
       code,
       template,
-      inputs
+      inputs,
+      org
     }, context) {
       const dataset = await ModelFactory.get(id)
       if (!await dataset.canAccess(context.user)) {
@@ -206,8 +217,8 @@ export default {
       if (code && !template && !inputs) {
         return dataset.saveInputTransformation(code, context.user)
       } else if (!code && template && inputs) {
-        const templateObj = await findTransformation(template)
-        const inputObjs = await findTransformationInputs(inputs)
+        const templateObj = await findTransformation(template, org, context.user)
+        const inputObjs = await findTransformationInputs(inputs, org, context.user)
 
         logger.debug(`Transformation Ref: ${templateObj.name} (${templateObj.uuid})`)
         logger.debug(`Inputs: {\n${debugTransformationInputObjs(inputObjs)}\n}`)

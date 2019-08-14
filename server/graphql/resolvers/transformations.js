@@ -19,10 +19,7 @@ export default {
       code,
       owner
     }, context) {
-      const org = await findOrganization(owner)
-      if (!await org.canAccess(context.user)) {
-        throw new AuthenticationError('You cannot access this organization')
-      }
+      const org = await findOrganization(owner, context.user)
 
       if (!await org.canCreateTransformations(context.user)) {
         throw new AuthenticationError('You cannot create transformations for this organization')
