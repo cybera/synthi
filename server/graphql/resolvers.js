@@ -18,7 +18,7 @@ const mainResolvers = {
   Mutation: {
     regenerateAPIKey: async (_, params, context) => {
       const user = await User.get(context.user.id)
-      user.regenerateAPIKey()
+      await user.regenerateAPIKey()
       return user
     }
   },

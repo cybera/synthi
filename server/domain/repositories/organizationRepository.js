@@ -48,11 +48,11 @@ export default class OrganizationRepository {
     return org
   }
 
-  static delete(id) {
+  static async delete(id) {
     const query = [`MATCH (o:Organization)
       WHERE ID(o) = toInteger($id)
       DETACH DELETE o`, { id }]
 
-    safeQuery(...query)
+    await safeQuery(...query)
   }
 }

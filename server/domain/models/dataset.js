@@ -117,7 +117,7 @@ class Dataset extends Base {
       WHERE ID(d) = toInteger($dataset.id)
       OPTIONAL MATCH (t:Transformation)-[:OUTPUT]->(d)
       DETACH DELETE d, t`, { dataset: this }]
-    safeQuery(...query)
+    await safeQuery(...query)
 
     try {
       Storage.remove('datasets', this.path)

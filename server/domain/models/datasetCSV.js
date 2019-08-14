@@ -52,9 +52,9 @@ class DatasetCSV extends Dataset {
       WHERE ID(d) = toInteger($dataset.id)
       OPTIONAL MATCH (d)<--(c:Column)
       DETACH DELETE c`, { dataset: this }]
-    safeQuery(...query)
+    await safeQuery(...query)
 
-    super.delete()
+    await super.delete()
   }
 
   async handleQueueUpdate(msg) {

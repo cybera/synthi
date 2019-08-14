@@ -180,7 +180,7 @@ class Base {
     const query = [`
       MATCH (node:${this.__label} { uuid: $node.uuid })
       DETACH DELETE node`, { node: this }]
-    safeQuery(...query)
+    await safeQuery(...query)
   }
 }
 
