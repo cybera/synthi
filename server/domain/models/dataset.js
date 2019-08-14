@@ -201,7 +201,8 @@ class Dataset extends Base {
         t.name = $dataset.name,
         t.inputs = [],
         t.outputs = [],
-        t.uuid = randomUUID()
+        t.uuid = randomUUID(),
+        d.computed = true
       RETURN t
     `, { dataset: this }]
 
@@ -254,6 +255,10 @@ class Dataset extends Base {
 
       await super.saveRelation(transformation, '-[:OUTPUT]->')
       await super.saveRelation(transformation, '-[:ALIAS_OF]->', template)
+
+      this.computed = true
+
+      await this.save()
     }
 
     await Promise.all(inputs.map((input) => {
