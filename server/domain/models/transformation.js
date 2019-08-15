@@ -1,4 +1,5 @@
 import shortid from 'shortid'
+import waitFor from 'p-wait-for'
 
 import { fullScriptPath } from '../../lib/util'
 import { memberOfOwnerOrg } from '../util'
@@ -43,22 +44,22 @@ class Transformation extends Base {
   }
 
   async storeCode(code) {
-      if (!this.script) {
-        const id = shortid.generate()
-        const uniqueFilename = `${id}-${this.name}.py`.replace(/ /g, '_')
+    if (!this.script) {
+      const id = shortid.generate()
+      const uniqueFilename = `${id}-${this.name}.py`.replace(/ /g, '_')
 
-        this.script = uniqueFilename
-        await this.save()
-      }
+      this.script = uniqueFilename
+      await this.save()
+    }
 
-      const writeStream = Storage.createWriteStream('scripts', this.script)
-      writeStream.write(code, 'utf8')
-      writeStream.end()
+    const writeStream = Storage.createWriteStream('scripts', this.script)
+    writeStream.write(code, 'utf8')
+    writeStream.end()
     return new Promise((resolve, reject) => {
       writeStream.on('end', () => resolve({ path: this.script }))
       writeStream.on('error', reject)
     })
-    }
+  }
 
   async template() {
     return this.relatedOne('-[:ALIAS_OF]->', Transformation, 'template')
@@ -84,6 +85,16 @@ class Transformation extends Base {
     }
 
     return memberOfOwnerOrg(user, this)
+  }
+
+  async waitForReady() {
+    try {
+      await waitFor(async () => (await this.refresh()).state === 'ready', { interval: 1000, timeout: 30000 })
+    } catch (e) {
+      return false
+    }
+
+    return true
   }
 }
 

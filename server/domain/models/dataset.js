@@ -213,6 +213,7 @@ class Dataset extends Base {
         t.inputs = [],
         t.outputs = [],
         t.uuid = randomUUID(),
+        t.state = 'registering',
         d.computed = true
       RETURN t
     `, { dataset: this }]
@@ -261,7 +262,10 @@ class Dataset extends Base {
         name: this.name,
         outputs: [],
         inputs: [],
-        virtual: true
+        virtual: true,
+        // We don't have to put these through a registration operation to figure out
+        // inputs, so they're ready right away.
+        state: 'ready'
       })
 
       await super.saveRelation(transformation, '-[:OUTPUT]->')
@@ -334,13 +338,12 @@ class Dataset extends Base {
     await safeQuery(inputQuery, { id: this.id, inputs })
     await safeQuery(outputQuery, { id: this.id, type: this.type, outputs })
 
-    const clearErrorsQuery = `
-      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
-      WHERE ID(dataset) = toInteger($id)
+    const transformationReadyQuery = `
+      MATCH (:Dataset { uuid: $dataset.uuid })<-[:OUTPUT]-(t:Transformation)
+      SET t.state = 'ready'
       REMOVE t.error
     `
-
-    await safeQuery(clearErrorsQuery, { id: this.id })
+    await safeQuery(transformationReadyQuery, { dataset: this })
   }
 
   async handleColumnUpdate(columnList) {
@@ -410,21 +413,24 @@ class Dataset extends Base {
       full nodes as much as possible, and then convert them into their respective
       model objects before going further.
     */
-    return results.map(r => ({
+    return Promise.all(results.map(r => ({
       transformation: Base.ModelFactory.derive(r.transformation),
       output: Base.ModelFactory.derive(r.output),
       owner: Base.ModelFactory.derive(r.owner),
       template: r.template ? Base.ModelFactory.derive(r.template) : null
-    })).map(({
+    })).map(async ({
       transformation,
       output,
       owner,
       template
-    }) => ({
+    }) => {
+      await transformation.waitForReady()
+      return {
       id: transformation.id,
       script: template ? template.script : transformation.script,
       output_name: output.name,
       owner: owner.id
+      }
     }))
   }
 
