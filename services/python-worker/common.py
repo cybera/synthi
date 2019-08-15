@@ -31,3 +31,16 @@ def load_transform(script_path, dataset_input, dataset_output):
 def parse_params():
   msg = sys.argv[1]
   return json.loads(msg)
+
+def get_full_name(name, owner_name):
+  names = name.split(":")
+
+  if len(names) > 2:
+    raise Exception(f"Cannot parse dataset name {name}")
+  elif len(names) == 2:
+    org, dataset_name = names
+  else:
+    org = owner_name
+    dataset_name = names[0]
+
+  return f'{org}:{dataset_name}'

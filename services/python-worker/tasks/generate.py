@@ -11,7 +11,7 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
 from common import status_channel, queue_conn, parse_params
-from common import load_transform, parse_params
+from common import load_transform, parse_params, get_full_name
 
 import storage
 
@@ -84,19 +84,6 @@ def store_csv(df, path, sample_path):
   sample_size = min(df.shape[0], SAMPLE_SIZE)
   storage.write_csv(df, path)
   storage.write_csv(df.sample(sample_size), sample_path)
-
-def get_full_name(name, owner_name):
-    names = name.split(":")
-
-    if len(names) > 2:
-      raise Exception(f"Cannot parse dataset name {name}")
-    elif len(names) == 2:
-      org, dataset_name = names
-    else:
-      org = owner_name
-      dataset_name = names[0]
-
-    return f'{org}:{dataset_name}'
 
 if __name__ == "__main__":
   params = parse_params()
