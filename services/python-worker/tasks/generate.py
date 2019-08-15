@@ -21,11 +21,14 @@ def generate_dataset(params):
   generate_id = params["id"]
   owner_name = params["ownerName"]
 
-  def dataset_input(name):
+  def dataset_input(name, raw=False):
     full_name = get_full_name(name, owner_name)
-
     if full_name in params['storagePaths']:
-      return storage.read_csv(params['storagePaths'][full_name])
+      path = params['storagePaths'][full_name]
+      if raw:
+        return storage.read_raw(path)
+      else:
+        return storage.read_csv(path)
     
     # If we don't have the dataset in our list of inputs, not much we can do
     raise Exception(f"Dataset {full_name} not found")

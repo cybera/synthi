@@ -40,7 +40,7 @@ def transformation_error(message):
   status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
   raise Exception(message)
 
-def dataset_input(name):
+def dataset_input(name, raw=False):
   names = name.split(':')
 
   if len(names) > 2:
