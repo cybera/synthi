@@ -28,7 +28,7 @@ body = {
   "message": ""
 }
 
-print(f"Download ready for {id}")
+print(f"Download ready for {params['id']}")
 status_channel.basic_publish(exchange='download-status', routing_key='', body=json.dumps(body))
 
 queue_conn.close()
