@@ -182,6 +182,12 @@ class Base {
       DETACH DELETE node`, { node: this }]
     await safeQuery(...query)
   }
+
+  async refresh() {
+    const result = await safeQuery('MATCH (node { uuid: $node.uuid }) RETURN node', { node: this })
+    Object.assign(this, result[0].node.properties)
+    return this
+  }
 }
 
 // Set this here to avoid circular dependency issues
