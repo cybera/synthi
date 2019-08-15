@@ -43,7 +43,6 @@ class Transformation extends Base {
   }
 
   async storeCode(code) {
-    try {
       if (!this.script) {
         const id = shortid.generate()
         const uniqueFilename = `${id}-${this.name}.py`.replace(/ /g, '_')
@@ -55,10 +54,11 @@ class Transformation extends Base {
       const writeStream = Storage.createWriteStream('scripts', this.script)
       writeStream.write(code, 'utf8')
       writeStream.end()
-    } catch (err) {
-      logger.error(err)
+    return new Promise((resolve, reject) => {
+      writeStream.on('end', () => resolve({ path: this.script }))
+      writeStream.on('error', reject)
+    })
     }
-  }
 
   async template() {
     return this.relatedOne('-[:ALIAS_OF]->', Transformation, 'template')
