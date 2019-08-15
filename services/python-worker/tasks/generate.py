@@ -41,18 +41,20 @@ def generate_dataset(params):
 
   dataset_info = {}
 
-  def write_output(df, owner, output_name):
+  def write_output(output, owner, output_name):
     full_name = get_full_name(output_name, owner_name)
-
-    # TODO: Since we can now figure out the exact path from the transformations query,
-    # it's not really necessary to figure that out again via the more brittle name lookup.
-    columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
-    dataset_info[full_name] = columns
-
     path = params["storagePaths"][full_name]
 
-    print(f"Updating calculated '{output_name}' dataset: {path}")
-    store_csv(df, path, params["samplePaths"][full_name])
+    if type(output) is pd.DataFrame:
+      # TODO: Since we can now figure out the exact path from the transformations query,
+      # it's not really necessary to figure that out again via the more brittle name lookup.
+      columns = [dict(name=name,order=i+1) for i, name in enumerate(output.columns)]
+      dataset_info[full_name] = columns
+
+      print(f"Updating calculated '{output_name}' dataset: {path}")
+      store_csv(output, path, params["samplePaths"][full_name])
+    else:
+      storage.write_raw(output, path)
 
   body = {
     "type": "dataset-updated",
