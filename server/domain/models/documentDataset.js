@@ -8,11 +8,12 @@ class DocumentDataset extends Dataset {
   constructor(node) {
     super(node)
 
-    if (this.uuid && this.originalFilename) {
-      const extension = pathlib.extname(this.originalFilename)
+    if (this.uuid) {
+      const extension = pathlib.extname(this.originalFilename || '')
 
       this.paths = {
         original: `${this.uuid}/original${extension}`,
+        imported: `${this.uuid}/original${extension}`,
       }
     }
   }
@@ -32,7 +33,7 @@ class DocumentDataset extends Dataset {
   /* eslint-enable class-methods-use-this, no-unused-vars */
 
   downloadName() {
-    const extension = pathlib.extname(this.originalFilename)
+    const extension = pathlib.extname(this.originalFilename || '')
     return `${this.name}${extension}`
   }
 
