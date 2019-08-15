@@ -1,4 +1,5 @@
 import shortid from 'shortid'
+import waitFor from 'p-wait-for'
 
 import Base from './base'
 import { datasetStorageMap } from './transformation'
@@ -55,6 +56,16 @@ class Dataset extends Base {
   readStream() {
     logger.info(`Reading ${this.paths.imported}`)
     return Storage.createReadStream('datasets', this.paths.imported)
+  }
+
+  async readyForDownload() {
+    try {
+      await waitFor(async () => Storage.exists('datasets', this.paths.imported), { interval: 2000, timeout: 30000 })
+    } catch (e) {
+      return false
+    }
+
+    return true
   }
 
   async canAccess(user) {
