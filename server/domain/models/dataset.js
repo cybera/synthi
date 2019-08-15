@@ -137,7 +137,7 @@ class Dataset extends Base {
       logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
-      this.import()
+      await this.import()
     } catch (e) {
       // TODO: What should we do here?
       logger.error(`Error in upload resolver: ${e.message}`)
@@ -145,7 +145,7 @@ class Dataset extends Base {
   }
 
   async import(removeExisting = false, options = {}) {
-    DefaultQueue.sendToWorker({
+    await DefaultQueue.sendToWorker({
       task: this.importTask,
       uuid: this.uuid,
       paths: this.paths,
@@ -161,7 +161,7 @@ class Dataset extends Base {
     const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported')
     const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample')
 
-    DefaultQueue.sendToWorker({
+    await DefaultQueue.sendToWorker({
       task: 'generate',
       id: this.id,
       uuid: this.uuid,
@@ -226,7 +226,7 @@ class Dataset extends Base {
 
       const owner = await this.owner()
 
-      DefaultQueue.sendToWorker({
+      await DefaultQueue.sendToWorker({
         task: 'register_transformation',
         id: transformation.id,
         ownerName: owner.name,

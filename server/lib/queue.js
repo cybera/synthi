@@ -73,7 +73,7 @@ class AMQP {
   }
 
   async sendToWorker(msg) {
-    this.worker.sendToQueue('python-worker', msg)
+    await this.worker.sendToQueue('python-worker', msg)
   }
 
   async prepareDownload(dataset, callback) {
@@ -83,7 +83,7 @@ class AMQP {
     const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported')
     const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample')
 
-    this.sendToWorker({
+    await this.sendToWorker({
       task: 'prepare_download',
       id: dataset.id,
       ownerName: owner.name,

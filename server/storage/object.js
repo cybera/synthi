@@ -30,7 +30,7 @@ const remove = (area, relativePath) => connection().removeFile(
   (err) => logger.error(err)
 )
 
-const exists = (area, relativePath) => {
+const exists = async (area, relativePath) => {
   return new Promise((resolve, reject) => {
     connection().getFile(
       config.get('storage.object.containers')[area],
