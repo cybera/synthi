@@ -1,8 +1,10 @@
 import shortid from 'shortid'
 import waitFor from 'p-wait-for'
 
+import { AuthenticationError } from 'apollo-server-express'
+
 import { fullScriptPath } from '../../lib/util'
-import { memberOfOwnerOrg } from '../util'
+import { memberOfOwnerOrg, canTransform } from '../util'
 import Storage from '../../storage'
 import Base from './base'
 import logger from '../../config/winston'
@@ -108,7 +110,7 @@ Base.ModelFactory.register(Transformation)
   of fully qualified dataset names to the storage location
   that represents their input and output datasets.
 */
-export const datasetStorageMap = async (transformationIds, pathType) => {
+export const datasetStorageMap = async (transformationIds, pathType, user) => {
   const Organization = Base.ModelFactory.getClass('Organization')
 
   const query = `
@@ -122,6 +124,17 @@ export const datasetStorageMap = async (transformationIds, pathType) => {
     org: new Organization(org),
     alias: ioEdge.type === 'INPUT' ? ioEdge.properties.alias : undefined
   }))
+
+  // This is probably going to be overly restrictive once we start allowing organizations to
+  // share an output dataset across organizational boundaries, to which other organizations
+  // can apply transformations. In that case, using similar logic as in the canTransform
+  // function, and also temporarily storing the actual transformations in the ioNodes mapping
+  // above, we could instead remove any transformations with datasets falling in the restricted
+  // space. However, since we're only allowing people to do things within organizations they
+  // are a part of, we'll take this approach for now.
+  if (!(await canTransform(user, ioNodes.map(n => n.dataset.uuid)))) {
+    throw new AuthenticationError('Cannot run a transformation without access to all the datasets involved.')
+  }
 
   const mapping = {}
   ioNodes.forEach(({ dataset, org, alias }) => {

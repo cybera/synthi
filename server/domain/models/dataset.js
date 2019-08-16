@@ -166,11 +166,11 @@ class Dataset extends Base {
     })
   }
 
-  async runTransformation() {
+  async runTransformation(user) {
     const transformations = await this.parentTransformations()
     const owner = await this.owner()
-    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported')
-    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample')
+    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported', user)
+    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample', user)
 
     await DefaultQueue.sendToWorker({
       task: 'generate',
@@ -373,17 +373,6 @@ class Dataset extends Base {
   }
 
   async parentTransformations() {
-    /*
-      TODO: There's the following line in this query:
-
-      WHERE t IN nodes(full_path) AND NOT EXISTS(t.error)
-
-      I suspect we shouldn't have the 'NOT EXISTS(t.error)' part, and instead
-      we should just be checking that property later on. Otherwise, when there
-      is an error, we're pretending the transformation doesn't even exist in
-      the chain, which probably has some unintended results when reporting and
-      recovering from errors in transformation code.
-    */
     const query = `
       MATCH full_path = (output:Dataset)<-[*]-(last)
       WHERE ID(output) = toInteger($output_id) AND
@@ -391,7 +380,7 @@ class Dataset extends Base {
       WITH full_path, output
       MATCH (t:Transformation)
       MATCH individual_path = (output)<-[*]-(t)
-      WHERE t IN nodes(full_path) AND NOT EXISTS(t.error)
+      WHERE t IN nodes(full_path)
       WITH DISTINCT(individual_path), t
       MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
       OPTIONAL MATCH (t)-[:ALIAS_OF]->(template:Transformation)
@@ -426,10 +415,10 @@ class Dataset extends Base {
     }) => {
       await transformation.waitForReady()
       return {
-      id: transformation.id,
-      script: template ? template.script : transformation.script,
-      output_name: output.name,
-      owner: owner.id
+        id: transformation.id,
+        script: template ? template.script : transformation.script,
+        output_name: output.name,
+        owner: owner.id
       }
     }))
   }

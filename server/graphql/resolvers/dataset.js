@@ -194,7 +194,7 @@ export default {
       }
       dataset.generating = true
       await dataset.save()
-      dataset.runTransformation()
+      dataset.runTransformation(context.user)
       return dataset
     },
     toggleColumnVisibility(_, { id }, context) {
