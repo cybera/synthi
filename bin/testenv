@@ -21,4 +21,5 @@ if [[ $action == 'start' ]]; then
   docker-compose exec python-worker /usr/src/app/create_user.py test password test-token
 elif [[ $action == 'stop' ]]; then
   docker-compose down -v
+  docker-compose rm -v
 fi
