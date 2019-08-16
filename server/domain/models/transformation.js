@@ -117,14 +117,14 @@ export const datasetStorageMap = async (transformationIds, pathType) => {
     RETURN dataset, org, ioEdge
   `
   const results = await safeQuery(query, { transformationIds })
-  const inputs = results.map(({ dataset, org, ioEdge }) => ({
+  const ioNodes = results.map(({ dataset, org, ioEdge }) => ({
     dataset: Base.ModelFactory.derive(dataset),
     org: new Organization(org),
     alias: ioEdge.type === 'INPUT' ? ioEdge.properties.alias : undefined
   }))
 
   const mapping = {}
-  inputs.forEach(({ dataset, org, alias }) => {
+  ioNodes.forEach(({ dataset, org, alias }) => {
     mapping[`${org.name}:${alias || dataset.name}`] = dataset.paths[pathType]
   })
 
