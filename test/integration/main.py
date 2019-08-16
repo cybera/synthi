@@ -31,6 +31,30 @@ dataset.upload('txt_document', 'data/test.txt', type='document')
 txt_document = dataset.get('txt_document', raw=True)
 print(txt_document)
 
+print("Testing creation of a reusable transformation...")
+dataset.upload('iris-testing-1', 'data/iris.csv')
+dataset.upload('iris-testing-2', 'data/iris.csv')
+dataset.reusable_transformation('IrisMeans', 'data/iris_means.py', inputs=['iris'])
+dataset.transformation(
+    'iris-testing-means-1',
+    template = 'IrisMeans',
+    inputs = {
+        'iris': 'iris-testing-1'
+    }
+)
+df = dataset.get('iris-testing-means-1')
+print(df.head())
+
+dataset.transformation(
+    'iris-testing-means-2',
+    template = 'IrisMeans',
+    inputs = {
+        'iris': 'iris-testing-2'
+    }
+)
+df = dataset.get('iris-testing-means-2')
+print(df.head())
+
 print("Clearing test environment...")
 
 for d in dataset.list():
