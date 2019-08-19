@@ -8,6 +8,7 @@ module.exports = {
     'semi': 'off',
     'no-underscore-dangle': 'off',
     'react/jsx-filename-extension': [1, { 'extensions': ['.js', '.jsx'] }],
-    'no-cond-assign': [2, 'except-parens']
+    'no-cond-assign': [2, 'except-parens'],
+    'no-else-return': ['error', { 'allowElseIf': true }]
   }
 }

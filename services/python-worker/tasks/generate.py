@@ -11,7 +11,7 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
 from common import status_channel, queue_conn, parse_params
-from common import load_transform, parse_params
+from common import load_transform, parse_params, get_full_name
 
 import storage
 
@@ -21,11 +21,14 @@ def generate_dataset(params):
   generate_id = params["id"]
   owner_name = params["ownerName"]
 
-  def dataset_input(name):
+  def dataset_input(name, raw=False):
     full_name = get_full_name(name, owner_name)
-
     if full_name in params['storagePaths']:
-      return storage.read_csv(params['storagePaths'][full_name])
+      path = params['storagePaths'][full_name]
+      if raw:
+        return storage.read_raw(path)
+      else:
+        return storage.read_csv(path)
     
     # If we don't have the dataset in our list of inputs, not much we can do
     raise Exception(f"Dataset {full_name} not found")
@@ -38,18 +41,20 @@ def generate_dataset(params):
 
   dataset_info = {}
 
-  def write_output(df, owner, output_name):
+  def write_output(output, owner, output_name):
     full_name = get_full_name(output_name, owner_name)
-
-    # TODO: Since we can now figure out the exact path from the transformations query,
-    # it's not really necessary to figure that out again via the more brittle name lookup.
-    columns = [dict(name=name,order=i+1) for i, name in enumerate(df.columns)]
-    dataset_info[full_name] = columns
-
     path = params["storagePaths"][full_name]
 
-    print(f"Updating calculated '{output_name}' dataset: {path}")
-    store_csv(df, path, params["samplePaths"][full_name])
+    if type(output) is pd.DataFrame:
+      # TODO: Since we can now figure out the exact path from the transformations query,
+      # it's not really necessary to figure that out again via the more brittle name lookup.
+      columns = [dict(name=name,order=i+1) for i, name in enumerate(output.columns)]
+      dataset_info[full_name] = columns
+
+      print(f"Updating calculated '{output_name}' dataset: {path}")
+      store_csv(output, path, params["samplePaths"][full_name])
+    else:
+      storage.write_raw(output, path)
 
   body = {
     "type": "dataset-updated",
@@ -84,19 +89,6 @@ def store_csv(df, path, sample_path):
   sample_size = min(df.shape[0], SAMPLE_SIZE)
   storage.write_csv(df, path)
   storage.write_csv(df.sample(sample_size), sample_path)
-
-def get_full_name(name, owner_name):
-    names = name.split(":")
-
-    if len(names) > 2:
-      raise Exception(f"Cannot parse dataset name {name}")
-    elif len(names) == 2:
-      org, dataset_name = names
-    else:
-      org = owner_name
-      dataset_name = names[0]
-
-    return f'{org}:{dataset_name}'
 
 if __name__ == "__main__":
   params = parse_params()

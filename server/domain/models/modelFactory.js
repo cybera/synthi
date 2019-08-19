@@ -73,3 +73,20 @@ export async function get(id) {
   `
   return this.getByUniqueMatch(query, { id: safeId })
 }
+
+export async function getByUuid(uuid) {
+  const query = `
+    MATCH (node { uuid: $uuid })
+    RETURN node
+  `
+  return this.getByUniqueMatch(query, { uuid })
+}
+
+export async function getByName(name, label, ownerUUID) {
+  // TODO: Throw error if the label provided is not one where we guarantee unique names per org
+  const query = `
+    MATCH (node:${label} { name: $name })<-[:OWNER]-(:Organization { uuid: $ownerUUID })
+    RETURN node
+  `
+  return this.getByUniqueMatch(query, { name, ownerUUID })
+}

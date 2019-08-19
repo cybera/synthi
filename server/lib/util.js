@@ -32,7 +32,7 @@ export const waitForFile = relPath => new Promise((resolve, reject) => {
   }, err => (err ? reject(err) : resolve()))
 })
 
-export const storeFS = ({ stream, filename }, unique = false) => {
+export const storeFS = async ({ stream, filename }, unique = false) => {
   const id = shortid.generate()
   const uniqueFilename = unique ? `${id}-${filename}` : filename
   logger.info(`Storing ${filename}`)

@@ -4,6 +4,13 @@ import { safeQuery } from '../../neo4j/connection'
 import { pubsub, withFilter } from '../pubsub'
 import Organization from '../../domain/models/organization'
 import { Dataset, ModelFactory } from '../../domain/models'
+import {
+  findOrganization,
+  findTransformation,
+  findTransformationInputs,
+  debugTransformationInputObjs
+} from '../util'
+import logger from '../../config/winston';
 
 // TODO: Move this to the column model and use redis to store
 const visibleColumnCache = {}
@@ -95,36 +102,26 @@ const processDatasetUpdate = async (datasetProps, context) => {
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
-const findOrganization = async (org) => {
-  if (!org) return null
-
-  const { id, uuid, name } = org
-
-  if (typeof uuid !== 'undefined') {
-    return Organization.getByUuid(uuid)
-  }
-
-  if (typeof id !== 'undefined') {
-    return Organization.get(org.id)
-  }
-
-  if (typeof name !== 'undefined') {
-    return Organization.getByName(org.name)
-  }
-
-  return null
-}
-
 export default {
   Query: {
-    async dataset(_, { id, name, searchString, org }, context) {
+    async dataset(_, {
+      id,
+      name,
+      searchString,
+      org
+    }, context) {
       let datasets = []
 
-      const organization = await findOrganization(org)
-
-      if (id != null) datasets.push(await ModelFactory.get(id))
-      else if (name != null) datasets.push(await Dataset.getByName(organization, name))
-      else datasets = await organization.datasets(searchString)
+      if (id != null) {
+        datasets.push(await ModelFactory.get(id))
+      } else if (org) {
+        const organization = await findOrganization(org, context.user)
+        if (name) {
+          datasets.push(await Dataset.getByName(organization, name))
+        } else {
+          datasets = await organization.datasets(searchString)
+        }
+      }
 
       return datasets
     },
@@ -197,7 +194,7 @@ export default {
       }
       dataset.generating = true
       await dataset.save()
-      dataset.runTransformation()
+      dataset.runTransformation(context.user)
       return dataset
     },
     toggleColumnVisibility(_, { id }, context) {
@@ -205,12 +202,31 @@ export default {
       visibleColumnCache[context.user.uuid][id].visible = !isVisible
       return visibleColumnCache[context.user.uuid][id].visible
     },
-    async saveInputTransformation(_, { id, code }, context) {
+    async saveInputTransformation(_, {
+      id,
+      code,
+      template,
+      inputs,
+      org
+    }, context) {
       const dataset = await ModelFactory.get(id)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
-      return dataset.saveInputTransformation(code, context.user)
+
+      if (code && !template && !inputs) {
+        return dataset.saveInputTransformation(code, context.user)
+      } else if (!code && template && inputs) {
+        const templateObj = await findTransformation(template, org, context.user)
+        const inputObjs = await findTransformationInputs(inputs, org, context.user)
+
+        logger.debug(`Transformation Ref: ${templateObj.name} (${templateObj.uuid})`)
+        logger.debug(`Inputs: {\n${debugTransformationInputObjs(inputObjs)}\n}`)
+
+        return dataset.saveInputTransformationRef(templateObj, inputObjs)
+      }
+
+      throw Error('Please provide either code or a transformation reference and inputs')
     }
   },
   Subscription: {

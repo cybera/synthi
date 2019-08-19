@@ -1,4 +1,5 @@
 import shortid from 'shortid'
+import waitFor from 'p-wait-for'
 
 import Base from './base'
 import { datasetStorageMap } from './transformation'
@@ -8,6 +9,7 @@ import { fullDatasetPath, storeFS } from '../../lib/util'
 import DefaultQueue from '../../lib/queue'
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
+import { memberOfOwnerOrg } from '../util'
 
 class Dataset extends Base {
   static async getByName(organization, name) {
@@ -56,11 +58,18 @@ class Dataset extends Base {
     return Storage.createReadStream('datasets', this.paths.imported)
   }
 
+  async readyForDownload() {
+    try {
+      await waitFor(async () => Storage.exists('datasets', this.paths.imported), { interval: 2000, timeout: 30000 })
+    } catch (e) {
+      return false
+    }
+
+    return true
+  }
+
   async canAccess(user) {
-    const owner = await this.owner()
-    const orgs = await user.orgs()
-    const match = orgs.find(org => org.uuid === owner.uuid)
-    return typeof match !== 'undefined'
+    return memberOfOwnerOrg(user, this)
   }
 
   async save() {
@@ -119,7 +128,7 @@ class Dataset extends Base {
       WHERE ID(d) = toInteger($dataset.id)
       OPTIONAL MATCH (t:Transformation)-[:OUTPUT]->(d)
       DETACH DELETE d, t`, { dataset: this }]
-    safeQuery(...query)
+    await safeQuery(...query)
 
     try {
       Storage.remove('datasets', this.path)
@@ -139,7 +148,7 @@ class Dataset extends Base {
       logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
-      this.import()
+      await this.import()
     } catch (e) {
       // TODO: What should we do here?
       logger.error(`Error in upload resolver: ${e.message}`)
@@ -147,7 +156,7 @@ class Dataset extends Base {
   }
 
   async import(removeExisting = false, options = {}) {
-    DefaultQueue.sendToWorker({
+    await DefaultQueue.sendToWorker({
       task: this.importTask,
       uuid: this.uuid,
       paths: this.paths,
@@ -157,13 +166,13 @@ class Dataset extends Base {
     })
   }
 
-  async runTransformation() {
+  async runTransformation(user) {
     const transformations = await this.parentTransformations()
     const owner = await this.owner()
-    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported')
-    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample')
+    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported', user)
+    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample', user)
 
-    DefaultQueue.sendToWorker({
+    await DefaultQueue.sendToWorker({
       task: 'generate',
       id: this.id,
       uuid: this.uuid,
@@ -202,7 +211,10 @@ class Dataset extends Base {
       ON CREATE SET
         t.name = $dataset.name,
         t.inputs = [],
-        t.outputs = []
+        t.outputs = [],
+        t.uuid = randomUUID(),
+        t.state = 'registering',
+        d.computed = true
       RETURN t
     `, { dataset: this }]
 
@@ -212,15 +224,7 @@ class Dataset extends Base {
       const transformation = new Transformation(results[0].t)
       logger.info('transformation:%o\n', transformation)
 
-      transformation.storeCode(code)
-
-      const saveQuery = [`
-        MATCH (t:Transformation)
-        WHERE ID(t) = toInteger($transformation.id)
-        SET t.script = $transformation.script
-      `, { transformation }]
-
-      await safeQuery(...saveQuery)
+      await transformation.storeCode(code)
 
       if (!this.path) {
         this.path = `${shortid.generate()}-${this.name}.${this.type}`.replace(/ /g, '_')
@@ -234,7 +238,7 @@ class Dataset extends Base {
 
       const owner = await this.owner()
 
-      DefaultQueue.sendToWorker({
+      await DefaultQueue.sendToWorker({
         task: 'register_transformation',
         id: transformation.id,
         ownerName: owner.name,
@@ -248,6 +252,36 @@ class Dataset extends Base {
 
     logger.error("Couldn't save transformation")
     return null
+  }
+
+  async saveInputTransformationRef(template, inputs) {
+    const Transformation = Base.ModelFactory.getClass('Transformation')
+    let transformation = await this.inputTransformation()
+    if (!transformation) {
+      transformation = await Transformation.create({
+        name: this.name,
+        outputs: [],
+        inputs: [],
+        virtual: true,
+        // We don't have to put these through a registration operation to figure out
+        // inputs, so they're ready right away.
+        state: 'ready'
+      })
+
+      await super.saveRelation(transformation, '-[:OUTPUT]->')
+      await super.saveRelation(transformation, '-[:ALIAS_OF]->', template)
+
+      this.computed = true
+
+      await this.save()
+    }
+
+    await Promise.all(inputs.map((input) => {
+      const { alias, dataset } = input
+      return super.saveRelation(transformation, '<-[r:INPUT]-', dataset, 'r', { alias })
+    }))
+
+    return transformation
   }
 
   async metadata() {
@@ -304,13 +338,12 @@ class Dataset extends Base {
     await safeQuery(inputQuery, { id: this.id, inputs })
     await safeQuery(outputQuery, { id: this.id, type: this.type, outputs })
 
-    const clearErrorsQuery = `
-      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
-      WHERE ID(dataset) = toInteger($id)
+    const transformationReadyQuery = `
+      MATCH (:Dataset { uuid: $dataset.uuid })<-[:OUTPUT]-(t:Transformation)
+      SET t.state = 'ready'
       REMOVE t.error
     `
-
-    await safeQuery(clearErrorsQuery, { id: this.id })
+    await safeQuery(transformationReadyQuery, { dataset: this })
   }
 
   async handleColumnUpdate(columnList) {
@@ -340,32 +373,53 @@ class Dataset extends Base {
   }
 
   async parentTransformations() {
-    const query = `MATCH full_path = (output:Dataset)<-[*]-(last)
+    const query = `
+      MATCH full_path = (output:Dataset)<-[*]-(last)
       WHERE ID(output) = toInteger($output_id) AND
             ((last:Dataset AND last.computed = false) OR last:Transformation)
       WITH full_path, output
       MATCH (t:Transformation)
       MATCH individual_path = (output)<-[*]-(t)
-      WHERE t IN nodes(full_path) AND NOT EXISTS(t.error)
+      WHERE t IN nodes(full_path)
       WITH DISTINCT(individual_path), t
       MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
+      OPTIONAL MATCH (t)-[:ALIAS_OF]->(template:Transformation)
       RETURN
-        t.name AS name,
-        ID(t) AS id,
-        t.script AS script,
+        t AS transformation,
+        template,
         length(individual_path) AS distance,
-        ID(individual_output) AS output_id,
-        individual_output.name AS output_name,
-        individual_output.path AS output_path,
-        ID(o) AS owner
-      ORDER BY distance DESC`
+        individual_output AS output,
+        o AS owner
+      ORDER BY distance DESC
+    `
 
     const results = await safeQuery(query, { output_id: this.id })
-    return results.map(t => ({
-      id: t.id,
-      script: t.script,
-      output_name: t.output_name,
-      owner: t.owner
+
+    /*
+      This seems like extra complication at first, but I'd like us to consider it
+      a best practice going forward when retrieving results from the database.
+      Instead of trying to pass back a bunch of individual properties, pass back
+      full nodes as much as possible, and then convert them into their respective
+      model objects before going further.
+    */
+    return Promise.all(results.map(r => ({
+      transformation: Base.ModelFactory.derive(r.transformation),
+      output: Base.ModelFactory.derive(r.output),
+      owner: Base.ModelFactory.derive(r.owner),
+      template: r.template ? Base.ModelFactory.derive(r.template) : null
+    })).map(async ({
+      transformation,
+      output,
+      owner,
+      template
+    }) => {
+      await transformation.waitForReady()
+      return {
+        id: transformation.id,
+        script: template ? template.script : transformation.script,
+        output_name: output.name,
+        owner: owner.id
+      }
     }))
   }
 
@@ -381,6 +435,10 @@ class Dataset extends Base {
 
   downloadName() {
     return `${this.originalFilename}`
+  }
+
+  debugSummary() {
+    return `${this.name} (${this.uuid})`
   }
 }
 

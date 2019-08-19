@@ -116,6 +116,7 @@ type Transformation @authCanAccess {
   outputs: [Dataset]
   code: String
   error: String
+  virtual: Boolean
 }
 
 type Plot {
@@ -151,6 +152,23 @@ input CSVImportOptions {
   customDelimiter: String
 }
 
+input TemplateRef {
+  name: String,
+  uuid: String,
+  id: Int
+}
+
+input DatasetRef {
+  name: String,
+  uuid: String,
+  id: Int
+}
+
+input TransformationInputMapping {
+  alias: String!,
+  dataset: DatasetRef!
+}
+
 type Mutation {
   createDataset(name: String, owner: Int, type: DatasetType = csv): Dataset
   deleteDataset(id: Int!): Dataset
@@ -161,10 +179,11 @@ type Mutation {
   createPlot(jsondef:String!): Plot
   generateDataset(id: Int!): Dataset
   toggleColumnVisibility(id: Int!): Boolean
-  saveInputTransformation(id: Int!, code:String): Transformation
+  saveInputTransformation(id: Int!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationID): Transformation
   updateDatasetMetadata(id: Int!, metadata:DatasetMetadataInput): DatasetMetadata
   regenerateAPIKey: User
   updateColumn(uuid:String!, values:ColumnInput, tagNames:[String]): Column
+  createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationID!): Transformation
 }
 
 type Subscription {

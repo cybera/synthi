@@ -91,6 +91,26 @@ class Organization extends Base {
     return results.length === 1
   }
 
+  async canCreateTransformations(user) {
+    // Right now, if a user can create datasets for an organization, they can create
+    // standalone transformations for it too.
+    return this.canCreateDatasets(user)
+  }
+
+  async createTransformation(name, inputs, code) {
+    const Transformation = Base.ModelFactory.getClass('Transformation')
+
+    const transformation = await Transformation.create({
+      name,
+      inputs,
+      code
+    })
+
+    await super.saveRelation(transformation, '<-[:OWNER]-')
+
+    return transformation
+  }
+
   async canAccess(user) {
     const orgs = await user.orgs()
     const match = orgs.find(org => org.uuid === this.uuid)

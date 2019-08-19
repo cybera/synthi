@@ -198,8 +198,9 @@ app.get('/dataset/:id', async (req, res) => {
   const dataset = await ModelFactory.get(req.params.id)
 
   if (dataset && await dataset.canAccess(req.user)) {
-    DefaultQueue.prepareDownload(dataset, () => {
+    DefaultQueue.prepareDownload(dataset, req.user, async () => {
       res.attachment(dataset.downloadName())
+      await dataset.readyForDownload()
       dataset.readStream().pipe(res)
     })
   } else {

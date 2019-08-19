@@ -49,6 +49,17 @@ class Base {
     return this.getByUniqueMatch(query, { uuid })
   }
 
+  static async create(properties) {
+    const query = `
+      CREATE (node:${this.label} { uuid: randomUUID() })
+      SET node += $properties
+      return node
+    `
+    const results = await safeQuery(query, { properties })
+
+    return ModelFactory.derive(results[0].node)
+  }
+
   async relatedRaw(relation, ModelClass, name, relatedProps = {}) {
     let identityMatch = `
       MATCH (node:${this.__label} { uuid: $node.uuid })
@@ -135,6 +146,28 @@ class Base {
     await safeQuery(...query)
   }
 
+  // When specifying a relation where we want to attach properties to that relation,
+  // we need the relationName, from -[relationName:SOME_RELATION]->. Right now, that's
+  // all we need it for. In theory, we could parse out the relation string passed in
+  // and auto insert the reference, or we could make the user spell out the relation
+  // in a more explicit way. If we start to need this in more than a few places, we
+  // should rethink this solution.
+  async saveRelation(left, relation, right = this, relationName, relationProps) {
+    let query = `
+      MATCH (right:${right.__label} { uuid: $right.uuid })
+      MATCH (left:${left.__label} { uuid: $left.uuid })
+      MERGE (left)${relation}(right)
+    `
+
+    if (relationName && relationProps) {
+      query += `
+        SET ${relationName} += $relationProps
+      `
+    }
+
+    await safeQuery(query, { left, right, relationProps })
+  }
+
   // Can be overridden to specially prepare values for saving to the database
   // This can return a simple object/hash, as long as it has the same keys.
   // Subclass should call the superclass method first to get the subset of
@@ -147,7 +180,13 @@ class Base {
     const query = [`
       MATCH (node:${this.__label} { uuid: $node.uuid })
       DETACH DELETE node`, { node: this }]
-    safeQuery(...query)
+    await safeQuery(...query)
+  }
+
+  async refresh() {
+    const result = await safeQuery('MATCH (node { uuid: $node.uuid }) RETURN node', { node: this })
+    Object.assign(this, result[0].node.properties)
+    return this
   }
 }
 

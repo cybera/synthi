@@ -35,12 +35,12 @@ class User extends Base {
     return bcrypt.compare(password, this.password)
   }
 
-  regenerateAPIKey() {
+  async regenerateAPIKey() {
     this.apikey = crypto.randomBytes(64).toString('base64').replace(/[^A-Za-z0-9]/g, '').substring(0, 32)
 
     const { apikey, id } = this
 
-    safeQuery(`
+    await safeQuery(`
       MATCH (u:User)
       WHERE ID(u) = toInteger($id)
       SET u.apikey = $apikey

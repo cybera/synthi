@@ -3,6 +3,7 @@ import {
   AuthenticationError
 } from 'apollo-server-express'
 import { defaultFieldResolver } from 'graphql'
+import logger from '../config/winston';
 
 /* eslint-disable class-methods-use-this */
 class AuthCanAccessDirective extends SchemaDirectiveVisitor {
@@ -28,9 +29,11 @@ class AuthCanAccessDirective extends SchemaDirectiveVisitor {
       async function protectedResolver(...args) {
         const [ obj, source, ctx, info ] = args
         const result = await resolve.apply(this, args)
+        logger.debug(`[${obj.constructor.name}] Checking ${ctx.user.username}'s access rights for ${field.name}`)
         if (!(await obj.canAccess(ctx.user, field.name))) {
           throw new AuthenticationError(`Access not allowed for: ${field.name}`)
         }
+        logger.debug(`[${obj.constructor.name}] Finished checking ${ctx.user.username}'s access rights for ${field.name}`)
 
         return result
       }

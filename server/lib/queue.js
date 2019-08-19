@@ -73,17 +73,17 @@ class AMQP {
   }
 
   async sendToWorker(msg) {
-    this.worker.sendToQueue('python-worker', msg)
+    await this.worker.sendToQueue('python-worker', msg)
   }
 
-  async prepareDownload(dataset, callback) {
+  async prepareDownload(dataset, user, callback) {
     // TODO: Pass a unique download ID (have tasks send JSON as argument)
     const owner = await dataset.owner()
     const transformations = await dataset.parentTransformations()
-    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported')
-    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample')
+    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported', user)
+    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample', user)
 
-    this.sendToWorker({
+    await this.sendToWorker({
       task: 'prepare_download',
       id: dataset.id,
       ownerName: owner.name,
