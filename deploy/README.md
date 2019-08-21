@@ -6,6 +6,7 @@
 * OpenStack ([website](http://www.openstack.org), [more info](#openstack))
 * Docker, Docker Machine, Docker Compose
 * Logged in to Docker Hub locally (`docker login`) ([more info](#docker))
+  * And have your Docker Hub account given the appropriate permissions (e.g, added to the "owners" team in the Cybera organization, or similar
 * Logged in to the VPN ([more info](#vpn))
 * Security Groups ([more info](#security))
 
