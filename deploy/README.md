@@ -50,6 +50,11 @@ cp ../config/development.toml.example production.toml
 docker config create production.toml production.toml
 ```
 
+In particular make sure you:
+* Change your listed `username`, `password`, `region`, `tenant`, and `authURL`
+* Set the `datasets` and `scripts` containers names to the names of the containers you created earlier
+* Set the `[neo4j]` password to something safe and secure
+
 Also run `cp neo4j.env.example neo4j.env` and change `password` to the value from `production.toml`:
 
 Now deploy the stack:
