@@ -14,7 +14,7 @@
 
 1. Launch an Ubuntu 16.04 instance in RAC in the `Data Science` project ([more info](#instance))
 	* Give it the `adi` and `vpn_all` security groups
-	* Attach a floating IP
+	* Attach a floating IP (or rely on IPv6))
 3. Create a domain `<environment>.adi2.data.cybera.ca` pointing to that floating IP ([more detailed instructions](#domain))
 3. Use Docker Machine to install Docker:
 ```
