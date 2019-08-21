@@ -33,6 +33,8 @@ adi-<environment>
 ansible-playbook -i hosts -l <environment> playbook.yml
 ```
 
+6. Create Swift containers in RAC, one for datasets, and one for scripts
+
 ## Deploying the Stack
 
 Switch to the remote Docker host:
