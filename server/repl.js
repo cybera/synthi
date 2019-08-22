@@ -9,6 +9,8 @@ import Organization from './domain/models/organization'
 import { datasetStorageMap } from './domain/models/transformation'
 import * as ModelFactory from './domain/models/modelFactory'
 import DatasetCSV from './domain/models/datasetCSV'
+import Task, { TransformTask } from './domain/models/task'
+import DefaultQueue from './lib/queue'
 
 global.safeQuery = safeQuery
 global.config = config
@@ -22,5 +24,8 @@ global.Base = Base
 global.datasetStorageMap = datasetStorageMap
 global.ModelFactory = ModelFactory
 global.DatasetCSV = DatasetCSV
+global.Task = Task
+global.TransformTask = TransformTask
+global.DefaultQueue = DefaultQueue
 
 require('repl').start({})
