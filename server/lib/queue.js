@@ -58,6 +58,19 @@ const startQueue = () => {
     logger.info(msgJSON)
   })
 
+  startChannel(conn, 'task-status', { durable: false, noAck: true }, async (msg) => {
+    const msgJSON = JSON.parse(msg.content.toString())
+
+    if (msgJSON.type === 'task-updated') {
+      if (msgJSON.status === 'done') {
+        const task = await ModelFactory.getByUuid(msgJSON.taskid)
+        task.done(msgJSON)
+      }
+    }
+
+    logger.info(msgJSON)
+  })
+
   logger.info(' [*] Waiting for messages. To exit press CTRL+C');
 
   return conn
