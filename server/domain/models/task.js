@@ -1,11 +1,51 @@
 import Base from './base'
 import logger from '../../config/winston'
 
-export default class Task extends Base {
+import DefaultQueue from '../../lib/queue'
 
+export default class Task extends Base {
+  static async create(properties) {
+    return super.create({ ...properties, status: 'initialized' })
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async run() {
+    throw new Error('run() should be implemented in a subclass of Task')
+  }
+
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
+  async done(msg) {
+    throw new Error('done() should be implemented in a subclass of Task')
+  }
 }
 
 Base.ModelFactory.register(Task)
+
+Task.label = 'Task'
+Task.saveProperties = ['status']
+
+export class TransformTask extends Task {
+  static async create(properties) {
+    return super.create({ ...properties, type: 'transform' })
+  }
+
+  async run() {
+    await DefaultQueue.sendToWorker({
+      task: 'task_test',
+      taskid: this.uuid,
+      status: this.status
+    })
+  }
+
+  async done(msg) {
+    logger.warn(`Task ${this.uuid} completed:`)
+    logger.warn('%o', msg)
+    this.status = 'done'
+    this.save()
+  }
+}
+
+Base.ModelFactory.register(TransformTask, 'Task', { type: 'transform' })
 
 export async function handleGeneratedInfo(msg) {
   const Dataset = Base.ModelFactory.getClass('Dataset')
