@@ -96,7 +96,7 @@ class Base {
     const relatedName = 'relatedNode'
     const results = await this.relatedRaw(relation, relatedLabel, relatedName, relatedProps)
     if (results && results[0]) {
-      return new ModelFactory.derive(results[0][relatedName])
+      return ModelFactory.derive(results[0][relatedName])
     }
     return null
   }
@@ -105,7 +105,7 @@ class Base {
     const relatedName = 'relatedNode'
     const results = await this.relatedRaw(relation, relatedLabel, relatedName, relatedProps)
     if (results) {
-      return results.map(result => new ModelFactory.derive(result[relatedName]))
+      return results.map(result => ModelFactory.derive(result[relatedName]))
     }
     return []
   }
