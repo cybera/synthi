@@ -25,9 +25,14 @@ class Base {
     if (resultKeys.length !== 1) {
       throw Error('matchQuery for getByUniqueMatch should only have one return node')
     }
-    // In the current context, 'this' will be the class (or subclass that called
-    // the static 'get' method).
-    const nodeAsModel = new this(result[resultKeys[0]])
+
+    const nodeAsModel = ModelFactory.derive(result[resultKeys[0]])
+
+    if (!(nodeAsModel instanceof this)) {
+      throw Error(`Don't call getByUniqueMatch when expecting objects that are
+                   not instances of ${this.name} or a subclass of ${this.name}`)
+    }
+
     return nodeAsModel
   }
 
