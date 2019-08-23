@@ -64,19 +64,15 @@ class Transformation extends Base {
   }
 
   async template() {
-    return this.relatedOne('-[:ALIAS_OF]->', Transformation, 'template')
+    return this.relatedOne('-[:ALIAS_OF]->', 'Transformation')
   }
 
   async outputDataset() {
-    const Dataset = Base.ModelFactory.getClass('Dataset')
-
-    return this.relatedOne('-[:OUTPUT]->', Dataset, 'output')
+    return this.relatedOne('-[:OUTPUT]->', 'Dataset')
   }
 
   async owner() {
-    const Organization = Base.ModelFactory.getClass('Organization')
-
-    return this.relatedOne('<-[:OWNER]-', Organization, 'owner')
+    return this.relatedOne('<-[:OWNER]-', 'Organization')
   }
 
   async canAccess(user) {

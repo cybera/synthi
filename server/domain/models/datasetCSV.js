@@ -23,7 +23,7 @@ class DatasetCSV extends Dataset {
   }
 
   async columns() {
-    const columns = await this.relatedMany('<-[:BELONGS_TO]-', Column, 'column')
+    const columns = await this.relatedMany('<-[:BELONGS_TO]-', 'Column')
     return columns.sort((c1, c2) => c1.order - c2.order)
   }
 

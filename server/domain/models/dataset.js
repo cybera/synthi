@@ -40,13 +40,13 @@ class Dataset extends Base {
   async owner() {
     const Organization = Base.ModelFactory.getClass('Organization')
 
-    return this.relatedOne('<-[:OWNER]-', Organization, 'owner')
+    return this.relatedOne('<-[:OWNER]-', 'Organization')
   }
 
   async inputTransformation() {
     const Transformation = Base.ModelFactory.getClass('Transformation')
 
-    return this.relatedOne('<-[:OUTPUT]-', Transformation, 'transformation')
+    return this.relatedOne('<-[:OUTPUT]-', 'Transformation')
   }
 
   fullPath() {
@@ -287,7 +287,7 @@ class Dataset extends Base {
   async metadata() {
     const DatasetMetadata = Base.ModelFactory.getClass('DatasetMetadata')
 
-    let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', DatasetMetadata, 'metadata')
+    let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', 'DatasetMetadata')
     if (!datasetMetadata) {
       const query = `
         MATCH (dataset:Dataset { uuid: $uuid })
