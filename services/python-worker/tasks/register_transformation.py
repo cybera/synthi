@@ -33,7 +33,7 @@ def transformation_error(error):
   status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
   raise error
 
-def dataset_input(name, raw=False):
+def dataset_input(name, raw=False, original=False):
   inputs.append(name)
 
 def dataset_output(name):
