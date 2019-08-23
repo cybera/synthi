@@ -7,7 +7,7 @@ pipeline {
     stage('build client') {
       steps {
         sh 'sudo docker-compose build client'
-        sh 'bin/build-client'
+        sh 'sudo bin/build-client'
       }
     }
 
