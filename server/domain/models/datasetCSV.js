@@ -1,5 +1,4 @@
 import Dataset from './dataset'
-import Column from './column'
 
 import Storage from '../../storage'
 import { csvFromStream } from '../../lib/util'
