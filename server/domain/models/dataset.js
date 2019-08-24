@@ -38,14 +38,10 @@ class Dataset extends Base {
   }
 
   async owner() {
-    const Organization = Base.ModelFactory.getClass('Organization')
-
     return this.relatedOne('<-[:OWNER]-', 'Organization')
   }
 
   async inputTransformation() {
-    const Transformation = Base.ModelFactory.getClass('Transformation')
-
     return this.relatedOne('<-[:OUTPUT]-', 'Transformation')
   }
 
