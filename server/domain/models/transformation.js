@@ -26,16 +26,26 @@ class Transformation extends Base {
     return fullScriptPath(this.script)
   }
 
+  async realScript() {
+    if (this.script) {
+      return this.script
+    }
+
+    const template = await this.template()
+
+    if (template && template.script) {
+      return template.script
+    }
+
+    throw Error(`A transformation should either have its own script or reference 
+                 a template transformation with one`)
+  }
+
   async code() {
     try {
-      if (this.script && Storage.exists('scripts', this.script)) {
-        const fileString = await Storage.read('scripts', this.script)
-        return fileString
-      }
-
-      const template = await this.template()
-      if (template && template.script && Storage.exists('scripts', template.script)) {
-        const fileString = await Storage.read('scripts', template.script)
+      const realScript = await this.realScript()
+      if (realScript && Storage.exists('scripts', realScript)) {
+        const fileString = await Storage.read('scripts', realScript)
         return fileString
       }
     } catch (err) {
