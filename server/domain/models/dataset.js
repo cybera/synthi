@@ -1,6 +1,8 @@
 import shortid from 'shortid'
 import waitFor from 'p-wait-for'
 
+import withNext from '../../lib/withNext'
+
 import Base from './base'
 import { datasetStorageMap } from './transformation'
 
@@ -163,10 +165,27 @@ class Dataset extends Base {
   }
 
   async runTransformation(user) {
-    const transformations = await this.parentTransformations()
+    const TransformTask = Base.ModelFactory.getClass('TransformTask')
+
+    const transformations = await this.transformationChain()
+    const tasks = await Promise.all(transformations.map(async transformation => (
+      TransformTask.create({ transformation, user })
+    )))
+
+    if (tasks.length > 1) {
+      await Promise.all(withNext(tasks, (task, nextTask) => task.addNext(nextTask)))
+    }
+
+    if (tasks.length > 0) {
+      await tasks[0].run()
+    }
+
+    // The rest of this code should be removable once the worker task to run single
+    // transformations is hooked up and working.
+    const transformationsOld = await this.parentTransformations()
     const owner = await this.owner()
-    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported', user)
-    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample', user)
+    const storagePaths = await datasetStorageMap(transformationsOld.map(t => t.id), 'imported', user)
+    const samplePaths = await datasetStorageMap(transformationsOld.map(t => t.id), 'sample', user)
 
     await DefaultQueue.sendToWorker({
       task: 'generate',
@@ -174,7 +193,7 @@ class Dataset extends Base {
       uuid: this.uuid,
       paths: this.paths,
       ownerName: owner.name,
-      transformations,
+      transformations: transformationsOld,
       storagePaths,
       samplePaths
     })
@@ -417,6 +436,28 @@ class Dataset extends Base {
         owner: owner.id
       }
     }))
+  }
+
+  async transformationChain() {
+    const query = `
+      MATCH full_path = (output:Dataset)<-[*]-(last)
+      WHERE ID(output) = toInteger($output_id) AND
+            ((last:Dataset AND last.computed = false) OR last:Transformation)
+      WITH full_path, output
+      MATCH (t:Transformation)
+      MATCH individual_path = (output)<-[*]-(t)
+      WHERE t IN nodes(full_path)
+      WITH DISTINCT(individual_path), t
+      MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
+      RETURN
+        t AS transformation,
+        length(individual_path) AS distance
+      ORDER BY distance DESC
+    `
+
+    const results = await safeQuery(query, { output_id: this.id })
+
+    return Promise.all(results.map(r => Base.ModelFactory.derive(r.transformation)))
   }
 
   // eslint-disable-next-line class-methods-use-this
