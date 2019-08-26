@@ -9,9 +9,12 @@ import { datasetStorageMap } from './transformation'
 import Storage from '../../storage'
 import { fullDatasetPath, storeFS } from '../../lib/util'
 import DefaultQueue from '../../lib/queue'
+import { pubsub } from '../../graphql/pubsub'
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
 import { memberOfOwnerOrg } from '../util'
+
+const DATASET_UPDATED = 'DATASET_UPDATED'
 
 class Dataset extends Base {
   static async getByName(organization, name) {
@@ -179,24 +182,6 @@ class Dataset extends Base {
     if (tasks.length > 0) {
       await tasks[0].run()
     }
-
-    // The rest of this code should be removable once the worker task to run single
-    // transformations is hooked up and working.
-    const transformationsOld = await this.parentTransformations()
-    const owner = await this.owner()
-    const storagePaths = await datasetStorageMap(transformationsOld.map(t => t.id), 'imported', user)
-    const samplePaths = await datasetStorageMap(transformationsOld.map(t => t.id), 'sample', user)
-
-    await DefaultQueue.sendToWorker({
-      task: 'generate',
-      id: this.id,
-      uuid: this.uuid,
-      paths: this.paths,
-      ownerName: owner.name,
-      transformations: transformationsOld,
-      storagePaths,
-      samplePaths
-    })
   }
 
   // A user can belong to multiple organizations. If you've got access
@@ -476,6 +461,11 @@ class Dataset extends Base {
 
   debugSummary() {
     return `${this.name} (${this.uuid})`
+  }
+
+  sendUpdateNotification() {
+    logger.debug('Publishing to clients...')
+    pubsub.publish(DATASET_UPDATED, { datasetGenerated: { id: this.id, status: 'success', message: '' } });
   }
 }
 
