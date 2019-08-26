@@ -16,7 +16,7 @@ body = {
   "type": "task-updated",
   "task": "task_test",
   "taskid": params['taskid'],
-  "status": "done",
+  "status": "success",
   "message": ""
 }
 

@@ -62,10 +62,8 @@ const startQueue = () => {
     const msgJSON = JSON.parse(msg.content.toString())
 
     if (msgJSON.type === 'task-updated') {
-      if (msgJSON.status === 'done') {
-        const task = await ModelFactory.getByUuid(msgJSON.taskid)
-        task.done(msgJSON)
-      }
+      const task = await ModelFactory.getByUuid(msgJSON.taskid)
+      task.done(msgJSON)
     }
 
     logger.info(msgJSON)

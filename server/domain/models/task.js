@@ -11,7 +11,7 @@ import DefaultQueue from '../../lib/queue'
 export default class Task extends Base {
   static async create(properties = {}) {
     const { user, ...rest } = properties
-    const task = await super.create({ ...rest, status: 'initialized' })
+    const task = await super.create({ ...rest, state: 'initialized' })
     if (user) {
       await task.saveRelation(user, '<-[:SCHEDULED_BY]-')
     }
@@ -27,11 +27,17 @@ export default class Task extends Base {
   // eslint-disable-next-line no-unused-vars
   async done(msg) {
     // TODO: check for actual success before running the next task
-    this.status = 'done'
-    await this.save()
-    const nextTask = await this.next()
-    if (nextTask) {
-      await nextTask.run()
+    if (msg.status === 'success') {
+      this.state = 'done'
+      await this.save()
+      const nextTask = await this.next()
+      if (nextTask) {
+        await nextTask.run()
+      }
+    } else if (msg.status === 'error') {
+      logger.error(`Task ${this.uuid} failed with message: ${msg.message}`)
+    } else {
+      logger.error(`Task ${this.uuid} finished with unexpected status: ${msg.status}`)
     }
   }
 
@@ -52,7 +58,7 @@ export default class Task extends Base {
 Base.ModelFactory.register(Task)
 
 Task.label = 'Task'
-Task.saveProperties = ['status']
+Task.saveProperties = ['state']
 
 /*
   Given an array of Transformation IDs, return a mapping
@@ -127,7 +133,7 @@ export class TransformTask extends Task {
     await DefaultQueue.sendToWorker({
       task: 'task_test',
       taskid: this.uuid,
-      status: this.status,
+      state: this.state,
       transformation: taskTransformationInfo,
       storagePaths,
       samplePaths
