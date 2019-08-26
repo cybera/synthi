@@ -17,6 +17,45 @@ import { memberOfOwnerOrg } from '../util'
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
 class Dataset extends Base {
+  // Given a particular user and name reference for a dataset,
+  // get an accessible dataset following rules for name resolution
+  // across organizations and ensuring that the user has access to
+  // that dataset. If no dataset can be found that the user can
+  // access, we'll return null.
+  static async getNearestByName(user, name, nearDataset) {
+    // There may be no org name, in which case we assume the datasetName.
+    // Assigning in reverse handles the case where there is no ':' properly.
+    const [datasetName, orgName] = name.split(':').reverse()
+    const orgByName = 'MATCH (org:Organization { name: $orgName })'
+    const orgByDataset = `
+      MATCH (nearDataset:Dataset { uuid: $nearDataset.uuid })
+      MATCH (org:Organization)-[:OWNER]->(nearDataset)
+    `
+    const orgFinder = orgName ? orgByName : orgByDataset
+
+    const query = `
+      ${orgFinder}
+      MATCH (user:User { uuid: $user.uuid })
+      MATCH (user)-[:MEMBER]->(org)
+      MATCH (org)-[:OWNER]->(dataset:Dataset { name: $datasetName })
+      RETURN dataset
+    `
+
+    const params = {
+      user,
+      nearDataset,
+      orgName,
+      datasetName
+    }
+
+    const results = await safeQuery(query, params)
+    if (results.length > 0) {
+      return Base.ModelFactory.derive(results[0].dataset)
+    }
+
+    return null
+  }
+
   static async getByName(organization, name) {
     return organization.datasetByName(name)
   }
