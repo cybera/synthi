@@ -50,11 +50,11 @@ def transform_dataset(params):
       print(f"Updating calculated '{output_name}' dataset: {path}")
       store_csv(output, path, params["samplePaths"][full_name])
 
-      return columns
+      return { 'type': 'csv', 'columns': columns }
     else:
       storage.write_raw(output, path)
 
-      return []
+      return { 'type': 'document', 'columns': [] }
 
   body = {
     "type": "task-updated",
@@ -71,8 +71,7 @@ def transform_dataset(params):
     print(f"Running {transform_script}")
     transform_mod = load_transform(transform_script, dataset_input, dataset_output)
     transform_result = transform_mod.transform()
-    columns = write_output(transform_result, transformation['owner'], transformation['output_name'])
-    body['data']['columns'] = columns
+    body['data'] = write_output(transform_result, transformation['owner'], transformation['output_name'])
   except Exception as e:
     body["status"] = "error"
     body["message"] = repr(e)
