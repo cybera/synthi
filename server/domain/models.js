@@ -6,6 +6,7 @@ import DocumentDataset from './models/documentDataset'
 import Organization from './models/organization'
 import Task from './models/task'
 import TransformTask from './models/transformTask'
+import RegisterTask from './models/registerTask'
 import Transformation from './models/transformation'
 import User from './models/user'
 
@@ -20,6 +21,7 @@ export {
   Organization,
   Task,
   TransformTask,
+  RegisterTask,
   Transformation,
   User,
   ModelFactory

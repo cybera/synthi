@@ -4,7 +4,6 @@ import waitFor from 'p-wait-for'
 import withNext from '../../lib/withNext'
 
 import Base from './base'
-import { datasetStorageMap } from './transformation'
 
 import Storage from '../../storage'
 import { fullDatasetPath, storeFS } from '../../lib/util'
@@ -275,16 +274,10 @@ class Dataset extends Base {
         await safeQuery(...setDefaultPathQuery)
       }
 
-      const owner = await this.owner()
-
-      await DefaultQueue.sendToWorker({
-        task: 'register_transformation',
-        id: transformation.id,
-        ownerName: owner.name,
-        userUuid: user.uuid,
-        outputDatasetId: this.id,
-        transformationScript: transformation.script
-      })
+      // RegisterTask
+      const RegisterTask = Base.ModelFactory.getClass('RegisterTask')
+      const registerTask = await RegisterTask.create({ transformation, user })
+      await registerTask.run()
 
       return transformation
     }
@@ -347,35 +340,34 @@ class Dataset extends Base {
 
     if (status === 'error') {
       await this.transformationError(message)
-    } else if (msg.task === 'register_transformation') {
-      const { inputs, outputs } = msg.data
-      await this.registerTransformation(inputs, outputs)
     }
   }
 
   async registerTransformation(inputs, outputs) {
-    const inputQuery = `
-      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
-      WHERE ID(dataset) = toInteger($id)
-      SET t.inputs = [ x in $inputs | x[0] + ':' + x[1] ]
-      WITH t
-      UNWIND $inputs AS input
-      MATCH (d:Dataset { name: input[1] })<-[:OWNER]-(o:Organization { name: input[0] })
-      MERGE (d)-[:INPUT]->(t)
+    if (outputs.length > 0) {
+      throw new Error('Specifying outputs other than the original dataset not supported')
+    }
+
+    const baseQuery = `
+      MATCH (outputDataset:Dataset { uuid: $dataset.uuid })
+      MATCH (transformation:Transformation)-[:OUTPUT]->(outputDataset)
     `
 
-    const outputQuery = `
-      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
-      WHERE ID(dataset) = toInteger($id)
-      SET t.outputs = [ x in $outputs | x[0] + ':' + x[1] ]
-      WITH t UNWIND $outputs AS output
-      MERGE (d:Dataset { name: output[1] })<-[:OWNER]-(o:Organization { name: output[0] })
-      MERGE (d)<-[:OUTPUT]-(t)
-      SET d.computed = true, d.path = (output[1] + ".$type")
+    const deleteOldQuery = `
+      ${baseQuery}
+      MATCH (:Dataset)-[currentInput:INPUT]->(transformation)
+      DELETE currentInput
     `
+    await safeQuery(deleteOldQuery, { dataset: this })
 
-    await safeQuery(inputQuery, { id: this.id, inputs })
-    await safeQuery(outputQuery, { id: this.id, type: this.type, outputs })
+    const inputsQuery = `
+      ${baseQuery}
+      UNWIND $inputUuids AS inputUuid
+      MATCH (inputDataset:Dataset { uuid: inputUuid })
+      MERGE (inputDataset)-[:INPUT]->(transformation)
+    `
+    const inputUuids = inputs.map(input => input.uuid)
+    await safeQuery(inputsQuery, { dataset: this, inputUuids })
 
     const transformationReadyQuery = `
       MATCH (:Dataset { uuid: $dataset.uuid })<-[:OUTPUT]-(t:Transformation)
