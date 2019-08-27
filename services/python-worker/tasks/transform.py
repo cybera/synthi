@@ -13,6 +13,8 @@ sys.path.insert(0, os.path.join(script_dir,'..'))
 from common import status_channel, queue_conn, parse_params
 from common import load_transform, parse_params, get_full_name
 
+from lib import data_import
+
 import storage
 
 SAMPLE_SIZE = 100
@@ -43,9 +45,7 @@ def transform_dataset(params):
     path = params["storagePaths"][full_name]
 
     if type(output) is pd.DataFrame:
-      # TODO: Since we can now figure out the exact path from the transformations query,
-      # it's not really necessary to figure that out again via the more brittle name lookup.
-      columns = [dict(name=name,order=i+1) for i, name in enumerate(output.columns)]
+      columns = data_import.column_info(output)
 
       print(f"Updating calculated '{output_name}' dataset: {path}")
       store_csv(output, path, params["samplePaths"][full_name])
