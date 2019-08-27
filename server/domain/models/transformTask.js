@@ -55,8 +55,7 @@ export default class TransformTask extends Task {
         logger.warn('columnUpdates: %o', columnUpdates);
         await outputDataset.handleColumnUpdate(columnUpdates);
         outputDataset.sendUpdateNotification();
-      }
-      else {
+      } else {
         logger.warn(`No column updates for Dataset: ${outputDataset.name} (${outputDataset.uuid})`);
       }
     }
