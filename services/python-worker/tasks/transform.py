@@ -72,7 +72,7 @@ def transform_dataset(params):
     transform_mod = load_transform(transform_script, dataset_input, dataset_output)
     transform_result = transform_mod.transform()
     columns = write_output(transform_result, transformation['owner'], transformation['output_name'])
-    body['data']['columnUpdates'] = columns
+    body['data']['columns'] = columns
   except Exception as e:
     body["status"] = "error"
     body["message"] = repr(e)

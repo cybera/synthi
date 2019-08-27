@@ -56,9 +56,9 @@ export default class TransformTask extends Task {
       logger.warn('%o', msg);
       const transformation = await this.transformation();
       const outputDataset = await transformation.outputDataset();
-      const { columnUpdates } = msg.data;
-      if (columnUpdates) {
-        await outputDataset.handleColumnUpdate(columnUpdates);
+      const { columns } = msg.data;
+      if (columns) {
+        await outputDataset.handleColumnUpdate(columns);
       } else {
         logger.warn(`No column updates for Dataset: ${outputDataset.name} (${outputDataset.uuid})`);
       }

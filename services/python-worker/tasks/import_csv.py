@@ -46,7 +46,7 @@ def import_csv(params):
     "status": "success",
     "message": "",
     "data": {
-      "columnUpdates": columns
+      "columns": columns
     }
   }
 
