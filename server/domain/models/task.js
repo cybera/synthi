@@ -101,15 +101,3 @@ export const datasetStorageMap = async (transformation, pathType, user) => {
 
   return mapping
 }
-
-export async function handleGeneratedInfo(msg) {
-  const Dataset = Base.ModelFactory.getClass('Dataset')
-  logger.debug('%o', msg)
-  const { datasetColumnUpdates } = msg.data
-  Object.keys(datasetColumnUpdates).forEach(async (key) => {
-    logger.debug('Column update for dataset: %s', key)
-    const columns = datasetColumnUpdates[key]
-    const dataset = await Dataset.getByFullName(key)
-    await dataset.handleColumnUpdate(columns)
-  })
-}
