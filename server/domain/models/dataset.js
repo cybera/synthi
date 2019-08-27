@@ -103,19 +103,19 @@ class Dataset extends Base {
 
       const lastPrepTask = this.computed ? (await this.runTransformation(req.user)) : undefined
 
-        const downloadReady = async () => {
-          const storageReady = await Storage.exists('datasets', this.paths.imported)
+      const downloadReady = async () => {
+        const storageReady = await Storage.exists('datasets', this.paths.imported)
         const tasksRun = lastPrepTask ? (await lastPrepTask.isDone()) : true
 
-          return storageReady && tasksRun
-        }
+        return storageReady && tasksRun
+      }
 
-        try {
-          await waitFor(downloadReady, { interval: 2000, timeout: 30000 })
-        } catch (e) {
-          logger.error(`Error waiting for download preparation on dataset ${this.debugSummary()}:`)
-          logger.error(e)
-        }
+      try {
+        await waitFor(downloadReady, { interval: 2000, timeout: 30000 })
+      } catch (e) {
+        logger.error(`Error waiting for download preparation on dataset ${this.debugSummary()}:`)
+        logger.error(e)
+      }
 
       this.readStream().pipe(res)
     } else {
@@ -186,10 +186,15 @@ class Dataset extends Base {
     await safeQuery(...query)
 
     try {
-      Storage.remove('datasets', this.path)
+      await this.deleteStorage()
     } catch (err) {
       logger.error(err)
     }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async deleteStorage() {
+    // Do nothing by default
   }
 
   async upload({ stream, filename }) {

@@ -41,6 +41,14 @@ class DocumentDataset extends Dataset {
     logger.info(`Reading ${this.paths.original}`)
     return Storage.createReadStream('datasets', this.paths.original)
   }
+
+  async deleteStorage() {
+    Storage.remove('datasets', this.paths.original)
+    // TODO:
+    // this.paths.imported is the same right now, but we'll need to update this
+    // when that's no longer the case.
+    // Storage.remove('datasets', this.paths.imported)
+  }
 }
 
 Dataset.ModelFactory.register(DocumentDataset, 'Dataset', { type: 'document' })

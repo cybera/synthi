@@ -77,6 +77,12 @@ class DatasetCSV extends Dataset {
     const importCSVTask = await ImportCSVTask.create({ dataset: this, removeExisting, options })
     await importCSVTask.run()
   }
+
+  async deleteStorage() {
+    Storage.remove('datasets', this.paths.original)
+    Storage.remove('datasets', this.paths.imported)
+    Storage.remove('datasets', this.paths.sample)
+  }
 }
 
 Dataset.ModelFactory.register(DatasetCSV, 'Dataset', { type: 'csv' })
