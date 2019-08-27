@@ -97,14 +97,30 @@ class Dataset extends Base {
     return Storage.createReadStream('datasets', this.paths.imported)
   }
 
-  async readyForDownload() {
-    try {
-      await waitFor(async () => Storage.exists('datasets', this.paths.imported), { interval: 2000, timeout: 30000 })
-    } catch (e) {
-      return false
-    }
+  async download(req, res) {
+    if (await this.canAccess(req.user)) {
+      res.attachment(this.downloadName())
 
-    return true
+      if (this.computed) {
+        const lastPrepTask = await this.runTransformation(req.user)
+        const downloadReady = async () => {
+          const storageReady = await Storage.exists('datasets', this.paths.imported)
+          const tasksRun = await lastPrepTask.isDone()
+          return storageReady && tasksRun
+        }
+
+        try {
+          await waitFor(downloadReady, { interval: 2000, timeout: 30000 })
+        } catch (e) {
+          logger.error(`Error waiting for download preparation on dataset ${this.debugSummary()}:`)
+          logger.error(e)
+        }
+      }
+
+      this.readStream().pipe(res)
+    } else {
+      res.status(404).send('Not found')
+    }
   }
 
   async canAccess(user) {
@@ -214,6 +230,8 @@ class Dataset extends Base {
     if (tasks.length > 0) {
       await tasks[0].run()
     }
+
+    return tasks[tasks.length - 1]
   }
 
   // A user can belong to multiple organizations. If you've got access

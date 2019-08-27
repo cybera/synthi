@@ -197,12 +197,8 @@ app.get('/whoami', (req, res) => {
 app.get('/dataset/:id', async (req, res) => {
   const dataset = await ModelFactory.get(req.params.id)
 
-  if (dataset && await dataset.canAccess(req.user)) {
-    DefaultQueue.prepareDownload(dataset, req.user, async () => {
-      res.attachment(dataset.downloadName())
-      await dataset.readyForDownload()
-      dataset.readStream().pipe(res)
-    })
+  if (dataset) {
+    await dataset.download(req, res)
   } else {
     res.status(404).send('Not found')
   }

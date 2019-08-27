@@ -51,6 +51,11 @@ export default class Task extends Base {
   async user() {
     return this.relatedOne('-[:SCHEDULED_BY]->', 'User')
   }
+
+  async isDone() {
+    await this.refresh()
+    return this.state === 'done'
+  }
 }
 
 Base.ModelFactory.register(Task)
