@@ -434,57 +434,6 @@ class Dataset extends Base {
     await safeQuery(query, { id: this.id, message })
   }
 
-  async parentTransformations() {
-    const query = `
-      MATCH full_path = (output:Dataset)<-[*]-(last)
-      WHERE ID(output) = toInteger($output_id) AND
-            ((last:Dataset AND last.computed = false) OR last:Transformation)
-      WITH full_path, output
-      MATCH (t:Transformation)
-      MATCH individual_path = (output)<-[*]-(t)
-      WHERE t IN nodes(full_path)
-      WITH DISTINCT(individual_path), t
-      MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
-      OPTIONAL MATCH (t)-[:ALIAS_OF]->(template:Transformation)
-      RETURN
-        t AS transformation,
-        template,
-        length(individual_path) AS distance,
-        individual_output AS output,
-        o AS owner
-      ORDER BY distance DESC
-    `
-
-    const results = await safeQuery(query, { output_id: this.id })
-
-    /*
-      This seems like extra complication at first, but I'd like us to consider it
-      a best practice going forward when retrieving results from the database.
-      Instead of trying to pass back a bunch of individual properties, pass back
-      full nodes as much as possible, and then convert them into their respective
-      model objects before going further.
-    */
-    return Promise.all(results.map(r => ({
-      transformation: Base.ModelFactory.derive(r.transformation),
-      output: Base.ModelFactory.derive(r.output),
-      owner: Base.ModelFactory.derive(r.owner),
-      template: r.template ? Base.ModelFactory.derive(r.template) : null
-    })).map(async ({
-      transformation,
-      output,
-      owner,
-      template
-    }) => {
-      await transformation.waitForReady()
-      return {
-        id: transformation.id,
-        script: template ? template.script : transformation.script,
-        output_name: output.name,
-        owner: owner.id
-      }
-    }))
-  }
-
   async transformationChain() {
     const query = `
       MATCH full_path = (output:Dataset)<-[*]-(last)
