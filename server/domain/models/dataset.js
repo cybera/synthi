@@ -101,11 +101,12 @@ class Dataset extends Base {
     if (await this.canAccess(req.user)) {
       res.attachment(this.downloadName())
 
-      if (this.computed) {
-        const lastPrepTask = await this.runTransformation(req.user)
+      const lastPrepTask = this.computed ? (await this.runTransformation(req.user)) : undefined
+
         const downloadReady = async () => {
           const storageReady = await Storage.exists('datasets', this.paths.imported)
-          const tasksRun = await lastPrepTask.isDone()
+        const tasksRun = lastPrepTask ? (await lastPrepTask.isDone()) : true
+
           return storageReady && tasksRun
         }
 
@@ -115,7 +116,6 @@ class Dataset extends Base {
           logger.error(`Error waiting for download preparation on dataset ${this.debugSummary()}:`)
           logger.error(e)
         }
-      }
 
       this.readStream().pipe(res)
     } else {
