@@ -52,12 +52,11 @@ export default class TransformTask extends Task {
       const outputDataset = await transformation.outputDataset();
       const { columnUpdates } = msg.data;
       if (columnUpdates) {
-        logger.warn('columnUpdates: %o', columnUpdates);
         await outputDataset.handleColumnUpdate(columnUpdates);
-        outputDataset.sendUpdateNotification();
       } else {
         logger.warn(`No column updates for Dataset: ${outputDataset.name} (${outputDataset.uuid})`);
       }
+      outputDataset.sendUpdateNotification()
     }
     // Call super.done regardless of whether or not the task was successful
     // to allow it to handle any sort of failure cleanup that should happen
