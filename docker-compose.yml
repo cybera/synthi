@@ -2,7 +2,7 @@ version: '3.4'
 services:
   neo4j:
     build: ./neo4j
-    image: cybera/adi-neo4j:latest
+    image: cybera/adi-neo4j:${TAG}
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -20,7 +20,7 @@ services:
       NEO4J_com_graphaware_module_UIDM_1: "com.graphaware.module.uuid.UuidBootstrapper"
   server:
     build: ./server
-    image: cybera/adi-server:latest
+    image: cybera/adi-server:${TAG}
     ports:
       - "3000:3000"
     volumes:
@@ -50,7 +50,7 @@ services:
     build:
       context: ./services
       target: python-worker
-    image: cybera/adi-python-worker:latest
+    image: cybera/adi-python-worker:${TAG}
     networks:
       - default
     volumes:
@@ -84,7 +84,7 @@ services:
       - default
   manual:
     build: ./manual
-    image: cybera/adi-manual:latest
+    image: cybera/adi-manual:${TAG}
     ports:
       - "4000:4000"
       - "35729:35729"
