@@ -7,31 +7,35 @@ import Task, { datasetStorageMap } from '../task'
 export default class TransformTask extends Task {
   static async create(properties = {}) {
     const { transformation, ...rest } = properties;
-    const task = await super.create({ ...rest, type: 'transform' });
+    const task = await super.create({ ...rest, type: 'transform' })
     if (transformation) {
-      await task.saveRelation(transformation, '<-[:FOR]-');
+      await task.saveRelation(transformation, '<-[:FOR]-')
     }
     return task;
   }
 
   async transformation() {
-    return this.relatedOne('-[:FOR]->', 'Transformation');
+    return this.relatedOne('-[:FOR]->', 'Transformation')
   }
 
   async run() {
-    const user = await this.user();
-    const transformation = await this.transformation();
-    const storagePaths = await datasetStorageMap(transformation, 'imported', user);
-    const samplePaths = await datasetStorageMap(transformation, 'sample', user);
-    const outputDataset = await transformation.outputDataset();
-    const owner = await outputDataset.owner();
-    const script = await transformation.realScript();
+    const user = await this.user()
+    const transformation = await this.transformation()
+
+    const storagePaths = await datasetStorageMap(transformation, 'imported', user)
+    const samplePaths = await datasetStorageMap(transformation, 'sample', user)
+    const outputDataset = await transformation.outputDataset()
+    const owner = await outputDataset.owner()
+
+    const script = await transformation.realScript()
+
     const taskTransformationInfo = {
       id: transformation.id,
       script,
       output_name: outputDataset.name,
-      owner: owner.id
-    };
+      owner: owner.id,
+    }
+
     await DefaultQueue.sendToWorker({
       task: 'transform',
       // TODO: We really shouldn't need to be passing this in anymore
@@ -41,7 +45,7 @@ export default class TransformTask extends Task {
       transformation: taskTransformationInfo,
       storagePaths,
       samplePaths
-    });
+    })
   }
 
   async done(msg) {
