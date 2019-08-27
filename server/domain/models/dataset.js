@@ -392,6 +392,7 @@ class Dataset extends Base {
       REMOVE t.error
     `
     await safeQuery(transformationReadyQuery, { dataset: this })
+    await this.touch()
   }
 
   async handleColumnUpdate(columnList) {
@@ -418,7 +419,8 @@ class Dataset extends Base {
     await safeQuery(updateColumnsQuery, { dataset: this, columns: columnList })
 
     this.generating = false
-    this.save()
+    await this.save()
+    await this.touch()
   }
 
   async transformationError(message) {
@@ -526,6 +528,13 @@ class Dataset extends Base {
   sendUpdateNotification() {
     logger.debug('Publishing to clients...')
     pubsub.publish(DATASET_UPDATED, { datasetGenerated: { id: this.id, status: 'success', message: '' } });
+  }
+
+  // Record a new dateUpdated on the metadata for the current time
+  async touch() {
+    const metadata = await this.metadata()
+    metadata.dateUpdated = new Date()
+    await metadata.save()
   }
 }
 
