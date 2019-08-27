@@ -49,6 +49,11 @@ class DocumentDataset extends Dataset {
     // when that's no longer the case.
     // Storage.remove('datasets', this.paths.imported)
   }
+
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
+  async handleUpdate(msg) {
+    // Do nothing
+  }
 }
 
 Dataset.ModelFactory.register(DocumentDataset, 'Dataset', { type: 'document' })

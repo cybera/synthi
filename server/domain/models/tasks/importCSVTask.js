@@ -49,12 +49,7 @@ export default class ImportCSVTask extends Task {
       logger.warn(`Task ${this.uuid} completed:`)
       logger.warn('%o', msg);
 
-      const { columns } = msg.data;
-      if (columns) {
-        await dataset.handleColumnUpdate(columns)
-      } else {
-        logger.warn(`No column updates for Dataset: ${dataset.name} (${dataset.uuid})`)
-      }
+      dataset.handleUpdate(msg.data)
       dataset.sendUpdateNotification()
     }
 

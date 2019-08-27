@@ -351,6 +351,11 @@ class Dataset extends Base {
     return datasetMetadata
   }
 
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
+  async handleUpdate(msg) {
+    // Do nothing
+  }
+
   async handleQueueUpdate(msg) {
     logger.info(`message for dataset: ${this.id}\n%o`, msg)
     const { message, status } = msg
@@ -392,34 +397,6 @@ class Dataset extends Base {
       REMOVE t.error
     `
     await safeQuery(transformationReadyQuery, { dataset: this })
-    await this.touch()
-  }
-
-  async handleColumnUpdate(columnList) {
-    logger.debug(`Column List for ${this.id}:\n%o`, columnList)
-
-    const cleanDeadColumnsQuery = `
-      MATCH (column:Column)-[:BELONGS_TO]->(:Dataset { uuid: $dataset.uuid })
-      WHERE NOT column.name IN $columnNames
-      DETACH DELETE column
-    `
-    const columnNames = columnList.map(column => column.name)
-    safeQuery(cleanDeadColumnsQuery, { dataset: this, columnNames })
-
-    const updateColumnsQuery = `
-      MATCH (dataset:Dataset { uuid: $dataset.uuid })
-      UNWIND $columns AS updated
-      MERGE (column:Column { name: updated.name })-[:BELONGS_TO]->(dataset)
-      SET column.order = updated.order, column.originalName = updated.originalName
-      WITH column, updated
-      UNWIND updated.tags as tagName
-      MATCH (tag:Tag { name: tagName})
-      MERGE (tag)-[:DESCRIBES]->(column)
-    `
-    await safeQuery(updateColumnsQuery, { dataset: this, columns: columnList })
-
-    this.generating = false
-    await this.save()
     await this.touch()
   }
 
