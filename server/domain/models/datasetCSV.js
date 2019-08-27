@@ -1,3 +1,4 @@
+import Base from './base'
 import Dataset from './dataset'
 
 import Storage from '../../storage'
@@ -13,7 +14,6 @@ class DatasetCSV extends Dataset {
       this.type = 'csv'
     }
 
-    this.importTask = 'import_csv'
     this.paths = {
       original: `${this.uuid}/original.csv`,
       imported: `${this.uuid}/imported.csv`,
@@ -70,6 +70,12 @@ class DatasetCSV extends Dataset {
 
   downloadName() {
     return `${this.name}.csv`
+  }
+
+  async import(removeExisting = false, options = {}) {
+    const ImportCSVTask = Base.ModelFactory.getClass('ImportCSVTask')
+    const importCSVTask = await ImportCSVTask.create({ dataset: this, removeExisting, options })
+    await importCSVTask.run()
   }
 }
 

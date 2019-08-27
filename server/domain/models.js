@@ -7,6 +7,7 @@ import Organization from './models/organization'
 import Task from './models/task'
 import TransformTask from './models/transformTask'
 import RegisterTask from './models/registerTask'
+import ImportCSVTask from './models/importCSVTask'
 import Transformation from './models/transformation'
 import User from './models/user'
 
@@ -22,6 +23,7 @@ export {
   Task,
   TransformTask,
   RegisterTask,
+  ImportCSVTask,
   Transformation,
   User,
   ModelFactory

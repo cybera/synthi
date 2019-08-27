@@ -7,7 +7,7 @@ import Base from './base'
 
 import Storage from '../../storage'
 import { fullDatasetPath, storeFS } from '../../lib/util'
-import DefaultQueue from '../../lib/queue'
+
 import { pubsub } from '../../graphql/pubsub'
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
@@ -194,15 +194,9 @@ class Dataset extends Base {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
   async import(removeExisting = false, options = {}) {
-    await DefaultQueue.sendToWorker({
-      task: this.importTask,
-      uuid: this.uuid,
-      paths: this.paths,
-      id: this.id,
-      removeExisting,
-      ...options
-    })
+    // Do nothing by default
   }
 
   async runTransformation(user) {
@@ -380,16 +374,28 @@ class Dataset extends Base {
   async handleColumnUpdate(columnList) {
     logger.debug(`Column List for ${this.id}:\n%o`, columnList)
 
-    const query = `
-      MATCH (dataset:Dataset)
-      WHERE ID(dataset) = toInteger($dataset.id)
-      WITH dataset
-      UNWIND $columns AS column
-      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
-      WITH DISTINCT dataset
-      SET dataset.generating = false
+    const cleanDeadColumnsQuery = `
+      MATCH (column:Column)-[:BELONGS_TO]->(:Dataset { uuid: $dataset.uuid })
+      WHERE NOT column.name IN $columnNames
+      DETACH DELETE column
     `
-    await safeQuery(query, { dataset: this, columns: columnList })
+    const columnNames = columnList.map(column => column.name)
+    safeQuery(cleanDeadColumnsQuery, { dataset: this, columnNames })
+
+    const updateColumnsQuery = `
+      MATCH (dataset:Dataset { uuid: $dataset.uuid })
+      UNWIND $columns AS updated
+      MERGE (column:Column { name: updated.name })-[:BELONGS_TO]->(dataset)
+      SET column.order = updated.order, column.originalName = updated.originalName
+      WITH column, updated
+      UNWIND updated.tags as tagName
+      MATCH (tag:Tag { name: tagName})
+      MERGE (tag)-[:DESCRIBES]->(column)
+    `
+    await safeQuery(updateColumnsQuery, { dataset: this, columns: columnList })
+
+    this.generating = false
+    this.save()
   }
 
   async transformationError(message) {
