@@ -1,8 +1,8 @@
-import Base from './base'
-import logger from '../../config/winston'
-import DefaultQueue from '../../lib/queue'
+import Base from '../base'
+import logger from '../../../config/winston'
+import DefaultQueue from '../../../lib/queue'
 
-import Task, { datasetStorageMap } from './task'
+import Task, { datasetStorageMap } from '../task'
 
 export default class TransformTask extends Task {
   static async create(properties = {}) {

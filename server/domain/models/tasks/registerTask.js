@@ -1,8 +1,8 @@
-import Base from './base'
-import logger from '../../config/winston'
-import DefaultQueue from '../../lib/queue'
+import Base from '../base'
+import logger from '../../../config/winston'
+import DefaultQueue from '../../../lib/queue'
 
-import Task from './task'
+import Task from '../task'
 
 export default class RegisterTask extends Task {
   static async create(properties = {}) {
