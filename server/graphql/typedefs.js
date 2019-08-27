@@ -171,7 +171,7 @@ input TransformationInputMapping {
 
 type Mutation {
   createDataset(name: String, owner: Int, type: DatasetType = csv): Dataset
-  deleteDataset(id: Int!): Dataset
+  deleteDataset(id: Int!): Boolean
   importCSV(id: Int!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset

@@ -14,10 +14,7 @@ query($searchString: String, $org: OrganizationID) {
 
 export const deleteDatasetMutation = gql`
 mutation DeleteDataset($id: Int!) {
-  deleteDataset(id: $id) {
-    id
-    name
-  }
+  deleteDataset(id: $id)
 }
 `
 

@@ -166,7 +166,7 @@ export default {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
       await dataset.delete()
-      return dataset
+      return true
     },
     async importCSV(_, { id, removeExisting, options }, context) {
       const dataset = await ModelFactory.get(id)

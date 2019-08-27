@@ -397,10 +397,7 @@ def delete(id_or_name, host=None, api_key=None):
 
   query = '''
   mutation DeleteDataset($id: Int!) {
-    deleteDataset(id: $id) {
-      id
-      name
-    }
+    deleteDataset(id: $id)
   }
   '''
   result = gql_query(query, variables={'id':id}, host=host, api_key=api_key)
