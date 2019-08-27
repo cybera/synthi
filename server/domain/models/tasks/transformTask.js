@@ -22,6 +22,8 @@ export default class TransformTask extends Task {
     const user = await this.user()
     const transformation = await this.transformation()
 
+    await transformation.waitForReady()
+
     const storagePaths = await datasetStorageMap(transformation, 'imported', user)
     const samplePaths = await datasetStorageMap(transformation, 'sample', user)
     const outputDataset = await transformation.outputDataset()
