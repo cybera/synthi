@@ -59,6 +59,12 @@ Also run `cp neo4j.env.example neo4j.env` and change `password` to the value fro
 
 Now deploy the stack:
 
+You'll want to set the TAG variable to ensure that the images get tagged appropriately. You can use `latest` if you want to update the latest available version of the containers, or something else if you'd like:
+
+```
+export TAG=latest
+```
+
 ```
 docker stack deploy --with-registry-auth -c stack.yml adi
 ```
