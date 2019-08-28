@@ -1,8 +1,51 @@
+import { AuthenticationError } from 'apollo-server-express'
+
 import Base from '../base'
-import logger from '../../../config/winston'
 import DefaultQueue from '../../../lib/queue'
 
-import Task, { datasetStorageMap } from '../task'
+import { safeQuery } from '../../../neo4j/connection';
+import { canTransform } from '../../util'
+
+import Task from '../task'
+
+/*
+  Given an array of Transformation IDs, return a mapping
+  of fully qualified dataset names to the storage location
+  that represents their input and output datasets.
+*/
+export const datasetStorageMap = async (transformation, pathType, user) => {
+  const Organization = Base.ModelFactory.getClass('Organization')
+
+  const query = `
+    MATCH (dataset:Dataset)-[ioEdge:INPUT|OUTPUT]-(t:Transformation { uuid: $transformation.uuid })
+    MATCH (org:Organization)-->(dataset)
+    RETURN dataset, org, ioEdge
+  `
+  const results = await safeQuery(query, { transformation })
+  const ioNodes = results.map(({ dataset, org, ioEdge }) => ({
+    dataset: Base.ModelFactory.derive(dataset),
+    org: new Organization(org),
+    alias: ioEdge.type === 'INPUT' ? ioEdge.properties.alias : undefined
+  }))
+
+  // This is probably going to be overly restrictive once we start allowing organizations to
+  // share an output dataset across organizational boundaries, to which other organizations
+  // can apply transformations. In that case, using similar logic as in the canTransform
+  // function, and also temporarily storing the actual transformations in the ioNodes mapping
+  // above, we could instead remove any transformations with datasets falling in the restricted
+  // space. However, since we're only allowing people to do things within organizations they
+  // are a part of, we'll take this approach for now.
+  if (!(await canTransform(user, ioNodes.map(n => n.dataset.uuid)))) {
+    throw new AuthenticationError('Cannot run a transformation without access to all the datasets involved.')
+  }
+
+  const mapping = {}
+  ioNodes.forEach(({ dataset, org, alias }) => {
+    mapping[`${org.name}:${alias || dataset.name}`] = dataset.paths[pathType]
+  })
+
+  return mapping
+}
 
 export default class TransformTask extends Task {
   static async create(properties = {}) {
@@ -50,19 +93,18 @@ export default class TransformTask extends Task {
     })
   }
 
-  async done(msg) {
-    if (msg.status === 'success') {
-      logger.warn(`Task ${this.uuid} completed:`);
-      logger.warn('%o', msg);
-      const transformation = await this.transformation();
-      const outputDataset = await transformation.outputDataset();
-      outputDataset.handleUpdate(msg.data)
-      outputDataset.sendUpdateNotification()
-    }
-    // Call super.done regardless of whether or not the task was successful
-    // to allow it to handle any sort of failure cleanup that should happen
-    // for any task.
-    await super.done(msg);
+  async onSuccess(msg) {
+    const transformation = await this.transformation();
+    const outputDataset = await transformation.outputDataset();
+    await outputDataset.handleUpdate(msg.data)
+    outputDataset.sendUpdateNotification()
+  }
+
+  async onError(msg) {
+    const transformation = await this.transformation()
+    await transformation.recordError(msg.message)
+    const outputDataset = await transformation.outputDataset();
+    outputDataset.sendUpdateNotification()
   }
 }
 

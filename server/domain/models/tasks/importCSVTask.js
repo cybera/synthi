@@ -1,5 +1,4 @@
 import Base from '../base'
-import logger from '../../../config/winston'
 import DefaultQueue from '../../../lib/queue'
 
 import Task from '../task'
@@ -42,21 +41,10 @@ export default class ImportCSVTask extends Task {
     })
   }
 
-  async done(msg) {
+  async onSuccess(msg) {
     const dataset = await this.dataset();
-
-    if (msg.status === 'success') {
-      logger.warn(`Task ${this.uuid} completed:`)
-      logger.warn('%o', msg);
-
-      dataset.handleUpdate(msg.data)
-      dataset.sendUpdateNotification()
-    }
-
-    // Call super.done regardless of whether or not the task was successful
-    // to allow it to handle any sort of failure cleanup that should happen
-    // for any task.
-    await super.done(msg);
+    await dataset.handleUpdate(msg.data)
+    dataset.sendUpdateNotification()
   }
 }
 

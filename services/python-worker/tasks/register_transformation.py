@@ -22,16 +22,16 @@ transformation_script = params['transformationScript']
 inputs = []
 outputs = []
 
-def transformation_error(message):
+def transformation_error(error):
   body = {
     "task": "register_transformation",
     "taskid": params["taskid"],
     "type": "task-updated",
     "status": "error",
-    "message": message
+    "message": repr(error)
   }
   status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
-  raise Exception(message)
+  raise error
 
 def dataset_input(name, raw=False):
   inputs.append(name)
@@ -43,9 +43,12 @@ def dataset_output(name):
     print("Transformations can currently only have one output")
     exit(0)
 
-transform_mod = load_transform(transformation_script,
-                               dataset_input,
-                               dataset_output)
+try:
+  transform_mod = load_transform(transformation_script,
+                                dataset_input,
+                                dataset_output)
+except Exception as error:
+  transformation_error(error)
 
 body = {
   "task": "register_transformation",

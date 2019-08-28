@@ -1,5 +1,6 @@
+import { filter } from 'lodash'
+
 import Base from '../base'
-import logger from '../../../config/winston'
 import DefaultQueue from '../../../lib/queue'
 
 import Task from '../task'
@@ -28,29 +29,45 @@ export default class RegisterTask extends Task {
     })
   }
 
-  async done(msg) {
+  async onSuccess(msg) {
     const Dataset = Base.ModelFactory.getClass('Dataset')
 
-    if (msg.status === 'success') {
-      logger.warn(`Task ${this.uuid} completed:`);
-      logger.warn('%o', msg);
-      const user = await this.user()
-      const transformation = await this.transformation()
-      const outputDataset = await transformation.outputDataset()
-      const { inputs, outputs } = msg.data
+    const user = await this.user()
+    const transformation = await this.transformation()
+    const outputDataset = await transformation.outputDataset()
+    const { inputs, outputs } = msg.data
 
-      const nearestDataset = name => Dataset.getNearestByName(user, name, outputDataset)
-      const inputObjs = await Promise.all(inputs.map(nearestDataset))
-      const outputObjs = await Promise.all(outputs.map(nearestDataset))
+    const nearestDataset = async name => ([
+      name, await Dataset.getNearestByName(user, name, outputDataset)
+    ])
 
+    const inputPairs = await Promise.all(inputs.map(nearestDataset))
+    const outputPairs = await Promise.all(outputs.map(nearestDataset))
+
+    const extractName = pair => pair[0]
+    const extractDataset = pair => pair[1]
+    const datasetFound = pair => !pair[1]
+    const notFound = pairs => filter(pairs, datasetFound).map(extractName)
+
+    const datasetsNotFound = [...notFound(inputPairs), ...notFound(outputPairs)]
+
+    const inputObjs = inputPairs.map(extractDataset)
+    const outputObjs = outputPairs.map(extractDataset)
+
+    if (datasetsNotFound.length > 0) {
+      await transformation.recordError(`Could not find: ${datasetsNotFound.join(', ')}`)
+    } else {
       await outputDataset.registerTransformation(inputObjs, outputObjs)
-      outputDataset.sendUpdateNotification();
     }
 
-    // Call super.done regardless of whether or not the task was successful
-    // to allow it to handle any sort of failure cleanup that should happen
-    // for any task.
-    await super.done(msg);
+    outputDataset.sendUpdateNotification();
+  }
+
+  async onError(msg) {
+    const transformation = await this.transformation()
+    await transformation.recordError(msg.message)
+    const outputDataset = await transformation.outputDataset()
+    outputDataset.sendUpdateNotification()
   }
 }
 
