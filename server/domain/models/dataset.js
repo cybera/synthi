@@ -356,15 +356,6 @@ class Dataset extends Base {
     // Do nothing
   }
 
-  async handleQueueUpdate(msg) {
-    logger.info(`message for dataset: ${this.id}\n%o`, msg)
-    const { message, status } = msg
-
-    if (status === 'error') {
-      await this.transformationError(message)
-    }
-  }
-
   async registerTransformation(inputs, outputs) {
     if (outputs.length > 0) {
       throw new Error('Specifying outputs other than the original dataset not supported')
@@ -398,17 +389,6 @@ class Dataset extends Base {
     `
     await safeQuery(transformationReadyQuery, { dataset: this })
     await this.touch()
-  }
-
-  async transformationError(message) {
-    logger.warn(`transformationError: ${message}`)
-    const query = `
-      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
-      WHERE ID(dataset) = toInteger($id)
-      SET t.error = $message
-      SET dataset.generating = false
-    `
-    await safeQuery(query, { id: this.id, message })
   }
 
   async transformationChain() {

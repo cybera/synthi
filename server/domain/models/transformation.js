@@ -104,6 +104,16 @@ class Transformation extends Base {
 
     return true
   }
+
+  async recordError(error) {
+    const query = `
+      MATCH (transformation:Transformation { uuid: $transformation.uuid })
+      MATCH (transformation)-[:OUTPUT]->(dataset:Dataset)
+      SET transformation.error = $error
+      SET dataset.generating = false
+    `
+    await safeQuery(query, { transformation: this, error })
+}
 }
 
 Transformation.label = 'Transformation'
