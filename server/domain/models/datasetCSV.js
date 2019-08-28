@@ -65,18 +65,6 @@ class DatasetCSV extends Dataset {
     }
   }
 
-  async handleQueueUpdate(msg) {
-    logger.info(`message for dataset: ${this.id}\n%o`, msg)
-    const { status } = msg
-
-    if (status !== 'error' && msg.task === 'generate') {
-      const { datasetColumns } = msg.data
-      logger.info('columns:\n%o', datasetColumns)
-    } else {
-      super.handleQueueUpdate(msg)
-    }
-  }
-
   downloadName() {
     return `${this.name}.csv`
   }
