@@ -34,6 +34,7 @@ import logger from './config/winston'
 // dependency cycles.
 import { ModelFactory } from './domain/models'
 import DefaultQueue from './lib/queue'
+import { NonAsyncRedisClient } from './lib/redisClient'
 import User from './domain/models/user'
 import { checkConfig } from './lib/startup-checks'
 
@@ -114,7 +115,7 @@ app.use(morgan('short', { stream: logger.morganStream }))
 // logging in.
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(session({
-  store: new RedisStore({ host: 'redis', port: 6379 }),
+  store: new RedisStore({ client: NonAsyncRedisClient }),
   secret: 'secret-token-123456',
   resave: false
 }))
