@@ -12,20 +12,6 @@ import {
 } from '../util'
 import logger from '../../config/winston';
 
-// TODO: Move this to the column model and use redis to store
-const visibleColumnCache = {}
-
-const columnVisible = (user, { id, order }) => {
-  if (!visibleColumnCache[user.uuid]) {
-    visibleColumnCache[user.uuid] = {}
-  }
-
-  if (!visibleColumnCache[user.uuid][id]) {
-    visibleColumnCache[user.uuid][id] = { visible: order ? order < 5 : false }
-  }
-  return visibleColumnCache[user.uuid][id].visible
-}
-
 const processDatasetUpdate = async (datasetProps, context) => {
   const {
     id,
@@ -129,7 +115,10 @@ export default {
   Dataset: {
     async columns(dataset, _, context) {
       const columns = await dataset.columns()
-      return columns.map(c => ({ ...c, visible: columnVisible(context.user, c) }))
+      return Promise.all(columns.map(async column => ({
+        ...column,
+        visible: await column.visibleForUser(context.user)
+      })))
     },
     samples: dataset => dataset.samples(),
     rows: dataset => dataset.rows(),
@@ -197,10 +186,11 @@ export default {
       dataset.runTransformation(context.user)
       return dataset
     },
-    toggleColumnVisibility(_, { id }, context) {
-      const isVisible = columnVisible(context.user, { id })
-      visibleColumnCache[context.user.uuid][id].visible = !isVisible
-      return visibleColumnCache[context.user.uuid][id].visible
+    async toggleColumnVisibility(_, { id }, context) {
+      const Column = ModelFactory.getClass('Column')
+      const column = await Column.get(id)
+      const visible = await column.visibleForUser(context.user)
+      return column.setVisibleForUser(!visible, context.user)
     },
     async saveInputTransformation(_, {
       id,
