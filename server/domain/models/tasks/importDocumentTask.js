@@ -18,11 +18,11 @@ export default class ImportDocumentTask extends ImportTask {
   async run() {
     const dataset = await this.dataset();
 
-    await DefaultQueue.sendToWorker({
+    await DefaultQueue.sendToTikaWorker({
       task: this.type,
       taskid: this.uuid,
       paths: dataset.paths,
-    }, 'tika-worker')
+    })
   }
 }
 

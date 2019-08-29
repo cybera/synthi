@@ -47,8 +47,19 @@ class AMQP {
     })
   }
 
-  async sendToWorker(msg, queue='python-worker') {
+  async sendToWorker(msg, queue) {
+    if (!queue) {
+      throw new Error('Queue name must be provided')
+    }
     await this.worker.sendToQueue(queue, msg)
+  }
+
+  async sendToTikaWorker(msg) {
+    await this.sendToWorker(msg, 'tika-worker')
+  }
+
+  async sendToPythonWorker(msg) {
+    await this.sendToWorker(msg, 'python-worker')
   }
 
   close() {

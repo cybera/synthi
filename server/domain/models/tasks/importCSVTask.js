@@ -22,7 +22,7 @@ export default class ImportCSVTask extends ImportTask {
       customDelimiter,
     } = this
 
-    await DefaultQueue.sendToWorker({
+    await DefaultQueue.sendToPythonWorker({
       task: this.type,
       taskid: this.uuid,
       paths: dataset.paths,

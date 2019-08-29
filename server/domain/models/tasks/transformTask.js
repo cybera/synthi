@@ -80,7 +80,7 @@ export default class TransformTask extends Task {
       owner: owner.id,
     }
 
-    await DefaultQueue.sendToWorker({
+    await DefaultQueue.sendToPythonWorker({
       task: 'transform',
       // TODO: We really shouldn't need to be passing this in anymore
       ownerName: owner.name,
@@ -88,7 +88,6 @@ export default class TransformTask extends Task {
       state: this.state,
       transformation: taskTransformationInfo,
       storagePaths,
-      samplePaths
     })
   }
 
