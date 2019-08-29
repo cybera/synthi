@@ -22,7 +22,7 @@ export default class RegisterTask extends Task {
   async run() {
     const transformation = await this.transformation();
 
-    await DefaultQueue.sendToWorker({
+    await DefaultQueue.sendToPythonWorker({
       task: 'register_transformation',
       taskid: this.uuid,
       transformationScript: transformation.script

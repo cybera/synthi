@@ -10,22 +10,25 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import status_channel, queue_conn, parse_params
-from common import load_transform, parse_params, get_full_name
+from utils import status_channel, queue_conn, parse_params
+from utils import load_transform, parse_params, get_full_name
 
 from lib import data_import
 
-import storage
+import common.storage as storage
 
 SAMPLE_SIZE = 100
 
 def transform_dataset(params):
   owner_name = params["ownerName"]
 
-  def dataset_input(name, raw=False):
+  def dataset_input(name, raw=False, original=False):
     full_name = get_full_name(name, owner_name)
     if full_name in params['storagePaths']:
-      path = params['storagePaths'][full_name]
+      if original:
+        path = params['storagePaths'][full_name]['original']
+      else:
+        path = params['storagePaths'][full_name]['imported']
       if raw:
         return storage.read_raw(path)
       else:
@@ -42,13 +45,13 @@ def transform_dataset(params):
 
   def write_output(output, owner, output_name):
     full_name = get_full_name(output_name, owner_name)
-    path = params["storagePaths"][full_name]
+    path = params["storagePaths"][full_name]["imported"]
 
     if type(output) is pd.DataFrame:
       columns = data_import.column_info(output)
 
       print(f"Updating calculated '{output_name}' dataset: {path}")
-      store_csv(output, path, params["samplePaths"][full_name])
+      store_csv(output, path, params["storagePaths"][full_name]["sample"])
 
       return { 'type': 'csv', 'columns': columns }
     else:

@@ -2,35 +2,28 @@ import Base from '../base'
 import DefaultQueue from '../../../lib/queue'
 
 import ImportTask from './importTask'
+import logger from '../../../config/winston';
 
-export default class ImportCSVTask extends ImportTask {
+export default class ImportDocumentTask extends ImportTask {
   static async create(properties = {}) {
     const task = await super.create({
       ...properties,
-      type: 'import_csv',
+      type: 'import_document',
     })
 
+    logger.info(task)
     return task;
   }
 
   async run() {
     const dataset = await this.dataset();
 
-    const {
-      header,
-      delimiter,
-      customDelimiter,
-    } = this
-
-    await DefaultQueue.sendToPythonWorker({
+    await DefaultQueue.sendToTikaWorker({
       task: this.type,
       taskid: this.uuid,
       paths: dataset.paths,
-      header,
-      delimiter,
-      customDelimiter,
     })
   }
 }
 
-Base.ModelFactory.register(ImportCSVTask, 'Task', { type: 'import_csv' })
+Base.ModelFactory.register(ImportDocumentTask, 'Task', { type: 'import_document' })

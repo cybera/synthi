@@ -11,8 +11,8 @@ from importlib.machinery import SourceFileLoader
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-import storage
-from common import load_transform, parse_params, status_channel
+import common.storage as storage
+from utils import load_transform, parse_params, status_channel
 import dbqueries as db
 
 params = parse_params()
@@ -33,7 +33,7 @@ def transformation_error(error):
   status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
   raise error
 
-def dataset_input(name, raw=False):
+def dataset_input(name, raw=False, original=False):
   inputs.append(name)
 
 def dataset_output(name):

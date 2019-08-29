@@ -8,10 +8,10 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import status_channel, parse_params
+from utils import status_channel, parse_params
 from lib import data_import
 
-import storage
+import common.storage as storage
 
 # When importing, we take a sample of the dataset's rows and store that
 # as well. For really small datasets, this could be the whole thing, and

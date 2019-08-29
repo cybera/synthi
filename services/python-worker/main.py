@@ -6,13 +6,9 @@ import json
 
 import pika
 
+from common import worker
+
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
-
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=60))
-channel = connection.channel()
-
-
-channel.queue_declare(queue='python-worker')
 
 def callback(ch, method, properties, body):
   msg = body.decode('utf8')
@@ -30,10 +26,4 @@ def callback(ch, method, properties, body):
 
   sys.stdout.flush()
 
-channel.basic_consume('python-worker',
-                      callback,
-                      auto_ack=True)
-
-print(' [*] Waiting for messages. To exit press CTRL+C')
-sys.stdout.flush()
-channel.start_consuming()
+worker.start('python-worker', callback)

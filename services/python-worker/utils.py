@@ -5,8 +5,8 @@ from contextlib import contextmanager
 
 from neo4j.v1 import GraphDatabase
 import pika
-import storage
-import config
+import common.storage as storage
+import common.config as config
 
 queue_conn = pika.BlockingConnection(pika.ConnectionParameters(host='queue'))
 status_channel = queue_conn.channel()

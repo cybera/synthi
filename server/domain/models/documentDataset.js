@@ -1,6 +1,7 @@
 import pathlib from 'path'
 import logger from '../../config/winston'
 
+import Base from './base'
 import Dataset from './dataset'
 import Storage from '../../storage'
 
@@ -8,29 +9,35 @@ class DocumentDataset extends Dataset {
   constructor(node) {
     super(node)
 
+    this.importTask = 'import_document'
+
     if (this.uuid) {
       const extension = pathlib.extname(this.originalFilename || '')
 
       this.paths = {
         original: `${this.uuid}/original${extension}`,
-        imported: `${this.uuid}/original${extension}`,
+        imported: `${this.uuid}/imported.txt`,
       }
     }
   }
 
-  async upload({ stream, filename }) {
+  upload({ stream, filename }) {
     const extension = pathlib.extname(filename)
     this.paths.original = `${this.uuid}/original${extension}`
 
     super.upload({ stream, filename })
   }
 
-  /* eslint-disable class-methods-use-this, no-unused-vars */
   async import(removeExisting = false, options = {}) {
-    // Do nothing. Right now it doesn't really make sense to have to do
-    // an import step.
+    const ImportDocumentTask = Base.ModelFactory.getClass('ImportDocumentTask')
+    const task = await ImportDocumentTask.create({ dataset: this, removeExisting, options })
+    await task.run()
   }
-  /* eslint-enable class-methods-use-this, no-unused-vars */
+
+  async deleteStorage() {
+    Storage.remove('datasets', this.paths.original)
+    Storage.remove('datasets', this.paths.imported)
+  }
 
   downloadName() {
     const extension = pathlib.extname(this.originalFilename || '')
@@ -44,10 +51,7 @@ class DocumentDataset extends Dataset {
 
   async deleteStorage() {
     Storage.remove('datasets', this.paths.original)
-    // TODO:
-    // this.paths.imported is the same right now, but we'll need to update this
-    // when that's no longer the case.
-    // Storage.remove('datasets', this.paths.imported)
+    Storage.remove('datasets', this.paths.imported)
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
