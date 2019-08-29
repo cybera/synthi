@@ -4,7 +4,7 @@ import os, sys
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-import storage
+import common.storage as storage
 
 # When importing, we take a sample of the dataset's rows and store that
 # as well. For really small datasets, this could be the whole thing, and

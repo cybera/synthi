@@ -15,7 +15,7 @@ from utils import load_transform, parse_params, get_full_name
 
 from lib import data_import
 
-import storage
+import common.storage as storage
 
 SAMPLE_SIZE = 100
 

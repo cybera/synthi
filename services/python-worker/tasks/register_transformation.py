@@ -11,7 +11,7 @@ from importlib.machinery import SourceFileLoader
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-import storage
+import common.storage as storage
 from utils import load_transform, parse_params, status_channel
 import dbqueries as db
 
