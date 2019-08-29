@@ -12,7 +12,7 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
 import storage
-from common import load_transform, parse_params, status_channel
+from utils import load_transform, parse_params, status_channel
 import dbqueries as db
 
 params = parse_params()

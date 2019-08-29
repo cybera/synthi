@@ -10,8 +10,8 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import status_channel, queue_conn, parse_params
-from common import load_transform, parse_params, get_full_name
+from utils import status_channel, queue_conn, parse_params
+from utils import load_transform, parse_params, get_full_name
 
 from lib import data_import
 

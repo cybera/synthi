@@ -2,7 +2,7 @@
 
 import sys
 
-from common import neo4j_driver
+from utils import neo4j_driver
 
 if len(sys.argv) != 3:
   print("Usage: create-user USERNAME ORGANIZATION")
