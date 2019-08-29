@@ -35,12 +35,12 @@ const DatasetColumnChips = (props) => {
         Enabled Columns
       </Typography>
       <Grid container spacing={8}>
-        {columns.map(({ id, name, visible }) => (
-          <Grid item key={id}>
+        {columns.map(({ uuid, name, visible }) => (
+          <Grid item key={uuid}>
             <Chip
               clickable
               color={visible ? 'primary' : 'default'}
-              onClick={() => toggleColumnVisibility(id)}
+              onClick={() => toggleColumnVisibility(uuid)}
               label={name}
             />
           </Grid>
@@ -53,7 +53,7 @@ const DatasetColumnChips = (props) => {
 DatasetColumnChips.propTypes = {
   classes: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   columns: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number,
+    uuid: PropTypes.string,
     name: PropTypes.string,
     visible: PropTypes.bool
   })),
@@ -65,16 +65,16 @@ DatasetColumnChips.defaultProps = {
 }
 
 const toggleColumnVisibility = gql`
-  mutation ToggleColumnVisibility($id:Int!) {
-    toggleColumnVisibility(id: $id)
+  mutation ToggleColumnVisibility($uuid:String!) {
+    toggleColumnVisibility(uuid: $uuid)
   }
 `
 
 const DatasetColumnChipsWithToggle = (props) => {
   const { dataset } = props
 
-  const toggle = mutation => id => mutation({
-    variables: { id },
+  const toggle = mutation => uuid => mutation({
+    variables: { uuid },
     refetchQueries: [
       { query: datasetViewQuery, variables: { id: dataset.id } }
     ]

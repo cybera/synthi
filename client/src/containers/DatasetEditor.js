@@ -43,7 +43,7 @@ class DatasetEditor extends React.Component {
 
     const { inputTransformation } = dataset
     const codeExists = dataset && dataset.computed && inputTransformation
-    const virtualTransformation = Boolean(inputTransformation && inputTransformation.virtual)
+    const virtualTransformation = inputTransformation !== null && inputTransformation.virtual
     return (
       <div className={classes.root}>
         <ToggleVisibility visible={!dataset.computed}>

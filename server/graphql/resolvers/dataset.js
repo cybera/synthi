@@ -186,9 +186,9 @@ export default {
       dataset.runTransformation(context.user)
       return dataset
     },
-    async toggleColumnVisibility(_, { id }, context) {
+    async toggleColumnVisibility(_, { uuid }, context) {
       const Column = ModelFactory.getClass('Column')
-      const column = await Column.get(id)
+      const column = await Column.getByUuid(uuid)
       const visible = await column.visibleForUser(context.user)
       return column.setVisibleForUser(!visible, context.user)
     },

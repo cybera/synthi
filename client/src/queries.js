@@ -26,6 +26,7 @@ query($id: Int) {
     name
     columns {
       id
+      uuid
       name
       order
       visible
