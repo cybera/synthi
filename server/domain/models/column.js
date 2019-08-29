@@ -1,5 +1,6 @@
 import Base from './base'
 import RedisClient from '../../lib/redisClient'
+import { safeQuery } from '../../neo4j/connection'
 
 class Column extends Base {
   async visibleForUser(user) {
@@ -13,6 +14,58 @@ class Column extends Base {
     const key = `user:${user.uuid}:column:${this.uuid}`
     await RedisClient.hset(key, 'visible', visible)
     return visible
+  }
+
+  async tags() {
+    const query = `
+      MATCH (c:Column { uuid: $column.uuid })
+      MATCH (tag:Tag)-[:DESCRIBES]->(c)
+      RETURN tag
+    `
+
+    const results = await safeQuery(query, { column: this })
+
+    return results.map(row => row.tag.properties)
+  }
+
+  async update(values, tagNames) {
+    // Remove any tags not in the list, add tags that are in the list and haven't yet
+    // been related, and set any new values.
+
+    let editTags = ''
+
+    // We only want to add/remove tags if a list of tags has been provided
+    if (tagNames) {
+      editTags = `
+        WITH column
+        OPTIONAL MATCH (tag:Tag)-[r:DESCRIBES]->(column)
+        WHERE NOT tag.name IN $tagNames
+        DELETE r
+        WITH column
+        MATCH (tag:Tag)
+        WHERE tag.name IN $tagNames
+        MERGE (tag)-[:DESCRIBES]->(column)
+      `
+    }
+
+    const editQuery = `
+      MATCH (column:Column { uuid: $column.uuid })
+      SET column.originalName = COALESCE(column.originalName, column.name),
+          column += $values
+      ${editTags}
+      RETURN column
+    `
+
+    await safeQuery(editQuery, { column: this, tagNames, values })
+
+    const returnQuery = `
+      MATCH (column:Column { uuid: $column.uuid })
+      RETURN column
+    `
+
+    const results = await safeQuery(returnQuery, { column: this })
+
+    return results.map(row => row.column.properties)[0]
   }
 
   __cacheKeyForUser(user) {

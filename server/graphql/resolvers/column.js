@@ -1,17 +1,15 @@
-import {
-  tags as columnTags,
-  update
-} from '../../domain/repositories/columnRepository'
+import { Column } from '../../domain/models'
 
 export default {
   Column: {
     async tags(column) {
-      return columnTags(column)
+      return (await Column.get(column.id)).tags()
     }
   },
   Mutation: {
     updateColumn: async (_, { uuid, values, tagNames }, context) => {
-      return update({ uuid }, values, tagNames)
+      const column = await Column.getByUuid(uuid)
+      return column.update(values, tagNames)
     }
   }
 }
