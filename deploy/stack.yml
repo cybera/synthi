@@ -48,6 +48,18 @@ services:
      - default
     depends_on:
       - queue
+  tika-worker:
+    image: cybera/adi-tika-worker:latest
+    configs:
+      - source: production.toml
+        target: /usr/src/app/config/development.toml
+    volumes:
+      - uploads:/mnt/data
+      - scripts:/mnt/scripts
+    networks:
+     - default
+    depends_on:
+      - queue
   redis:
     image: redis:4.0
     networks:

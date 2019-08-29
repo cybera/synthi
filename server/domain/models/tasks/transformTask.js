@@ -13,7 +13,7 @@ import Task from '../task'
   of fully qualified dataset names to the storage location
   that represents their input and output datasets.
 */
-export const datasetStorageMap = async (transformation, pathType, user) => {
+export const datasetStorageMap = async (transformation, user) => {
   const Organization = Base.ModelFactory.getClass('Organization')
 
   const query = `
@@ -41,7 +41,7 @@ export const datasetStorageMap = async (transformation, pathType, user) => {
 
   const mapping = {}
   ioNodes.forEach(({ dataset, org, alias }) => {
-    mapping[`${org.name}:${alias || dataset.name}`] = dataset.paths[pathType]
+    mapping[`${org.name}:${alias || dataset.name}`] = dataset.paths
   })
 
   return mapping
@@ -67,8 +67,7 @@ export default class TransformTask extends Task {
 
     await transformation.waitForReady()
 
-    const storagePaths = await datasetStorageMap(transformation, 'imported', user)
-    const samplePaths = await datasetStorageMap(transformation, 'sample', user)
+    const storagePaths = await datasetStorageMap(transformation, user)
     const outputDataset = await transformation.outputDataset()
     const owner = await outputDataset.owner()
 

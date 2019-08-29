@@ -9,6 +9,7 @@ import TransformTask from './models/tasks/transformTask'
 import RegisterTask from './models/tasks/registerTask'
 import ImportTask from './models/tasks/importTask'
 import ImportCSVTask from './models/tasks/importCSVTask'
+import ImportDocumentTask from './models/tasks/importDocumentTask'
 import Transformation from './models/transformation'
 import User from './models/user'
 
@@ -26,6 +27,7 @@ export {
   RegisterTask,
   ImportTask,
   ImportCSVTask,
+  ImportDocumentTask,
   Transformation,
   User,
   ModelFactory

@@ -40,12 +40,15 @@ class AMQP {
     this.conn = startQueue()
     this.worker = await this.conn.createChannel({
       json: true,
-      setup: ch => ch.assertQueue('python-worker', { durable: false })
+      setup: ch => {
+        ch.assertQueue('python-worker', { durable: false })
+        ch.assertQueue('tika-worker', { durable: false })
+      }
     })
   }
 
-  async sendToWorker(msg) {
-    await this.worker.sendToQueue('python-worker', msg)
+  async sendToWorker(msg, queue='python-worker') {
+    await this.worker.sendToQueue(queue, msg)
   }
 
   close() {

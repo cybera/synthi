@@ -13,4 +13,10 @@ FROM base as python-worker
 RUN pip install neo4j-driver \
                 bcrypt
 ADD python-worker ./
-ADD common ./
+ADD common ./common
+
+FROM base as tika-worker
+RUN apt-get install default-jre tesseract-ocr -y
+RUN wget https://www-eu.apache.org/dist/tika/tika-app-1.22.jar -O /tika-app.jar
+ADD tika-worker ./
+ADD common ./common
