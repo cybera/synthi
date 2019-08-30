@@ -70,6 +70,16 @@ pipeline {
           sh 'docker service update adi_neo4j --image cybera/adi-neo4j:$TAG --with-registry-auth'
           sh 'docker service update adi_python-worker --image cybera/adi-python-worker:$TAG --with-registry-auth'
 
+          // Wait for container to become available
+          retry(10) {
+              sh 'docker exec adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) true'
+              sleep 5
+          }
+
+          // Wait for neo4j to be available
+          sh 'docker exec adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) /wait-for-it.sh  -t 45 -h neo4j -p 7474'
+
+          sh 'docker exec adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) ./run_migrations.py'
         }
        }
       }
