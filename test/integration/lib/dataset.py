@@ -149,17 +149,17 @@ def get(uuid_or_name, raw=False, as_text=True, host=None, api_key=None):
 def meta(uuid_or_name, host=None, api_key=None):
   org = default_org()
 
-  datasetId = None
+  datasetUuid = None
   datasetName = None
   
   if not is_uuid(uuid_or_name):
     datasetName = uuid_or_name
   else:
-    datasetId = uuid_or_name
+    datasetUuid = uuid_or_name
 
   query = '''
-  query ($org: OrganizationID, $datasetId: String, $datasetName: String) {
-    dataset(org: $org, uuid: $datasetId, name: $datasetName) {
+  query ($org: OrganizationID, $datasetUuid: String, $datasetName: String) {
+    dataset(org: $org, uuid: $datasetUuid, name: $datasetName) {
       id
       name
       uuid
@@ -169,7 +169,7 @@ def meta(uuid_or_name, host=None, api_key=None):
 
   variables = dict(
     org = org,
-    datasetId = datasetId,
+    datasetUuid = datasetUuid,
     datasetName = datasetName
   )
 
