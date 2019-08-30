@@ -24,7 +24,7 @@ class User extends Base {
   async orgs() {
     const Organization = Base.ModelFactory.getClass('Organization')
 
-    return this.relatedMany('-[:MEMBER]->', Organization, 'organization')
+    return this.relatedMany('-[:MEMBER]->', 'Organization')
   }
 
   async hashPassword(password) {

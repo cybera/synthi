@@ -1,5 +1,5 @@
+import Base from './base'
 import Dataset from './dataset'
-import Column from './column'
 
 import Storage from '../../storage'
 import { csvFromStream } from '../../lib/util'
@@ -14,7 +14,6 @@ class DatasetCSV extends Dataset {
       this.type = 'csv'
     }
 
-    this.importTask = 'import_csv'
     this.paths = {
       original: `${this.uuid}/original.csv`,
       imported: `${this.uuid}/imported.csv`,
@@ -23,7 +22,7 @@ class DatasetCSV extends Dataset {
   }
 
   async columns() {
-    const columns = await this.relatedMany('<-[:BELONGS_TO]-', Column, 'column')
+    const columns = await this.relatedMany('<-[:BELONGS_TO]-', 'Column')
     return columns.sort((c1, c2) => c1.order - c2.order)
   }
 
@@ -57,20 +56,57 @@ class DatasetCSV extends Dataset {
     await super.delete()
   }
 
-  async handleQueueUpdate(msg) {
-    logger.info(`message for dataset: ${this.id}\n%o`, msg)
-    const { status } = msg
-
-    if (status !== 'error' && msg.task === 'generate') {
-      const { datasetColumns } = msg.data
-      logger.info('columns:\n%o', datasetColumns)
+  async handleUpdate(data) {
+    const { columns } = data;
+    if (columns) {
+      await this.handleColumnUpdate(columns);
     } else {
-      super.handleQueueUpdate(msg)
+      logger.warn(`No column updates for Dataset: ${this.name} (${this.uuid})`);
     }
   }
 
   downloadName() {
     return `${this.name}.csv`
+  }
+
+  async import(removeExisting = false, options = {}) {
+    const ImportCSVTask = Base.ModelFactory.getClass('ImportCSVTask')
+    const importCSVTask = await ImportCSVTask.create({ dataset: this, removeExisting, options })
+    await importCSVTask.run()
+  }
+
+  async deleteStorage() {
+    Storage.remove('datasets', this.paths.original)
+    Storage.remove('datasets', this.paths.imported)
+    Storage.remove('datasets', this.paths.sample)
+  }
+
+  async handleColumnUpdate(columnList) {
+    logger.debug(`Column List for ${this.id}:\n%o`, columnList)
+
+    const cleanDeadColumnsQuery = `
+      MATCH (column:Column)-[:BELONGS_TO]->(:Dataset { uuid: $dataset.uuid })
+      WHERE NOT column.name IN $columnNames
+      DETACH DELETE column
+    `
+    const columnNames = columnList.map(column => column.name)
+    safeQuery(cleanDeadColumnsQuery, { dataset: this, columnNames })
+
+    const updateColumnsQuery = `
+      MATCH (dataset:Dataset { uuid: $dataset.uuid })
+      UNWIND $columns AS updated
+      MERGE (column:Column { name: updated.name })-[:BELONGS_TO]->(dataset)
+      SET column.order = updated.order, column.originalName = updated.originalName
+      WITH column, updated
+      UNWIND updated.tags as tagName
+      MATCH (tag:Tag { name: tagName})
+      MERGE (tag)-[:DESCRIBES]->(column)
+    `
+    await safeQuery(updateColumnsQuery, { dataset: this, columns: columnList })
+
+    this.generating = false
+    await this.save()
+    await this.touch()
   }
 }
 

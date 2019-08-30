@@ -11,65 +11,49 @@ from importlib.machinery import SourceFileLoader
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-import storage
-from common import neo4j_driver, load_transform, parse_params, status_channel
+import common.storage as storage
+from utils import load_transform, parse_params, status_channel
 import dbqueries as db
 
-session = neo4j_driver.session()
-tx = session.begin_transaction()
-
 params = parse_params()
-transformation_id = params['id']
-output_dataset_id = params['outputDatasetId']
-owner_name = params['ownerName']
-user_uuid = params['userUuid']
-transformation_script = params['transformationScript']
 
-valid_org_names = db.valid_org_names(tx, user_uuid)
+transformation_script = params['transformationScript']
 
 inputs = []
 outputs = []
 
-def transformation_error(message):
+def transformation_error(error):
   body = {
-    "type": "dataset-updated",
-    "id": output_dataset_id,
+    "task": "register_transformation",
+    "taskid": params["taskid"],
+    "type": "task-updated",
     "status": "error",
-    "message": message
+    "message": repr(error)
   }
-  status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
-  raise Exception(message)
+  status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
+  raise error
 
-def dataset_input(name, raw=False):
-  names = name.split(':')
-
-  if len(names) > 2:
-    raise Exception(f"Cannot parse dataset name {name}")
-  elif len(names) == 2:
-    org, dataset = names
-    if org not in valid_org_names:
-      transformation_error("You can only transform datasets from organizations you belong to")
-  else:
-    org = owner_name
-    dataset = names[0]
-
-  inputs.append([org, dataset])
+def dataset_input(name, raw=False, original=False):
+  inputs.append(name)
 
 def dataset_output(name):
   if len(outputs) == 0:
-    outputs.append([owner_name, name])
+    inputs.append(name)
   else:
     print("Transformations can currently only have one output")
     exit(0)
 
-transform_mod = load_transform(transformation_script,
-                               dataset_input,
-                               dataset_output)
+try:
+  transform_mod = load_transform(transformation_script,
+                                dataset_input,
+                                dataset_output)
+except Exception as error:
+  transformation_error(error)
 
 body = {
-  "type": "dataset-updated",
   "task": "register_transformation",
-  "id": output_dataset_id,
+  "taskid": params["taskid"],
+  "type": "task-updated",
   "status": "success",
   "message": "",
   "data": {
@@ -78,4 +62,4 @@ body = {
   }
 }
 
-status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
+status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))

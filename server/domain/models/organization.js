@@ -19,7 +19,7 @@ class Organization extends Base {
   datasetByName(name) {
     const Dataset = Base.ModelFactory.getClass('Dataset')
 
-    return this.relatedOne('-[:OWNER]->', Dataset, 'dataset', { name })
+    return this.relatedOne('-[:OWNER]->', 'Dataset', { name })
   }
 
   async createDataset(initialProperties = {}) {
@@ -78,7 +78,7 @@ class Organization extends Base {
   async members() {
     const User = Base.ModelFactory.getClass('User')
 
-    return this.relatedMany('<-[:MEMBER]-', User, 'user')
+    return this.relatedMany('<-[:MEMBER]-', 'User')
   }
 
   async canCreateDatasets(user) {

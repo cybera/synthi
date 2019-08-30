@@ -10,21 +10,25 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import status_channel, queue_conn, parse_params
-from common import load_transform, parse_params, get_full_name
+from utils import status_channel, queue_conn, parse_params
+from utils import load_transform, parse_params, get_full_name
 
-import storage
+from lib import data_import
+
+import common.storage as storage
 
 SAMPLE_SIZE = 100
 
-def generate_dataset(params):
-  generate_id = params["id"]
+def transform_dataset(params):
   owner_name = params["ownerName"]
 
-  def dataset_input(name, raw=False):
+  def dataset_input(name, raw=False, original=False):
     full_name = get_full_name(name, owner_name)
     if full_name in params['storagePaths']:
-      path = params['storagePaths'][full_name]
+      if original:
+        path = params['storagePaths'][full_name]['original']
+      else:
+        path = params['storagePaths'][full_name]['imported']
       if raw:
         return storage.read_raw(path)
       else:
@@ -39,46 +43,43 @@ def generate_dataset(params):
     # here, we have enough hooked up in the graph to figure out the output node.
     pass
 
-  dataset_info = {}
-
   def write_output(output, owner, output_name):
     full_name = get_full_name(output_name, owner_name)
-    path = params["storagePaths"][full_name]
+    path = params["storagePaths"][full_name]["imported"]
 
     if type(output) is pd.DataFrame:
-      # TODO: Since we can now figure out the exact path from the transformations query,
-      # it's not really necessary to figure that out again via the more brittle name lookup.
-      columns = [dict(name=name,order=i+1) for i, name in enumerate(output.columns)]
-      dataset_info[full_name] = columns
+      columns = data_import.column_info(output)
 
       print(f"Updating calculated '{output_name}' dataset: {path}")
-      store_csv(output, path, params["samplePaths"][full_name])
+      store_csv(output, path, params["storagePaths"][full_name]["sample"])
+
+      return { 'type': 'csv', 'columns': columns }
     else:
       storage.write_raw(output, path)
 
+      return { 'type': 'document', 'columns': [] }
+
   body = {
-    "type": "dataset-updated",
-    "task": "generate",
-    "id": generate_id,
+    "type": "task-updated",
+    "task": "transform",
+    "taskid": params["taskid"],
     "status": "success",
     "message": "",
-    "data": {
-      "datasetColumnUpdates": dataset_info
-    }
+    "data": {}
   }
 
   try:
-    for t in params["transformations"]:
-      transform_script = t['script']
-      print(f"Running {transform_script}")
-      transform_mod = load_transform(transform_script, dataset_input, dataset_output)
-      transform_result = transform_mod.transform()
-      write_output(transform_result, t['owner'], t['output_name'])
+    transformation = params["transformation"]
+    transform_script = transformation['script']
+    print(f"Running {transform_script}")
+    transform_mod = load_transform(transform_script, dataset_input, dataset_output)
+    transform_result = transform_mod.transform()
+    body['data'] = write_output(transform_result, transformation['owner'], transformation['output_name'])
   except Exception as e:
     body["status"] = "error"
     body["message"] = repr(e)
 
-  status_channel.basic_publish(exchange='dataset-status', routing_key='', body=json.dumps(body))
+  status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
 
 def store_csv(df, path, sample_path):
   # Write out normalized versions of the CSV file. These will have header
@@ -92,5 +93,5 @@ def store_csv(df, path, sample_path):
 
 if __name__ == "__main__":
   params = parse_params()
-  generate_dataset(params)
+  transform_dataset(params)
   queue_conn.close()

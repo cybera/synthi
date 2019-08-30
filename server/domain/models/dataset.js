@@ -1,17 +1,60 @@
 import shortid from 'shortid'
 import waitFor from 'p-wait-for'
 
+import withNext from '../../lib/withNext'
+
 import Base from './base'
-import { datasetStorageMap } from './transformation'
 
 import Storage from '../../storage'
 import { fullDatasetPath, storeFS } from '../../lib/util'
-import DefaultQueue from '../../lib/queue'
+
+import { pubsub } from '../../graphql/pubsub'
 import { safeQuery } from '../../neo4j/connection'
 import logger from '../../config/winston'
 import { memberOfOwnerOrg } from '../util'
 
+const DATASET_UPDATED = 'DATASET_UPDATED'
+
 class Dataset extends Base {
+  // Given a particular user and name reference for a dataset,
+  // get an accessible dataset following rules for name resolution
+  // across organizations and ensuring that the user has access to
+  // that dataset. If no dataset can be found that the user can
+  // access, we'll return null.
+  static async getNearestByName(user, name, nearDataset) {
+    // There may be no org name, in which case we assume the datasetName.
+    // Assigning in reverse handles the case where there is no ':' properly.
+    const [datasetName, orgName] = name.split(':').reverse()
+    const orgByName = 'MATCH (org:Organization { name: $orgName })'
+    const orgByDataset = `
+      MATCH (nearDataset:Dataset { uuid: $nearDataset.uuid })
+      MATCH (org:Organization)-[:OWNER]->(nearDataset)
+    `
+    const orgFinder = orgName ? orgByName : orgByDataset
+
+    const query = `
+      ${orgFinder}
+      MATCH (user:User { uuid: $user.uuid })
+      MATCH (user)-[:MEMBER]->(org)
+      MATCH (org)-[:OWNER]->(dataset:Dataset { name: $datasetName })
+      RETURN dataset
+    `
+
+    const params = {
+      user,
+      nearDataset,
+      orgName,
+      datasetName
+    }
+
+    const results = await safeQuery(query, params)
+    if (results.length > 0) {
+      return Base.ModelFactory.derive(results[0].dataset)
+    }
+
+    return null
+  }
+
   static async getByName(organization, name) {
     return organization.datasetByName(name)
   }
@@ -38,34 +81,46 @@ class Dataset extends Base {
   }
 
   async owner() {
-    const Organization = Base.ModelFactory.getClass('Organization')
-
-    return this.relatedOne('<-[:OWNER]-', Organization, 'owner')
+    return this.relatedOne('<-[:OWNER]-', 'Organization')
   }
 
   async inputTransformation() {
-    const Transformation = Base.ModelFactory.getClass('Transformation')
-
-    return this.relatedOne('<-[:OUTPUT]-', Transformation, 'transformation')
+    return this.relatedOne('<-[:OUTPUT]-', 'Transformation')
   }
 
   fullPath() {
     return fullDatasetPath(this.path)
   }
 
-  readStream() {
+  readStream(type = 'imported') {
     logger.info(`Reading ${this.paths.imported}`)
-    return Storage.createReadStream('datasets', this.paths.imported)
+    return Storage.createReadStream('datasets', this.paths[type])
   }
 
-  async readyForDownload() {
-    try {
-      await waitFor(async () => Storage.exists('datasets', this.paths.imported), { interval: 2000, timeout: 30000 })
-    } catch (e) {
-      return false
-    }
+  async download(req, res, type = 'imported') {
+    if (await this.canAccess(req.user)) {
+      res.attachment(this.downloadName())
 
-    return true
+      const lastPrepTask = this.computed ? (await this.runTransformation(req.user)) : undefined
+
+      const downloadReady = async () => {
+        const storageReady = await Storage.exists('datasets', this.paths.imported)
+        const tasksRun = lastPrepTask ? (await lastPrepTask.isDone()) : true
+
+        return storageReady && tasksRun
+      }
+
+      try {
+        await waitFor(downloadReady, { interval: 2000, timeout: 30000 })
+      } catch (e) {
+        logger.error(`Error waiting for download preparation on dataset ${this.debugSummary()}:`)
+        logger.error(e)
+      }
+
+      this.readStream(type).pipe(res)
+    } else {
+      res.status(404).send('Not found')
+    }
   }
 
   async canAccess(user) {
@@ -131,13 +186,18 @@ class Dataset extends Base {
     await safeQuery(...query)
 
     try {
-      Storage.remove('datasets', this.path)
+      await this.deleteStorage()
     } catch (err) {
       logger.error(err)
     }
   }
 
-  async upload({ stream, filename }) {
+  // eslint-disable-next-line class-methods-use-this
+  async deleteStorage() {
+    // Do nothing by default
+  }
+
+  async upload({ stream, filename, mimetype }) {
     try {
       logger.info(`Uploading: ${filename}`)
       const { path } = await storeFS({ stream, filename: this.paths.original })
@@ -145,6 +205,7 @@ class Dataset extends Base {
       this.path = path
       this.computed = false
       this.originalFilename = filename
+      this.mimetype = mimetype
       logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
@@ -155,33 +216,28 @@ class Dataset extends Base {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
   async import(removeExisting = false, options = {}) {
-    await DefaultQueue.sendToWorker({
-      task: this.importTask,
-      uuid: this.uuid,
-      paths: this.paths,
-      id: this.id,
-      removeExisting,
-      ...options
-    })
+    // Do nothing by default
   }
 
   async runTransformation(user) {
-    const transformations = await this.parentTransformations()
-    const owner = await this.owner()
-    const storagePaths = await datasetStorageMap(transformations.map(t => t.id), 'imported', user)
-    const samplePaths = await datasetStorageMap(transformations.map(t => t.id), 'sample', user)
+    const TransformTask = Base.ModelFactory.getClass('TransformTask')
 
-    await DefaultQueue.sendToWorker({
-      task: 'generate',
-      id: this.id,
-      uuid: this.uuid,
-      paths: this.paths,
-      ownerName: owner.name,
-      transformations,
-      storagePaths,
-      samplePaths
-    })
+    const transformations = await this.transformationChain()
+    const tasks = await Promise.all(transformations.map(async transformation => (
+      TransformTask.create({ transformation, user })
+    )))
+
+    if (tasks.length > 1) {
+      await Promise.all(withNext(tasks, (task, nextTask) => task.addNext(nextTask)))
+    }
+
+    if (tasks.length > 0) {
+      await tasks[0].run()
+    }
+
+    return tasks[tasks.length - 1]
   }
 
   // A user can belong to multiple organizations. If you've got access
@@ -236,16 +292,10 @@ class Dataset extends Base {
         await safeQuery(...setDefaultPathQuery)
       }
 
-      const owner = await this.owner()
-
-      await DefaultQueue.sendToWorker({
-        task: 'register_transformation',
-        id: transformation.id,
-        ownerName: owner.name,
-        userUuid: user.uuid,
-        outputDatasetId: this.id,
-        transformationScript: transformation.script
-      })
+      // RegisterTask
+      const RegisterTask = Base.ModelFactory.getClass('RegisterTask')
+      const registerTask = await RegisterTask.create({ transformation, user })
+      await registerTask.run()
 
       return transformation
     }
@@ -287,7 +337,7 @@ class Dataset extends Base {
   async metadata() {
     const DatasetMetadata = Base.ModelFactory.getClass('DatasetMetadata')
 
-    let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', DatasetMetadata, 'metadata')
+    let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', 'DatasetMetadata')
     if (!datasetMetadata) {
       const query = `
         MATCH (dataset:Dataset { uuid: $uuid })
@@ -302,41 +352,36 @@ class Dataset extends Base {
     return datasetMetadata
   }
 
-  async handleQueueUpdate(msg) {
-    logger.info(`message for dataset: ${this.id}\n%o`, msg)
-    const { message, status } = msg
-
-    if (status === 'error') {
-      await this.transformationError(message)
-    } else if (msg.task === 'register_transformation') {
-      const { inputs, outputs } = msg.data
-      await this.registerTransformation(inputs, outputs)
-    }
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
+  async handleUpdate(msg) {
+    // Do nothing
   }
 
   async registerTransformation(inputs, outputs) {
-    const inputQuery = `
-      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
-      WHERE ID(dataset) = toInteger($id)
-      SET t.inputs = [ x in $inputs | x[0] + ':' + x[1] ]
-      WITH t
-      UNWIND $inputs AS input
-      MATCH (d:Dataset { name: input[1] })<-[:OWNER]-(o:Organization { name: input[0] })
-      MERGE (d)-[:INPUT]->(t)
+    if (outputs.length > 0) {
+      throw new Error('Specifying outputs other than the original dataset not supported')
+    }
+
+    const baseQuery = `
+      MATCH (outputDataset:Dataset { uuid: $dataset.uuid })
+      MATCH (transformation:Transformation)-[:OUTPUT]->(outputDataset)
     `
 
-    const outputQuery = `
-      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
-      WHERE ID(dataset) = toInteger($id)
-      SET t.outputs = [ x in $outputs | x[0] + ':' + x[1] ]
-      WITH t UNWIND $outputs AS output
-      MERGE (d:Dataset { name: output[1] })<-[:OWNER]-(o:Organization { name: output[0] })
-      MERGE (d)<-[:OUTPUT]-(t)
-      SET d.computed = true, d.path = (output[1] + ".$type")
+    const deleteOldQuery = `
+      ${baseQuery}
+      MATCH (:Dataset)-[currentInput:INPUT]->(transformation)
+      DELETE currentInput
     `
+    await safeQuery(deleteOldQuery, { dataset: this })
 
-    await safeQuery(inputQuery, { id: this.id, inputs })
-    await safeQuery(outputQuery, { id: this.id, type: this.type, outputs })
+    const inputsQuery = `
+      ${baseQuery}
+      UNWIND $inputUuids AS inputUuid
+      MATCH (inputDataset:Dataset { uuid: inputUuid })
+      MERGE (inputDataset)-[:INPUT]->(transformation)
+    `
+    const inputUuids = inputs.map(input => input.uuid)
+    await safeQuery(inputsQuery, { dataset: this, inputUuids })
 
     const transformationReadyQuery = `
       MATCH (:Dataset { uuid: $dataset.uuid })<-[:OUTPUT]-(t:Transformation)
@@ -344,35 +389,10 @@ class Dataset extends Base {
       REMOVE t.error
     `
     await safeQuery(transformationReadyQuery, { dataset: this })
+    await this.touch()
   }
 
-  async handleColumnUpdate(columnList) {
-    logger.debug(`Column List for ${this.id}:\n%o`, columnList)
-
-    const query = `
-      MATCH (dataset:Dataset)
-      WHERE ID(dataset) = toInteger($dataset.id)
-      WITH dataset
-      UNWIND $columns AS column
-      MERGE (dataset)<-[:BELONGS_TO]-(:Column { name: column.name, order: column.order, originalName: column.name })
-      WITH DISTINCT dataset
-      SET dataset.generating = false
-    `
-    await safeQuery(query, { dataset: this, columns: columnList })
-  }
-
-  async transformationError(message) {
-    logger.warn(`transformationError: ${message}`)
-    const query = `
-      MATCH (dataset:Dataset)<-[:OUTPUT]-(t:Transformation)
-      WHERE ID(dataset) = toInteger($id)
-      SET t.error = $message
-      SET dataset.generating = false
-    `
-    await safeQuery(query, { id: this.id, message })
-  }
-
-  async parentTransformations() {
+  async transformationChain() {
     const query = `
       MATCH full_path = (output:Dataset)<-[*]-(last)
       WHERE ID(output) = toInteger($output_id) AND
@@ -383,44 +403,15 @@ class Dataset extends Base {
       WHERE t IN nodes(full_path)
       WITH DISTINCT(individual_path), t
       MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
-      OPTIONAL MATCH (t)-[:ALIAS_OF]->(template:Transformation)
       RETURN
         t AS transformation,
-        template,
-        length(individual_path) AS distance,
-        individual_output AS output,
-        o AS owner
+        length(individual_path) AS distance
       ORDER BY distance DESC
     `
 
     const results = await safeQuery(query, { output_id: this.id })
 
-    /*
-      This seems like extra complication at first, but I'd like us to consider it
-      a best practice going forward when retrieving results from the database.
-      Instead of trying to pass back a bunch of individual properties, pass back
-      full nodes as much as possible, and then convert them into their respective
-      model objects before going further.
-    */
-    return Promise.all(results.map(r => ({
-      transformation: Base.ModelFactory.derive(r.transformation),
-      output: Base.ModelFactory.derive(r.output),
-      owner: Base.ModelFactory.derive(r.owner),
-      template: r.template ? Base.ModelFactory.derive(r.template) : null
-    })).map(async ({
-      transformation,
-      output,
-      owner,
-      template
-    }) => {
-      await transformation.waitForReady()
-      return {
-        id: transformation.id,
-        script: template ? template.script : transformation.script,
-        output_name: output.name,
-        owner: owner.id
-      }
-    }))
+    return Promise.all(results.map(r => Base.ModelFactory.derive(r.transformation)))
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -440,10 +431,22 @@ class Dataset extends Base {
   debugSummary() {
     return `${this.name} (${this.uuid})`
   }
+
+  sendUpdateNotification() {
+    logger.debug('Publishing to clients...')
+    pubsub.publish(DATASET_UPDATED, { datasetGenerated: { id: this.id, status: 'success', message: '' } });
+  }
+
+  // Record a new dateUpdated on the metadata for the current time
+  async touch() {
+    const metadata = await this.metadata()
+    metadata.dateUpdated = new Date()
+    await metadata.save()
+  }
 }
 
 Dataset.label = 'Dataset'
-Dataset.saveProperties = ['name', 'type', 'path', 'computed', 'generating', 'originalFilename']
+Dataset.saveProperties = ['name', 'type', 'path', 'computed', 'generating', 'originalFilename', 'mimetype']
 
 Base.ModelFactory.register(Dataset)
 

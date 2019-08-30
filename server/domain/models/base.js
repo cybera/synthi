@@ -25,9 +25,14 @@ class Base {
     if (resultKeys.length !== 1) {
       throw Error('matchQuery for getByUniqueMatch should only have one return node')
     }
-    // In the current context, 'this' will be the class (or subclass that called
-    // the static 'get' method).
-    const nodeAsModel = new this(result[resultKeys[0]])
+
+    const nodeAsModel = ModelFactory.derive(result[resultKeys[0]])
+
+    if (!(nodeAsModel instanceof this)) {
+      throw Error(`Don't call getByUniqueMatch when expecting objects that are
+                   not instances of ${this.name} or a subclass of ${this.name}`)
+    }
+
     return nodeAsModel
   }
 
@@ -60,7 +65,7 @@ class Base {
     return ModelFactory.derive(results[0].node)
   }
 
-  async relatedRaw(relation, ModelClass, name, relatedProps = {}) {
+  async relatedRaw(relation, relatedLabel, name, relatedProps = {}) {
     let identityMatch = `
       MATCH (node:${this.__label} { uuid: $node.uuid })
     `
@@ -85,25 +90,27 @@ class Base {
 
     const query = `
       ${identityMatch}
-      MATCH (node)${relation}(${name}:${ModelClass.label} ${relatedPropQueryString})
+      MATCH (node)${relation}(${name}:${relatedLabel} ${relatedPropQueryString})
       RETURN ${name}
     `
 
     return safeQuery(query, params)
   }
 
-  async relatedOne(relation, ModelClass, name, relatedProps = {}) {
-    const results = await this.relatedRaw(relation, ModelClass, name, relatedProps)
+  async relatedOne(relation, relatedLabel, relatedProps = {}) {
+    const relatedName = 'relatedNode'
+    const results = await this.relatedRaw(relation, relatedLabel, relatedName, relatedProps)
     if (results && results[0]) {
-      return new ModelClass(results[0][name])
+      return ModelFactory.derive(results[0][relatedName])
     }
     return null
   }
 
-  async relatedMany(relation, ModelClass, name, relatedProps = {}) {
-    const results = await this.relatedRaw(relation, ModelClass, name, relatedProps)
+  async relatedMany(relation, relatedLabel, relatedProps = {}) {
+    const relatedName = 'relatedNode'
+    const results = await this.relatedRaw(relation, relatedLabel, relatedName, relatedProps)
     if (results) {
-      return results.map(result => new ModelClass(result[name]))
+      return results.map(result => ModelFactory.derive(result[relatedName]))
     }
     return []
   }

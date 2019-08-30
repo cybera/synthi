@@ -10,7 +10,7 @@ import os
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from common import parse_params
+from utils import parse_params
 
 print("Test task")
 

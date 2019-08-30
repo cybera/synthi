@@ -1,4 +1,4 @@
-version: '3'
+version: '3.4'
 services:
   neo4j:
     build: ./neo4j
@@ -47,13 +47,31 @@ services:
     networks:
       - default
   python-worker:
-    build: ./services/python-worker
+    build:
+      context: ./services
+      target: python-worker
     image: cybera/adi-python-worker:latest
     networks:
       - default
     volumes:
       - ./services/python-worker:/usr/src/app
-      - ./config/development.toml:/usr/src/app/config/development.toml
+      - ./services/common:/usr/src/app/common
+      - ./config/development.toml:/usr/src/app/common/config/development.toml
+      - ./data/uploads:/mnt/data
+      - ./data/scripts:/mnt/scripts
+    depends_on:
+      - queue
+  tika-worker:
+    build:
+      context: ./services
+      target: tika-worker
+    image: cybera/adi-tika-worker:latest
+    networks:
+      - default
+    volumes:
+      - ./services/tika-worker:/usr/src/app
+      - ./services/common:/usr/src/app/common
+      - ./config/development.toml:/usr/src/app/common/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
     depends_on:
