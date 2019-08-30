@@ -46,11 +46,6 @@ class DocumentDataset extends Dataset {
     await task.run()
   }
 
-  async deleteStorage() {
-    Storage.remove('datasets', this.paths.original)
-    Storage.remove('datasets', this.paths.imported)
-  }
-
   downloadName() {
     const extension = pathlib.extname(this.originalFilename || '')
     return `${this.name}${extension}`
