@@ -20,6 +20,7 @@ import DatasetView from './DatasetView'
 import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
 import APIInfo from './api-info'
+import ErrorPlaceholder from './ErrorPlaceholder'
 import Placeholder from './Placeholder'
 import DatasetTitle from '../containers/DatasetTitle'
 
@@ -66,8 +67,13 @@ class DatasetDetails extends React.Component {
     this.handleChange = this.handleChange.bind(this)
   }
 
+  componentDidCatch(error, errorInfo) {
+    console.log(error)
+    this.setState({hasError: true})
+  }
+
   handleChange(_, value) {
-    this.setState({ value })
+    this.setState({ value, hasError: false })
   }
 
   render() {
@@ -138,7 +144,18 @@ class DatasetDetails extends React.Component {
           </AppBar>
         </Paper>
         <div className={classes.wrapper}>
-          {options[value] !== undefined ? options[value].detailMode : <div />}
+          {this.state.hasError ? 
+            <ErrorPlaceholder>
+              <Typography variant="h4" className={classes.placeholderHeading}>
+                Oops!
+              </Typography>
+              <Typography variant="subtitle1">
+                We're sorry, something went wrong.
+              </Typography>
+            </ErrorPlaceholder>
+          : 
+            options[value] !== undefined ? options[value].detailMode : <div />
+          }
         </div>
       </div>
     )
