@@ -85,4 +85,10 @@ pipeline {
       }
     }
   }
+
+  post {
+     failure {
+         slackSend(channel:'#adi-cybera', color: '#FFF4444', message: "Build ${env.BUILD_NUMBER} for branch ${env.BRANCH_NAME} failed. Logs: ${env.BUILD_URL}console")
+     }
+  }
 }
