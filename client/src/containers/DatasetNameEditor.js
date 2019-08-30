@@ -11,7 +11,6 @@ import EditableTextField from '../components/EditableTextField'
 const updateDatasetGQL = gql`
   mutation UpdateDataset($uuid: String!, $name: String) {
     updateDataset(uuid: $uuid, name: $name) {
-      id
       uuid
       name
     }

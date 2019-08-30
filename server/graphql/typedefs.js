@@ -54,7 +54,7 @@ type Tag {
 }
 
 type Column {
-  id: Int!
+  id: Int
   uuid: String!
   name: String!
   originalName: String
@@ -90,7 +90,7 @@ type DatasetStoragePaths {
 }
 
 type Dataset @authCanAccess {
-  id: Int!
+  id: Int
   type: DatasetType!
   uuid: String!
   name: String!
@@ -108,7 +108,7 @@ type Dataset @authCanAccess {
 }
 
 type Transformation @authCanAccess {
-  id: Int!
+  id: Int
   uuid: String!
   name: String
   script: String
@@ -120,7 +120,7 @@ type Transformation @authCanAccess {
 }
 
 type Plot {
-  id: Int!
+  id: Int
   uuid: String!
   jsondef: String!
 }
@@ -133,14 +133,14 @@ type Query {
 }
 
 type Organization @authCanAccess {
-  id: Int!
+  id: Int
   uuid: String!
   name: String!
   members: [User]
 }
 
 type User {
-  id: Int!
+  id: Int
   uuid: String!
   username: String!
   organizations: [Organization]

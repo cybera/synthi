@@ -21,12 +21,10 @@ import ADILogo from '../images/ckan-logo.png'
 const currentUserQuery = gql`
   query CurrentUser {
     currentUser {
-      id
       uuid
       username
       apikey
       organizations {
-        id
         uuid
         name
       }

@@ -9,7 +9,6 @@ import UploadFile from '../components/UploadFile'
 const uploadDatasetGQL = gql`
   mutation UploadDataset($uuid: String!, $file: Upload!) {
     updateDataset(uuid: $uuid, file: $file) {
-      id
       uuid
       name
       columns {

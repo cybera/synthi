@@ -9,7 +9,6 @@ const FetchDataset = ({ children, datasetID }) => {
   const fetchDatasetQuery = gql`
     query FetchDataset($uuid: String) {
       dataset(uuid: $uuid) { 
-        id
         uuid
         name 
         columns { 

@@ -13,12 +13,10 @@ import PanelLoadingState from '../PanelLoadingState'
 export const datasetQuery = gql`
 query DatasetAndAPIKey ($uuid: String) {
   dataset(uuid: $uuid) {
-    id
     uuid
     name
   }
   currentUser {
-    id
     uuid
     apikey
   }
