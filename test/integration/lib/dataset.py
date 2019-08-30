@@ -124,19 +124,19 @@ def default_org(host=None, api_key=None):
   
   return __default_org
 
-def get(id_or_name, raw=False, as_text=True, host=None, api_key=None):
+def get(uuid_or_name, raw=False, as_text=True, host=None, api_key=None):
   if api_key is None:
     api_key = os.environ.get('ADI_API_KEY')
   if host is None:
     host = os.environ.get('ADI_API_HOST')
 
-  id = id_or_name
+  uuid = uuid_or_name
 
-  if isinstance(id_or_name, str):
-    id = meta(id_or_name, host=host, api_key=api_key)['id']
-  
+  if not is_uuid(uuid_or_name):
+    uuid = meta(uuid_or_name, host=host, api_key=api_key)['uuid']
+
   headers = { 'Authorization': f"Api-Key {api_key}" }
-  response = requests.get(f"{host}/dataset/{id}", headers=headers)
+  response = requests.get(f"{host}/dataset/{uuid}", headers=headers)
 
   if raw:
     if as_text:

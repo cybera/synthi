@@ -195,8 +195,8 @@ app.get('/whoami', (req, res) => {
   }
 })
 
-app.get('/dataset/:id', async (req, res) => {
-  const dataset = await ModelFactory.get(req.params.id)
+app.get('/dataset/:uuid', async (req, res) => {
+  const dataset = await ModelFactory.getByUuid(req.params.uuid)
   const type = req.query.type || 'imported'
 
   if (dataset) {
