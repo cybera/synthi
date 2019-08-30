@@ -5,7 +5,7 @@ import { Query } from 'react-apollo'
 
 import PanelLoadingState from './PanelLoadingState'
 
-const FetchDataset = ({ children, datasetID }) => {
+const FetchDataset = ({ children, datasetUUID }) => {
   const fetchDatasetQuery = gql`
     query FetchDataset($uuid: String) {
       dataset(uuid: $uuid) { 
@@ -22,7 +22,7 @@ const FetchDataset = ({ children, datasetID }) => {
   `
 
   return (
-    <Query query={fetchDatasetQuery} variables={{ uuid: datasetID }}>
+    <Query query={fetchDatasetQuery} variables={{ uuid: datasetUUID }}>
       {({ loading, error, data }) => {
         if (loading) return <PanelLoadingState />
         if (error) return <p>Error!</p>;
@@ -41,11 +41,11 @@ FetchDataset.propTypes = {
     PropTypes.node,
     PropTypes.func
   ]).isRequired,
-  datasetID: PropTypes.string
+  datasetUUID: PropTypes.string
 }
 
 FetchDataset.defaultProps = {
-  datasetID: null
+  datasetUUID: null
 }
 
 export default FetchDataset

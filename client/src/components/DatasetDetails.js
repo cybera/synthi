@@ -98,7 +98,7 @@ class DatasetDetails extends React.Component {
       {
         name: 'Chart Editor',
         icon: <ConnectionsIcon />,
-        detailMode: <ChartEditor datasetID={uuid} />,
+        detailMode: <ChartEditor datasetUUID={uuid} />,
       },
       {
         name: 'API Info',
