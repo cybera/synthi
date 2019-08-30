@@ -36,9 +36,9 @@ class ComputeButton extends React.Component {
 const StyledComputeButton = withStyles(styles)(ComputeButton)
 
 const updateDatasetGQL = gql`
-  mutation UpdateDataset($id: Int!, $computed: Boolean) {
-    updateDataset(id: $id, computed: $computed) {
-      id
+  mutation UpdateDataset($uuid: String!, $computed: Boolean) {
+    updateDataset(uuid: $uuid, computed: $computed) {
+      uuid
       name
     }
   }
@@ -46,19 +46,19 @@ const updateDatasetGQL = gql`
 
 class MutatingComputeButton extends React.Component {
   render() {
-    const { id } = this.props
+    const { uuid } = this.props
 
     return(
       <Mutation
         mutation={updateDatasetGQL}
-        refetchQueries={[{ query: datasetViewQuery, variables: { id: id } }]}
+        refetchQueries={[{ query: datasetViewQuery, variables: { uuid: uuid } }]}
       >
         { updateMutation => (
           <StyledComputeButton
             handleMode={
               (_event) => updateMutation({
                 variables: {
-                  id: id,
+                  uuid: uuid,
                   computed: true
                 }
               })

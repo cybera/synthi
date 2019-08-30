@@ -12,23 +12,9 @@ import {
 } from '../util'
 import logger from '../../config/winston';
 
-// TODO: Move this to the column model and use redis to store
-const visibleColumnCache = {}
-
-const columnVisible = (user, { id, order }) => {
-  if (!visibleColumnCache[user.uuid]) {
-    visibleColumnCache[user.uuid] = {}
-  }
-
-  if (!visibleColumnCache[user.uuid][id]) {
-    visibleColumnCache[user.uuid][id] = { visible: order ? order < 5 : false }
-  }
-  return visibleColumnCache[user.uuid][id].visible
-}
-
 const processDatasetUpdate = async (datasetProps, context) => {
   const {
-    id,
+    uuid,
     file,
     computed,
     name,
@@ -36,7 +22,7 @@ const processDatasetUpdate = async (datasetProps, context) => {
   } = datasetProps
 
   // TODO: access control
-  const dataset = await ModelFactory.get(id)
+  const dataset = await ModelFactory.getByUuid(uuid)
 
   if (!dataset.canAccess(context.user)) {
     throw new AuthenticationError('Operation not allowed on this resource')
@@ -105,15 +91,15 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 export default {
   Query: {
     async dataset(_, {
-      id,
+      uuid,
       name,
       searchString,
       org
     }, context) {
       let datasets = []
 
-      if (id != null) {
-        datasets.push(await ModelFactory.get(id))
+      if (uuid != null) {
+        datasets.push(await ModelFactory.getByUuid(uuid))
       } else if (org) {
         const organization = await findOrganization(org, context.user)
         if (name) {
@@ -129,7 +115,10 @@ export default {
   Dataset: {
     async columns(dataset, _, context) {
       const columns = await dataset.columns()
-      return columns.map(c => ({ ...c, visible: columnVisible(context.user, c) }))
+      return Promise.all(columns.map(async column => ({
+        ...column,
+        visible: await column.visibleForUser(context.user)
+      })))
     },
     samples: dataset => dataset.samples(),
     rows: dataset => dataset.rows(),
@@ -145,7 +134,7 @@ export default {
       }
 
       // TODO: context.user.createDataset(org, { name })
-      const org = await Organization.get(owner)
+      const org = await Organization.getByUuid(owner)
       if (!await org.canAccess(context.user)) {
         throw new AuthenticationError('You cannot create datasets for this organization')
       }
@@ -160,16 +149,16 @@ export default {
       }
       return null
     },
-    async deleteDataset(_, { id }, context) {
-      const dataset = await ModelFactory.get(id)
+    async deleteDataset(_, { uuid }, context) {
+      const dataset = await ModelFactory.getByUuid(uuid)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
       await dataset.delete()
       return true
     },
-    async importCSV(_, { id, removeExisting, options }, context) {
-      const dataset = await ModelFactory.get(id)
+    async importCSV(_, { uuid, removeExisting, options }, context) {
+      const dataset = await ModelFactory.getByUuid(uuid)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
@@ -187,8 +176,8 @@ export default {
       `,
       { jsondef }).then(results => results[0])
     },
-    async generateDataset(_, { id }, context) {
-      const dataset = await ModelFactory.get(id)
+    async generateDataset(_, { uuid }, context) {
+      const dataset = await ModelFactory.getByUuid(uuid)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
@@ -197,19 +186,20 @@ export default {
       dataset.runTransformation(context.user)
       return dataset
     },
-    toggleColumnVisibility(_, { id }, context) {
-      const isVisible = columnVisible(context.user, { id })
-      visibleColumnCache[context.user.uuid][id].visible = !isVisible
-      return visibleColumnCache[context.user.uuid][id].visible
+    async toggleColumnVisibility(_, { uuid }, context) {
+      const Column = ModelFactory.getClass('Column')
+      const column = await Column.getByUuid(uuid)
+      const visible = await column.visibleForUser(context.user)
+      return column.setVisibleForUser(!visible, context.user)
     },
     async saveInputTransformation(_, {
-      id,
+      uuid,
       code,
       template,
       inputs,
       org
     }, context) {
-      const dataset = await ModelFactory.get(id)
+      const dataset = await ModelFactory.getByUuid(uuid)
       if (!await dataset.canAccess(context.user)) {
         throw new AuthenticationError('Operation not allowed on this resource')
       }
@@ -233,7 +223,9 @@ export default {
     datasetGenerated: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([DATASET_UPDATED]),
-        (payload, variables) => payload.datasetGenerated.id === variables.id
+        (payload, variables) => {  
+          return payload.datasetGenerated.uuid === variables.uuid
+        }
       )
     },
   }

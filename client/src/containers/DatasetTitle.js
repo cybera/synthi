@@ -15,12 +15,12 @@ const styles = theme => ({
 })
 
 const DatasetTitle = (props) => {
-  const { id, classes } = props
+  const { uuid, classes } = props
 
   return (
     <Query
       query={datasetViewQuery}
-      variables={{ id }}
+      variables={{ uuid }}
       fetchPolicy="cache-and-network"
       partialRefetch
     >
@@ -41,11 +41,11 @@ const DatasetTitle = (props) => {
 
 DatasetTitle.propTypes = {
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
-  id: PropTypes.number
+  uuid: PropTypes.string
 }
 
 DatasetTitle.defaultProps = {
-  id: null
+  uuid: null
 }
 
 export default compose(

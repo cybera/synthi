@@ -39,9 +39,9 @@ class ChartEditor extends React.Component {
   }
 
   render() {
-    const { datasetID, classes } = this.props
+    const { datasetUUID, classes } = this.props
 
-    if (!datasetID) {
+    if (!datasetUUID) {
       return (
         <Placeholder heading="Chart Editor">
           You need to select a dataset before you can use the chart editor.
@@ -50,7 +50,7 @@ class ChartEditor extends React.Component {
     }
 
     return (
-      <FetchDataset datasetID={datasetID}>
+      <FetchDataset datasetUUID={datasetUUID}>
         {({ dataset }) => (
           <PlotlySave>
             {({ savePlot }) => (
@@ -86,12 +86,12 @@ class ChartEditor extends React.Component {
 }
 
 ChartEditor.propTypes = {
-  datasetID: PropTypes.number,
+  datasetUUID: PropTypes.string,
   classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 ChartEditor.defaultProps = {
-  datasetID: null
+  datasetUUID: null
 }
 
 export default compose(

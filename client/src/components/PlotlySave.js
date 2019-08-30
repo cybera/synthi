@@ -9,7 +9,7 @@ import { plotsRetrieveQuery } from '../queries'
 const createPlotGQL = gql`
   mutation CreatePlot($jsondef:String!) {
     createPlot(jsondef: $jsondef) {
-      id
+      uuid
     }
   }
 `

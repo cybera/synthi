@@ -7,9 +7,9 @@ import { datasetViewQuery } from '../queries'
 import UploadFile from '../components/UploadFile'
 
 const uploadDatasetGQL = gql`
-  mutation UploadDataset($id: Int!, $file: Upload!) {
-    updateDataset(id: $id, file: $file) {
-      id
+  mutation UploadDataset($uuid: String!, $file: Upload!) {
+    updateDataset(uuid: $uuid, file: $file) {
+      uuid
       name
       columns {
         name
@@ -19,7 +19,7 @@ const uploadDatasetGQL = gql`
 `
 
 const DatasetUploadButton = (props) => {
-  const { id, type } = props
+  const { uuid, type } = props
 
   let uploadTypes = []
   if (type === 'csv') {
@@ -31,13 +31,13 @@ const DatasetUploadButton = (props) => {
   return (
     <Mutation
       mutation={uploadDatasetGQL}
-      refetchQueries={[{ query: datasetViewQuery, variables: { id } }]}
+      refetchQueries={[{ query: datasetViewQuery, variables: { uuid } }]}
       awaitRefetchQueries
     >
       {(uploadFileMutation, { loading }) => (
         <UploadFile
           uploadTypes={uploadTypes}
-          handleFileChange={file => uploadFileMutation({ variables: { id, file } })}
+          handleFileChange={file => uploadFileMutation({ variables: { uuid, file } })}
           text={`Upload ${type}`}
           loading={loading}
         />
@@ -47,7 +47,7 @@ const DatasetUploadButton = (props) => {
 }
 
 DatasetUploadButton.propTypes = {
-  id: PropTypes.number.isRequired,
+  uuid: PropTypes.string.isRequired,
   type: PropTypes.string
 }
 

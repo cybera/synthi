@@ -34,6 +34,7 @@ import logger from './config/winston'
 // dependency cycles.
 import { ModelFactory } from './domain/models'
 import DefaultQueue from './lib/queue'
+import { NonAsyncRedisClient } from './lib/redisClient'
 import User from './domain/models/user'
 import { checkConfig } from './lib/startup-checks'
 
@@ -91,15 +92,15 @@ passport.use(new HeaderAPIKeyStrategy(
 ))
 
 passport.serializeUser((user, done) => {
-  logger.debug(`serializeUser: ${user.id}`)
-  done(null, user.id)
+  logger.debug(`serializeUser: ${user.uuid}`)
+  done(null, user.uuid)
 });
 
-passport.deserializeUser(async (id, done) => {
-  logger.debug(`deserializeUser: ${id}`)
+passport.deserializeUser(async (uuid, done) => {
+  logger.debug(`deserializeUser: ${uuid}`)
   let user
   try {
-    user = await User.get(id)
+    user = await User.getByUuid(uuid)
     if (!user) {
       return done(new Error('User not found'))
     }
@@ -114,7 +115,7 @@ app.use(morgan('short', { stream: logger.morganStream }))
 // logging in.
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(session({
-  store: new RedisStore({ host: 'redis', port: 6379 }),
+  store: new RedisStore({ client: NonAsyncRedisClient }),
   secret: 'secret-token-123456',
   resave: false
 }))
@@ -194,8 +195,8 @@ app.get('/whoami', (req, res) => {
   }
 })
 
-app.get('/dataset/:id', async (req, res) => {
-  const dataset = await ModelFactory.get(req.params.id)
+app.get('/dataset/:uuid', async (req, res) => {
+  const dataset = await ModelFactory.getByUuid(req.params.uuid)
   const type = req.query.type || 'imported'
 
   if (dataset) {

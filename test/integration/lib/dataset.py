@@ -3,10 +3,18 @@ import io
 import os
 import requests
 import mimetypes
+import re
 
 from typing import Dict
 
 import pandas as pd
+
+def is_uuid(str):
+  uuid_checker = re.compile('^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$', re.IGNORECASE)
+  if uuid_checker.match(str):
+    return True
+  else:
+    return False
 
 def set_default_org(name=None, uuid=None, id=None):
   assert name or uuid or id, "Must supply one of name, uuid, or id"
@@ -116,19 +124,19 @@ def default_org(host=None, api_key=None):
   
   return __default_org
 
-def get(id_or_name, raw=False, as_text=True, host=None, api_key=None):
+def get(uuid_or_name, raw=False, as_text=True, host=None, api_key=None):
   if api_key is None:
     api_key = os.environ.get('ADI_API_KEY')
   if host is None:
     host = os.environ.get('ADI_API_HOST')
 
-  id = id_or_name
+  uuid = uuid_or_name
 
-  if isinstance(id_or_name, str):
-    id = meta(id_or_name, host=host, api_key=api_key)['id']
-  
+  if not is_uuid(uuid_or_name):
+    uuid = meta(uuid_or_name, host=host, api_key=api_key)['uuid']
+
   headers = { 'Authorization': f"Api-Key {api_key}" }
-  response = requests.get(f"{host}/dataset/{id}", headers=headers)
+  response = requests.get(f"{host}/dataset/{uuid}", headers=headers)
 
   if raw:
     if as_text:
@@ -138,20 +146,20 @@ def get(id_or_name, raw=False, as_text=True, host=None, api_key=None):
   else:
     return pd.read_csv(io.StringIO(response.content.decode('utf-8')))
 
-def meta(id_or_name, host=None, api_key=None):
+def meta(uuid_or_name, host=None, api_key=None):
   org = default_org()
 
-  datasetId = None
+  datasetUuid = None
   datasetName = None
   
-  if isinstance(id_or_name, str):
-    datasetName = id_or_name
+  if not is_uuid(uuid_or_name):
+    datasetName = uuid_or_name
   else:
-    datasetId = id_or_name
+    datasetUuid = uuid_or_name
 
   query = '''
-  query ($org: OrganizationID, $datasetId: Int, $datasetName: String) {
-    dataset(org: $org, id: $datasetId, name: $datasetName) {
+  query ($org: OrganizationID, $datasetUuid: String, $datasetName: String) {
+    dataset(org: $org, uuid: $datasetUuid, name: $datasetName) {
       id
       name
       uuid
@@ -161,7 +169,7 @@ def meta(id_or_name, host=None, api_key=None):
 
   variables = dict(
     org = org,
-    datasetId = datasetId,
+    datasetUuid = datasetUuid,
     datasetName = datasetName
   )
 
@@ -194,10 +202,10 @@ def list(host=None, api_key=None):
   return results['dataset']
 
 def create(name, host=None, api_key=None, type=None):
-  orgid = default_org()['id']
+  orgid = default_org()['uuid']
 
   query = '''
-  mutation ($ownerId: Int!, $datasetName: String!, $type: DatasetType) {
+  mutation ($ownerId: String!, $datasetName: String!, $type: DatasetType) {
     createDataset(name: $datasetName, owner: $ownerId, type: $type) {
       name
       id
@@ -220,28 +228,29 @@ def create(name, host=None, api_key=None, type=None):
   
   return result['createDataset']
 
-def upload(id_or_name, file, type=None, host=None, api_key=None):
-  info = meta(id_or_name, host=host, api_key=api_key)
+def upload(uuid_or_name, file, type=None, host=None, api_key=None):
+  info = meta(uuid_or_name, host=host, api_key=api_key)
 
   if not info:
-    info = create(id_or_name, host=host, api_key=api_key, type=type)
+    info = create(uuid_or_name, host=host, api_key=api_key, type=type)
   
-  if isinstance(id_or_name, str):
-    id = info['id']
+  if not is_uuid(uuid_or_name):
+    uuid = info['uuid']
   else:
-    id = id_or_name
+    uuid = uuid_or_name
   
   query = '''
-  mutation UploadDataset($id: Int!, $file: Upload!) {
-    updateDataset(id: $id, file: $file) {
+  mutation UploadDataset($uuid: String!, $file: Upload!) {
+    updateDataset(uuid: $uuid, file: $file) {
       id
+      uuid
       name
     }
   }
   '''
   
   variables = dict(
-    id = id,
+    uuid = uuid,
     file = 'null'
   )
 
@@ -249,18 +258,18 @@ def upload(id_or_name, file, type=None, host=None, api_key=None):
   
   return result['updateDataset']
 
-def ensure_dataset(id_or_name, type='csv', host=None, api_key=None):
-  if isinstance(id_or_name, str):
-    info = meta(id_or_name, host=host, api_key=api_key)
-    if not info and isinstance(id_or_name, str):
-      info = create(id_or_name, type=type, host=host, api_key=api_key)
-    elif not isinstance(id_or_name, str):
+def ensure_dataset(uuid_or_name, type='csv', host=None, api_key=None):
+  if not is_uuid(uuid_or_name):
+    info = meta(uuid_or_name, host=host, api_key=api_key)
+    if not info and isinstance(uuid_or_name, str):
+      info = create(uuid_or_name, type=type, host=host, api_key=api_key)
+    elif not isinstance(uuid_or_name, str):
       raise ValueError("Can't create a new dataset with a numerical id")
-    id = info['id']
+    uuid = info['uuid']
   else:
-    id = id_or_name
+    uuid = uuid_or_name
 
-  return id
+  return uuid
 
 def read_code(path:str):
   if path and os.path.exists(path):
@@ -268,26 +277,26 @@ def read_code(path:str):
       code = file.read()
   return code
 
-def transformation_basic(id_or_name, path=None, code=None, type='csv', host=None, api_key=None):
+def transformation_basic(uuid_or_name, path=None, code=None, type='csv', host=None, api_key=None):
   if not path and not code:
     raise ValueError("Need to either give a path to a transformation code file or the code itself")
   
   if path and code:
     raise ValueError("Give either a path to a transformation code file or code, not both")
     
-  id = ensure_dataset(id_or_name, type=type, host=host, api_key=api_key)
+  uuid = ensure_dataset(uuid_or_name, type=type, host=host, api_key=api_key)
   code = read_code(path)
     
   query = '''
-  mutation SaveInputTransformation($id: Int!, $code: String) {
-    saveInputTransformation(id: $id, code: $code) {
+  mutation SaveInputTransformation($uuid: String!, $code: String) {
+    saveInputTransformation(uuid: $uuid, code: $code) {
       id
     }
   }
   '''
 
   variables = dict(
-    id = id,
+    uuid = uuid,
     code = code
   )
   
@@ -295,11 +304,11 @@ def transformation_basic(id_or_name, path=None, code=None, type='csv', host=None
   
   return result['saveInputTransformation']
 
-def transformation_ref(id_or_name, template:str, inputs:Dict[str,str], type='csv', host=None, api_key=None):
+def transformation_ref(uuid_or_name, template:str, inputs:Dict[str,str], type='csv', host=None, api_key=None):
   query = '''
-    mutation TemplateTransformation($output: Int!, $template: TemplateRef, $inputs: [TransformationInputMapping], $org: OrganizationID) {
+    mutation TemplateTransformation($output: String!, $template: TemplateRef, $inputs: [TransformationInputMapping], $org: OrganizationID) {
       saveInputTransformation(
-        id: $output,
+        uuid: $output,
         template: $template,
         inputs: $inputs,
         org: $org
@@ -314,7 +323,7 @@ def transformation_ref(id_or_name, template:str, inputs:Dict[str,str], type='csv
   org = default_org()
 
   variables = dict(
-    output   = ensure_dataset(id_or_name, type=type, host=host, api_key=api_key),
+    output   = ensure_dataset(uuid_or_name, type=type, host=host, api_key=api_key),
     template = dict(name=template),
     inputs   = [dict(alias=k, dataset=dict(name=v)) for k,v in inputs.items()],
     org      = org,
@@ -324,11 +333,11 @@ def transformation_ref(id_or_name, template:str, inputs:Dict[str,str], type='csv
 
   return result['saveInputTransformation']
 
-def transformation(id_or_name, path=None, code=None, template:str = None, inputs:Dict[str,str] = {}, type='csv', host=None, api_key=None):
+def transformation(uuid_or_name, path=None, code=None, template:str = None, inputs:Dict[str,str] = {}, type='csv', host=None, api_key=None):
   if (path or code) and not (template or inputs):
-    return transformation_basic(id_or_name, path, code, type=type, host=host, api_key=api_key)
+    return transformation_basic(uuid_or_name, path, code, type=type, host=host, api_key=api_key)
   elif (template and inputs):
-    return transformation_ref(id_or_name, template, inputs, type=type, host=host, api_key=api_key)
+    return transformation_ref(uuid_or_name, template, inputs, type=type, host=host, api_key=api_key)
 
   raise Exception("Must provide code, a path, or a transformation template name and inputs")
 
@@ -365,43 +374,44 @@ def reusable_transformation(name, path=None, code=None, inputs=[], host=None, ap
   
   return result['createTransformationTemplate']
   
-def generate(id_or_name, host=None, api_key=None):    
-  if isinstance(id_or_name, str):
-    info = meta(id_or_name, host=host, api_key=api_key)
-    if not info and isinstance(id_or_name, str):
-      info = create(id_or_name, host=host, api_key=api_key)
-    elif not isinstance(id_or_name, str):
+def generate(uuid_or_name, host=None, api_key=None):    
+  if not is_uuid(uuid_or_name):
+    info = meta(uuid_or_name, host=host, api_key=api_key)
+    if not info and isinstance(uuid_or_name, str):
+      info = create(uuid_or_name, host=host, api_key=api_key)
+    elif not isinstance(uuid_or_name, str):
       raise ValueError("Can't create a new dataset with a numerical id")
-    id = info['id']
+    uuid = info['uuid']
   else:
-    id = id_or_name
+    uuid = uuid_or_name
 
   query = '''
-  mutation GenerateDataset($id: Int!) {
-    generateDataset(id: $id) {
+  mutation GenerateDataset($uuid: String!) {
+    generateDataset(uuid: $uuid) {
       id
+      uuid
       name
     }
   }
   '''
-  result = gql_query(query, variables={'id':id}, host=host, api_key=api_key)
+  result = gql_query(query, variables={'uuid':uuid}, host=host, api_key=api_key)
   
   return result['generateDataset']
 
-def delete(id_or_name, host=None, api_key=None):    
-  if isinstance(id_or_name, str):
-    info = meta(id_or_name, host=host, api_key=api_key)
+def delete(uuid_or_name, host=None, api_key=None):    
+  if not is_uuid(uuid_or_name):
+    info = meta(uuid_or_name, host=host, api_key=api_key)
     if not info:
       raise ValueError("Can't find the dataset to delete")
-    id = info['id']
+    uuid = info['uuid']
   else:
-    id = id_or_name
+    uuid = uuid_or_name
 
   query = '''
-  mutation DeleteDataset($id: Int!) {
-    deleteDataset(id: $id)
+  mutation DeleteDataset($uuid: String!) {
+    deleteDataset(uuid: $uuid)
   }
   '''
-  result = gql_query(query, variables={'id':id}, host=host, api_key=api_key)
+  result = gql_query(query, variables={'uuid':uuid}, host=host, api_key=api_key)
   
   return result['deleteDataset']

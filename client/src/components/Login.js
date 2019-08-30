@@ -21,12 +21,10 @@ import ADILogo from '../images/ckan-logo.png'
 const currentUserQuery = gql`
   query CurrentUser {
     currentUser {
-      id
       uuid
       username
       apikey
       organizations {
-        id
         uuid
         name
       }
@@ -112,7 +110,7 @@ class Login extends React.Component {
       // if (!homeOrg) {
       //   [homeOrg] = obj.user.orgs
       // }
-      // props.navigation.setOrg(homeOrg.id)
+      // props.navigation.setOrg(homeOrg.uuid)
       // Now that we have a proper session established, let's grab a proper
       // current user object.
       props.client.query({ query: currentUserQuery }).then(({ data }) => {
@@ -124,7 +122,7 @@ class Login extends React.Component {
         if (!homeOrg) {
           [homeOrg] = currentUser.orgs
         }
-        props.navigation.setOrg(homeOrg.id)
+        props.navigation.setOrg(homeOrg.uuid)
         props.client.resetStore()
       })
     }).catch((err) => {

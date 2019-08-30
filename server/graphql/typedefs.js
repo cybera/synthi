@@ -54,7 +54,7 @@ type Tag {
 }
 
 type Column {
-  id: Int!
+  id: Int
   uuid: String!
   name: String!
   originalName: String
@@ -90,7 +90,7 @@ type DatasetStoragePaths {
 }
 
 type Dataset @authCanAccess {
-  id: Int!
+  id: Int
   type: DatasetType!
   uuid: String!
   name: String!
@@ -108,7 +108,7 @@ type Dataset @authCanAccess {
 }
 
 type Transformation @authCanAccess {
-  id: Int!
+  id: Int
   uuid: String!
   name: String
   script: String
@@ -120,26 +120,27 @@ type Transformation @authCanAccess {
 }
 
 type Plot {
-  id: Int!
+  id: Int
+  uuid: String!
   jsondef: String!
 }
 
 type Query {
-  dataset(id: Int, name: String, searchString: String, org:OrganizationID): [Dataset]!
-  plots(id: Int): [Plot]
+  dataset(uuid: String, name: String, searchString: String, org:OrganizationID): [Dataset]!
+  plots(uuid: String): [Plot]
   uploads: [File]
   currentUser: User
 }
 
 type Organization @authCanAccess {
-  id: Int!
+  id: Int
   uuid: String!
   name: String!
   members: [User]
 }
 
 type User {
-  id: Int!
+  id: Int
   uuid: String!
   username: String!
   organizations: [Organization]
@@ -170,28 +171,28 @@ input TransformationInputMapping {
 }
 
 type Mutation {
-  createDataset(name: String, owner: Int, type: DatasetType = csv): Dataset
-  deleteDataset(id: Int!): Boolean
-  importCSV(id: Int!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
+  createDataset(name: String, owner: String, type: DatasetType = csv): Dataset
+  deleteDataset(uuid: String!): Boolean
+  importCSV(uuid: String!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
   uploadFile(file: Upload!): File!
   uploadDataset(name: String!, file:Upload!): Dataset
-  updateDataset(id: Int!, file:Upload, computed:Boolean, name:String, generating:Boolean): Dataset
+  updateDataset(uuid: String!, file:Upload, computed:Boolean, name:String, generating:Boolean): Dataset
   createPlot(jsondef:String!): Plot
-  generateDataset(id: Int!): Dataset
-  toggleColumnVisibility(id: Int!): Boolean
-  saveInputTransformation(id: Int!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationID): Transformation
-  updateDatasetMetadata(id: Int!, metadata:DatasetMetadataInput): DatasetMetadata
+  generateDataset(uuid: String!): Dataset
+  toggleColumnVisibility(uuid: String!): Boolean
+  saveInputTransformation(uuid: String!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationID): Transformation
+  updateDatasetMetadata(uuid: String!, metadata:DatasetMetadataInput): DatasetMetadata
   regenerateAPIKey: User
   updateColumn(uuid:String!, values:ColumnInput, tagNames:[String]): Column
   createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationID!): Transformation
 }
 
 type Subscription {
-  datasetGenerated(id: Int!): DatasetMessage
+  datasetGenerated(uuid: String!): DatasetMessage
 }
 
 type DatasetMessage {
-  id: Int!
+  uuid: String!
   status: String!
   message: String!
 }

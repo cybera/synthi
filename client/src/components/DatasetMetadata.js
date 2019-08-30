@@ -25,10 +25,10 @@ import PanelLoadingState from './PanelLoadingState'
 import { datasetViewQuery } from '../queries'
 
 export const datasetMetadataQuery = gql`
-query($id: Int) {
-  dataset(id: $id) {
+query($uuid: String) {
+  dataset(uuid: $uuid) {
     name
-    id
+    uuid
     metadata {
       title
       contributor
@@ -49,8 +49,8 @@ query($id: Int) {
 }
 `
 export const updateDatasetMetadataMutation = gql`
-  mutation UpdateDatasetMetadata($id: Int!, $metadata: DatasetMetadataInput) {
-    updateDatasetMetadata(id: $id, metadata: $metadata) {
+  mutation UpdateDatasetMetadata($uuid: String!, $metadata: DatasetMetadataInput) {
+    updateDatasetMetadata(uuid: $uuid, metadata: $metadata) {
       title
     }
   }
@@ -205,9 +205,9 @@ class DatasetMetadata extends React.Component {
   }
 
   handleChipsChange = name => chips => this.handleChange(
-    chips => chips
+    () => chips
   )(name)(chips)
-  
+
   handleStringChange = name => event => this.handleChange(
     e => e.target.value
   )(name)(event)
@@ -224,24 +224,13 @@ class DatasetMetadata extends React.Component {
     d => d.getTime()
   )(name)(date)
 
-  // handleDateChange = name => (date) => {
-  //   let fields = { ...this.state.fields }
-
-  //   fields[name] = date.getTime()
-
-  //   this.setState({
-  //     fields: fields,
-  //     edited: true
-  //   })
-  // }
-
   handleSave = (mutation) => {
-    const { id } = this.props
+    const { uuid } = this.props
     const { fields } = this.state
 
     mutation({
       variables: {
-        id,
+        uuid,
         metadata: fields
       }
     })
@@ -252,7 +241,7 @@ class DatasetMetadata extends React.Component {
   }
 
   render() {
-    const { id, classes, saveMutation } = this.props
+    const { uuid, classes, saveMutation } = this.props
     const { fields, edited } = this.state
 
     return (
@@ -283,8 +272,7 @@ class DatasetMetadata extends React.Component {
                   margin="normal"
                 />
               </Grid>
-              <Grid item xs={4}>
-              </Grid>
+              <Grid item xs={4} />
               <Grid item xs={4}>
                 <TextField
                   id="metadata-contributor"
@@ -391,18 +379,18 @@ class DatasetMetadata extends React.Component {
                   margin="normal"
                 />
               </Grid>
-              <Grid item xs={12} style={{paddingRight: 120}}>
+              <Grid item xs={12} style={{ paddingRight: 120 }}>
                 <ChipInput
-                  onChange={(chips) => this.handleChipsChange('topic')(chips)}
+                  onChange={chips => this.handleChipsChange('topic')(chips)}
                   defaultValue={fields.topic}
                   margin="normal"
                   fullWidth
                   fullWidthInput
                   label="Topic"
-                  style={{marginLeft:10}}
+                  style={{ marginLeft: 10 }}
                 />
               </Grid>
-              <Grid item xs={12} style={{paddingRight: 120}}>
+              <Grid item xs={12} style={{ paddingRight: 120 }}>
                 <TextField
                   id="metadata-description"
                   label="Description"
@@ -424,7 +412,7 @@ class DatasetMetadata extends React.Component {
         >
           Save Changes
         </ADIButton>
-        <DatasetColumnTagsContainer id={id} />
+        <DatasetColumnTagsContainer uuid={uuid} />
       </div>
     )
   }
@@ -447,7 +435,7 @@ DatasetMetadata.propTypes = {
     identifier: PropTypes.string,
     theme: PropTypes.string
   }),
-  id: PropTypes.number.isRequired,
+  uuid: PropTypes.string.isRequired,
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
   saveMutation: PropTypes.func.isRequired
 }
@@ -455,7 +443,7 @@ DatasetMetadata.propTypes = {
 const StyledDatasetMetadata = withStyles(styles)(DatasetMetadata)
 
 const ConnectedDatasetMetadata = (props) => {
-  const { id } = props
+  const { uuid } = props
 
   // Passing a key value to force re-rendering every time this query gets data and tries to pass
   // it as props to the metadata form. See:
@@ -464,15 +452,15 @@ const ConnectedDatasetMetadata = (props) => {
     <Mutation
       mutation={updateDatasetMetadataMutation}
       refetchQueries={[
-        { query: datasetMetadataQuery, variables: { id } },
-        { query: datasetViewQuery, variables: { id } }
+        { query: datasetMetadataQuery, variables: { uuid } },
+        { query: datasetViewQuery, variables: { uuid } }
       ]}
       awaitRefetchQueries
     >
       { updateDatasetMetadata => (
-        <Query 
+        <Query
           query={datasetMetadataQuery}
-          variables={{ id }}
+          variables={{ uuid }}
           fetchPolicy="cache-and-network"
         >
           {({ loading, error, data }) => {
@@ -490,8 +478,8 @@ const ConnectedDatasetMetadata = (props) => {
 
             return (
               <StyledDatasetMetadata
-                key={id}
-                id={id}
+                key={uuid}
+                uuid={uuid}
                 fields={fields}
                 saveMutation={updateDatasetMetadata}
               />
@@ -504,11 +492,11 @@ const ConnectedDatasetMetadata = (props) => {
 }
 
 ConnectedDatasetMetadata.propTypes = {
-  id: PropTypes.number
+  uuid: PropTypes.string
 }
 
 ConnectedDatasetMetadata.defaultProps = {
-  id: null
+  uuid: null
 }
 
 

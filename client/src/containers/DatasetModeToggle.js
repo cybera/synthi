@@ -36,9 +36,9 @@ const DatasetModeToggle = (props) => {
 const StyledDatasetModeToggle = withStyles(styles)(DatasetModeToggle)
 
 const updateDatasetGQL = gql`
-  mutation UpdateDataset($id: Int!, $computed: Boolean) {
-    updateDataset(id: $id, computed: $computed) {
-      id
+  mutation UpdateDataset($uuid: String!, $computed: Boolean) {
+    updateDataset(uuid: $uuid, computed: $computed) {
+      uuid
       name
     }
   }
@@ -49,13 +49,13 @@ const MutatingModeToggle = (props) => {
   return (
     <Mutation 
       mutation={updateDatasetGQL}
-      refetchQueries={[{ query: datasetViewQuery, variables: { id: dataset.id } }]}>
+      refetchQueries={[{ query: datasetViewQuery, variables: { uuid: dataset.uuid } }]}>
       { updateMutation => (
         <StyledDatasetModeToggle 
           handleMode={
             (event, mode) => updateMutation({ 
               variables: { 
-                id: dataset.id,
+                uuid: dataset.uuid,
                 computed: mode == 'Computed' 
               }
             })

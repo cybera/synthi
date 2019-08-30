@@ -11,13 +11,13 @@ import User from '../domain/models/user'
 const mainResolvers = {
   Query: {
     async currentUser(_, params, context) {
-      const user = await User.get(context.user.id)
+      const user = await User.getByUuid(context.user.uuid)
       return user
     }
   },
   Mutation: {
     regenerateAPIKey: async (_, params, context) => {
-      const user = await User.get(context.user.id)
+      const user = await User.getByUuid(context.user.uuid)
       await user.regenerateAPIKey()
       return user
     }

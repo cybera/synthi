@@ -15,7 +15,7 @@ const DataTableView = (props) => {
       <TableHead>
         <TableRow>
           {
-            columns.map(({ id, name }) => <TableCell key={id}>{ name }</TableCell>)
+            columns.map(({ uuid, name }) => <TableCell key={uuid}>{ name }</TableCell>)
           }
         </TableRow>
       </TableHead>
@@ -41,7 +41,7 @@ const DataTableView = (props) => {
 
 DataTableView.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number,
+    uuid: PropTypes.string,
     name: PropTypes.string
   })),
   rows: PropTypes.arrayOf(PropTypes.array)

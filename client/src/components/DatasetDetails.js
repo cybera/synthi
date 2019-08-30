@@ -20,6 +20,7 @@ import DatasetView from './DatasetView'
 import DatasetMetadata from './DatasetMetadata'
 import DatasetTree from './DatasetTree'
 import APIInfo from './api-info'
+import ErrorPlaceholder from './ErrorPlaceholder'
 import Placeholder from './Placeholder'
 import DatasetTitle from '../containers/DatasetTitle'
 
@@ -66,45 +67,50 @@ class DatasetDetails extends React.Component {
     this.handleChange = this.handleChange.bind(this)
   }
 
+  componentDidCatch(error, errorInfo) {
+    console.log(error)
+    this.setState({hasError: true})
+  }
+
   handleChange(_, value) {
-    this.setState({ value })
+    this.setState({ value, hasError: false })
   }
 
   render() {
-    const { id, classes } = this.props
+    const { uuid, classes } = this.props
     const { value } = this.state
     const options = [
       {
         name: 'Preview Data',
         icon: <ViewIcon />,
-        detailMode: <DatasetView id={id} />
+        detailMode: <DatasetView uuid={uuid} />
       },
       {
         name: 'Metadata',
         icon: <EditIcon />,
-        detailMode: <DatasetMetadata id={id} />
+        detailMode: <DatasetMetadata uuid={uuid} />
       },
       {
         name: 'Connections',
         icon: <ConnectionsIcon />,
-        detailMode: <DatasetTree id={id} />
+        detailMode: <DatasetTree uuid={uuid} />
       },
       {
         name: 'Chart Editor',
         icon: <ConnectionsIcon />,
-        detailMode: <ChartEditor datasetID={id} />,
+        detailMode: <ChartEditor datasetUUID={uuid} />,
       },
       {
         name: 'API Info',
         icon: <APIIcon />,
-        detailMode: <APIInfo id={id} />
+        detailMode: <APIInfo uuid={uuid} />
       }
     ]
     const tabs = options.map(
       ({ name }) => <Tab key={name} label={name} classes={{ selected: classes.active }} />
     )
 
-    if (!id) {
+    if (!uuid) {
       return (
         <Placeholder>
           <Typography variant="h4" className={classes.placeholderHeading}>
@@ -120,7 +126,7 @@ class DatasetDetails extends React.Component {
     return (
       <div>
         <Paper className={classes.header} square>
-          <DatasetTitle id={id} />
+          <DatasetTitle uuid={uuid} />
           <AppBar
             position="static"
             className={classes.tabs}
@@ -138,7 +144,18 @@ class DatasetDetails extends React.Component {
           </AppBar>
         </Paper>
         <div className={classes.wrapper}>
-          {options[value] !== undefined ? options[value].detailMode : <div />}
+          {this.state.hasError ? 
+            <ErrorPlaceholder>
+              <Typography variant="h4" className={classes.placeholderHeading}>
+                Oops!
+              </Typography>
+              <Typography variant="subtitle1">
+                We're sorry, something went wrong.
+              </Typography>
+            </ErrorPlaceholder>
+          : 
+            options[value] !== undefined ? options[value].detailMode : <div />
+          }
         </div>
       </div>
     )
@@ -146,12 +163,12 @@ class DatasetDetails extends React.Component {
 }
 
 DatasetDetails.propTypes = {
-  id: PropTypes.number,
+  uuid: PropTypes.string,
   classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 DatasetDetails.defaultProps = {
-  id: null
+  uuid: null
 }
 
 export default compose(

@@ -43,12 +43,12 @@ class DatasetEditor extends React.Component {
 
     const { inputTransformation } = dataset
     const codeExists = dataset && dataset.computed && inputTransformation
-    const virtualTransformation = inputTransformation && inputTransformation.virtual
+    const virtualTransformation = inputTransformation !== null && inputTransformation.virtual
     return (
       <div className={classes.root}>
         <ToggleVisibility visible={!dataset.computed}>
           <span className={classes.editorButton}>
-            <DatasetUploadButton id={dataset.id} type={dataset.type} />
+            <DatasetUploadButton uuid={dataset.uuid} type={dataset.type} />
           </span>
         </ToggleVisibility>
 
@@ -83,7 +83,7 @@ class DatasetEditor extends React.Component {
               <span>
                 <ADIButton
                   disabled={dataset.generating || !codeExists || (dataset.inputTransformation.error)}
-                  onClick={() => generateDataset(dataset.id)}
+                  onClick={() => generateDataset(dataset.uuid)}
                 >
                   Generate!
                 </ADIButton>

@@ -10,7 +10,7 @@ const handleDownload = (url) => {
 const DownloadButton = (props) => {
   const { dataset } = props
 
-  const url = `${window.location.origin}/dataset/${dataset.id}`
+  const url = `${window.location.origin}/dataset/${dataset.uuid}`
 
   return (
     <Button variant="contained" color="secondary" onClick={() => handleDownload(url)}>

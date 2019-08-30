@@ -7,12 +7,15 @@ import Base from './domain/models/base'
 import * as ModelFactory from './domain/models/modelFactory'
 import DefaultQueue from './lib/queue'
 import * as Models from './domain/models'
+import RedisClient from './lib/redisClient'
 
 global.safeQuery = safeQuery
 global.config = config
 global.Storage = Storage
 global.Util = Util
+global.RedisClient = RedisClient
 global.neo4j = require('neo4j-driver').v1
+
 global.lodash = lodash
 
 // Make all model classes accessible in the global scope

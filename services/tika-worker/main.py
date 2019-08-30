@@ -22,7 +22,7 @@ def callback(ch, method, properties, body):
 
   try:
     document = storage.read_raw(params['paths']['original'])
-    p = run(["java", "-jar", "/tika-app.jar", "--config=tika-config.xml", "-"], stdout=PIPE, input=document)
+    p = run(["java", "-jar", "/tika-app.jar", "--config=tika-config.xml", "-t", "-"], stdout=PIPE, input=document)
     storage.write_raw(p.stdout, params['paths']['imported'])
   except Exception as e:
     body['status'] = "error"

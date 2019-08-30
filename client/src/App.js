@@ -62,7 +62,9 @@ const link = split(
 );
 
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    dataIdFromObject: object => object.uuid || null
+  }),
   // Apparently "new HttpLink()" isn't necessary anymore:
   // https://stackoverflow.com/questions/49507035/how-to-use-apollo-link-http-with-apollo-upload-client
   link
@@ -100,7 +102,7 @@ const styles = () => ({
 function MainComponent(props) {
   const { mode, dataset } = props
 
-  if (mode === 'datasets' || mode === 'chart-editor') return <DatasetDetails id={dataset} />
+  if (mode === 'datasets' || mode === 'chart-editor') return <DatasetDetails uuid={dataset} />
   if (mode === 'scenarios') return <Scenarios />
 
   return <div>Empty</div>
@@ -129,7 +131,7 @@ class App extends React.Component {
     this.state = {
       currentDataset: null,
       currentMode: 'datasets',
-      currentOrg: 0,
+      currentOrg: '',
       user: null,
       loading: false
     }
@@ -140,7 +142,7 @@ class App extends React.Component {
         const org = user.orgs.find(o => o.name === user.username)
 
         this.state.user = user
-        this.state.currentOrg = org.id
+        this.state.currentOrg = org.uuid
       }
     } catch (error) {
       console.log(error)
@@ -172,7 +174,7 @@ class App extends React.Component {
 
   switchMode = mode => this.setState({ currentMode: mode })
 
-  selectDataset = (id, name) => this.setState({ currentDataset: id, currentName: name })
+  selectDataset = (uuid, name) => this.setState({ currentDataset: uuid, currentName: name })
 
   setUser = user => this.setState({ user })
 

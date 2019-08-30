@@ -24,9 +24,9 @@ import PanelLoadingState from './PanelLoadingState'
 import GeneratingProgress from './GeneratingProgress'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
-  subscription onDatasetGenerated($id: Int!) {
-    datasetGenerated(id: $id) {
-      id
+  subscription onDatasetGenerated($uuid: String!) {
+    datasetGenerated(uuid: $uuid) {
+      uuid
       status
       message
     }
@@ -77,14 +77,14 @@ const styles = theme => ({
 
 class DatasetView extends React.Component {
   static propTypes = {
-    id: PropTypes.number,
+    uuid: PropTypes.string,
     classes: PropTypes.objectOf(PropTypes.any).isRequired,
     dataset: PropTypes.objectOf(PropTypes.any).isRequired,
     subscribeToDatasetGenerated: PropTypes.func.isRequired
   }
 
   static defaultProps = {
-    id: null
+    uuid: null
   }
 
   constructor(props) {
@@ -96,13 +96,13 @@ class DatasetView extends React.Component {
   }
 
   componentDidMount() {
-    const { subscribeToDatasetGenerated, id } = this.props
+    const { subscribeToDatasetGenerated, uuid } = this.props
     this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
       const { errors } = this.state
       if (status === 'error') {
-        this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
+        this.setState({ errors: Object.assign({}, errors, { [uuid]: message }) })
       } else {
-        this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
+        this.setState({ errors: Object.assign({}, errors, { [uuid]: '' }) })
       }
     })
   }
@@ -113,12 +113,12 @@ class DatasetView extends React.Component {
 
   render() {
     const {
-      id,
+      uuid,
       classes,
       dataset
     } = this.props
 
-    if (id == null) return <div />
+    if (uuid == null) return <div />
 
     const { errors } = this.state
     const displayColumns = dataset.columns
@@ -163,8 +163,8 @@ class DatasetView extends React.Component {
                   or generate it from existing datasets.
                 </Typography>
               </div>
-              <DatasetUploadButton id={id} type={dataset.type} />
-              <DatasetComputeModeButton id={id} />
+              <DatasetUploadButton uuid={uuid} type={dataset.type} />
+              <DatasetComputeModeButton uuid={uuid} />
             </div>
           </div>
         )
@@ -179,7 +179,7 @@ class DatasetView extends React.Component {
     return (
       <div className={classes.root}>
         <DatasetEditor dataset={dataset} dataExists={dataExists} />
-        <Typography className={classes.error}>{errors[id]}</Typography>
+        <Typography className={classes.error}>{errors[uuid]}</Typography>
         <GeneratingProgress dataset={dataset} />
         <ToggleVisibility visible={!dataset.generating && dataExists}>
           <Paper>
@@ -202,13 +202,13 @@ class SubscribedWarningBanner extends React.Component {
   }
 
   componentDidMount() {
-    const { subscribeToDatasetGenerated, id } = this.props
+    const { subscribeToDatasetGenerated, uuid } = this.props
     this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
       const { errors } = this.state
       if (status === 'error') {
-        this.setState({ errors: Object.assign({}, errors, { [id]: message }) })
+        this.setState({ errors: Object.assign({}, errors, { [uuid]: message }) })
       } else {
-        this.setState({ errors: Object.assign({}, errors, { [id]: '' }) })
+        this.setState({ errors: Object.assign({}, errors, { [uuid]: '' }) })
       }
     })
   }
@@ -218,7 +218,7 @@ class SubscribedWarningBanner extends React.Component {
   }
 
   render() {
-    const { classes, id, error } = this.props
+    const { classes, uuid, error } = this.props
 
     return (
       <div>
@@ -240,13 +240,13 @@ class SubscribedWarningBanner extends React.Component {
               <Typography variant="subtitle1" gutterBottom>
                 You can try uploading your file again.
               </Typography>
-              <DatasetUploadButton id={id} type="csv" />
+              <DatasetUploadButton uuid={uuid} type="csv" />
             </div>
             <div className={classes.adviceContainer}>
               <Typography variant="subtitle1" gutterBottom>
                 Or you can try providing some more information and rescanning:
               </Typography>
-              <UploadParsingOptions id={id} error={error} />
+              <UploadParsingOptions uuid={uuid} error={error} />
             </div>
           </Grid>
         </Grid>
@@ -257,12 +257,12 @@ class SubscribedWarningBanner extends React.Component {
 /* eslint-enable react/no-multi-comp */
 
 const ConnectedDatasetView = (props) => {
-  const { id, classes } = props
+  const { uuid, classes } = props
 
   return (
     <Query
       query={datasetViewQuery}
-      variables={{ id }}
+      variables={{ uuid }}
     >
       {
         ({ subscribeToMore, error, loading, data, refetch }) => {
@@ -270,12 +270,12 @@ const ConnectedDatasetView = (props) => {
             return (
               <SubscribedWarningBanner
                 classes={classes}
-                id={id}
+                uuid={uuid}
                 error={error}
                 subscribeToDatasetGenerated={(handleStatus) => {
                   return subscribeToMore({
                     document: DATASET_GENERATION_SUBSCRIPTION,
-                    variables: { id },
+                    variables: { uuid },
                     updateQuery: (prev, { subscriptionData }) => {
                       if (!subscriptionData.data) return prev
 
@@ -302,7 +302,7 @@ const ConnectedDatasetView = (props) => {
               subscribeToDatasetGenerated={(handleStatus) => {
                 return subscribeToMore({
                   document: DATASET_GENERATION_SUBSCRIPTION,
-                  variables: { id },
+                  variables: { uuid },
                   updateQuery: (prev, { subscriptionData }) => {
                     if (!subscriptionData.data) return prev
 

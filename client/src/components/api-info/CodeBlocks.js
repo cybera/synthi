@@ -11,7 +11,7 @@ const host = window.location.origin
 export const CurlBlock = (props) => {
   const { dataset, apikey } = props
 
-  const downloadCode = `curl -s ${host}/dataset/${dataset.id} \\
+  const downloadCode = `curl -s ${host}/dataset/${dataset.uuid} \\
 -H "Authorization: Api-Key ${apikey}" \\
 >"${dataset.name}.csv"`
 
@@ -22,8 +22,9 @@ export const CurlBlock = (props) => {
 --data @- << EOS >"${dataset.name}.columns.json"
 {
   "query": "{
-    dataset(id: ${dataset.id}) {
+    dataset(uuid: \\"${dataset.uuid}\\") {
       id 
+      uuid
       columns {
         name
         order
@@ -40,8 +41,9 @@ EOS`
 --data @- << EOS >"${dataset.name}.metadata.json"
 {
   "query": "{
-    dataset(id: ${dataset.id}) {
+    dataset(uuid: \\"${dataset.uuid}\\") {
       id
+      uuid
       name
       metadata {
         title
@@ -93,7 +95,7 @@ import pandas as pd
 import io
 
 headers = { 'Authorization': 'Api-Key ${apikey}' }
-response = requests.get('${host}/dataset/${dataset.id}', headers=headers)
+response = requests.get('${host}/dataset/${dataset.uuid}', headers=headers)
 
 df = pd.read_csv(io.StringIO(response.content.decode('utf-8')))`
 
@@ -118,7 +120,7 @@ install.packages("readr")`
 
 apiKey <- '${apikey}'
 
-req <- GET('${host}/dataset/${dataset.id}', 
+req <- GET('${host}/dataset/${dataset.uuid}', 
     add_headers(Authorization = paste("Api-Key", apiKey))
 )
 
@@ -152,7 +154,7 @@ export const ExcelBlock = (props) => {
       <Typography variant="body1" gutterBottom align="left">
         <ol>
           <li>
-            <a href={`${window.location.origin}/dataset/${dataset.id}`}>Click here</a>
+            <a href={`${window.location.origin}/dataset/${dataset.uuid}`}>Click here</a>
             &nbsp;to download the&nbsp;
             {dataset.name}
             &nbsp;dataset.

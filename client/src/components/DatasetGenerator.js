@@ -6,8 +6,8 @@ import gql from 'graphql-tag'
 import { datasetViewQuery } from '../queries'
 
 const generateDatasetGQL = gql`
-  mutation Generate($id:Int!) {
-    generateDataset(id:$id) {
+  mutation Generate($uuid:String!) {
+    generateDataset(uuid:$uuid) {
       name
     }
   }
@@ -15,10 +15,10 @@ const generateDatasetGQL = gql`
 
 const DatasetGenerator = ({ children }) => {
   const simpleGenerator = (mutation) => {
-    const generateDataset = id => mutation({
-      variables: { id },
+    const generateDataset = uuid => mutation({
+      variables: { uuid },
       refetchQueries: [
-        { query: datasetViewQuery, variables: { id } }
+        { query: datasetViewQuery, variables: { uuid } }
       ]
     })
 

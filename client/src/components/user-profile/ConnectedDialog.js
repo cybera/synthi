@@ -8,7 +8,7 @@ import UserProfileDialog from './Dialog'
 export const currentUserQuery = gql`
   query {
     currentUser {
-      id
+      uuid
       username
       apikey
     }
@@ -18,7 +18,7 @@ export const currentUserQuery = gql`
 export const regenerateAPIKeyMutation = gql`
   mutation {
     regenerateAPIKey {
-      id
+      uuid
       username
       apikey
     }

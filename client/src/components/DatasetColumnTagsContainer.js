@@ -19,18 +19,18 @@ const styles = theme => ({
 // shown on the panel based off of the data and the other components defined
 // in this file.
 const DatasetColumnTagsContainer = (props) => {
-  const { id, classes } = props
+  const { uuid, classes } = props
 
   return (
     <Mutation
       mutation={updateDatasetColumnsMutation}
       refetchQueries={[
-        { query: datasetColumnTagsQuery, variables: { id } },
-        { query: datasetViewQuery, variables: { id } }
+        { query: datasetColumnTagsQuery, variables: { uuid } },
+        { query: datasetViewQuery, variables: { uuid } }
       ]}
     >
       { updateColumn => (
-        <Query query={datasetColumnTagsQuery} variables={{ id }}>
+        <Query query={datasetColumnTagsQuery} variables={{ uuid }}>
           {({ loading, error, data }) => {
             if (loading) return <PanelLoadingState />
             if (error) return <p>Error!</p>
@@ -57,12 +57,12 @@ const DatasetColumnTagsContainer = (props) => {
 }
 
 DatasetColumnTagsContainer.propTypes = {
-  id: PropTypes.number,
+  uuid: PropTypes.string,
   classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 DatasetColumnTagsContainer.defaultProps = {
-  id: null
+  uuid: null
 }
 
 export default withStyles(styles)(DatasetColumnTagsContainer)
