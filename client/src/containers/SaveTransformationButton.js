@@ -9,7 +9,6 @@ import { datasetViewQuery } from '../queries'
 const saveInputTransformationGQL = gql`
   mutation SaveInputTransformation($uuid: String!, $code: String) {
     saveInputTransformation(uuid: $uuid, code: $code) {
-      id
       uuid
     }
   }

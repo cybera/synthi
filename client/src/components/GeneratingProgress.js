@@ -14,7 +14,6 @@ import { datasetViewQuery } from '../queries'
 const resetGeneratingMutation = gql`
 mutation ResetGeneratingMutation($uuid: String!) {
   updateDataset(uuid: $uuid, generating: false) {
-    id
     uuid
   }
 }

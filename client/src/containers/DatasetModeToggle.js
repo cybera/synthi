@@ -38,7 +38,6 @@ const StyledDatasetModeToggle = withStyles(styles)(DatasetModeToggle)
 const updateDatasetGQL = gql`
   mutation UpdateDataset($uuid: String!, $computed: Boolean) {
     updateDataset(uuid: $uuid, computed: $computed) {
-      id
       uuid
       name
     }

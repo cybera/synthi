@@ -3,11 +3,9 @@ import gql from 'graphql-tag';
 export const datasetListQuery = gql`
 query($searchString: String, $org: OrganizationID) {
   dataset(searchString: $searchString, org: $org) {
-    id
     uuid
     name
     owner {
-      id
       uuid
     }
   }
@@ -23,12 +21,10 @@ mutation DeleteDataset($uuid: String!) {
 export const datasetViewQuery = gql`
 query($uuid: String) {
   dataset(uuid: $uuid) {
-    id
     uuid
     type
     name
     columns {
-      id
       uuid
       name
       order
@@ -39,7 +35,6 @@ query($uuid: String) {
     generating
     samples
     inputTransformation {
-      id
       uuid
       code
       error
@@ -52,7 +47,6 @@ query($uuid: String) {
 export const plotsRetrieveQuery = gql`
 {
   plots {
-    id
     uuid
     jsondef
   }
@@ -75,7 +69,6 @@ export const datasetColumnTagsQuery = gql`
   query($uuid: String!) {
     dataset(uuid: $uuid) {
       columns {
-        id
         uuid
         name
         tags {

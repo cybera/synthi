@@ -28,7 +28,6 @@ export const datasetMetadataQuery = gql`
 query($uuid: String) {
   dataset(uuid: $uuid) {
     name
-    id
     uuid
     metadata {
       title
