@@ -2,6 +2,7 @@ import json
 import io
 import os
 import requests
+import mimetypes
 
 from typing import Dict
 
@@ -81,12 +82,13 @@ def gql_query(query, variables=dict(), file=None, host=None, api_key=None):
     headers['Content-Type'] = 'application/json'
   else:
     fileName = os.path.basename(file)
+    mimetype, encoding = mimetypes.guess_type(file)
     # See: https://github.com/cybera/adi/blob/master/manual/src/sections/ExportingAndImporting.md
     # for the curl command this is based off of.
     files = {
       'operations': (None, json_data, 'application/json'),
       'map': (None, '{ "0": ["variables.file"] }', 'application/json'),
-      '0': (fileName, open(file, 'rb'), 'application/octet-stream')
+      '0': (fileName, open(file, 'rb'), mimetype)
     }
 
   r = requests.post(f"{host}/graphql", headers=headers, data=data, files=files)

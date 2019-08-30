@@ -92,12 +92,12 @@ class Dataset extends Base {
     return fullDatasetPath(this.path)
   }
 
-  readStream() {
+  readStream(type = 'imported') {
     logger.info(`Reading ${this.paths.imported}`)
-    return Storage.createReadStream('datasets', this.paths.imported)
+    return Storage.createReadStream('datasets', this.paths[type])
   }
 
-  async download(req, res) {
+  async download(req, res, type = 'imported') {
     if (await this.canAccess(req.user)) {
       res.attachment(this.downloadName())
 
@@ -117,7 +117,7 @@ class Dataset extends Base {
         logger.error(e)
       }
 
-      this.readStream().pipe(res)
+      this.readStream(type).pipe(res)
     } else {
       res.status(404).send('Not found')
     }
@@ -197,7 +197,7 @@ class Dataset extends Base {
     // Do nothing by default
   }
 
-  async upload({ stream, filename }) {
+  async upload({ stream, filename, mimetype }) {
     try {
       logger.info(`Uploading: ${filename}`)
       const { path } = await storeFS({ stream, filename: this.paths.original })
@@ -205,6 +205,7 @@ class Dataset extends Base {
       this.path = path
       this.computed = false
       this.originalFilename = filename
+      this.mimetype = mimetype
       logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
@@ -445,7 +446,7 @@ class Dataset extends Base {
 }
 
 Dataset.label = 'Dataset'
-Dataset.saveProperties = ['name', 'type', 'path', 'computed', 'generating', 'originalFilename']
+Dataset.saveProperties = ['name', 'type', 'path', 'computed', 'generating', 'originalFilename', 'mimetype']
 
 Base.ModelFactory.register(Dataset)
 

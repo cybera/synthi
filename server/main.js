@@ -196,9 +196,10 @@ app.get('/whoami', (req, res) => {
 
 app.get('/dataset/:id', async (req, res) => {
   const dataset = await ModelFactory.get(req.params.id)
+  const type = req.query.type || 'imported'
 
   if (dataset) {
-    await dataset.download(req, res)
+    await dataset.download(req, res, type)
   } else {
     res.status(404).send('Not found')
   }
