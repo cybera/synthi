@@ -15,9 +15,9 @@ const Scenarios = () => (
 
         return (
           <div>
-            {result.plots.map(({ id, jsondef }) => {
+            {result.plots.map(({ uuid, jsondef }) => {
               const jsonobj = JSON.parse(jsondef)
-              return <Plot {...jsonobj} key={id} />
+              return <Plot {...jsonobj} key={uuid} />
             })}
           </div>
         )

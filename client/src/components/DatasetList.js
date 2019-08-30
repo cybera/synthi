@@ -38,12 +38,12 @@ const DatasetList = (props) => {
       {searchString && <DisplayingResults count={datasets.length} />}
 
       {datasets
-        .filter(d => d.owner.id === navigation.currentOrg)
+        .filter(d => d.owner.uuid === navigation.currentOrg)
         .sort(collator.compare)
         .reverse()
         .map(dataset => (
           <DatasetListItem
-            key={dataset.id}
+            key={dataset.uuid}
             dataset={dataset}
           />
         ))}
@@ -56,11 +56,11 @@ DatasetList.propTypes = {
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
   navigation: PropTypes.shape({
     selectDataset: PropTypes.func,
-    currentDataset: PropTypes.number,
+    currentDataset: PropTypes.string,
     currentName: PropTypes.string
   }).isRequired,
   datasets: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number,
+    uuid: PropTypes.string,
     name: PropTypes.string
   })),
   searchString: PropTypes.string

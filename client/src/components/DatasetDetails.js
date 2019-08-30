@@ -77,40 +77,40 @@ class DatasetDetails extends React.Component {
   }
 
   render() {
-    const { id, classes } = this.props
+    const { uuid, classes } = this.props
     const { value } = this.state
     const options = [
       {
         name: 'Preview Data',
         icon: <ViewIcon />,
-        detailMode: <DatasetView id={id} />
+        detailMode: <DatasetView uuid={uuid} />
       },
       {
         name: 'Metadata',
         icon: <EditIcon />,
-        detailMode: <DatasetMetadata id={id} />
+        detailMode: <DatasetMetadata uuid={uuid} />
       },
       {
         name: 'Connections',
         icon: <ConnectionsIcon />,
-        detailMode: <DatasetTree id={id} />
+        detailMode: <DatasetTree uuid={uuid} />
       },
       {
         name: 'Chart Editor',
         icon: <ConnectionsIcon />,
-        detailMode: <ChartEditor datasetID={id} />,
+        detailMode: <ChartEditor datasetID={uuid} />,
       },
       {
         name: 'API Info',
         icon: <APIIcon />,
-        detailMode: <APIInfo id={id} />
+        detailMode: <APIInfo uuid={uuid} />
       }
     ]
     const tabs = options.map(
       ({ name }) => <Tab key={name} label={name} classes={{ selected: classes.active }} />
     )
 
-    if (!id) {
+    if (!uuid) {
       return (
         <Placeholder>
           <Typography variant="h4" className={classes.placeholderHeading}>
@@ -126,7 +126,7 @@ class DatasetDetails extends React.Component {
     return (
       <div>
         <Paper className={classes.header} square>
-          <DatasetTitle id={id} />
+          <DatasetTitle uuid={uuid} />
           <AppBar
             position="static"
             className={classes.tabs}
@@ -163,12 +163,12 @@ class DatasetDetails extends React.Component {
 }
 
 DatasetDetails.propTypes = {
-  id: PropTypes.number,
+  uuid: PropTypes.string,
   classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 
 DatasetDetails.defaultProps = {
-  id: null
+  uuid: null
 }
 
 export default compose(

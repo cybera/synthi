@@ -7,9 +7,10 @@ import ADIButton from '../components/ADIButton'
 import { datasetViewQuery } from '../queries'
 
 const saveInputTransformationGQL = gql`
-  mutation SaveInputTransformation($id: Int!, $code: String) {
-    saveInputTransformation(id: $id, code: $code) {
+  mutation SaveInputTransformation($uuid: String!, $code: String) {
+    saveInputTransformation(uuid: $uuid, code: $code) {
       id
+      uuid
     }
   }
 `
@@ -19,14 +20,14 @@ const SaveTransformationButton = (props) => {
   return (
     <Mutation
       mutation={saveInputTransformationGQL}
-      refetchQueries={[{ query: datasetViewQuery, variables: { id: dataset.id } }]}
+      refetchQueries={[{ query: datasetViewQuery, variables: { uuid: dataset.uuid } }]}
     >
       { saveMutation => (
         <ADIButton
           onClick={
             () => saveMutation({
               variables: {
-                id: dataset.id,
+                uuid: dataset.uuid,
                 code: currentCode()
               }
             })

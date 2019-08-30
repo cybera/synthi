@@ -86,7 +86,7 @@ class Sidebar extends React.Component {
           />
           <NewDatasetButton />
         </div>
-        <DatasetList searchString={searchString} organization={{ id: navigation.currentOrg }} />
+        <DatasetList searchString={searchString} organization={{ uuid: navigation.currentOrg }} />
       </Drawer>
     )
   }

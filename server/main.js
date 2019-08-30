@@ -92,15 +92,15 @@ passport.use(new HeaderAPIKeyStrategy(
 ))
 
 passport.serializeUser((user, done) => {
-  logger.debug(`serializeUser: ${user.id}`)
-  done(null, user.id)
+  logger.debug(`serializeUser: ${user.uuid}`)
+  done(null, user.uuid)
 });
 
-passport.deserializeUser(async (id, done) => {
-  logger.debug(`deserializeUser: ${id}`)
+passport.deserializeUser(async (uuid, done) => {
+  logger.debug(`deserializeUser: ${uuid}`)
   let user
   try {
-    user = await User.get(id)
+    user = await User.getByUuid(uuid)
     if (!user) {
       return done(new Error('User not found'))
     }

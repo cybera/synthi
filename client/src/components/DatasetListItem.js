@@ -31,11 +31,11 @@ class DatasetListItem extends React.Component {
   }
 
   selectDataset = (event) => {
-    const { dataset: { id }, navigation } = this.props
+    const { dataset: { uuid }, navigation } = this.props
     const clickedListItem = event.target === event.currentTarget
     const clickedDatasetTitle = event.target.nodeName === 'SPAN'
 
-    if (clickedListItem || clickedDatasetTitle) navigation.selectDataset(id)
+    if (clickedListItem || clickedDatasetTitle) navigation.selectDataset(uuid)
   }
 
   toggleDelete = () => {
@@ -59,7 +59,7 @@ class DatasetListItem extends React.Component {
       deleting
     } = this.state
 
-    const active = navigation.currentDataset === dataset.id
+    const active = navigation.currentDataset === dataset.uuid
 
     return (
       <ListItem

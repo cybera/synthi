@@ -11,12 +11,15 @@ import Panel from './Panel'
 import PanelLoadingState from '../PanelLoadingState'
 
 export const datasetQuery = gql`
-query DatasetAndAPIKey ($id: Int) {
-  dataset(id: $id) {
+query DatasetAndAPIKey ($uuid: String) {
+  dataset(uuid: $uuid) {
     id
+    uuid
     name
   }
   currentUser {
+    id
+    uuid
     apikey
   }
 }
@@ -32,10 +35,10 @@ const styles = theme => ({
 })
 
 const ConnectedPanel = (props) => {
-  const { classes, id } = props
+  const { classes, uuid } = props
 
   return (
-    <Query query={datasetQuery} variables={{ id }}>
+    <Query query={datasetQuery} variables={{ uuid }}>
       {
         ({ loading, error, data }) => {
           if (loading) return <PanelLoadingState />
@@ -56,11 +59,11 @@ const ConnectedPanel = (props) => {
 
 ConnectedPanel.propTypes = {
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
-  id: PropTypes.number
+  uuid: PropTypes.string
 }
 
 ConnectedPanel.defaultProps = {
-  id: null
+  uuid: null
 }
 
 export default compose(
