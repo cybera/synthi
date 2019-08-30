@@ -1,16 +1,13 @@
-import Dataset from '../../domain/models/dataset'
+import { updateDatasetMetadata } from '../../domain/contexts/dataset'
 
 export default {
   Dataset: {
     metadata: async dataset => await dataset.metadata() || {}
   },
   Mutation: {
-    updateDatasetMetadata: async (_, { id, metadata }, context) => {
-      const dataset = await Dataset.get(id)
-      const datasetMetadata = await dataset.metadata()
-      datasetMetadata.update(metadata)
-      await datasetMetadata.save()
-      return metadata
-    }
+    // eslint-disable-next-line no-unused-vars
+    updateDatasetMetadata: async (_, { uuid, metadata }, context) => (
+      updateDatasetMetadata(uuid, metadata)
+    )
   }
 }

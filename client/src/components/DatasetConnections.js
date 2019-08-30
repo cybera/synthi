@@ -190,7 +190,7 @@ const RenderRelations = (props) => {
             The  {node.kind.toLowerCase()} {node.name} is the result of the transformations and datasets below.
             {/* TODO: Find a better navigation Icon */}
             <ToggleVisibility visible={node.kind === "Dataset"}>
-              <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(node.id)}>
+              <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(node.uuid)}>
                 <NavigationIcon />
               </IconButton>
             </ToggleVisibility>
@@ -201,7 +201,7 @@ const RenderRelations = (props) => {
             The {node.kind.toLowerCase()} {node.name} is the origin {node.kind.toLowerCase()} to the above branch of transformations; 
             it has no contributing transformations.
             <ToggleVisibility visible={node.kind === "Dataset"}>
-              <IconButton aria-label="Navigate" onClick={() => navigation.selectDataset(node.id)}>
+              <IconButton aria-label="Navigate" onClick={() => navigation.selectDataset(node.uuid)}>
                 <NavigationIcon />
               </IconButton>
             </ToggleVisibility>
@@ -214,12 +214,11 @@ const RenderRelations = (props) => {
 };
 
 const DatasetConnections = (props) => {
-  const { id } = props.dataset
-  const { classes} = props
-  const { navigation} = props;
+  const { dataset, classes, navigation } = props
+  const { uuid } = dataset
   
   return (
-    <Query query={datasetConnectionsQuery} variables={{ id }}>
+    <Query query={datasetConnectionsQuery} variables={{ uuid }}>
       {({ loading, error, data }) => {
         if (loading) return null
         if (error) return null

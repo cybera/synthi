@@ -86,7 +86,7 @@ class ChartEditor extends React.Component {
 }
 
 ChartEditor.propTypes = {
-  datasetID: PropTypes.number,
+  datasetID: PropTypes.string,
   classes: PropTypes.objectOf(PropTypes.any).isRequired
 }
 

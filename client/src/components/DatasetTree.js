@@ -11,11 +11,6 @@ import ToggleVisibility from './ToggleVisibility'
 import MediaCard from './HoverCard'
 import Paper from '@material-ui/core/Paper'
 import './connectionStyle.css'
-
-// {/* This creates a button that navigates to a dataset. Commented out for now because it was ugly */}
-//       {/* <IconButton aria-label="Navigate"  onClick={() => navigation.selectDataset(nodeData.attributes.id)}>
-//             <NavigationIcon />
-//           </IconButton> */}
         
 // TODO: Modify this to check if the transformation name
 // is the same as the dataset name
@@ -82,10 +77,8 @@ const lineStyle = {
 
 // TreeMaker, Heart breaker
 const TreeMaker = (props) => {
-  const { data } = props;
-  const { id } = props;
-  const { navigation } = props;
-  // console.log(data)
+  const { data, navigation } = props;
+
   return (
     <div id="treeContainer" style={{ width: '70em', height: '45em'}}>
       <Tree
@@ -109,10 +102,10 @@ const TreeMaker = (props) => {
 
 
 const DatasetTree = (props) => {
-  const { navigation, id, classes } = props;
+  const { navigation, uuid, classes } = props;
 
   return (
-    <Query query={datasetConnectionsQuery} variables={{ id }}>
+    <Query query={datasetConnectionsQuery} variables={{ uuid }}>
       {({ loading, error, data }) => {
         if (loading) return null
         if (error) return null
@@ -122,7 +115,7 @@ const DatasetTree = (props) => {
         return (
           <div className={classes.root}>
             <Paper>
-              <TreeMaker data={links} id={id} navigation={navigation} />
+              <TreeMaker data={links} uuid={uuid} navigation={navigation} />
             </Paper>
           </div>
         )

@@ -9,6 +9,7 @@ export const currentUserQuery = gql`
   query {
     currentUser {
       id
+      uuid
       username
       apikey
     }
@@ -19,6 +20,7 @@ export const regenerateAPIKeyMutation = gql`
   mutation {
     regenerateAPIKey {
       id
+      uuid
       username
       apikey
     }

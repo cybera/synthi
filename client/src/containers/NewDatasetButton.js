@@ -13,9 +13,9 @@ import { datasetListQuery } from '../queries'
 
 
 const CREATE_DATASET = gql`
-  mutation CreateDataset($name: String, $owner: Int) {
+  mutation CreateDataset($name: String, $owner: String) {
     createDataset(name: $name, owner: $owner) {
-      id
+      uuid
       name
     }
   }
@@ -39,7 +39,7 @@ class NewDatasetButton extends React.Component {
     const { navigation } = this.props
     mutation().then((results) => {
       const { createDataset } = results.data
-      navigation.selectDataset(createDataset.id)
+      navigation.selectDataset(createDataset.uuid)
     })
   }
 
@@ -50,7 +50,7 @@ class NewDatasetButton extends React.Component {
       <Mutation
         mutation={CREATE_DATASET}
         variables={{ owner: navigation.currentOrg }}
-        refetchQueries={[{ query: datasetListQuery, variables: { org: { id: navigation.currentOrg } } }]}
+        refetchQueries={[{ query: datasetListQuery, variables: { org: { uuid: navigation.currentOrg } } }]}
       >
         {mutate => (
           <Button

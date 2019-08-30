@@ -3,25 +3,28 @@ import gql from 'graphql-tag';
 export const datasetListQuery = gql`
 query($searchString: String, $org: OrganizationID) {
   dataset(searchString: $searchString, org: $org) {
-    id,
-    name,
+    id
+    uuid
+    name
     owner {
       id
+      uuid
     }
   }
 }
 `
 
 export const deleteDatasetMutation = gql`
-mutation DeleteDataset($id: Int!) {
-  deleteDataset(id: $id)
+mutation DeleteDataset($uuid: String!) {
+  deleteDataset(uuid: $uuid)
 }
 `
 
 export const datasetViewQuery = gql`
-query($id: Int) {
-  dataset(id: $id) {
+query($uuid: String) {
+  dataset(uuid: $uuid) {
     id
+    uuid
     type
     name
     columns {
@@ -37,6 +40,7 @@ query($id: Int) {
     samples
     inputTransformation {
       id
+      uuid
       code
       error
       virtual
@@ -49,15 +53,17 @@ export const plotsRetrieveQuery = gql`
 {
   plots {
     id
+    uuid
     jsondef
   }
 }
 `
 
 export const datasetConnectionsQuery = gql`
-  query($id: Int!) {
-    dataset(id: $id) {
+  query($uuid: String!) {
+    dataset(uuid: $uuid) {
      id
+     uuid
      name
      connections
    }
@@ -66,8 +72,8 @@ export const datasetConnectionsQuery = gql`
 
 
 export const datasetColumnTagsQuery = gql`
-  query($id: Int!) {
-    dataset(id: $id) {
+  query($uuid: String!) {
+    dataset(uuid: $uuid) {
       columns {
         id
         uuid

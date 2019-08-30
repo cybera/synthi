@@ -59,7 +59,7 @@ class CSVOptions extends React.Component {
   }
 
   render() {
-    const { importHandler, id, classes } = this.props
+    const { importHandler, uuid, classes } = this.props
     const { delimiter, header, customDelimiter } = this.state
 
     return (
@@ -106,7 +106,7 @@ class CSVOptions extends React.Component {
               onClick={
                 () => importHandler({
                   variables: {
-                    id,
+                    uuid,
                     options: { delimiter, header, customDelimiter }
                   }
                 })
@@ -123,9 +123,9 @@ class CSVOptions extends React.Component {
 }
 
 export const importCSVGQL = gql`
-  mutation ImportCSV($id: Int!, $options: CSVImportOptions) {
-    importCSV(id:$id, removeExisting: true, options: $options) {
-      id
+  mutation ImportCSV($uuid: String!, $options: CSVImportOptions) {
+    importCSV(uuid:$uuid, removeExisting: true, options: $options) {
+      uuid
       name
     }
   }

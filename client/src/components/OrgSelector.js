@@ -38,7 +38,7 @@ class OrgSelector extends React.Component {
   }
 
   populateOrgs = orgs => orgs.map(org => (
-    <MenuItem key={org.id} value={org.id}>{org.name}</MenuItem>
+    <MenuItem key={org.uuid} value={org.uuid}>{org.name}</MenuItem>
   ))
 
   render() {

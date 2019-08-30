@@ -78,14 +78,14 @@ class TransformationEditor extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     const { dataset } = props
-    const { id } = dataset
+    const { uuid } = dataset
 
-    if (state.id !== id || state.code == null) {
+    if (state.uuid !== uuid || state.code == null) {
       let code = ""
       if (dataset.inputTransformation) {
         code = dataset.inputTransformation.code
       }
-      return { id, code }
+      return { uuid, code }
     } else {
       return null
     }
@@ -107,7 +107,7 @@ class TransformationEditor extends React.Component {
     return (
       <div>
         <StyledMUIEditor {...this.props} code={this.state.code} onChange={this.onChange}/>
-        <ToggleVisibility visible={error} key={dataset.id}>
+        <ToggleVisibility visible={error} key={dataset.uuid}>
           <div style={{ color: 'red', marginBottom: 10 }}><b>Transformation Code Error:</b> {error}</div>
         </ToggleVisibility>
       </div>

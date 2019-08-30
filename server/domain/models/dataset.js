@@ -434,7 +434,7 @@ class Dataset extends Base {
 
   sendUpdateNotification() {
     logger.debug('Publishing to clients...')
-    pubsub.publish(DATASET_UPDATED, { datasetGenerated: { id: this.id, status: 'success', message: '' } });
+    pubsub.publish(DATASET_UPDATED, { datasetGenerated: { uuid: this.uuid, status: 'success', message: '' } });
   }
 
   // Record a new dateUpdated on the metadata for the current time
@@ -442,6 +442,12 @@ class Dataset extends Base {
     const metadata = await this.metadata()
     metadata.dateUpdated = new Date()
     await metadata.save()
+  }
+
+  async updateMetadata(metadata) {
+    const datasetMetadata = await this.metadata()
+    datasetMetadata.update(metadata)
+    await datasetMetadata.save()
   }
 }
 

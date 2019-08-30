@@ -2,14 +2,14 @@ import { safeQuery } from '../../neo4j/connection'
 
 export default {
   Query: {
-    plots(_, { id }) {
-      let query = ['MATCH (p:Plot) RETURN p.jsondef AS jsondef, ID(p) as id']
-      if (id != null) {
-        query = [`MATCH (p:Plot) 
-                  WHERE ID(p) = toInteger($id)
+    plots(_, { uuid }) {
+      let query = ['MATCH (p:Plot) RETURN p.jsondef AS jsondef, p.uuid as uuid, ID(p) as id']
+      if (uuid != null) {
+        query = [`MATCH (p:Plot { uuid: $uuid })
                   RETURN 
-                    p.jsondef AS jsondef, 
-                    ID(p) AS id`, { id }]
+                    p.jsondef AS jsondef,
+                    p.uuid AS uuid, 
+                    ID(p) AS id`, { uuid }]
       }
       return safeQuery(...query)
     }
@@ -17,8 +17,8 @@ export default {
   Mutation: {
     createPlot(_, { jsondef }) {
       return safeQuery(`
-        CREATE (p:Plot { jsondef: $jsondef }) 
-        RETURN ID(p) AS id, p.jsondef AS jsondef
+        CREATE (p:Plot { jsondef: $jsondef, uuid: randomUUID() }) 
+        RETURN ID(p) AS id, p.uuid AS uuid, p.jsondef AS jsondef
       `,
       { jsondef }).then(results => results[0])
     }

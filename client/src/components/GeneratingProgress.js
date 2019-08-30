@@ -12,8 +12,8 @@ import ToggleVisibility from './ToggleVisibility'
 import { datasetViewQuery } from '../queries'
 
 const resetGeneratingMutation = gql`
-mutation ResetGeneratingMutation($id: Int!) {
-  updateDataset(id: $id, generating: false) {
+mutation ResetGeneratingMutation($uuid: String!) {
+  updateDataset(uuid: $uuid, generating: false) {
     id
     uuid
   }
@@ -28,16 +28,16 @@ const styles = theme => ({
 
 const GeneratingProgress = (props) => {
   const { dataset, classes } = props
-  const { id } = dataset
+  const { uuid } = dataset
   return (
     <ToggleVisibility visible={dataset.generating}>
       <LinearProgress />
       <div className={classes.buttonContainer}>
         <Mutation
           mutation={resetGeneratingMutation}
-          variables={{ id }}
+          variables={{ uuid }}
           refetchQueries={[
-            { query: datasetViewQuery, variables: { id } }
+            { query: datasetViewQuery, variables: { uuid } }
           ]}
         >
             { mutation => <ADIButton onClick={mutation}>Reset Generating Flag</ADIButton>}

@@ -124,7 +124,7 @@ class Login extends React.Component {
         if (!homeOrg) {
           [homeOrg] = currentUser.orgs
         }
-        props.navigation.setOrg(homeOrg.id)
+        props.navigation.setOrg(homeOrg.uuid)
         props.client.resetStore()
       })
     }).catch((err) => {

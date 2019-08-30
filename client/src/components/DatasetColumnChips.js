@@ -76,7 +76,7 @@ const DatasetColumnChipsWithToggle = (props) => {
   const toggle = mutation => uuid => mutation({
     variables: { uuid },
     refetchQueries: [
-      { query: datasetViewQuery, variables: { id: dataset.id } }
+      { query: datasetViewQuery, variables: { uuid: dataset.uuid } }
     ]
   })
 

@@ -54,7 +54,7 @@ class DatasetListItemMenu extends React.Component {
       deleteDataset,
       navigation,
       dataset: {
-        id,
+        uuid,
         name
       },
       onDelete
@@ -65,13 +65,13 @@ class DatasetListItemMenu extends React.Component {
     this.setState({ showDialog: false })
 
     if (agree) {
-      if (id === navigation.currentDataset) navigation.selectDataset(null)
+      if (uuid === navigation.currentDataset) navigation.selectDataset(null)
       onDelete()
       deleteDataset({
-        variables: { id },
+        variables: { uuid },
         refetchQueries: [{
           query: datasetListQuery,
-          variables: { org: { id: navigation.currentOrg } }
+          variables: { org: { uuid: navigation.currentOrg } }
         }]
       }).then(() => {
         openSnackbar({ message: `'${name}' was successfully removed.` })
@@ -85,7 +85,7 @@ class DatasetListItemMenu extends React.Component {
     const {
       classes,
       dataset: {
-        id,
+        uuid,
         name
       },
       onRename
@@ -99,7 +99,7 @@ class DatasetListItemMenu extends React.Component {
       <div>
         <ListItemSecondaryAction>
           <IconButton
-            aria-owns={open ? `dataset-item-${id}` : undefined}
+            aria-owns={open ? `dataset-item-${uuid}` : undefined}
             aria-haspopup="true"
             onClick={this.handleOpenMenu}
           >
@@ -107,7 +107,7 @@ class DatasetListItemMenu extends React.Component {
           </IconButton>
 
           <Menu
-            id={`dataset-item-${id}`}
+            id={`dataset-item-${uuid}`}
             anchorEl={anchorEl}
             anchorOrigin={{
               vertical: 'top',
@@ -153,7 +153,7 @@ DatasetListItemMenu.propTypes = {
   deleteDataset: PropTypes.func.isRequired,
   onRename: PropTypes.func.isRequired,
   dataset: PropTypes.shape({
-    id: PropTypes.number,
+    uuid: PropTypes.string,
     name: PropTypes.string
   }),
   navigation: PropTypes.objectOf(PropTypes.any).isRequired,
@@ -163,7 +163,7 @@ DatasetListItemMenu.propTypes = {
 
 DatasetListItemMenu.defaultProps = {
   dataset: {
-    id: null,
+    uuid: null,
     name: null
   }
 }

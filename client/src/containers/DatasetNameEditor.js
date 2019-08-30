@@ -9,9 +9,10 @@ import { openSnackbar } from '../components/Notifier'
 import EditableTextField from '../components/EditableTextField'
 
 const updateDatasetGQL = gql`
-  mutation UpdateDataset($id: Int!, $name: String) {
-    updateDataset(id: $id, name: $name) {
+  mutation UpdateDataset($uuid: String!, $name: String) {
+    updateDataset(uuid: $uuid, name: $name) {
       id
+      uuid
       name
     }
   }
@@ -31,11 +32,11 @@ const DatasetNameEditor = (props) => {
       refetchQueries={[
         {
           query: datasetViewQuery,
-          variables: { id: dataset.id }
+          variables: { uuid: dataset.uuid }
         },
         {
           query: datasetListQuery,
-          variables: { org: { id: dataset.owner.id } }
+          variables: { org: { uuid: dataset.owner.uuid } }
         }
       ]}
     >
@@ -49,7 +50,7 @@ const DatasetNameEditor = (props) => {
             const oldName = dataset.name
 
             if (oldName !== newName) {
-              updateMutation({ variables: { id: dataset.id, name: newName } })
+              updateMutation({ variables: { uuid: dataset.uuid, name: newName } })
                 .then(() => openSnackbar({ message: `Renamed '${oldName}' to '${newName}'` }))
                 .catch(e => openSnackbar({ message: e.message }))
             }
@@ -65,7 +66,7 @@ const DatasetNameEditor = (props) => {
 DatasetNameEditor.propTypes = {
   dataset: PropTypes.shape({
     name: PropTypes.string,
-    id: PropTypes.number
+    uuid: PropTypes.string
   }),
   variant: PropTypes.string,
   editing: PropTypes.bool,

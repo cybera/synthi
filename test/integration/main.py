@@ -58,5 +58,5 @@ print(df.head())
 print("Clearing test environment...")
 
 for d in dataset.list():
-    dataset.delete(d['id'])
+    dataset.delete(d['uuid'])
 

@@ -7,12 +7,13 @@ import PanelLoadingState from './PanelLoadingState'
 
 const FetchDataset = ({ children, datasetID }) => {
   const fetchDatasetQuery = gql`
-    query FetchDataset($id: Int) {
-      dataset(id:$id) { 
+    query FetchDataset($uuid: String) {
+      dataset(uuid: $uuid) { 
         id
+        uuid
         name 
         columns { 
-          id 
+          uuid 
           name 
           order 
         }
@@ -22,7 +23,7 @@ const FetchDataset = ({ children, datasetID }) => {
   `
 
   return (
-    <Query query={fetchDatasetQuery} variables={{ id: datasetID }}>
+    <Query query={fetchDatasetQuery} variables={{ uuid: datasetID }}>
       {({ loading, error, data }) => {
         if (loading) return <PanelLoadingState />
         if (error) return <p>Error!</p>;
@@ -41,7 +42,7 @@ FetchDataset.propTypes = {
     PropTypes.node,
     PropTypes.func
   ]).isRequired,
-  datasetID: PropTypes.number
+  datasetID: PropTypes.string
 }
 
 FetchDataset.defaultProps = {
