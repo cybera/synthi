@@ -112,7 +112,7 @@ class Login extends React.Component {
       // if (!homeOrg) {
       //   [homeOrg] = obj.user.orgs
       // }
-      // props.navigation.setOrg(homeOrg.id)
+      // props.navigation.setOrg(homeOrg.uuid)
       // Now that we have a proper session established, let's grab a proper
       // current user object.
       props.client.query({ query: currentUserQuery }).then(({ data }) => {
