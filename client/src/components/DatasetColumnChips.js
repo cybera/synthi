@@ -15,7 +15,7 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'left',
     flexWrap: 'wrap',
-    marginTop: theme.spacing.unit * 5,
+    marginTop: theme.spacing(5),
     padding: 0
   },
   heading: {
@@ -34,7 +34,7 @@ const DatasetColumnChips = (props) => {
       >
         Enabled Columns
       </Typography>
-      <Grid container spacing={8}>
+      <Grid container spacing={1}>
         {columns.map(({ uuid, name, visible }) => (
           <Grid item key={uuid}>
             <Chip
