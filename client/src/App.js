@@ -3,8 +3,8 @@ import { hot } from 'react-hot-loader'
 
 import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import CircularProgress from '@material-ui/core/CircularProgress';
-import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
-import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns'
 
 import ApolloClient from 'apollo-client';
 import { InMemoryCache, ApolloLink } from 'apollo-boost';
