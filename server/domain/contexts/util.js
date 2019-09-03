@@ -1,6 +1,6 @@
 import { AuthenticationError } from 'apollo-server-express'
 
-import { Organization, ModelFactory } from '../domain/models'
+import { Organization, ModelFactory } from '../models'
 
 export const findOrganization = async (orgRef, user) => {
   const { id, uuid, name } = orgRef
