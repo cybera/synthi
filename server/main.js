@@ -39,228 +39,233 @@ import User from './domain/models/user'
 import { checkConfig } from './lib/startup-checks'
 
 
-// Do a config check right away to warn of any undefined configuration that we're
-// expecting to be set
-checkConfig()
-
-const RedisStore = require('connect-redis')(session)
-
-const app = express()
-
-app.use(cors())
-
-// Serve compiled version of the client from the server app's
-// dist directory (if it exists)
-app.use(express.static('dist'))
-
-const authenticateUser = async ({ username, password, apikey }) => {
-  let user
-  let valid = false
-
-  if (apikey) {
-    user = await User.getByAPIKey(apikey)
-    if (user) user.viaAPI = true
-    valid = true
-  } else {
-    user = await User.getByUsername(username)
-    if (user) user.viaAPI = false
-    valid = user && await user.validPassword(password)
+const main = async () => {
+  const passed = await checkConfig()
+  if (!passed) {
+    process.exit(1)
   }
 
-  // Returning the password hash isn't good practice
-  if (user) user.password = undefined
-  return valid ? user : false
-}
+  const RedisStore = require('connect-redis')(session)
 
-// Authentication w/ passportjs
-passport.use(new LocalStrategy(
-  (username, password, done) => {
-    authenticateUser({ username, password })
-      .then(result => done(null, result))
-      .catch((err) => { logger.error(err.message); done(err) })
-  }
-));
+  const app = express()
 
-passport.use(new HeaderAPIKeyStrategy(
-  { header: 'Authorization', prefix: 'Api-Key ' },
-  false,
-  (apikey, done) => {
-    authenticateUser({ apikey })
-      .then(user => done(null, user))
-      .catch((err) => { logger.error(err.message); done(err) })
-  }
-))
+  app.use(cors())
 
-passport.serializeUser((user, done) => {
-  logger.debug(`serializeUser: ${user.uuid}`)
-  done(null, user.uuid)
-});
+  // Serve compiled version of the client from the server app's
+  // dist directory (if it exists)
+  app.use(express.static('dist'))
 
-passport.deserializeUser(async (uuid, done) => {
-  logger.debug(`deserializeUser: ${uuid}`)
-  let user
-  try {
-    user = await User.getByUuid(uuid)
-    if (!user) {
-      return done(new Error('User not found'))
+  const authenticateUser = async ({ username, password, apikey }) => {
+    let user
+    let valid = false
+
+    if (apikey) {
+      user = await User.getByAPIKey(apikey)
+      if (user) user.viaAPI = true
+      valid = true
+    } else {
+      user = await User.getByUsername(username)
+      if (user) user.viaAPI = false
+      valid = user && await user.validPassword(password)
     }
-  } catch (err) {
-    return done(err)
+
+    // Returning the password hash isn't good practice
+    if (user) user.password = undefined
+    return valid ? user : false
   }
-  return done(null, user)
-})
 
-app.use(morgan('short', { stream: logger.morganStream }))
-// Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
-// logging in.
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(session({
-  store: new RedisStore({ client: NonAsyncRedisClient }),
-  secret: 'secret-token-123456',
-  resave: false
-}))
-app.use(passport.initialize())
-
-// Normally, we'd do app.use(passport.session()) here, but passport.session() is really just
-// shorthand for passport.authenticate('session'), and the passport.authenticate calls are
-// really just ways of constructing authentication-oriented connect middleware. Because we
-// want to support both api key authentication (for 3rd party tool integration) and session
-// cookie based authentication (for regular browsing after logging in), we'll construct our
-// own middleware function that chooses which authentication technique to ultimately use based
-// on whether there's an authorization header.
-const sessionAuthentication = passport.authenticate('session')
-const apiKeyAuthentication = passport.authenticate('headerapikey', { session: false })
-app.use((req, res, next) => {
-  let authenticate = sessionAuthentication
-  if (req.headers.authorization) {
-    authenticate = apiKeyAuthentication
-  }
-  authenticate(req, res, next)
-})
-
-const apolloServer = new ApolloServer({
-  typeDefs,
-  resolvers,
-  schemaDirectives,
-  context: ({ req }) => {
-    if (req) {
-      const { user } = req
-      if (!user) throw new ForbiddenError('Not logged in')
-      return { user }
+  // Authentication w/ passportjs
+  passport.use(new LocalStrategy(
+    (username, password, done) => {
+      authenticateUser({ username, password })
+        .then(result => done(null, result))
+        .catch((err) => { logger.error(err.message); done(err) })
     }
-    return ({})
-  },
-  formatError: (error) => {
-    logger.error(error)
-    return error
-  },
-  // PATCH: Handle and reject parsing errors
-  // See below. This is disbled until Apollo updates its version of apollo-upload-server
-  // from the upstream repo.
-  uploads: false
-})
+  ));
 
-// PATCH: Handle and reject parsing errors
-// See the following discussion:
-// https://github.com/apollographql/apollo-upload-server/pull/2
-// There's a critical error that can crash the server via a malformed request that
-// hasn't been patched yet in Apollo Server. It has been fixed upstream in the same
-// nodejs package Apollo is using. The workaround is to use the original package
-// again and disable Apollo's version.
-app.use('/graphql', graphqlUploadExpress({ maxFileSize: 524288000, maxFiles: 10 }))
+  passport.use(new HeaderAPIKeyStrategy(
+    { header: 'Authorization', prefix: 'Api-Key ' },
+    false,
+    (apikey, done) => {
+      authenticateUser({ apikey })
+        .then(user => done(null, user))
+        .catch((err) => { logger.error(err.message); done(err) })
+    }
+  ))
 
-// This needs to come after the passport middleware
-apolloServer.applyMiddleware({ app })
+  passport.serializeUser((user, done) => {
+    logger.debug(`serializeUser: ${user.uuid}`)
+    done(null, user.uuid)
+  });
 
-app.post('/login',
-  passport.authenticate('local'),
-  async (req, res) => {
-    // NOTE: This may be required again at some point, but now that the issue here:
-    // https://github.com/apollographql/apollo-client/issues/4125
-    // has been resolved, it looks like I can roll back some rollbacks.
-    // const passbackUser = {}
-    // Object.assign(passbackUser, req.user)
-    // passbackUser.orgs = await req.user.orgs()
-    // res.json({ user: passbackUser })
-    res.json({ user: req.user })
+  passport.deserializeUser(async (uuid, done) => {
+    logger.debug(`deserializeUser: ${uuid}`)
+    let user
+    try {
+      user = await User.getByUuid(uuid)
+      if (!user) {
+        return done(new Error('User not found'))
+      }
+    } catch (err) {
+      return done(err)
+    }
+    return done(null, user)
   })
 
-app.get('/logout', (req, res) => { req.logout(); res.send('Logged out') })
+  app.use(morgan('short', { stream: logger.morganStream }))
+  // Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
+  // logging in.
+  app.use(bodyParser.urlencoded({ extended: true }))
+  app.use(session({
+    store: new RedisStore({ client: NonAsyncRedisClient }),
+    secret: 'secret-token-123456',
+    resave: false
+  }))
+  app.use(passport.initialize())
 
-app.get('/whoami', (req, res) => {
-  if (req.user) {
-    res.send(req.user.username)
-  } else {
-    res.send('not logged in')
-  }
-})
+  // Normally, we'd do app.use(passport.session()) here, but passport.session() is really just
+  // shorthand for passport.authenticate('session'), and the passport.authenticate calls are
+  // really just ways of constructing authentication-oriented connect middleware. Because we
+  // want to support both api key authentication (for 3rd party tool integration) and session
+  // cookie based authentication (for regular browsing after logging in), we'll construct our
+  // own middleware function that chooses which authentication technique to ultimately use based
+  // on whether there's an authorization header.
+  const sessionAuthentication = passport.authenticate('session')
+  const apiKeyAuthentication = passport.authenticate('headerapikey', { session: false })
+  app.use((req, res, next) => {
+    let authenticate = sessionAuthentication
+    if (req.headers.authorization) {
+      authenticate = apiKeyAuthentication
+    }
+    authenticate(req, res, next)
+  })
 
-app.get('/dataset/:uuid', async (req, res) => {
-  const dataset = await ModelFactory.getByUuid(req.params.uuid)
-  const type = req.query.type || 'imported'
-
-  if (dataset) {
-    await dataset.download(req, res, type)
-  } else {
-    res.status(404).send('Not found')
-  }
-})
-
-const httpServer = http.createServer(app)
-
-SubscriptionServer.create(
-  {
-    schema: makeExecutableSchema({ typeDefs, resolvers }),
-    execute,
-    subscribe,
-    onOperation: async (message, params) => {
-      const token = message.payload.authToken
-
-      if (!token) {
-        throw new ForbiddenError('Missing auth token')
+  const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+    schemaDirectives,
+    context: ({ req }) => {
+      if (req) {
+        const { user } = req
+        if (!user) throw new ForbiddenError('Not logged in')
+        return { user }
       }
-
-      let user
-
-      try {
-        user = await User.getByAPIKey(token)
-      } catch (err) {
-        throw new ForbiddenError('Not authorized')
-      }
-
-      const context = { user }
-
-      return {
-        ...params,
-        context: {
-          ...params.context,
-          ...context,
-        },
-      }
+      return ({})
     },
-  },
-  {
-    server: httpServer,
-    path: '/graphql'
-  }
-)
+    formatError: (error) => {
+      logger.error(error)
+      return error
+    },
+    // PATCH: Handle and reject parsing errors
+    // See below. This is disbled until Apollo updates its version of apollo-upload-server
+    // from the upstream repo.
+    uploads: false
+  })
 
-// apolloServer.installSubscriptionHandlers(httpServer)
-// run server on port 3000
-const PORT = 3000
-const server = httpServer.listen(PORT, (err) => {
-  if (err) {
-    logger.error(err)
-  }
-  logger.info(`Server ready at http://server:${PORT}${apolloServer.graphqlPath}`)
-  logger.info(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
-})
+  // PATCH: Handle and reject parsing errors
+  // See the following discussion:
+  // https://github.com/apollographql/apollo-upload-server/pull/2
+  // There's a critical error that can crash the server via a malformed request that
+  // hasn't been patched yet in Apollo Server. It has been fixed upstream in the same
+  // nodejs package Apollo is using. The workaround is to use the original package
+  // again and disable Apollo's version.
+  app.use('/graphql', graphqlUploadExpress({ maxFileSize: 524288000, maxFiles: 10 }))
 
-DefaultQueue.start()
+  // This needs to come after the passport middleware
+  apolloServer.applyMiddleware({ app })
 
-// Close all connections on shutdown
-onExit(() => {
-  logger.info('Shutting down...')
-  server.close()
-  DefaultQueue.close()
-}, { alwaysLast: true })
+  app.post('/login',
+    passport.authenticate('local'),
+    async (req, res) => {
+      // NOTE: This may be required again at some point, but now that the issue here:
+      // https://github.com/apollographql/apollo-client/issues/4125
+      // has been resolved, it looks like I can roll back some rollbacks.
+      // const passbackUser = {}
+      // Object.assign(passbackUser, req.user)
+      // passbackUser.orgs = await req.user.orgs()
+      // res.json({ user: passbackUser })
+      res.json({ user: req.user })
+    })
+
+  app.get('/logout', (req, res) => { req.logout(); res.send('Logged out') })
+
+  app.get('/whoami', (req, res) => {
+    if (req.user) {
+      res.send(req.user.username)
+    } else {
+      res.send('not logged in')
+    }
+  })
+
+  app.get('/dataset/:uuid', async (req, res) => {
+    const dataset = await ModelFactory.getByUuid(req.params.uuid)
+    const type = req.query.type || 'imported'
+
+    if (dataset) {
+      await dataset.download(req, res, type)
+    } else {
+      res.status(404).send('Not found')
+    }
+  })
+
+  const httpServer = http.createServer(app)
+
+  SubscriptionServer.create(
+    {
+      schema: makeExecutableSchema({ typeDefs, resolvers }),
+      execute,
+      subscribe,
+      onOperation: async (message, params) => {
+        const token = message.payload.authToken
+
+        if (!token) {
+          throw new ForbiddenError('Missing auth token')
+        }
+
+        let user
+
+        try {
+          user = await User.getByAPIKey(token)
+        } catch (err) {
+          throw new ForbiddenError('Not authorized')
+        }
+
+        const context = { user }
+
+        return {
+          ...params,
+          context: {
+            ...params.context,
+            ...context,
+          },
+        }
+      },
+    },
+    {
+      server: httpServer,
+      path: '/graphql'
+    }
+  )
+
+  // apolloServer.installSubscriptionHandlers(httpServer)
+  // run server on port 3000
+  const PORT = 3000
+  const server = httpServer.listen(PORT, (err) => {
+    if (err) {
+      logger.error(err)
+    }
+    logger.info(`Server ready at http://server:${PORT}${apolloServer.graphqlPath}`)
+    logger.info(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
+  })
+
+  DefaultQueue.start()
+
+  // Close all connections on shutdown
+  onExit(() => {
+    logger.info('Shutting down...')
+    server.close()
+    DefaultQueue.close()
+  }, { alwaysLast: true })
+}
+
+main()

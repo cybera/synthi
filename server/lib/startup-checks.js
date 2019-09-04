@@ -1,7 +1,12 @@
 import config from 'config'
 import { compact } from 'lodash'
 
-const checkConfig = () => {
+import Storage from '../storage'
+import logger from '../config/winston'
+
+const checkConfig = async () => {
+  let passed = true
+
   const entriesToCheck = [
     // openstack
     'storage.object.creds.provider',
@@ -22,9 +27,20 @@ const checkConfig = () => {
   )
 
   if (notDefined.length > 0) {
-    console.error('Required configuration entries aren\'t defined:\n')
-    notDefined.forEach(entry => console.error(`* ${entry} not defined`))
+    passed = false
+    logger.error('Required configuration entries aren\'t defined:')
+    notDefined.forEach(entry => logger.error(`* ${entry} not defined`))
   }
+
+  try {
+    await Storage.testConnection()
+  } catch (err) {
+    passed = false
+    logger.error(`Storage connection test failed: ${err}`)
+    logger.error('* Confirm that your credentials and container names are correct')
+  }
+
+  return passed
 }
 
 export { checkConfig }

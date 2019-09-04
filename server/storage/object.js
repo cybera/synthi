@@ -14,6 +14,25 @@ const connection = () => {
   return openstack
 }
 
+const testConnection = async () => {
+  const containers = config.get('storage.object.containers')
+  const promises = []
+
+  Object.keys(containers).forEach((key) => {
+    promises.push(new Promise((resolve, reject) => {
+      connection().getFiles(containers[key], (err, file) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(file)
+        }
+      })
+    }))
+  })
+
+  return Promise.all(promises)
+}
+
 const createWriteStream = (area, relativePath) => connection().upload({
   container: config.get('storage.object.containers')[area],
   remote: relativePath
@@ -47,6 +66,7 @@ const exists = async (area, relativePath) => {
 const cleanupOnError = (area, relativePath) => logger.info(`Object storage cleanup: ${area}:${relativePath} (doing nothing)`)
 
 export {
+  testConnection,
   createWriteStream,
   createReadStream,
   remove,
