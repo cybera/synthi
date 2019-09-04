@@ -40,7 +40,10 @@ import { checkConfig } from './lib/startup-checks'
 
 
 const main = async () => {
-  checkConfig()
+  const passed = await checkConfig()
+  if (!passed) {
+    process.exit(1)
+  }
 
   const RedisStore = require('connect-redis')(session)
 
