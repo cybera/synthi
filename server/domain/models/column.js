@@ -69,6 +69,15 @@ class Column extends Base {
     return results.map(row => row.column.properties)[0]
   }
 
+  async dataset() {
+    return this.relatedOne('-[:BELONGS_TO]->', 'Dataset')
+  }
+
+  async canAccess(user) {
+    const dataset = await this.dataset()
+    return dataset.canAccess(user)
+  }
+
   __cacheKeyForUser(user) {
     return `user:${user.uuid}:column:${this.uuid}`
   }
