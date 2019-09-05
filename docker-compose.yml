@@ -65,7 +65,7 @@ services:
     build:
       context: ./services
       target: tika-worker
-    image: cybera/adi-tika-worker:latest
+    image: cybera/adi-tika-worker:${TAG}
     networks:
       - default
     volumes:

@@ -49,7 +49,7 @@ services:
     depends_on:
       - queue
   tika-worker:
-    image: cybera/adi-tika-worker:latest
+    image: cybera/adi-tika-worker:$TAG
     configs:
       - source: production.toml
         target: /usr/src/app/config/development.toml
