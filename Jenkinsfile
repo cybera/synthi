@@ -8,6 +8,10 @@ pipeline {
                 returnStdout: true,
                 script: 'echo -n "jenkins_$(git rev-parse --short HEAD)"'
             )}"""
+     AUTHOR = """${sh(
+                returnStdout: true,
+                script: 'echo -n "$(git log -1 --pretty="%an (%ce)")"'
+            )}"""
    }
 
   stages {
@@ -104,7 +108,7 @@ pipeline {
 
   post {
      failure {
-         slackSend(channel:'#adi-cybera', color: '#FFF4444', message: "Build ${env.BUILD_NUMBER} for branch ${env.BRANCH_NAME} failed. Logs: ${env.BUILD_URL}console")
+         slackSend(channel:'#adi-cybera', color: '#FFF4444', message: "Build ${env.BUILD_NUMBER} for ${env.AUTHOR} on branch ${env.BRANCH_NAME} failed. Logs: ${env.BUILD_URL}console")
      }
   }
 }
