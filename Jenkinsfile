@@ -22,6 +22,7 @@ pipeline {
     }
 
     stage('Build client webpack code into server directory') {
+      when { anyOf { branch 'development'} }
       steps {
         sh 'bin/build-client'
         sh 'sudo chown -R jenkins client/dist'
@@ -31,6 +32,13 @@ pipeline {
     stage('Build server container') {
       steps {
         sh 'docker-compose build server'
+      }
+    }
+
+    stage('Build client container') {
+      when { not { anyOf { branch 'development'} } }
+      steps {
+        sh 'docker-compose build client'
       }
     }
 
