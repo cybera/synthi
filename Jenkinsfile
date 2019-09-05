@@ -42,9 +42,15 @@ pipeline {
       }
     }
 
-    stage('Build worker container') {
+    stage('Build python worker container') {
       steps {
         sh 'docker-compose build python-worker'
+      }
+    }
+
+    stage('Build tika worker container') {
+      steps {
+        sh 'docker-compose build tika-worker'
       }
     }
 
@@ -60,6 +66,7 @@ pipeline {
         withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
           sh 'docker push cybera/adi-server:${TAG}'
           sh 'docker push cybera/adi-python-worker:${TAG}'
+          sh 'docker push cybera/adi-tika-worker:${TAG}'
           sh 'docker push cybera/adi-neo4j:${TAG}'
         }
       }
@@ -77,6 +84,7 @@ pipeline {
           sh 'docker service update adi_server --image cybera/adi-server:$TAG --with-registry-auth'
           sh 'docker service update adi_neo4j --image cybera/adi-neo4j:$TAG --with-registry-auth'
           sh 'docker service update adi_python-worker --image cybera/adi-python-worker:$TAG --with-registry-auth'
+          sh 'docker service update adi_tika-worker --image cybera/adi-tika-worker:$TAG --with-registry-auth'
 
           // Wait for container to become available
           retry(10) {
