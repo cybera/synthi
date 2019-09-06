@@ -19,7 +19,7 @@ import Scenarios from './components/Scenarios'
 import StyledLogin from './components/Login'
 import Notifier from './components/Notifier'
 import AppBar from './components/AppBar'
-import NavigationContext from './context/NavigationContext'
+import NavigationContext from './contexts/NavigationContext'
 
 let uri
 
