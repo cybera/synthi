@@ -32,10 +32,11 @@ class UserProfileDialog extends React.Component {
       <Dialog onClose={this.handleClose} aria-labelledby="user-profile-dialog" fullWidth {...other}>
         <DialogTitle id="user-profile-dialog">
           User Profile for
+          {' '}
           {user.username}
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={8}>
+          <Grid container spacing={1}>
             <Grid item xs={6}>
               <TextField
                 defaultValue={user.username}
@@ -58,7 +59,9 @@ class UserProfileDialog extends React.Component {
                 fullWidth
               />
             </Grid>
-            <ADIButton onClick={regenerateAPIKey}>Regenerate API Key</ADIButton>
+            <Grid item xs={12}>
+              <ADIButton onClick={regenerateAPIKey}>Regenerate API Key</ADIButton>
+            </Grid>
           </Grid>
         </DialogContent>
       </Dialog>
