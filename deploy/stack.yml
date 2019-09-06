@@ -40,7 +40,7 @@ services:
     image: cybera/adi-python-worker:$TAG
     configs:
       - source: production.toml
-        target: /usr/src/app/config/development.toml
+        target: /usr/src/app/common/config/development.toml
     volumes:
       - uploads:/mnt/data
       - scripts:/mnt/scripts
@@ -52,7 +52,7 @@ services:
     image: cybera/adi-tika-worker:$TAG
     configs:
       - source: production.toml
-        target: /usr/src/app/config/development.toml
+        target: /usr/src/app/common/config/development.toml
     volumes:
       - uploads:/mnt/data
       - scripts:/mnt/scripts
