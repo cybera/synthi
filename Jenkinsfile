@@ -25,6 +25,12 @@ pipeline {
       }
     }
 
+    stage('Build client container') {
+      steps {
+        sh 'docker-compose build client'
+      }
+    }
+
     stage('Build client webpack code into server directory') {
       when { anyOf { branch 'development'} }
       steps {
@@ -36,13 +42,6 @@ pipeline {
     stage('Build server container') {
       steps {
         sh 'docker-compose build server'
-      }
-    }
-
-    stage('Build client container') {
-      when { not { anyOf { branch 'development'} } }
-      steps {
-        sh 'docker-compose build client'
       }
     }
 
