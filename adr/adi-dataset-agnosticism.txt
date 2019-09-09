@@ -1,0 +1,100 @@
+ADI Dataset agnosticism
+
+Status: Adopted (if present in master branch)
+
+Context:
+
+We're trying to build support into ADI for handling PDF, text, and
+other data set types. It's expected that PDF data would be transformed
+into unstructured text data, that would be further transformed into
+structured data.
+
+Some portion of the PDF->Text->Dataset pipeline could be considered
+part of the "ingest" of data.
+
+The platform as written historically assumes that datasets are build
+out of 2-dimensional column/row data (in particular backed by CSV
+files/swift-buckets).
+
+Technically the information stored in files/buckets is CSV, but
+doesn't have to be.
+
+Alternatives:
+
+1. We could continue to have datasets represent 2-d column/row data, but
+store other data in a cell. For example, raw text could be stored in a
+cell (with commas escaped if backed by CSV), or arbitrary bytestreams
+could be stored via base-64.
+
+Pros:
+
+- Relatively few changes to the ADI backend code
+- ADI backend maintains consistency and relative simplicity
+
+Cons:
+
+- Frontend code, user processes, or some other wrapper/layer must be
+  aware of when and how to make a conversion between arbitrary
+  datatypes and CSV data.
+
+2. We could continue to have datasets represent 2-d column/row data,
+and build a distinct "cousin" of a dataset type that would represent
+more arbitrary data.
+
+Pros:
+
+- Default structured data types remain simple
+
+Cons:
+
+- We would have multiple types of only semi-related datasets, with
+some duplication of common details
+
+3. We could make the concept of an ADI dataset agnostic to what kind
+of data it stores (structured vs unstructured, clean vs dirty, PDF vs
+CSV, etc), and build/migrate content/type-aware logic into
+specializations of what a dataset is. This would be done via
+object-oriented inheritance.
+
+Pros:
+
+- The pipeline built out of datasets and transformations that
+  represents a dataset's lifecycle through different types and through
+  structured/unstructured states can be visualized and used just like
+  any other pipeline of transformations
+
+- Transformation/pipeline authors are empowered to code
+  transformations from (and potentially to) unstructed data types
+
+- The backend implementation of ADI could abstract out the details of
+  what a dataset is into the different types and handle the logic
+  common to all datasets in one place, with the specialized logic in
+  other places
+
+Cons:
+
+- If the extremely common case for ADI users is 2-d CSV-ish data, the
+  additional ability/flexibility to handle non CSV data could be an
+  unneccesary complication in our user experience.
+
+Decision:
+
+We will make ADI's dataset concept agnostic to the type of data stored
+in a dataset, and factor out CSV-specific data into a specialized form
+of dataset. The aim will be to make CSV-type dataset user experience
+still benefit from the ease-of-use of common CSV datasets.
+
+It should be possible to have transformations that take
+{structured,unstructured,arbitrary,CSV} datasets as input, and produce
+{structured,unstructured,arbitrary,CSV} datasets as output.
+
+Future decisions:
+
+Assumptions:
+
+Consequences:
+
+We'll have to be careful not to sacrifice the ease-of-use that comes
+from a user being able to assume every dataset is CSV-backed.
+
+
