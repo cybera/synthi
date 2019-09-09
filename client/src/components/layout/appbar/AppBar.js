@@ -9,13 +9,13 @@ import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import CssBaseline from '@material-ui/core/CssBaseline'
 
-import ADIButton from './ADIButton'
+import { ADIButton } from '../buttons'
 import OrgSelector from './OrgSelector'
-import { withNavigation } from '../context/NavigationContext'
-import { compose } from '../lib/common'
-import ADILogo from '../images/ckan-logo.png'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import { compose } from '../../../lib/common'
+import ADILogo from '../../../images/ckan-logo.png'
 import UserMenu from './UserMenu'
-import Sidebar from './Sidebar'
+import { Sidebar } from '../sidebar'
 
 const drawerWidth = 300
 

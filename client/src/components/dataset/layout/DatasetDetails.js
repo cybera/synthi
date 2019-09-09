@@ -11,18 +11,18 @@ import Typography from '@material-ui/core/Typography'
 import AppBar from '@material-ui/core/AppBar'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
-import ChartEditor from '../containers/ChartEditor'
 
-import { withNavigation } from '../context/NavigationContext'
-import { compose } from '../lib/common'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import { compose } from '../../../lib/common'
 
-import DatasetView from './DatasetView'
-import DatasetMetadata from './DatasetMetadata'
-import DatasetTree from './DatasetTree'
-import APIInfo from './api-info'
-import ErrorPlaceholder from './ErrorPlaceholder'
-import Placeholder from './Placeholder'
-import DatasetTitle from '../containers/DatasetTitle'
+import { DatasetView } from '../details'
+import { DatasetMetadata } from '../metadata'
+import { ChartEditor } from '../../chart-editor'
+import { DatasetTree } from '../connections'
+import { ConnectedPanel as APIInfo } from '../../api-info'
+import { ErrorPlaceholder } from '../../layout/warnings'
+import { Placeholder } from '../../layout'
+import DatasetTitle from './DatasetTitle'
 
 const styles = theme => ({
   header: {

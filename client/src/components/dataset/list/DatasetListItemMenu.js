@@ -9,12 +9,12 @@ import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import { withStyles } from '@material-ui/core/styles'
 
-import { datasetListQuery, deleteDatasetMutation } from '../queries'
-import { compose } from '../lib/common'
-import { withNavigation } from '../context/NavigationContext'
-import { openSnackbar } from './Notifier'
+import { datasetListQuery, deleteDatasetMutation } from '../../../queries'
+import { compose } from '../../../lib/common'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import { openSnackbar } from '../../layout/Notifier'
 
-import ConfirmationDialog from './ConfirmationDialog'
+import { ConfirmationDialog } from '../../layout/dialogs'
 
 const styles = () => ({
   delete: {

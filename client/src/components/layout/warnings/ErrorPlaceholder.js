@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
 
-import WarnSvg from './svg/Warn'
+import { WarnSvg } from '../svg'
 
 const styles = theme => ({
   root: {

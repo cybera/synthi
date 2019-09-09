@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 
-import { datasetViewQuery } from '../queries'
+import { datasetViewQuery } from '../../../../queries'
 
 const styles = theme => ({
   button: {
@@ -18,19 +18,17 @@ const styles = theme => ({
   }
 })
 
-class ComputeButton extends React.Component {
-  render() {
-    const { classes, handleMode } = this.props
+function ComputeButton(props) {
+  const { classes, handleMode } = props
 
-    return(
-      <span className={classes.button}>
-        <Button variant="contained" component="span" color="secondary" onClick={handleMode}>
-          <CodeIcon className={classes.icon} />
-          Compute
-        </Button>
-      </span>
-    )
-  }
+  return (
+    <span className={classes.button}>
+      <Button variant="contained" component="span" color="secondary" onClick={handleMode}>
+        <CodeIcon className={classes.icon} />
+        Compute
+      </Button>
+    </span>
+  )
 }
 
 const StyledComputeButton = withStyles(styles)(ComputeButton)

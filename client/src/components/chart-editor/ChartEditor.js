@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import plotly from 'plotly.js/dist/plotly';
 import PlotlyEditor from 'react-chart-editor';
 import 'react-chart-editor/lib/react-chart-editor.css';
 
-import { createPlotMutation } from '../queries'
+import { createPlotMutation } from '../../queries'
 
 import { graphql } from 'react-apollo'
 import { compose } from '../lib/common'

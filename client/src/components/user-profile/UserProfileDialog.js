@@ -8,7 +8,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 
-import ADIButton from '../ADIButton'
+import { ADIButton } from '../layout/buttons'
 
 const styles = {
 }

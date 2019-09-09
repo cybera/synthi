@@ -1,10 +1,8 @@
 import React from 'react'
 
 import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
 
-import CodeSnippet from '../CodeSnippet'
-import CodeSnippetCopyButton from '../CodeSnippetCopyButton'
+import { CodeSnippet, CodeSnippetCopyButton } from '../code-snippets'
 
 const host = window.location.origin
 

@@ -15,10 +15,10 @@ import { withStyles } from '@material-ui/core/styles'
 
 // TODO: Fetch the suggestions from the DB, possibly passed in as a prop to this component
 const suggestions = [
-  { name: "Float" },
-  { name: "Integer" },
-  { name: "String" },
-  { name: "Boolean" }
+  { name: 'Float' },
+  { name: 'Integer' },
+  { name: 'String' },
+  { name: 'Boolean' }
 ]
 
 const styles = theme => ({

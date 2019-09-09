@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import gql from 'graphql-tag'
 import { Query } from 'react-apollo'
 
-import PanelLoadingState from './PanelLoadingState'
+import PanelLoadingState from '../layout/PanelLoadingState'
 
 const FetchDataset = ({ children, datasetUUID }) => {
   const fetchDatasetQuery = gql`

@@ -3,7 +3,7 @@ import React from 'react'
 import { Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 
-import UserProfileDialog from './Dialog'
+import UserProfileDialog from './UserProfileDialog'
 
 export const currentUserQuery = gql`
   query {

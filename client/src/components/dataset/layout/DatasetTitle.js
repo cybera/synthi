@@ -5,8 +5,8 @@ import { Query } from 'react-apollo'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
-import { compose } from '../lib/common'
-import { datasetViewQuery } from '../queries'
+import { compose } from '../../../lib/common'
+import { datasetViewQuery } from '../../../queries'
 
 const styles = theme => ({
   headerText: {

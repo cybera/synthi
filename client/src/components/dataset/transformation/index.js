@@ -1,9 +1,9 @@
 import SaveTransformationButton from './SaveTransformationButton'
-import TransformationEditorContainer from './TransformationEditorContainer'
+import TransformationEditor from './TransformationEditor'
 
-export default TransformationEditorContainer
+export default TransformationEditor
 
 export {
   SaveTransformationButton,
-  TransformationEditorContainer
+  TransformationEditor
 }

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { withStyles } from '@material-ui/core/styles'
 
-import FolderSvg from './svg/Folder'
+import { FolderSvg } from './svg'
 
 const styles = theme => ({
   root: {

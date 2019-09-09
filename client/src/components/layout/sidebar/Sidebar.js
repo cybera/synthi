@@ -7,11 +7,11 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 
-import { withNavigation } from '../context/NavigationContext'
-import { compose } from '../lib/common'
-import SearchBar from './SearchBar'
-import NewDatasetButton from '../containers/NewDatasetButton'
-import DatasetList from './DatasetList'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import { compose } from '../../../lib/common'
+import { SearchBar } from '../../dataset/list/search'
+import NewDatasetButton from './NewDatasetButton'
+import { DatasetListContainer as DatasetList } from '../../dataset/list'
 
 const drawerWidth = 300
 

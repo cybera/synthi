@@ -1,5 +1,7 @@
 import ADIButton from './ADIButton'
 
-export default {
+export default ADIButton
+
+export {
   ADIButton
 }

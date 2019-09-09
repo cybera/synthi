@@ -12,11 +12,11 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import { withApollo } from 'react-apollo'
 import gql from 'graphql-tag'
 
-import { compose } from '../lib/common'
-import { withNavigation } from '../context/NavigationContext'
-import { openSnackbar } from './Notifier'
-import ADIButton from './ADIButton'
-import ADILogo from '../images/ckan-logo.png'
+import { compose } from '../../lib/common'
+import { withNavigation } from '../../contexts/NavigationContext'
+import { openSnackbar } from '../layout/Notifier'
+import { ADIButton } from '../layout/buttons'
+import ADILogo from '../../images/ckan-logo.png'
 
 const currentUserQuery = gql`
   query CurrentUser {

@@ -6,8 +6,8 @@ import IconButton from '@material-ui/core/IconButton'
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
 
-import { withNavigation } from '../context/NavigationContext'
-import { ConnectedDialog as UserProfileDialog } from './user-profile'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import { UserProfileDialog } from '../../user-profile'
 
 class UserMenu extends React.Component {
   static propTypes = {

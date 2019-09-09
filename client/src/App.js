@@ -14,11 +14,11 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 
-import DatasetDetails from './components/DatasetDetails'
-import Scenarios from './components/Scenarios'
-import StyledLogin from './components/Login'
-import Notifier from './components/Notifier'
-import AppBar from './components/AppBar'
+import { DatasetDetails } from './components/dataset/layout'
+import { Scenarios } from './components/scenarios'
+import { Login } from './components/auth'
+import { Notifier } from './components/layout'
+import { AppBar } from './components/layout/appbar'
 import NavigationContext from './contexts/NavigationContext'
 
 let uri
@@ -198,7 +198,7 @@ class App extends React.Component {
         </AppBar>
       )
     } else {
-      mainComponent = <StyledLogin />
+      mainComponent = <Login />
     }
 
     return (

@@ -1,8 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { withNavigation } from '../context/NavigationContext'
-import ADIButton from './ADIButton'
+import { withNavigation } from '../../contexts/NavigationContext'
+import { ADIButton } from '../layout/buttons'
 
 class LogoutButton extends React.Component {
   static propTypes = {
