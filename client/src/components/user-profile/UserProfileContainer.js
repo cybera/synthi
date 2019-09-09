@@ -25,7 +25,7 @@ export const regenerateAPIKeyMutation = gql`
   }
 `
 
-const ConnectedDialog = (props) => {
+const UserProfileContainer = (props) => {
   return (
     <Mutation mutation={regenerateAPIKeyMutation}>
       { 
@@ -51,4 +51,4 @@ const ConnectedDialog = (props) => {
   )
 }
 
-export default ConnectedDialog
+export default UserProfileContainer
