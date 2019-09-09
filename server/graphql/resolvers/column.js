@@ -1,15 +1,13 @@
-import { Column } from '../../domain/models'
+import { updateColumn } from '../../domain/contexts/dataset'
 
 export default {
   Column: {
-    async tags(column) {
-      return column.tags()
-    }
+    tags: column => column.tags(),
+    visible: (column, _, context) => column.visibleForUser(context.user)
   },
   Mutation: {
-    updateColumn: async (_, { uuid, values, tagNames }, context) => {
-      const column = await Column.getByUuid(uuid)
-      return column.update(values, tagNames)
-    }
+    updateColumn: async (_, { uuid, values, tagNames }, { user }) => (
+      updateColumn(uuid, values, tagNames, user)
+    )
   }
 }

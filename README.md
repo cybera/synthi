@@ -17,6 +17,7 @@
 * Docker and Docker Compose
 * OpenStack credentials for object storage
 * Node.js for your local development environment
+* Ensure your docker environment has 4 gigabytes or more of memory for running ADI
 
 ### Setup
 

@@ -16,6 +16,8 @@ const fullPath = (area, relativePath) => {
   return pathlib.join(dataDir, area, relativePath || '')
 }
 
+const testConnection = () => {}
+
 const createWriteStream = (area, relativePath) => {
   ensureFoldersExist()
   const path = fullPath(area, relativePath)
@@ -52,6 +54,7 @@ const exists = async (area, relativePath) => {
 const cleanupOnError = (area, relativePath) => remove(area, relativePath)
 
 export {
+  testConnection,
   createWriteStream,
   createReadStream,
   remove,
