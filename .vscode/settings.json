@@ -4,5 +4,16 @@
 
 {
     "editor.tabSize": 2,
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "eslint.enable": true,
+    "eslint.workingDirectories": [	
+        { 
+            "directory": "./client", 
+            "changeProcessCWD": true 
+        },	
+        { 
+            "directory": "./server", 
+            "changeProcessCWD": true 
+        }	
+    ],
 }
