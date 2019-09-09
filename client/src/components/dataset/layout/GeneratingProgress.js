@@ -6,10 +6,9 @@ import { Mutation } from 'react-apollo'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { withStyles } from '@material-ui/core/styles'
 
-import ADIButton from './ADIButton'
-import ToggleVisibility from './ToggleVisibility'
-
-import { datasetViewQuery } from '../queries'
+import { ADIButton } from '../../layout/buttons'
+import { ToggleVisibility } from '../../common'
+import { datasetViewQuery } from '../../../queries'
 
 const resetGeneratingMutation = gql`
 mutation ResetGeneratingMutation($uuid: String!) {

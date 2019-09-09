@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 
-import { datasetViewQuery } from '../queries'
+import { datasetViewQuery } from '../../../queries'
 
 const generateDatasetGQL = gql`
   mutation Generate($uuid:String!) {

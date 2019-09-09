@@ -1,11 +1,8 @@
 import React from 'react'
-
 import { Query } from 'react-apollo'
 
-import { datasetListQuery } from '../queries'
-
-import SearchEmptyState from '../components/SearchEmptyState'
-import SearchLoadingState from '../components/SearchLoadingState'
+import { datasetListQuery } from '../../../queries'
+import { SearchLoadingState, SearchEmptyState } from './search'
 
 const withDatasets = Component => (props) => {
   let { searchString } = props

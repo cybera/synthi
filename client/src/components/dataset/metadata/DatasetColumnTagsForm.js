@@ -1,7 +1,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import DatasetColumnTag from './DatasetColumnTag'
-import Typography from '@material-ui/core/Typography'
 
 const styles = (theme) => ({
   root: {
@@ -15,21 +14,19 @@ const styles = (theme) => ({
   }
 })
 
-class DatasetColumnTagsForm extends React.Component {
-  render() {
-    const { classes, columns, saveMutation } = this.props
-    const columnFields = columns.map((column) => 
-      <DatasetColumnTag column={column} key={column.uuid} saveMutation={saveMutation} />
-    )
+function DatasetColumnTagsForm(props) {
+  const { classes, columns, saveMutation } = props
+  const columnFields = columns.map((column) =>
+    <DatasetColumnTag column={column} key={column.uuid} saveMutation={saveMutation} />
+  )
 
-    return (
-      <div className={classes.root}>
-        <form noValidate autoComplete="off" className={classes.form}>
-          {columnFields}
-        </form>
-      </div>
-    )
-  }
+  return (
+    <div className={classes.root}>
+      <form noValidate autoComplete="off" className={classes.form}>
+        {columnFields}
+      </form>
+    </div>
+  )
 }
 
 export default withStyles(styles)(DatasetColumnTagsForm)

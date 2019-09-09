@@ -6,12 +6,11 @@ import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
 import SaveIcon from '@material-ui/icons/Save'
 
-import { compose } from '../lib/common'
-import StatelessChartEditor from '../components/ChartEditor'
-import FetchDataset from '../components/FetchDataset'
-import PlotlyDataConverter from '../components/PlotlyDataConverter'
-import PlotlySave from '../components/PlotlySave'
-import Placeholder from '../components/Placeholder'
+import { compose } from '../../lib/common'
+import StatelessChartEditor from './ChartEditor'
+import FetchDataset from './FetchDataset'
+import { PlotlyDataConverter, PlotlySave } from './plotly'
+import Placeholder from '../layout/Placeholder'
 import './ChartEditor.css'
 
 const styles = theme => ({

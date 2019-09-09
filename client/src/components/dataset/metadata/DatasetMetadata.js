@@ -19,10 +19,10 @@ import { Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 import * as Ramda from 'ramda'
 
-import ADIButton from './ADIButton'
+import { ADIButton } from '../../layout/buttons'
 import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
-import PanelLoadingState from './PanelLoadingState'
-import { datasetViewQuery } from '../queries'
+import { PanelLoadingState } from '../../layout'
+import { datasetViewQuery } from '../../../queries'
 
 export const datasetMetadataQuery = gql`
 query($uuid: String) {

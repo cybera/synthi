@@ -7,8 +7,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import withStyles from '@material-ui/core/styles/withStyles';
 
-import { withNavigation } from '../context/NavigationContext'
-import { compose } from '../lib/common'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import { compose } from '../../../lib/common'
 
 const styles = theme => ({
   root: {

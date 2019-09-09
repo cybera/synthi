@@ -1,27 +1,22 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { graphql, Query } from 'react-apollo'
+import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
-import Divider from '@material-ui/core/Divider'
-import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 
-import { datasetViewQuery } from '../queries'
-import ToggleVisibility from './ToggleVisibility'
-import UploadParsingOptions from './upload-parsing'
+import { datasetViewQuery } from '../../../queries'
+import ToggleVisibility from '../../common/ToggleVisibility'
 import DataTableView from './DataTableView'
-import DatasetEditor from '../containers/DatasetEditor'
+import DatasetEditor from '../editor'
 import DatasetColumnChips from './DatasetColumnChips'
-import WarningBanner from './WarningBanner'
-import DatasetUploadButton from '../containers/DatasetUploadButton'
-import DatasetComputeModeButton from '../containers/DatasetComputeModeButton'
-import NoDataSvg from './svg/NoData'
-import WarnSvg from './svg/Warn'
-import PanelLoadingState from './PanelLoadingState'
-import GeneratingProgress from './GeneratingProgress'
+import { UploadButton, DatasetComputeModeButton } from '../editor/buttons'
+import NoDataSvg from '../../layout/svg/NoData'
+import PanelLoadingState from '../../layout/PanelLoadingState'
+import GeneratingProgress from '../layout/GeneratingProgress'
+import SubscribedWarningBanner from './SubscribedWarningBanner'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($uuid: String!) {
@@ -163,7 +158,7 @@ class DatasetView extends React.Component {
                   or generate it from existing datasets.
                 </Typography>
               </div>
-              <DatasetUploadButton uuid={uuid} type={dataset.type} />
+              <UploadButton uuid={uuid} type={dataset.type} />
               <DatasetComputeModeButton uuid={uuid} />
             </div>
           </div>
@@ -191,70 +186,6 @@ class DatasetView extends React.Component {
     )
   }
 }
-
-/* eslint-disable react/no-multi-comp */
-class SubscribedWarningBanner extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      errors: {}
-    }
-  }
-
-  componentDidMount() {
-    const { subscribeToDatasetGenerated, uuid } = this.props
-    this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
-      const { errors } = this.state
-      if (status === 'error') {
-        this.setState({ errors: Object.assign({}, errors, { [uuid]: message }) })
-      } else {
-        this.setState({ errors: Object.assign({}, errors, { [uuid]: '' }) })
-      }
-    })
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe()
-  }
-
-  render() {
-    const { classes, uuid, error } = this.props
-
-    return (
-      <div>
-        <Grid container columns spacing={24}>
-          <Grid item xs={6}>
-            <div className={classes.empty}>
-              <div className={classes.svgContainer}>
-                <WarnSvg color="#303f9f" className={classes.svg} />
-              </div>
-              <WarningBanner
-                message={error.message}
-                header="Something's wrong with your file..."
-                className={classes.text}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={6}>
-            <div className={classes.adviceContainer}>
-              <Typography variant="subtitle1" gutterBottom>
-                You can try uploading your file again.
-              </Typography>
-              <DatasetUploadButton uuid={uuid} type="csv" />
-            </div>
-            <div className={classes.adviceContainer}>
-              <Typography variant="subtitle1" gutterBottom>
-                Or you can try providing some more information and rescanning:
-              </Typography>
-              <UploadParsingOptions uuid={uuid} error={error} />
-            </div>
-          </Grid>
-        </Grid>
-      </div>
-    )
-  }
-}
-/* eslint-enable react/no-multi-comp */
 
 const ConnectedDatasetView = (props) => {
   const { uuid, classes } = props

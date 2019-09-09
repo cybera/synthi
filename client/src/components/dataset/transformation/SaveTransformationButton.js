@@ -3,8 +3,8 @@ import React from 'react'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 
-import ADIButton from '../components/ADIButton'
-import { datasetViewQuery } from '../queries'
+import { ADIButton } from '../../layout/buttons'
+import { datasetViewQuery } from '../../../queries'
 
 const saveInputTransformationGQL = gql`
   mutation SaveInputTransformation($uuid: String!, $code: String) {

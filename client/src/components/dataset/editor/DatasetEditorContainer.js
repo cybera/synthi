@@ -4,13 +4,11 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 
-import ADIButton from '../components/ADIButton'
-import DatasetGenerator from '../components/DatasetGenerator'
-import ToggleVisibility from '../components/ToggleVisibility'
-import DatasetDownloadButton from '../components/dataset/DownloadButton'
-import DatasetUploadButton from './DatasetUploadButton'
-import TransformationEditor from './TransformationEditor'
-import SaveTransformationButton from './SaveTransformationButton'
+import { ADIButton } from '../../layout/buttons'
+import DatasetGenerator from './DatasetGenerator'
+import { ToggleVisibility } from '../../common'
+import { DownloadButton, UploadButton } from './buttons'
+import { TransformationEditor, SaveTransformationButton } from '../transformation'
 
 const styles = theme => ({
   editorButton: {
@@ -48,7 +46,7 @@ class DatasetEditor extends React.Component {
       <div className={classes.root}>
         <ToggleVisibility visible={!dataset.computed}>
           <span className={classes.editorButton}>
-            <DatasetUploadButton uuid={dataset.uuid} type={dataset.type} />
+            <UploadButton uuid={dataset.uuid} type={dataset.type} />
           </span>
         </ToggleVisibility>
 
@@ -67,7 +65,7 @@ class DatasetEditor extends React.Component {
 
         <ToggleVisibility visible={dataExists}>
           <span className={classes.editorButton}>
-            <DatasetDownloadButton dataset={dataset} />
+            <DownloadButton dataset={dataset} />
           </span>
         </ToggleVisibility>
 

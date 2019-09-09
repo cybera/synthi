@@ -7,14 +7,14 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { datasetConnectionsQuery } from '../queries';
-import ToggleVisibility from './ToggleVisibility'
-import { withNavigation } from '../context/NavigationContext'
 import IconButton from '@material-ui/core/IconButton'
 import NavigationIcon from '@material-ui/icons/Navigation';
-import { compose } from '../lib/common'
-import { withDatasets } from '../containers/DatasetList'
 
+import { compose } from '../../../lib/common'
+import { withDatasets } from '../list/DatasetListContainer'
+import { datasetConnectionsQuery } from '../../../queries';
+import ToggleVisibility from '../../common/ToggleVisibility'
+import { withNavigation } from '../../../contexts/NavigationContext'
 
 
 const styles = theme => ({

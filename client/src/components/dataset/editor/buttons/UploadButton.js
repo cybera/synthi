@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 
-import { datasetViewQuery } from '../queries'
-import UploadFile from '../components/UploadFile'
+import { datasetViewQuery } from '../../../../queries'
+import UploadFile from './UploadFile'
 
 const uploadDatasetGQL = gql`
   mutation UploadDataset($uuid: String!, $file: Upload!) {

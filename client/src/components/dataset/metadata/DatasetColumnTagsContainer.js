@@ -5,9 +5,9 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 
-import { updateDatasetColumnsMutation, datasetColumnTagsQuery, datasetViewQuery } from '../queries'
+import { updateDatasetColumnsMutation, datasetColumnTagsQuery, datasetViewQuery } from '../../../queries'
 import DatasetColumnTagsForm from './DatasetColumnTagsForm'
-import PanelLoadingState from './PanelLoadingState'
+import { PanelLoadingState } from '../../layout'
 
 const styles = theme => ({
   title: {

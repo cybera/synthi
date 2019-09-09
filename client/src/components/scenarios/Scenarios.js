@@ -3,8 +3,8 @@ import React from 'react'
 import { Query } from 'react-apollo'
 
 import Plot from './Plot'
-import PanelLoadingState from './PanelLoadingState'
-import { plotsRetrieveQuery } from '../queries'
+import { PanelLoadingState } from '../layout'
+import { plotsRetrieveQuery } from '../../queries'
 
 const Scenarios = () => (
   <div>

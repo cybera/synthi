@@ -1,15 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames';
-
 import ListItem from '@material-ui/core/ListItem'
 import { withStyles } from '@material-ui/core/styles'
 
-import { compose } from '../lib/common'
-import { withNavigation } from '../context/NavigationContext'
+import { compose } from '../../../lib/common'
+import { withNavigation } from '../../../contexts/NavigationContext'
 
 import DatasetListItemMenu from './DatasetListItemMenu'
-import DatasetNameEditor from '../containers/DatasetNameEditor'
+import { DatasetNameEditor } from '../layout'
 
 const styles = () => ({
   hide: {

@@ -8,7 +8,7 @@ import Paper from '@material-ui/core/Paper'
 
 import { compose } from '../../lib/common'
 import Panel from './Panel'
-import PanelLoadingState from '../PanelLoadingState'
+import { PanelLoadingState } from '../layout'
 
 export const datasetQuery = gql`
 query DatasetAndAPIKey ($uuid: String) {

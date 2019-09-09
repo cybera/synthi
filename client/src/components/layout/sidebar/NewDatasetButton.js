@@ -6,10 +6,10 @@ import AddIcon from '@material-ui/icons/Add'
 
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
-import { compose } from '../lib/common'
+import { compose } from '../../../lib/common'
 
-import { withNavigation } from '../context/NavigationContext'
-import { datasetListQuery } from '../queries'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import { datasetListQuery } from '../../../queries'
 
 
 const CREATE_DATASET = gql`

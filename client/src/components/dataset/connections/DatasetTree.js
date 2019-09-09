@@ -3,15 +3,16 @@ import { Query } from 'react-apollo'
 import Tree from 'react-d3-tree'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import { compose } from '../lib/common'
-import { linkData } from './DatasetConnections'
-import { datasetConnectionsQuery } from '../queries'
-import { withNavigation } from '../context/NavigationContext'
-import ToggleVisibility from './ToggleVisibility'
-import MediaCard from './HoverCard'
 import Paper from '@material-ui/core/Paper'
+
 import './connectionStyle.css'
-        
+import { compose } from '../../../lib/common'
+import { linkData } from './DatasetConnections'
+import { datasetConnectionsQuery } from '../../../queries'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import ToggleVisibility from '../../common/ToggleVisibility'
+import MediaCard from '../../common/HoverCard'
+
 // TODO: Modify this to check if the transformation name
 // is the same as the dataset name
 function ifDataset(string) {
