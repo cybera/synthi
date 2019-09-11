@@ -19,7 +19,7 @@ const styles = theme => ({
     padding: 0
   },
   heading: {
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing(1)
   }
 })
 

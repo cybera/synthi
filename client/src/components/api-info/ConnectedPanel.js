@@ -28,7 +28,7 @@ const styles = theme => ({
     ...theme.mixins.gutters(),
     paddingTop: 16,
     paddingBottom: 16,
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   }
 })
 

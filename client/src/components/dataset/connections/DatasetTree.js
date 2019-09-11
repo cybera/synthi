@@ -10,8 +10,8 @@ import { compose } from '../../../lib/common'
 import { linkData } from './DatasetConnections'
 import { datasetConnectionsQuery } from '../../../queries'
 import { withNavigation } from '../../../contexts/NavigationContext'
-import ToggleVisibility from '../../common/ToggleVisibility'
-import MediaCard from '../../common/HoverCard'
+import ToggleVisibility from '../../layout/ToggleVisibility'
+import MediaCard from '../../layout/HoverCard'
 
 // TODO: Modify this to check if the transformation name
 // is the same as the dataset name
@@ -24,7 +24,7 @@ const styles = (theme) => ({
     ...theme.mixins.gutters(),
     paddingTop: 16,
     paddingBottom: 16,
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   }
 })
 

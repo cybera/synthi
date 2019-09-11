@@ -11,7 +11,7 @@ import { PanelLoadingState } from '../../layout'
 
 const styles = theme => ({
   title: {
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing(1)
   }
 })
 

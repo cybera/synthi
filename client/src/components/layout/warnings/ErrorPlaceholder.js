@@ -7,7 +7,7 @@ import { WarnSvg } from '../svg'
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     height: 400
   },
   empty: {

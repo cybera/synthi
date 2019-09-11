@@ -6,7 +6,7 @@ const styles = (theme) => ({
   root: {
     ...theme.mixins.gutters(),
     paddingTop: 16,
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   },
   form: {
     marginTop: 10,

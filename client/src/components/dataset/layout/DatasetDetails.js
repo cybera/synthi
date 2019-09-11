@@ -26,12 +26,12 @@ import DatasetTitle from './DatasetTitle'
 
 const styles = theme => ({
   header: {
-    paddingLeft: theme.spacing.unit * 3,
-    paddingTop: theme.spacing.unit * 7,
+    paddingLeft: theme.spacing(3),
+    paddingTop: theme.spacing(7),
     paddingBottom: 0
   },
   wrapper: {
-    padding: theme.spacing.unit,
+    padding: theme.spacing(1),
   },
   tabs: {
     boxShadow: 'none',
@@ -47,7 +47,7 @@ const styles = theme => ({
   content: {
     paddingTop: 16,
     paddingBottom: 16,
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   },
   primary: {},
   icon: {},

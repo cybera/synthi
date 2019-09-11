@@ -11,9 +11,9 @@ import IconButton from '@material-ui/core/IconButton'
 import NavigationIcon from '@material-ui/icons/Navigation';
 
 import { compose } from '../../../lib/common'
-import { withDatasets } from '../list/DatasetListContainer'
+import withDatasets from '../list/DatasetListContainer'
 import { datasetConnectionsQuery } from '../../../queries';
-import ToggleVisibility from '../../common/ToggleVisibility'
+import ToggleVisibility from '../../layout/ToggleVisibility'
 import { withNavigation } from '../../../contexts/NavigationContext'
 
 

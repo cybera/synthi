@@ -6,10 +6,10 @@ import MUISearchBar from 'material-ui-search-bar'
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit * 2.5,
-    marginBottom: theme.spacing.unit,
-    marginLeft: theme.spacing.unit * 2.5,
-    marginRight: theme.spacing.unit * 2.5,
+    marginTop: theme.spacing(2.5),
+    marginBottom: theme.spacing(1),
+    marginLeft: theme.spacing(2.5),
+    marginRight: theme.spacing(2.5),
     // TODO: Some way to directly base this on button height?
     height: 40
   },

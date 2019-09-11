@@ -6,7 +6,7 @@ import 'react-chart-editor/lib/react-chart-editor.css';
 import { createPlotMutation } from '../../queries'
 
 import { graphql } from 'react-apollo'
-import { compose } from '../lib/common'
+import { compose } from '../../lib/common'
 
 class ChartEditor extends Component {
   constructor(props, context) {
