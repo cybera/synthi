@@ -7,7 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
 
 import { withNavigation } from '../../../contexts/NavigationContext'
-import { UserProfileDialog } from '../../user-profile'
+import { UserProfileContainer as UserProfileDialog } from '../../user-profile'
 
 class UserMenu extends React.Component {
   static propTypes = {

@@ -72,7 +72,6 @@ DatasetList.defaultProps = {
 }
 
 export default compose(
-  withDatasets,
   withNavigation,
   withStyles(styles)
 )(DatasetList)
