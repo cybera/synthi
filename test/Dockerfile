@@ -4,4 +4,4 @@ WORKDIR /usr/src/app
 
 RUN pip install --no-cache-dir requests pandas pytest
 
-CMD ["python", "./main.py"]
+CMD ["pytest", "main.py"]
