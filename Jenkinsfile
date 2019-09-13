@@ -63,6 +63,18 @@ pipeline {
       }
     }
 
+    stage('Bring up integration test environment') {
+      steps {
+        sh 'bin/testenv start'
+      }
+    }
+
+    stage('Run integration tests') {
+      steps {
+        sh 'bin/testenv_run'
+      }
+    }
+
     stage('Push images to dockerhub') {
       when { anyOf { branch 'development'} }
       steps {
@@ -108,6 +120,10 @@ pipeline {
   }
 
   post {
+     always {
+       sh 'bin/testenv stop'
+     }
+
      failure {
          slackSend(channel:'#adi-cybera', color: '#FFF4444', message: "Build ${env.BUILD_NUMBER} for ${env.AUTHOR} on branch ${env.BRANCH_NAME} failed. Logs: ${env.BUILD_URL}console")
      }
