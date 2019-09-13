@@ -24,6 +24,6 @@ export const permissions = {
     '*': isOwner()
   },
   Mutation: {
-    createTransformationTemplate: isMember({ organizationID: 'owner' })
+    createTransformationTemplate: isMember({ organizationRef: 'owner' })
   }
 }

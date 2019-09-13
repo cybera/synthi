@@ -54,7 +54,7 @@ export const resolvers = {
 
 export const permissions = {
   Query: {
-    dataset: or(isMember({ organizationID: 'org' }), isOwner()),
+    dataset: or(isMember({ organizationRef: 'org' }), isOwner()),
   },
   Dataset: {
     '*': isOwner(),

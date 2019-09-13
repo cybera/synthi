@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const datasetListQuery = gql`
-query($searchString: String, $org: OrganizationID) {
+query($searchString: String, $org: OrganizationRef) {
   dataset(searchString: $searchString, org: $org) {
     uuid
     name

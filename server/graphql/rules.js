@@ -6,28 +6,28 @@ import { ModelFactory } from '../domain/models'
 import { findOrganization } from '../domain/contexts/util'
 
 export const isMember = ({
-  organizationID: organizationIDField,
+  organizationRef: organizationRefField,
   organizationUUID: organizationUUIDField
 }) => (
   rule({ cache: 'strict' })(
     async (parent, args, ctx /* , info */) => {
-      let organizationID
-      if (organizationIDField) {
-        organizationID = args[organizationIDField] || (
-          parent ? parent[organizationIDField] : undefined
+      let organizationRef
+      if (organizationRefField) {
+        organizationRef = args[organizationRefField] || (
+          parent ? parent[organizationRefField] : undefined
         )
       } else if (organizationUUIDField) {
-        organizationID = {
+        organizationRef = {
           uuid: args[organizationUUIDField] || (
             parent ? parent[organizationUUIDField] : undefined
           )
         }
       }
       // TODO: Can the query/type-field be found in info (add to debug msg)
-      logger.debug('checking isMember for OrganizationID: %o', organizationID)
+      logger.debug('checking isMember for OrganizationRef: %o', organizationRef)
 
-      if (organizationID) {
-        const organization = await findOrganization(organizationID)
+      if (organizationRef) {
+        const organization = await findOrganization(organizationRef)
         return organization.canAccess(ctx.user)
       }
 

@@ -158,7 +158,7 @@ def meta(uuid_or_name, host=None, api_key=None):
     datasetUuid = uuid_or_name
 
   query = '''
-  query ($org: OrganizationID, $datasetUuid: String, $datasetName: String) {
+  query ($org: OrganizationRef, $datasetUuid: String, $datasetName: String) {
     dataset(org: $org, uuid: $datasetUuid, name: $datasetName) {
       id
       name
@@ -184,7 +184,7 @@ def list(host=None, api_key=None):
   org = default_org()
 
   query = '''
-  query ($org: OrganizationID) {
+  query ($org: OrganizationRef) {
     dataset(org: $org) {
       id
       name
@@ -306,7 +306,7 @@ def transformation_basic(uuid_or_name, path=None, code=None, type='csv', host=No
 
 def transformation_ref(uuid_or_name, template:str, inputs:Dict[str,str], type='csv', host=None, api_key=None):
   query = '''
-    mutation TemplateTransformation($output: String!, $template: TemplateRef, $inputs: [TransformationInputMapping], $org: OrganizationID) {
+    mutation TemplateTransformation($output: String!, $template: TemplateRef, $inputs: [TransformationInputMapping], $org: OrganizationRef) {
       saveInputTransformation(
         uuid: $output,
         template: $template,
@@ -355,7 +355,7 @@ def reusable_transformation(name, path=None, code=None, inputs=[], host=None, ap
       code = file.read()
 
   query = '''
-    mutation CreateTransformationTemplate($name: String!, $inputs: [String], $code: String!, $owner: OrganizationID!) {
+    mutation CreateTransformationTemplate($name: String!, $inputs: [String], $code: String!, $owner: OrganizationRef!) {
       createTransformationTemplate(
         name: $name,
         inputs: $inputs,
