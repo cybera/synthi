@@ -39,22 +39,17 @@ def test_reusable_csv_transform():
     dataset.upload('simple-data-2', 'data/simple_data2.csv')
     dataset.reusable_transformation('ReusableMeans', 'data/simple_means.py', inputs=['simple_data'])
 
-    dataset.transformation(
-        'simple-data-means-1',
-        template = 'ReusableMeans',
-        inputs = {
-            'simple_data': 'simple-data-1'
-        }
-    )
-    df = dataset.get('simple-data-means-1')
+    for i in [1,2]:
+        dataset.transformation(
+            f'simple-data-means-{i}',
+            template = 'ReusableMeans',
+            inputs = {
+                'simple_data': f'simple-data-{i}'
+            }
+        )
+
+    df = dataset.get(f'simple-data-means-1')
     assert(df['0'].tolist() == [6.0])
 
-    dataset.transformation(
-        'simple-data-means-2',
-        template = 'ReusableMeans',
-        inputs = {
-            'simple_data': 'simple-data-2'
-        }
-    )
     df = dataset.get('simple-data-means-2')
     assert(df['0'].tolist() == [9.0])
