@@ -89,7 +89,7 @@ type DatasetStoragePaths {
   sample: String
 }
 
-type Dataset @authCanAccess {
+type Dataset {
   id: Int
   type: DatasetType!
   uuid: String!
