@@ -15,57 +15,46 @@ def clean_environment():
     for d in dataset.list():
         dataset.delete(d['uuid'])
 
-def test_basic_upload_and_compute(capsys):
-  with capsys.disabled():
-    print("Testing upload with iris dataset...")
+def test_basic_upload_and_compute():
+    dataset.upload('simple_data', 'data/simple_data.csv')
+    simple_data = dataset.get('simple_data')
+    assert(simple_data['x'].tolist() == [4, 8])
 
-    dataset.upload('iris', 'data/iris.csv')
-    print(dataset.list())
-    iris = dataset.get('iris')
-    print(iris.head())
+    dataset.transformation('simple_means', 'data/simple_means.py')
+    simple_means = dataset.get('simple_means')
+    assert(simple_means['0'].tolist() == [6.0])
 
-    print("Testing computed dataset operations...")
-    dataset.transformation('iris_means', 'data/iris_means.py')
-    iris_means = dataset.get('iris_means')
-    iris_means.head()
-    print(iris_means.head())
+def test_explicit_csv_upload():
+    dataset.upload('csv_with_type', 'data/simple_data.csv', type='csv')
+    csv_with_type = dataset.get('csv_with_type')
+    assert(csv_with_type['x'].tolist() == [4, 8])
 
-def test_explicit_csv_upload(capsys):
-  with capsys.disabled():
-    print("Testing regular csv upload, using a type...")
-    dataset.upload('iris_with_type', 'data/iris.csv', type='csv')
-    iris_with_type = dataset.get('iris_with_type')
-    print(iris_with_type.head())
-
-def test_txt_upload(capsys):
-  with capsys.disabled():
-    print("Testing document upload, using a type...")
+def test_txt_upload():
     dataset.upload('txt_document', 'data/test.txt', type='document')
     txt_document = dataset.get('txt_document', raw=True)
-    print(txt_document)
+    assert(txt_document == "Just a regular ol' text document.\n")
 
-def test_reusable_csv_transform(capsys):
-  with capsys.disabled():
-    print("Testing creation of a reusable transformation...")
-    dataset.upload('iris-testing-1', 'data/iris.csv')
-    dataset.upload('iris-testing-2', 'data/iris.csv')
-    dataset.reusable_transformation('IrisMeans', 'data/iris_means.py', inputs=['iris'])
-    dataset.transformation(
-        'iris-testing-means-1',
-        template = 'IrisMeans',
-        inputs = {
-            'iris': 'iris-testing-1'
-        }
-    )
-    df = dataset.get('iris-testing-means-1')
-    print(df.head())
+def test_reusable_csv_transform():
+    dataset.upload('simple-data-1', 'data/simple_data.csv')
+    dataset.upload('simple-data-2', 'data/simple_data2.csv')
+    dataset.reusable_transformation('ReusableMeans', 'data/simple_means.py', inputs=['simple_data'])
 
     dataset.transformation(
-        'iris-testing-means-2',
-        template = 'IrisMeans',
+        'simple-data-means-1',
+        template = 'ReusableMeans',
         inputs = {
-            'iris': 'iris-testing-2'
+            'simple_data': 'simple-data-1'
         }
     )
-    df = dataset.get('iris-testing-means-2')
-    print(df.head())
+    df = dataset.get('simple-data-means-1')
+    assert(df['0'].tolist() == [6.0])
+
+    dataset.transformation(
+        'simple-data-means-2',
+        template = 'ReusableMeans',
+        inputs = {
+            'simple_data': 'simple-data-2'
+        }
+    )
+    df = dataset.get('simple-data-means-2')
+    assert(df['0'].tolist() == [9.0])
