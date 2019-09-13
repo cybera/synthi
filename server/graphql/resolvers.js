@@ -6,20 +6,22 @@ import { Base } from '../domain/models'
 
 import * as dataset from './resolvers/dataset'
 import plotsResolvers from './resolvers/plots'
-import transformationsResolvers from './resolvers/transformations'
-import datasetMetadataResolvers from './resolvers/datasetMetadata'
-import columnResolvers from './resolvers/column'
+import * as transformations from './resolvers/transformations'
+import * as datasetMetadata from './resolvers/datasetMetadata'
+import * as column from './resolvers/column'
 import generalResolvers from './resolvers/general'
-import userResolvers from './resolvers/user'
+import * as user from './resolvers/user'
+import * as organization from './resolvers/organization'
 
 export const resolvers = merge(
-  userResolvers,
+  user.resolvers,
+  organization.resolvers,
   generalResolvers,
   dataset.resolvers,
-  columnResolvers,
-  datasetMetadataResolvers,
+  column.resolvers,
+  datasetMetadata.resolvers,
   plotsResolvers,
-  transformationsResolvers
+  transformations.resolvers
 )
 
 /*
@@ -57,6 +59,11 @@ const hashFunction = obj => hash(obj, { replacer, ignoreUnknown: true })
 
 export const permissions = shield(merge(
   dataset.permissions,
+  transformations.permissions,
+  column.permissions,
+  datasetMetadata.permissions,
+  user.permissions,
+  organization.permissions,
 ), {
   fallbackError: new AuthenticationError('Operation not allowed on this resource'),
   hashFunction

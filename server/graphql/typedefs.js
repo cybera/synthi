@@ -37,8 +37,6 @@ enum DatasetType {
   document
 }
 
-directive @authCanAccess on OBJECT | FIELD_DEFINITION
-
 type File {
   id: ID!
   path: String!
@@ -107,7 +105,7 @@ type Dataset {
   connections: String
 }
 
-type Transformation @authCanAccess {
+type Transformation {
   id: Int
   uuid: String!
   name: String
@@ -132,7 +130,7 @@ type Query {
   currentUser: User
 }
 
-type Organization @authCanAccess {
+type Organization {
   id: Int
   uuid: String!
   name: String!
@@ -144,7 +142,7 @@ type User {
   uuid: String!
   username: String!
   organizations: [Organization]
-  apikey: String @authCanAccess
+  apikey: String
 }
 
 input CSVImportOptions {
