@@ -121,6 +121,7 @@ pipeline {
 
   post {
      always {
+       sh 'sudo chown jenkins.wheel -R .'
        sh 'bin/testenv stop'
      }
 
