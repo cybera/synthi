@@ -22,4 +22,7 @@ if [[ $action == 'start' ]]; then
 elif [[ $action == 'stop' ]]; then
   docker-compose down -v
   docker-compose rm -v
+else
+    echo "\"$action\" is not a valid subcommand for $0"
+    exit 1
 fi
