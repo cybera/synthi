@@ -121,7 +121,9 @@ pipeline {
 
   post {
      always {
+       // Resolve any permissions issues by taking everything back
        sh 'sudo chown jenkins.wheel -R .'
+       // Bring down the integration test environment
        sh 'bin/testenv stop'
      }
 
