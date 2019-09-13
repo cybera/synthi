@@ -1,3 +1,4 @@
+import Base from './models/base'
 import Column from './models/column'
 import DatasetMetadata from './models/dataset-metadata'
 import Dataset from './models/dataset'
@@ -16,6 +17,7 @@ import User from './models/user'
 import * as ModelFactory from './models/modelFactory'
 
 export {
+  Base,
   Column,
   DatasetMetadata,
   Dataset,

@@ -1,4 +1,8 @@
+import { or, and, allow, deny } from 'graphql-shield'
+
 import { pubsub, withFilter } from '../pubsub'
+
+import { isOwner, isMember } from '../rules'
 
 import {
   processDatasetUpdate,
@@ -13,7 +17,7 @@ import {
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
-export default {
+export const resolvers = {
   Query: {
     dataset: (_, props, { user }) => filterDatasets(props, user),
   },
@@ -45,5 +49,24 @@ export default {
         ({ datasetGenerated }, variables) => datasetGenerated.uuid === variables.uuid
       )
     },
+  }
+}
+
+export const permissions = {
+  Query: {
+    dataset: or(isMember({ organizationID: 'org' }), isOwner()),
+  },
+  Dataset: {
+    '*': isOwner(),
+  },
+  Mutation: {
+    // TODO: check owner, but with only uuid (or change this signature to use OrganizationID)
+    createDataset: allow,
+    deleteDataset: isOwner(),
+    importCSV: isOwner(),
+    updateDataset: isOwner(),
+    generateDataset: isOwner(),
+    toggleColumnVisibility: isOwner(),
+    saveInputTransformation: isOwner()
   }
 }
