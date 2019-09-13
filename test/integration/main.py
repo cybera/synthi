@@ -9,6 +9,12 @@ from lib import dataset
 
 dataset.set_default_org('test')
 
+@pytest.fixture(scope="function", autouse=True)
+def clean_environment():
+    yield # Execute the test
+    for d in dataset.list():
+        dataset.delete(d['uuid'])
+
 def test_basic_upload_and_compute(capsys):
   with capsys.disabled():
     print("Testing upload with iris dataset...")
@@ -24,7 +30,7 @@ def test_basic_upload_and_compute(capsys):
     iris_means.head()
     print(iris_means.head())
 
-@pytest.mark.xfail()
+@pytest.mark.xfail(strict=True)
 def test_explicit_csv_upload(capsys):
   with capsys.disabled():
     print("Testing regular csv upload, using a type...")
@@ -64,9 +70,3 @@ def test_reusable_csv_transform(capsys):
     )
     df = dataset.get('iris-testing-means-2')
     print(df.head())
-
-    print("Clearing test environment...")
-
-    for d in dataset.list():
-        dataset.delete(d['uuid'])
-
