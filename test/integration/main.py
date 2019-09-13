@@ -9,7 +9,7 @@ from lib import dataset
 
 dataset.set_default_org('test')
 
-def test_adi(capsys):
+def test_basic_upload_and_compute(capsys):
   with capsys.disabled():
     print("Testing upload with iris dataset...")
 
@@ -24,16 +24,23 @@ def test_adi(capsys):
     iris_means.head()
     print(iris_means.head())
 
+@pytest.mark.xfail()
+def test_explicit_csv_upload(capsys):
+  with capsys.disabled():
     print("Testing regular csv upload, using a type...")
     dataset.upload('iris_with_type', 'data/iris.csv', type='csv')
     iris_with_type = dataset.get('iris')
     print(iris_with_type.head())
 
+def test_txt_upload(capsys):
+  with capsys.disabled():
     print("Testing document upload, using a type...")
     dataset.upload('txt_document', 'data/test.txt', type='document')
     txt_document = dataset.get('txt_document', raw=True)
     print(txt_document)
 
+def test_reusable_csv_transform(capsys):
+  with capsys.disabled():
     print("Testing creation of a reusable transformation...")
     dataset.upload('iris-testing-1', 'data/iris.csv')
     dataset.upload('iris-testing-2', 'data/iris.csv')
