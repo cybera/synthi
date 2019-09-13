@@ -9,7 +9,7 @@ action=$1
 
 if [[ $action == 'start' ]]; then
   docker-compose up -d
-  docker-compose exec neo4j bash -c '
+  docker-compose exec -T neo4j bash -c '
     echo "Waiting for Neo4J to start up"
     end="$((SECONDS+60))"
     while true; do
@@ -18,7 +18,7 @@ if [[ $action == 'start' ]]; then
       sleep 1
     done
   '
-  docker-compose exec python-worker /usr/src/app/create_user.py test password test-token
+  docker-compose exec -T python-worker /usr/src/app/create_user.py test password test-token
 elif [[ $action == 'stop' ]]; then
   docker-compose down -v
   docker-compose rm -v
