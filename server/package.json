@@ -2,8 +2,18 @@
   "name": "adi-server",
   "version": "1.0.0",
   "description": "server for adi",
-  "main": "index.js",
+  "main": "main.js",
   "dependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/config": "0.0.34",
+    "@types/connect-redis": "0.0.11",
+    "@types/express-session": "^1.15.14",
+    "@types/lodash": "^4.14.138",
+    "@types/morgan": "^1.7.37",
+    "@types/passport": "^1.0.1",
+    "@types/passport-local": "^1.0.33",
+    "@types/passport-strategy": "^0.2.35",
+    "@types/signal-exit": "^3.0.0",
     "amqp-connection-manager": "^2.3.0",
     "amqplib": "^0.5.2",
     "apollo-server-express": "^2.9.3",
@@ -22,7 +32,7 @@
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "get-stream": "^4.1.0",
-    "graphql": "^14.0.2",
+    "graphql": "^14.5.4",
     "graphql-middleware": "^4.0.1",
     "graphql-shield": "^6.1.0",
     "graphql-tag": "^2.10.1",
@@ -51,6 +61,9 @@
     "@babel/core": "^7.1.6",
     "@babel/node": "^7.0.0",
     "@babel/preset-env": "^7.1.6",
+    "@types/node": "^12.7.4",
+    "@typescript-eslint/eslint-plugin": "^2.1.0",
+    "@typescript-eslint/parser": "^2.1.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^23.6.0",
@@ -60,13 +73,19 @@
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-react": "^7.11.1",
     "jest": "^23.6.0",
-    "nodemon": "^1.18.6"
+    "nodemon": "^1.18.6",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.6.2"
   },
   "scripts": {
     "test": "jest",
-    "start": "node index.js",
-    "devStart": "nodemon ./index.js",
-    "debug": "nodemon --inspect-brk=0.0.0.0:9222 --nolazy ./index.js"
+    "build": "tsc",
+    "start": "ts-node main.js",
+    "devStart": "nodemon --exec ts-node ./main.js",
+    "debug": "nodemon --inspect-brk=0.0.0.0:9222 --nolazy --exec ts-node ./main.js"
+  },
+  "nodemonConfig": {
+    "ext": "ts"
   },
   "author": "",
   "license": "ISC",

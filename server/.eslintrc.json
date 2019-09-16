@@ -1,0 +1,31 @@
+{
+  "extends": [
+    "airbnb",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "project": "./tsconfig.json"
+  },
+  "env": {
+    "jest": true
+  },
+  "rules": {
+    "comma-dangle": "off",
+    "semi": "off",
+    "no-underscore-dangle": "off",
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "no-cond-assign": [2, "except-parens"],
+    "no-else-return": ["error", { "allowElseIf": true }],
+    "@typescript-eslint/member-delimiter-style": {
+      "multiline": {
+        "delimiter": "none"
+      }
+    }
+  }
+}
