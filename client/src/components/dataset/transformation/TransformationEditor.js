@@ -1,6 +1,13 @@
 import React from 'react'
 import AceEditor from 'react-ace'
 
+import brace from 'brace'	
+import 'brace/ext/language_tools'	
+import 'brace/mode/python'	
+import 'brace/mode/sh'	
+import 'brace/mode/r'	
+import 'brace/theme/xcode'
+
 import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
 import { ToggleVisibility } from '../../layout'
