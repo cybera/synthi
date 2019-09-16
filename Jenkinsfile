@@ -63,6 +63,13 @@ pipeline {
       }
     }
 
+    stage('Import testing environment configuration') {
+      steps {
+        configFileProvider([configFile(fileId: '476375ce-f8fb-497e-b83d-459083303bf5', targetLocation: 'config/testing.toml')]) {
+        }
+      }
+    }
+
     stage('Bring up integration test environment') {
       steps {
         sh 'bin/testenv start'
