@@ -5,7 +5,7 @@ import List from '@material-ui/core/List'
 import { withStyles } from '@material-ui/core/styles'
 
 import { compose } from '../../../lib/common'
-import withDatasets from './DatasetListContainer'
+import withDatasets from './withDatasets'
 import { withNavigation } from '../../../contexts/NavigationContext'
 
 import DatasetListItem from './DatasetListItem'

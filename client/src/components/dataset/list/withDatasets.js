@@ -37,4 +37,4 @@ const withDatasets = Component => (props) => {
   )
 }
 
-export default withDatasets // eslint-disable-line import/prefer-default-export
+export default withDatasets

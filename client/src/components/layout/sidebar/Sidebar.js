@@ -11,11 +11,11 @@ import { withNavigation } from '../../../contexts/NavigationContext'
 import { compose } from '../../../lib/common'
 import { SearchBar } from '../../dataset/list/search'
 import NewDatasetButton from './NewDatasetButton'
-import { DatasetListContainer as DatasetList } from '../../dataset/list'
+import { DatasetList } from '../../dataset/list'
 
 const drawerWidth = 300
 
-const styles = theme => ({
+const styles = (theme) => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
