@@ -15,11 +15,11 @@ import './ChartEditor.css'
 
 const styles = theme => ({
   paper: {
-    padding: theme.spacing.unit
+    padding: theme.spacing(1)
   },
   root: {
     ...theme.mixins.gutters(),
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     paddingTop: 16,
     paddingBottom: 16,
   },
@@ -27,7 +27,7 @@ const styles = theme => ({
     marginTop: 20
   },
   icon: {
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   }
 })
 

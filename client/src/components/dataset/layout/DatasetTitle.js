@@ -10,7 +10,7 @@ import { datasetViewQuery } from '../../../queries'
 
 const styles = theme => ({
   headerText: {
-    marginBottom: theme.spacing.unit * 2
+    marginBottom: theme.spacing(2)
   }
 })
 

@@ -62,33 +62,33 @@ const styles = theme => ({
     flexWrap: 'wrap',
   },
   textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
     width: 200,
   },
   textArea: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
   },
   updateSection: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
   },
   amountField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
     width: 60
   },
   sourceField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
     width: 400
   },
   formatSelector: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    marginTop: theme.spacing.unit * 4,
-    marginBottom: theme.spacing.unit * 4,
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(4),
     width: 200,
   },
   // TODO: Should probably figure out how to do nested styling better
@@ -97,10 +97,10 @@ const styles = theme => ({
     width: 200
   },
   dateField: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
     width: 200,
   },
   dense: {
@@ -110,20 +110,20 @@ const styles = theme => ({
     width: 200,
   },
   paper: {
-    padding: theme.spacing.unit
+    padding: theme.spacing(1)
   },
   root: {
     ...theme.mixins.gutters(),
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     paddingTop: 16,
     paddingBottom: 16,
   },
   saveButton: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 5
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(5)
   },
   title: {
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing(1)
   }
 })
 

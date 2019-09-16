@@ -3,15 +3,15 @@ import AceEditor from 'react-ace'
 
 import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
-import { ToggleVisibility } from '../../common'
+import { ToggleVisibility } from '../../layout'
 
 const styles = theme => ({
   root: {
     display: 'flex',
     justifyContent: 'left',
     flexWrap: 'wrap',
-    padding: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2
+    padding: theme.spacing(2),
+    marginBottom: theme.spacing(2)
   }
 })
 

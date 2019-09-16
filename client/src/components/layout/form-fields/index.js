@@ -1,5 +1,5 @@
 import EditableTextField from './EditableTextField'
 
-export default {
+export {
   EditableTextField
 }

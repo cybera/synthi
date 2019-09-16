@@ -7,10 +7,10 @@ import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
   root: {
-    marginLeft: theme.spacing.unit * 3,
-    marginRight: theme.spacing.unit * 3,
-    marginTop: (theme.spacing.unit * 2) - 2,
-    marginBottom: theme.spacing.unit,
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(3),
+    marginTop: (theme.spacing(2)) - 2,
+    marginBottom: theme.spacing(1),
     color: theme.palette.secondary.light,
     textAlign: 'left',
     borderBottom: 'solid 1px',

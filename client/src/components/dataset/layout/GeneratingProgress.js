@@ -7,7 +7,7 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import { withStyles } from '@material-ui/core/styles'
 
 import { ADIButton } from '../../layout/buttons'
-import { ToggleVisibility } from '../../common'
+import { ToggleVisibility } from '../../layout'
 import { datasetViewQuery } from '../../../queries'
 
 const resetGeneratingMutation = gql`
@@ -20,7 +20,7 @@ mutation ResetGeneratingMutation($uuid: String!) {
 
 const styles = theme => ({
   buttonContainer: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   }
 })
 

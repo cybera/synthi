@@ -20,7 +20,7 @@ import { ADIButton } from '../layout/buttons'
 
 const styles = theme => ({
   icon: {
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   }
 })
 

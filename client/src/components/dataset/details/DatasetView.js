@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 
 import { datasetViewQuery } from '../../../queries'
-import ToggleVisibility from '../../common/ToggleVisibility'
+import ToggleVisibility from '../../layout/ToggleVisibility'
 import DataTableView from './DataTableView'
 import DatasetEditor from '../editor'
 import DatasetColumnChips from './DatasetColumnChips'
@@ -33,14 +33,14 @@ const styles = theme => ({
     ...theme.mixins.gutters(),
     paddingTop: 16,
     paddingBottom: 16,
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   },
   rightIcon: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
   },
   error: {
     color: '#F44336',
-    paddingBottom: theme.spacing.unit * 3
+    paddingBottom: theme.spacing(3)
   },
   empty: {
     textAlign: 'center'

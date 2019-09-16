@@ -6,13 +6,13 @@ import Typography from '@material-ui/core/Typography'
 
 import { ADIButton } from '../../layout/buttons'
 import DatasetGenerator from './DatasetGenerator'
-import { ToggleVisibility } from '../../common'
+import { ToggleVisibility } from '../../layout'
 import { DownloadButton, UploadButton } from './buttons'
 import { TransformationEditor, SaveTransformationButton } from '../transformation'
 
 const styles = theme => ({
   editorButton: {
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   },
   buttonsRight: {
     textAlign: 'right'

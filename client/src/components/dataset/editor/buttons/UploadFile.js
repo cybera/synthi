@@ -11,7 +11,7 @@ const styles = theme => ({
     display: 'none',
   },
   icon: {
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   }
 })
 

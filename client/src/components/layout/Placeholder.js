@@ -7,7 +7,7 @@ import { FolderSvg } from './svg'
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     paddingTop: 200,
     paddingLeft: 100,
     paddingBottom: 200,

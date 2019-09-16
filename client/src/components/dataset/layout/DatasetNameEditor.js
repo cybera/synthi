@@ -4,9 +4,9 @@ import PropTypes from 'prop-types'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 
-import { datasetListQuery, datasetViewQuery } from '../queries'
-import { openSnackbar } from '../components/Notifier'
-import EditableTextField from '../components/EditableTextField'
+import { datasetListQuery, datasetViewQuery } from '../../../queries'
+import { openSnackbar } from '../../layout/Notifier'
+import { EditableTextField } from '../../layout/form-fields'
 
 const updateDatasetGQL = gql`
   mutation UpdateDataset($uuid: String!, $name: String) {

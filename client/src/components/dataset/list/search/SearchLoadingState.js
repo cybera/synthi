@@ -15,7 +15,7 @@ const styles = theme => ({
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: theme.spacing.unit * 2
+    marginBottom: theme.spacing(2)
   }
 })
 
