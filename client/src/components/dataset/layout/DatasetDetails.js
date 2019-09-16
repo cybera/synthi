@@ -17,7 +17,7 @@ import { compose } from '../../../lib/common'
 
 import { DatasetView } from '../details'
 import { DatasetMetadata } from '../metadata'
-import { ChartEditor } from '../../chart-editor'
+import { ChartEditorContainer as ChartEditor } from '../../chart-editor'
 import { DatasetTree } from '../connections'
 import { ConnectedPanel as APIInfo } from '../../api-info'
 import { ErrorPlaceholder } from '../../layout/warnings'
