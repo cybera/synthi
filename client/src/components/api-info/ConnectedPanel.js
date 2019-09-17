@@ -8,7 +8,7 @@ import Paper from '@material-ui/core/Paper'
 
 import { compose } from '../../lib/common'
 import Panel from './Panel'
-import PanelLoadingState from '../PanelLoadingState'
+import { PanelLoadingState } from '../layout'
 
 export const datasetQuery = gql`
 query DatasetAndAPIKey ($uuid: String) {
@@ -28,7 +28,7 @@ const styles = theme => ({
     ...theme.mixins.gutters(),
     paddingTop: 16,
     paddingBottom: 16,
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   }
 })
 
