@@ -63,6 +63,25 @@ pipeline {
       }
     }
 
+    stage('Import testing environment configuration') {
+      steps {
+        configFileProvider([configFile(fileId: '476375ce-f8fb-497e-b83d-459083303bf5', targetLocation: 'config/testing.toml')]) {
+        }
+      }
+    }
+
+    stage('Bring up integration test environment') {
+      steps {
+        sh 'bin/testenv start'
+      }
+    }
+
+    stage('Run integration tests') {
+      steps {
+        sh 'bin/testenv_run'
+      }
+    }
+
     stage('Push images to dockerhub') {
       when { anyOf { branch 'development'} }
       steps {
@@ -108,6 +127,13 @@ pipeline {
   }
 
   post {
+     always {
+       // Resolve any permissions issues by taking everything back
+       sh 'sudo chown jenkins.wheel -R .'
+       // Bring down the integration test environment
+       sh 'bin/testenv stop'
+     }
+
      failure {
          slackSend(channel:'#adi-cybera', color: '#FFF4444', message: "Build ${env.BUILD_NUMBER} for ${env.AUTHOR} on branch ${env.BRANCH_NAME} failed. Logs: ${env.BUILD_URL}console")
      }

@@ -69,6 +69,7 @@ services:
       - default
   test-runner:
     build: .
+    command: "true"
     image: cybera/adi-test-runner:latest
     volumes:
       - ./integration:/usr/src/app
