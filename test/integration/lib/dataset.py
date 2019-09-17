@@ -16,7 +16,11 @@ def is_uuid(str):
   else:
     return False
 
+__default_org = None
+
 def set_default_org(name=None, uuid=None, id=None):
+  global __default_org
+
   assert name or uuid or id, "Must supply one of name, uuid, or id"
 
   if uuid:
@@ -102,8 +106,6 @@ def gql_query(query, variables=dict(), file=None, host=None, api_key=None):
   r = requests.post(f"{host}/graphql", headers=headers, data=data, files=files)
 
   return json.loads(r.content)['data']
-
-__default_org = None
 
 def default_org(host=None, api_key=None):
   global __default_org
