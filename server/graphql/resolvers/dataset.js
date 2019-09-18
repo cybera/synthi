@@ -1,4 +1,8 @@
+import { or, and, allow, deny } from 'graphql-shield'
+
 import { pubsub, withFilter } from '../pubsub'
+
+import { isOwner, isMember } from '../rules'
 
 import {
   processDatasetUpdate,
@@ -13,9 +17,9 @@ import {
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
-export default {
+export const resolvers = {
   Query: {
-    dataset: (_, props, { user }) => filterDatasets(props, user),
+    dataset: (_, props) => filterDatasets(props),
   },
   Dataset: {
     columns: dataset => dataset.columns(),
@@ -29,9 +33,9 @@ export default {
     createDataset: (_, { name, owner, type }, { user }) => (
       createDataset(owner, name, type, user)
     ),
-    deleteDataset: (_, { uuid }, { user }) => deleteDataset(uuid, user),
-    importCSV: (_, { uuid, ...props }, { user }) => importCSV(uuid, props, user),
-    updateDataset: (_, props, { user }) => processDatasetUpdate(props, user),
+    deleteDataset: (_, { uuid }) => deleteDataset(uuid),
+    importCSV: (_, { uuid, ...props }) => importCSV(uuid, props),
+    updateDataset: (_, { uuid, ...props }) => processDatasetUpdate(uuid, props),
     generateDataset: (_, { uuid }, { user }) => generateDataset(uuid, user),
     toggleColumnVisibility: (_, { uuid }, { user }) => toggleColumnVisibility(uuid, user),
     saveInputTransformation: (_, { uuid, ...props }, { user }) => (
@@ -45,5 +49,23 @@ export default {
         ({ datasetGenerated }, variables) => datasetGenerated.uuid === variables.uuid
       )
     },
+  }
+}
+
+export const permissions = {
+  Query: {
+    dataset: or(isMember({ organizationRef: 'org' }), isOwner()),
+  },
+  Dataset: {
+    '*': isOwner(),
+  },
+  Mutation: {
+    createDataset: isMember({ organizationUUID: 'owner' }),
+    deleteDataset: isOwner(),
+    importCSV: isOwner(),
+    updateDataset: isOwner(),
+    generateDataset: isOwner(),
+    toggleColumnVisibility: isOwner(),
+    saveInputTransformation: isOwner()
   }
 }

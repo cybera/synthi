@@ -22,7 +22,7 @@ export async function updateDatasetMetadata(datasetUuid, metadata) {
   return metadata
 }
 
-export async function processDatasetUpdate({ uuid, ...datasetProps }, user) {
+export async function processDatasetUpdate(uuid, datasetProps) {
   const {
     file,
     computed,
@@ -32,10 +32,6 @@ export async function processDatasetUpdate({ uuid, ...datasetProps }, user) {
 
   // TODO: access control
   const dataset = await ModelFactory.getByUuid(uuid)
-
-  if (!dataset.canAccess(user)) {
-    throw new AuthenticationError('Operation not allowed on this resource')
-  }
 
   if (file) {
     /*
@@ -100,13 +96,13 @@ export async function filterDatasets({
   name,
   searchString,
   org
-}, user) {
+}) {
   let datasets = []
 
   if (uuid != null) {
     datasets.push(await ModelFactory.getByUuid(uuid))
   } else if (org) {
-    const organization = await findOrganization(org, user)
+    const organization = await findOrganization(org)
     if (name) {
       datasets.push(await Dataset.getByName(organization, name))
     } else {
@@ -140,20 +136,14 @@ export async function createDataset(owner, name, type, user) {
   return null
 }
 
-export async function deleteDataset(uuid, user) {
+export async function deleteDataset(uuid) {
   const dataset = await ModelFactory.getByUuid(uuid)
-  if (!await dataset.canAccess(user)) {
-    throw new AuthenticationError('Operation not allowed on this resource')
-  }
   await dataset.delete()
   return true
 }
 
-export async function importCSV(uuid, { removeExisting, options }, user) {
+export async function importCSV(uuid, { removeExisting, options }) {
   const dataset = await ModelFactory.getByUuid(uuid)
-  if (!await dataset.canAccess(user)) {
-    throw new AuthenticationError('Operation not allowed on this resource')
-  }
   // Only allow importing if the user can access the dataset in the first place
   if (dataset) {
     dataset.importCSV(removeExisting, options)
@@ -163,9 +153,6 @@ export async function importCSV(uuid, { removeExisting, options }, user) {
 
 export async function generateDataset(uuid, user) {
   const dataset = await ModelFactory.getByUuid(uuid)
-  if (!await dataset.canAccess(user)) {
-    throw new AuthenticationError('Operation not allowed on this resource')
-  }
   dataset.generating = true
   await dataset.save()
   dataset.runTransformation(user)
@@ -185,15 +172,11 @@ export async function saveInputTransformation(datasetUuid, {
   org
 }, user) {
   const dataset = await ModelFactory.getByUuid(datasetUuid)
-  if (!await dataset.canAccess(user)) {
-    throw new AuthenticationError('Operation not allowed on this resource')
-  }
-
   if (code && !template && !inputs) {
     return dataset.saveInputTransformation(code, user)
   } else if (!code && template && inputs) {
-    const templateObj = await findTransformation(template, org, user)
-    const inputObjs = await findTransformationInputs(inputs, org, user)
+    const templateObj = await findTransformation(template, org)
+    const inputObjs = await findTransformationInputs(inputs, org)
 
     logger.debug(`Transformation Ref: ${templateObj.name} (${templateObj.uuid})`)
     logger.debug(`Inputs: {\n${debugTransformationInputObjs(inputObjs)}\n}`)
@@ -204,12 +187,7 @@ export async function saveInputTransformation(datasetUuid, {
   throw Error('Please provide either code or a transformation reference and inputs')
 }
 
-export async function updateColumn(columnUuid, values, tagNames, user) {
+export async function updateColumn(columnUuid, values, tagNames) {
   const column = await Column.getByUuid(columnUuid)
-
-  if (!await column.canAccess(user)) {
-    throw new AuthenticationError('Operation not allowed on this resource')
-  }
-
   return column.update(values, tagNames)
 }

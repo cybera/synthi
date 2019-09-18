@@ -21,11 +21,8 @@ import onExit from 'signal-exit'
 
 import { execute, subscribe } from 'graphql'
 import { graphqlUploadExpress } from 'graphql-upload'
-import { makeExecutableSchema } from 'graphql-tools'
 
-import resolvers from './graphql/resolvers'
-import typeDefs from './graphql/typedefs'
-import schemaDirectives from './graphql/directives'
+import schema from './graphql/schema'
 
 import logger from './config/winston'
 // Even if the direct need for ModelFactory is removed from the startup, it's important
@@ -141,9 +138,7 @@ const main = async () => {
   })
 
   const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
-    schemaDirectives,
+    schema,
     context: ({ req }) => {
       if (req) {
         const { user } = req
@@ -212,7 +207,7 @@ const main = async () => {
 
   SubscriptionServer.create(
     {
-      schema: makeExecutableSchema({ typeDefs, resolvers }),
+      schema,
       execute,
       subscribe,
       onOperation: async (message, params) => {

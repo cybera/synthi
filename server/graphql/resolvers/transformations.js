@@ -2,7 +2,9 @@ import {
   createTransformationTemplate
 } from '../../domain/contexts/transformation'
 
-export default {
+import { isMember, isOwner } from '../rules'
+
+export const resolvers = {
   Transformation: {
     code: transformation => transformation.code(),
     virtual: transformation => (transformation.virtual ? transformation.virtual : false)
@@ -14,5 +16,14 @@ export default {
       code,
       owner
     }, { user }) => createTransformationTemplate(name, inputs, code, owner, user)
+  }
+}
+
+export const permissions = {
+  Transformation: {
+    '*': isOwner()
+  },
+  Mutation: {
+    createTransformationTemplate: isMember({ organizationRef: 'owner' })
   }
 }

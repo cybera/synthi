@@ -37,8 +37,6 @@ enum DatasetType {
   document
 }
 
-directive @authCanAccess on OBJECT | FIELD_DEFINITION
-
 type File {
   id: ID!
   path: String!
@@ -77,7 +75,7 @@ input DatasetMetadataInput {
   ${DatasetMetadata}
 }
 
-input OrganizationID {
+input OrganizationRef {
   id: Int
   uuid: String
   name: String
@@ -89,7 +87,7 @@ type DatasetStoragePaths {
   sample: String
 }
 
-type Dataset @authCanAccess {
+type Dataset {
   id: Int
   type: DatasetType!
   uuid: String!
@@ -107,7 +105,7 @@ type Dataset @authCanAccess {
   connections: String
 }
 
-type Transformation @authCanAccess {
+type Transformation {
   id: Int
   uuid: String!
   name: String
@@ -126,13 +124,13 @@ type Plot {
 }
 
 type Query {
-  dataset(uuid: String, name: String, searchString: String, org:OrganizationID): [Dataset]!
+  dataset(uuid: String, name: String, searchString: String, org:OrganizationRef): [Dataset]!
   plots(uuid: String): [Plot]
   uploads: [File]
   currentUser: User
 }
 
-type Organization @authCanAccess {
+type Organization {
   id: Int
   uuid: String!
   name: String!
@@ -144,7 +142,7 @@ type User {
   uuid: String!
   username: String!
   organizations: [Organization]
-  apikey: String @authCanAccess
+  apikey: String
 }
 
 input CSVImportOptions {
@@ -180,11 +178,11 @@ type Mutation {
   createPlot(jsondef:String!): Plot
   generateDataset(uuid: String!): Dataset
   toggleColumnVisibility(uuid: String!): Boolean
-  saveInputTransformation(uuid: String!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationID): Transformation
+  saveInputTransformation(uuid: String!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationRef): Transformation
   updateDatasetMetadata(uuid: String!, metadata:DatasetMetadataInput): DatasetMetadata
   regenerateAPIKey: User
   updateColumn(uuid:String!, values:ColumnInput, tagNames:[String]): Column
-  createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationID!): Transformation
+  createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationRef!): Transformation
 }
 
 type Subscription {

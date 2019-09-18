@@ -19,6 +19,10 @@ if [[ $action == 'start' ]]; then
     done
   '
   docker-compose exec -T python-worker /usr/src/app/create_user.py test password test-token
+  docker-compose exec -T python-worker /usr/src/app/create_user.py test2 password test-token2
+  docker-compose exec -T python-worker /usr/src/app/create_org.py shared-test-org
+  docker-compose exec -T python-worker /usr/src/app/add_user_to_org.py test shared-test-org
+  docker-compose exec -T python-worker /usr/src/app/add_user_to_org.py test2 shared-test-org
 elif [[ $action == 'stop' ]]; then
   docker-compose down -v
   docker-compose rm -v
