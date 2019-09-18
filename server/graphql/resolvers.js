@@ -4,24 +4,26 @@ import { AuthenticationError } from 'apollo-server-express'
 import hash from 'object-hash'
 import { Base } from '../domain/models'
 
-import * as dataset from './resolvers/dataset'
-import plotsResolvers from './resolvers/plots'
-import * as transformations from './resolvers/transformations'
-import * as datasetMetadata from './resolvers/datasetMetadata'
-import * as column from './resolvers/column'
-import generalResolvers from './resolvers/general'
-import * as user from './resolvers/user'
-import * as organization from './resolvers/organization'
+import {
+  dataset,
+  plot,
+  transformation,
+  datasetMetadata,
+  column,
+  general,
+  user,
+  organization
+} from './modules'
 
 export const resolvers = merge(
   user.resolvers,
   organization.resolvers,
-  generalResolvers,
+  general.resolvers,
   dataset.resolvers,
   column.resolvers,
   datasetMetadata.resolvers,
-  plotsResolvers,
-  transformations.resolvers
+  plot.resolvers,
+  transformation.resolvers
 )
 
 /*
@@ -59,7 +61,7 @@ const hashFunction = obj => hash(obj, { replacer, ignoreUnknown: true })
 
 export const permissions = shield(merge(
   dataset.permissions,
-  transformations.permissions,
+  transformation.permissions,
   column.permissions,
   datasetMetadata.permissions,
   user.permissions,

@@ -25,6 +25,7 @@
     "graphql": "^14.0.2",
     "graphql-middleware": "^4.0.1",
     "graphql-shield": "^6.1.0",
+    "graphql-tag": "^2.10.1",
     "graphql-tools": "^4.0.3",
     "graphql-upload": "^8.0.2",
     "lodash": "^4.17.11",
