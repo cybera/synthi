@@ -1,4 +1,5 @@
 import { allow } from 'graphql-shield'
+import gql from 'graphql-tag'
 
 import { isCurrentUser } from '../rules'
 
@@ -34,3 +35,25 @@ export const permissions = {
     apikey: isCurrentUser
   }
 }
+
+export const typeDefs = gql`
+  type User {
+    id: Int
+    uuid: String!
+    username: String!
+    organizations: [Organization]
+    apikey: String
+  }
+
+  extend type Query {
+    currentUser: User
+  }
+
+  extend type Mutation {
+    regenerateAPIKey: User
+  }
+
+  extend type Organization {
+    members: [User]
+  }
+`

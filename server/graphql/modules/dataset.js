@@ -1,7 +1,7 @@
 import { or, and, allow, deny } from 'graphql-shield'
+import gql from 'graphql-tag'
 
 import { pubsub, withFilter } from '../pubsub'
-
 import { isOwner, isMember } from '../rules'
 
 import {
@@ -69,3 +69,59 @@ export const permissions = {
     saveInputTransformation: isOwner()
   }
 }
+
+export const typeDefs = gql`
+  enum DatasetType {
+    csv
+    document
+  }
+
+  enum DatasetFormat {
+    csv
+  }
+
+  input CSVImportOptions {
+    header: Boolean,
+    delimiter: String,
+    customDelimiter: String
+  }
+
+  type DatasetStoragePaths {
+    original: String,
+    imported: String,
+    sample: String
+  }
+
+  input DatasetRef {
+    name: String,
+    uuid: String,
+    id: Int
+  }
+
+  type Dataset {
+    id: Int
+    type: DatasetType!
+    uuid: String!
+    name: String!
+    samples: [String]
+    rows: [String]
+    path: String @deprecated
+    paths: DatasetStoragePaths
+    computed: Boolean
+    generating: Boolean
+    connections: String
+  }
+
+  extend type Query {
+    dataset(uuid: String, name: String, searchString: String, org:OrganizationRef): [Dataset]!
+  }
+
+  extend type Mutation {
+    createDataset(name: String, owner: String, type: DatasetType = csv): Dataset
+    deleteDataset(uuid: String!): Boolean
+    importCSV(uuid: String!, removeExisting: Boolean = false, options: CSVImportOptions): Dataset
+    uploadDataset(name: String!, file:Upload!): Dataset
+    updateDataset(uuid: String!, file:Upload, computed:Boolean, name:String, generating:Boolean): Dataset
+    generateDataset(uuid: String!): Dataset
+  }
+`

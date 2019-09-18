@@ -1,7 +1,8 @@
 import { GraphQLScalarType } from 'graphql'
 import { Kind } from 'graphql/language'
+import gql from 'graphql-tag'
 
-export default {
+export const resolvers = {
   // From: https://www.apollographql.com/docs/graphql-tools/scalars.html
   Date: new GraphQLScalarType({
     name: 'Date',
@@ -24,3 +25,55 @@ export default {
     }
   })
 }
+
+// PATCH: Handle and reject parsing errors
+// 'scalar Upload' can be removed once the following pull request is accepted:
+// https://github.com/apollographql/apollo-upload-server/pull/2
+export const typeDefs = gql`
+  scalar Date
+  scalar Upload
+
+  enum FrequencyUnit {
+    days
+    weeks
+    months
+  }
+
+  type File {
+    id: ID!
+    path: String!
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
+  type Tag {
+    uuid: String!
+    name: String!
+    system: Boolean
+  }
+
+  type Query {
+    uploads: [File]
+  }
+
+  type Mutation {
+    uploadFile(file: Upload!): File!
+  }
+
+  type DatasetMessage {
+    uuid: String!
+    status: String!
+    message: String!
+  }
+
+  type Subscription {
+    datasetGenerated(uuid: String!): DatasetMessage
+  }
+
+  schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+  }
+`
