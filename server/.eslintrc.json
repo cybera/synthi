@@ -15,17 +15,26 @@
   "env": {
     "jest": true
   },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  },
   "rules": {
+    "no-undef": "off",
+    "max-len": "off",
     "comma-dangle": "off",
     "semi": "off",
     "no-underscore-dangle": "off",
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "no-cond-assign": [2, "except-parens"],
     "no-else-return": ["error", { "allowElseIf": true }],
-    "@typescript-eslint/member-delimiter-style": {
+    "lines-between-class-members": "off",
+    "@typescript-eslint/member-delimiter-style": ["error", {
       "multiline": {
         "delimiter": "none"
       }
-    }
+    }]
   }
 }
