@@ -28,6 +28,8 @@ class Organization extends Base {
     let { name } = initialProperties
     if (!name) {
       name = await this.uniqueDefaultDatasetName()
+    } else if (await this.datasetByName(name)) {
+      throw new Error('Dataset names must be unique within an organization')
     }
 
     const datasetProperties = {
