@@ -1,0 +1,3 @@
+[submodule "test/integration/pkg/python-adi"]
+	path = test/integration/pkg/python-adi
+	url = git@github.com:cybera/python-adi.git
