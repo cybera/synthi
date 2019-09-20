@@ -4,7 +4,6 @@ import { safeQuery, Indexable } from '../../neo4j/connection'
 import logger from '../../config/winston'
 import * as ModelFactory from './modelFactory'
 
-export type ModelPromise<T extends typeof Base> = Promise<InstanceType<T>|null>
 
 class Base {
   static readonly ModelFactory = ModelFactory
@@ -43,7 +42,7 @@ class Base {
   }
 
   static async get<T extends typeof Base>(this: T, id: string|number): ModelPromise<T> {
-    const safeId = typeof id === "string" ? parseInt(id, 10) : id
+    const safeId = typeof id === 'string' ? parseInt(id, 10) : id
 
     const query = `
       MATCH (node:${this.label})
@@ -126,15 +125,17 @@ class Base {
     return []
   }
 
-  /* eslint-disable class-methods-use-this, no-unused-vars */
-  async canAccess(user: any) {
+  /* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars,
+   @typescript-eslint/require-await, @typescript-eslint/no-explicit-any */
+  async canAccess(user: any): Promise<boolean> {
     logger.warn('This should be implemented in a subclass')
     return true
   }
-  /* eslint-enable class-methods-use-this, no-unused-vars */
+  /* eslint-enable class-methods-use-this, @typescript-eslint/no-unused-vars,
+   @typescript-eslint/require-await, @typescript-eslint/no-explicit-any */
 
 
-  update(bulkProperties: Indexable) {
+  update(bulkProperties: Indexable): void {
     Object.assign(this, bulkProperties)
   }
 
@@ -147,12 +148,12 @@ class Base {
   //
   // The default implementation simply returns { proceed: true }
   /* eslint-disable class-methods-use-this */
-  beforeSave() {
-    return { proceed: true, message: "" }
+  beforeSave(): { proceed: boolean; message: string } {
+    return { proceed: true, message: '' }
   }
   /* eslint-enable class-methods-use-this */
 
-  async save() {
+  async save(): Promise<void> {
     const preSave = this.beforeSave()
     if (!preSave.proceed) throw new Error(preSave.message)
 
@@ -191,11 +192,11 @@ class Base {
   // This can return a simple object/hash, as long as it has the same keys.
   // Subclass should call the superclass method first to get the subset of
   // properties that are valid to save.
-  valuesForNeo4J() {
+  valuesForNeo4J(): Indexable {
     return lodash.pick(this, this.class().saveProperties)
   }
 
-  async delete() {
+  async delete(): Promise<void> {
     const query = `
       MATCH (node:${this.label()} { uuid: $node.uuid })
       DETACH DELETE node`
@@ -203,7 +204,7 @@ class Base {
     await safeQuery(query, params)
   }
 
-  async refresh() {
+  async refresh(): Promise<this> {
     const result = await safeQuery('MATCH (node { uuid: $node.uuid }) RETURN node', { node: this })
     Object.assign(this, result[0].node.properties)
     return this
@@ -218,4 +219,5 @@ class Base {
   }
 }
 
+export type ModelPromise<T extends typeof Base> = Promise<InstanceType<T>|null>
 export default Base

@@ -1,6 +1,6 @@
 import { containsProperties } from '../../lib/util'
 import { safeQuery, Indexable } from '../../neo4j/connection'
-import Base, { ModelPromise } from "./base"
+import Base, { ModelPromise } from './base'
 
 interface LabelRegistry {
   [key: string]: {
