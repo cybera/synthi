@@ -4,8 +4,7 @@ import pytest
 
 os.environ['ADI_API_HOST'] = 'http://server:3000'
 
-from adi import Connection
-from adi.common import APIError
+from adi import Connection, APIError
 
 # Basic test user connection
 adi = Connection(api_key='test-token')
