@@ -70,7 +70,7 @@ pipeline {
       }
     }
 
-    stage('Update deps') {
+    stage('Update test deps') {
       steps {
         sh 'bin/update-test-deps'
       }
