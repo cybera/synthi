@@ -30,6 +30,10 @@ def clean_environment():
         adi.dataset.delete(d['uuid'])
     for d in adi_test1_shared_org.dataset.list():
         adi_test1_shared_org.dataset.delete(d['uuid'])
+    for t in adi.transformation.list():
+        adi.transformation.delete(t['uuid'])
+    for t in adi_test1_shared_org.transformation.list():
+        adi_test1_shared_org.transformation.delete(t['uuid'])
 
 def test_basic_upload_and_compute():
     adi.dataset.upload('simple_data', 'data/simple_data.csv')
