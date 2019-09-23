@@ -70,6 +70,14 @@ pipeline {
       }
     }
 
+    stage('Build test container') {
+      steps {
+        dir("test") {
+          sh 'docker-compose build'
+        }
+      }
+    }
+
     stage('Update test deps') {
       steps {
         sh 'bin/update-test-deps'
