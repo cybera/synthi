@@ -16,10 +16,16 @@ class Organization extends Base {
     return this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
   }
 
-  datasetByName(name) {
+  async datasetByName(name) {
     const Dataset = Base.ModelFactory.getClass('Dataset')
 
     return this.relatedOne('-[:OWNER]->', 'Dataset', { name })
+  }
+
+  async transformationTemplateByName(name) {
+    const Transformation = Base.ModelFactory.getClass('Transformation')
+
+    return this.relatedOne('-[:OWNER]->', 'Transformation', { name })
   }
 
   async createDataset(initialProperties = {}) {
@@ -28,6 +34,8 @@ class Organization extends Base {
     let { name } = initialProperties
     if (!name) {
       name = await this.uniqueDefaultDatasetName()
+    } else if (await this.datasetByName(name)) {
+      throw new Error('Dataset names must be unique within an organization')
     }
 
     const datasetProperties = {
@@ -91,14 +99,18 @@ class Organization extends Base {
     return results.length === 1
   }
 
-  async canCreateTransformations(user) {
+  async canCreateTransformationTemplates(user) {
     // Right now, if a user can create datasets for an organization, they can create
     // standalone transformations for it too.
     return this.canCreateDatasets(user)
   }
 
-  async createTransformation(name, inputs, code) {
+  async createTransformationTemplate(name, inputs, code) {
     const Transformation = Base.ModelFactory.getClass('Transformation')
+
+    if (await this.transformationTemplateByName(name)) {
+      throw new Error('Reusable transformation names must be unique within an organization')
+    }
 
     const transformation = await Transformation.create({
       name,
