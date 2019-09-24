@@ -73,6 +73,7 @@ services:
     image: cybera/adi-test-runner:latest
     volumes:
       - ./integration:/usr/src/app
+      - ./integration/pkg:/usr/src/pkg
 
 volumes:
   neo4j_data:

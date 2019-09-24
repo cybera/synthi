@@ -99,6 +99,10 @@ class Organization extends Base {
     return results.length === 1
   }
 
+  async transformations() {
+    return this.relatedMany('-[:OWNER]->', 'Transformation')
+  }
+
   async canCreateTransformationTemplates(user) {
     // Right now, if a user can create datasets for an organization, they can create
     // standalone transformations for it too.
