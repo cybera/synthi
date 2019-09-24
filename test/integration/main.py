@@ -85,27 +85,15 @@ def test_upload_to_shared_organization():
     assert('simple_data-shared' in names)
 
     access_error = None
-    try:
-        df1 = client_test1_shared_org.dataset.get('simple_data-shared')
-        df2 = client_test2_shared_org.dataset.get('simple_data-shared')
-    except ValueError as e:
-        if e.args[0].startswith('Dataset not found'):
-            access_error = e
-        else:
-            raise e
-    
-    assert(not access_error)
+
+    df1 = client_test1_shared_org.dataset.get('simple_data-shared')
+    df2 = client_test2_shared_org.dataset.get('simple_data-shared')
 
 def test_incorrect_dataset_access():
     client_test1.dataset.upload('simple_data-test', 'data/simple_data.csv')
     
-    api_error = None
-    try:
+    with pytest.raises(APIError):
         client_test2_bad_org.dataset.get('simple_data-test')
-    except APIError as e:
-        api_error = e
-
-    assert(api_error)
 
 def test_define_and_use_transformation_in_shared_organization():
     # Dataset needed for input
@@ -120,77 +108,42 @@ def test_define_and_use_transformation_in_shared_organization():
     assert(result['name'] == 'SharedSimpleMeans')
 
     # Can apply a reusable transformation in a shared organization
-    api_error = None
-    try:
-        client_test1_shared_org.dataset.define(
-            'simple_data-means-shared-1',
-            template = 'SharedSimpleMeans',
-            inputs = {
-                'simple_data': 'simple_data-shared'
-            }
-        )
-    except APIError as e:
-        api_error = e
-
-    assert(not api_error)
+    client_test1_shared_org.dataset.define(
+        'simple_data-means-shared-1',
+        template = 'SharedSimpleMeans',
+        inputs = {
+            'simple_data': 'simple_data-shared'
+        }
+    )
 
     # Can apply a reusable transformation created by another user in a shared organization
-    api_error = None
-    try:
-        client_test2_shared_org.dataset.define(
-            'simple_data-means-shared-2',
-            template = 'SharedSimpleMeans',
-            inputs = {
-                'simple_data': 'simple_data-shared'
-            }
-        )
-    except APIError as e:
-        api_error = e
-
-    assert(not api_error)
+    client_test2_shared_org.dataset.define(
+        'simple_data-means-shared-2',
+        template = 'SharedSimpleMeans',
+        inputs = {
+            'simple_data': 'simple_data-shared'
+        }
+    )
 
     # Can access a computed dataset defined by another in the same organization
-    api_error = None
-    try:
-        client_test2_shared_org.dataset.get("simple_data-means-shared-1")
-    except APIError as e:
-        api_error = e
-
-    assert(not api_error)
+    client_test2_shared_org.dataset.get("simple_data-means-shared-1")
 
 def test_incorrect_reusable_transformation_definition():
     # User can't define reusable transformations on organizations they don't belong to
-    api_error = None
-    try:
+    with pytest.raises(APIError):
         result = client_test2_bad_org.transformation.define(
             'SharedSimpleMeans2',
             'data/simple_means.py',
             inputs=['simple_data']
         )
-    except APIError as e:
-        api_error = e
-
-    assert(api_error)
 
 def test_incorrect_property_access_on_dataset():
     result = client_test1.dataset.upload('more_simple_data', 'data/simple_data.csv')
     uuid = result['uuid']
 
     # User with access can see metadata
-    api_error = None
-    try:
-        client_test1.dataset.meta('more_simple_data')
-        client_test1.dataset.meta(uuid)
-    except APIError as e:
-        api_error = e
+    client_test1.dataset.meta('more_simple_data')
+    client_test1.dataset.meta(uuid)
 
-    assert(not api_error)
-
-    # Can't read other data from a dataset user doesn't have access to
-    api_error = None
-    try:
+    with pytest.raises(APIError):
         client_test2.dataset.meta(uuid)
-    except APIError as e:
-        api_error = e
-
-    assert(api_error)
