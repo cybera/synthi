@@ -7,7 +7,8 @@ import json
 import pika
 
 from common import worker
-from utils import status_channel
+from utils import get_status_channel
+status_channel = get_status_channel()
 
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
 
