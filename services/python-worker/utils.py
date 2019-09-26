@@ -19,8 +19,10 @@ def get_status_channel(queue_conn = None):
   else:
     return get_queue_conn().channel()
 
-neo4j_uri = f"{config.neo4j.protocol}://{config.neo4j.host}:{config.neo4j.port}"
-neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=(config.neo4j.username,config.neo4j.password))
+def get_neo4j_driver():
+  neo4j_uri = f"{config.neo4j.protocol}://{config.neo4j.host}:{config.neo4j.port}"
+  neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=(config.neo4j.username,config.neo4j.password))
+  return neo4j_driver
 
 def load_transform(script_path, dataset_input, dataset_output):
   transform_mod = storage.read_script_module(script_path)

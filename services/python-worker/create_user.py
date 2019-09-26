@@ -3,7 +3,8 @@
 import sys, getpass
 import bcrypt
 
-from utils import neo4j_driver
+from utils import get_neo4j_driver
+neo4j_driver = get_neo4j_driver()
 
 if len(sys.argv) <= 1:
   print("Usage: create-user USERNAME")
