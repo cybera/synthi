@@ -48,14 +48,14 @@ class UploadFile extends React.Component {
 
     /**
      * Datasets have an implicit lifecycle. After the file has been uploaded,
-     * the python-worker will process the columns. However, the mutation that
-     * this component is using doesn't know about the python-worker part. It
+     * some additional processing will still need to be done. However, the mutation that
+     * this component is using doesn't know about that extra processing. It
      * just thinks "Alright, this upload has finished, my job here is done",
      * but the UI doesn't update because the dataset's columns are still empty.
      *
      * So, we know that the UI will _not_ update until the columns are finished
      * processing and we know that the mutation only cares about the state of
-     * the upload. Therefore, we can safely assume that if the loading state
+     * the upload. Therefore, we're assuming for now that if the loading state
      * of the Mutation has gone from `true` to `false`, the dataset has
      * finished uploading and is now being processed.
      *
