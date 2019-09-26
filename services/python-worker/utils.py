@@ -8,9 +8,16 @@ import pika
 import common.storage as storage
 import common.config as config
 
-queue_conn = pika.BlockingConnection(pika.ConnectionParameters(host='queue'))
-status_channel = queue_conn.channel()
-status_channel.exchange_declare(exchange='task-status', exchange_type='fanout')
+def get_queue_conn():
+  queue_conn = pika.BlockingConnection(pika.ConnectionParameters(host='queue'))
+  queue_conn.channel().exchange_declare(exchange='task-status', exchange_type='fanout')
+  return queue_conn
+
+def get_status_channel(queue_conn = None):
+  if queue_conn:
+    return  queue_conn.channel()
+  else:
+    return get_queue_conn().channel()
 
 neo4j_uri = f"{config.neo4j.protocol}://{config.neo4j.host}:{config.neo4j.port}"
 neo4j_driver = GraphDatabase.driver(neo4j_uri, auth=(config.neo4j.username,config.neo4j.password))
