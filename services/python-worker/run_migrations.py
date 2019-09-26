@@ -4,7 +4,8 @@ import glob
 import os
 import importlib.util
 
-from utils import neo4j_driver
+from utils import get_neo4j_driver
+neo4j_driver = get_neo4j_driver()
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 MIGRATIONS_DIR = os.path.join(SCRIPT_DIR, "migrations")
