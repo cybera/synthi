@@ -11,7 +11,8 @@ CMD [ "/wait-for-it.sh", "-t", "60", "queue:5672", "--", "./main.py"]
 
 FROM base as python-worker
 RUN pip install neo4j-driver \
-                bcrypt
+                bcrypt \
+                file-magic
 ADD python-worker ./
 ADD common ./common
 
