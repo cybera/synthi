@@ -46,16 +46,13 @@ def write_raw(data, relative_path):
                                data=data)
 
 def read_csv(relative_path, params=dict()):
-  container = config.storage.object.containers['datasets']
-  obj = object_store().download_object(relative_path, container)
+  obj = read_raw(relative_path)
   bio = BytesIO(obj)
   return pd.read_csv(bio, **params)
 
 def write_csv(df, relative_path):
-  container = config.storage.object.containers['datasets']
-  object_store().upload_object(container=container,
-                               name=relative_path,
-                               data=df.to_csv(index=False).encode('utf-8'))
+  data = df.to_csv(index=False).encode('utf-8')
+  write_raw(data, relative_path)
 
 def read_script_module(relative_path):
   container = config.storage.object.containers['scripts']
