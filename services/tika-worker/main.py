@@ -23,7 +23,10 @@ def callback(ch, method, properties, body):
   try:
     document = storage.read_raw(params['paths']['original'])
     p = run(["java", "-jar", "/tika-app.jar", "--config=tika-config.xml", "-t", "-"], stdout=PIPE, input=document)
-    storage.write_raw(p.stdout, params['paths']['imported'])
+    output = p.stdout
+    if type(output) is str:
+      output = output.encode('utf-8')
+    storage.write_raw(output, params['paths']['imported'])
   except Exception as e:
     body['status'] = "error"
     body['message'] = str(e)

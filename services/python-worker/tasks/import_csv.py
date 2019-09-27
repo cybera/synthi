@@ -25,7 +25,7 @@ def import_csv(params):
   # If there is no information about column names supplied in a header,
   # make sure to supply generated string column names
   csv_parse_params = data_import.csv_params(params)
-  df = storage.read_csv(params['paths']['original'], params=csv_parse_params)
+  df = storage.read_csv(params['paths']['original'], params=csv_parse_params, detectEncoding=True)
   data_import.ensure_column_names(df)
 
   # Write out normalized versions of the CSV file. These will have header
