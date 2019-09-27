@@ -12,7 +12,7 @@ status_channel = get_status_channel()
 
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
 
-def callback(ch, method, properties, body):
+#def callback(ch, method, properties, body):
   msg = body.decode('utf8')
   print(f"Received: {msg}")
   sys.stdout.flush()
