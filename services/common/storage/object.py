@@ -4,6 +4,7 @@ from importlib.util import spec_from_file_location, module_from_spec
 from tempfile import NamedTemporaryFile
 
 import pandas as pd
+import magic
 
 import openstack
 import config
@@ -45,9 +46,18 @@ def write_raw(data, relative_path):
                                name=relative_path,
                                data=data)
 
-def read_csv(relative_path, params=dict()):
+def read_csv(relative_path, params=dict(), detectEncoding=False):
   obj = read_raw(relative_path)
   bio = BytesIO(obj)
+
+  encoding = None
+  if detectEncoding:
+    with magic.Magic(flags=magic.MAGIC_MIME_ENCODING) as m:
+      # guess the encoding from up to the first 5MB of the file
+      encoding = m.id_buffer(obj[0:1024*1024*5])
+
+  params = { 'encoding': encoding, **params }
+
   return pd.read_csv(bio, **params)
 
 def write_csv(df, relative_path):
