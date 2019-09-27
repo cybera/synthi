@@ -8,7 +8,7 @@ import pika
 
 from common import worker
 from utils import get_status_channel
-status_channel = None
+status_channel = get_status_channel()
 
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -35,8 +35,6 @@ def callback(ch, method, properties, body):
     run([process_path, json.dumps(params)], check=True)
   except (OSError, CalledProcessError) as err:
     body["message"] = "An unknown error occurred, please try again later."
-    if not status_channel:
-      status_channel = get_status_channel()
     status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
 
   sys.stdout.flush()
