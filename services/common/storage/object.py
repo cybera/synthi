@@ -4,10 +4,12 @@ from importlib.util import spec_from_file_location, module_from_spec
 from tempfile import NamedTemporaryFile
 
 import pandas as pd
-import magic
+from magic import Magic
 
 import openstack
 import config
+
+magic = Magic(mime_encoding=True)
 
 conn = None
 
@@ -52,9 +54,8 @@ def read_csv(relative_path, params=dict(), detectEncoding=False):
 
   encoding = None
   if detectEncoding:
-    with magic.Magic(flags=magic.MAGIC_MIME_ENCODING) as m:
-      # guess the encoding from up to the first 5MB of the file
-      encoding = m.id_buffer(obj[0:1024*1024*5])
+    # guess the encoding from up to the first 10MB of the file
+    encoding = magic.from_buffer(obj[0:1024*1024*10])
 
   params = { 'encoding': encoding, **params }
 

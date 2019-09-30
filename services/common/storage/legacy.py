@@ -4,7 +4,9 @@ import os
 import config
 
 import pandas as pd
-import magic
+from magic import Magic
+
+magic = Magic(mime_encoding=True)
 
 DATA_ROOT = config.storage.legacy.dataRoot
 
@@ -31,8 +33,7 @@ def read_csv(relative_path, params=dict(), detectEncoding=False):
 
   encoding = None
   if detectEncoding:
-    with magic.Magic(flags=magic.MAGIC_MIME_ENCODING) as m:
-      encoding = m.id_filename(abs_path)
+    encoding = magic.from_file(abs_path)
 
   params = { 'encoding': encoding, **params }
 

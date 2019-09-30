@@ -12,13 +12,13 @@ CMD [ "/wait-for-it.sh", "-t", "60", "queue:5672", "--", "./main.py"]
 FROM base as python-worker
 RUN pip install neo4j-driver \
                 bcrypt \
-                file-magic
+                python-magic
 ADD python-worker ./
 ADD common ./common
 
 FROM base as tika-worker
 RUN apt-get install default-jre tesseract-ocr -y
-RUN pip install file-magic
+RUN pip install python-magic
 RUN wget https://www-eu.apache.org/dist/tika/tika-app-1.22.jar -O /tika-app.jar
 ADD tika-worker ./
 ADD common ./common
