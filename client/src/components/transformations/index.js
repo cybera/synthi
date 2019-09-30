@@ -1,5 +1,3 @@
-import React from 'react'
+import TransformationList from './TransformationList'
 
-const Transformations = () => <div>Transformations</div>
-
-export default Transformations
+export default TransformationList
