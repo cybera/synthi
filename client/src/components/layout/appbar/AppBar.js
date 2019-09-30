@@ -9,12 +9,12 @@ import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import CssBaseline from '@material-ui/core/CssBaseline'
 
-import { ADIButton } from '../buttons'
 import OrgSelector from './OrgSelector'
 import { withNavigation } from '../../../contexts/NavigationContext'
 import { compose } from '../../../lib/common'
 import ADILogo from '../../../images/ckan-logo.png'
 import UserMenu from './UserMenu'
+import NavButton from './NavButton'
 import { Sidebar } from '../sidebar'
 
 const drawerWidth = 300
@@ -113,20 +113,8 @@ class ButtonAppBar extends React.Component {
             </IconButton>
             <img alt="" src={ADILogo} />
             <span className={classes.spacer} />
-            <ADIButton
-              variant={navigation.currentMode === 'datasets' ? 'contained' : 'outlined'}
-              className={classes.menuButton}
-              onClick={() => navigation.switchMode('datasets')}
-            >
-              Datasets
-            </ADIButton>
-            <ADIButton
-              variant={navigation.currentMode === 'scenarios' ? 'contained' : 'outlined'}
-              className={classes.menuButton}
-              onClick={() => navigation.switchMode('scenarios')}
-            >
-              Scenarios
-            </ADIButton>
+            <NavButton label="Datasets" mode="datasets" />
+            <NavButton label="Scenarios" mode="scenarios" />
             <span className={classes.flex} />
             <OrgSelector />
             <UserMenu />
