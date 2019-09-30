@@ -16,6 +16,7 @@ import { getMainDefinition } from 'apollo-utilities';
 
 import { DatasetDetails } from './components/dataset/layout'
 import { Scenarios } from './components/scenarios'
+import Transformations from './components/transformations'
 import { Login } from './components/auth'
 import { Notifier } from './components/layout'
 import { AppBar } from './components/layout/appbar'
@@ -104,6 +105,7 @@ function MainComponent(props) {
 
   if (mode === 'datasets' || mode === 'chart-editor') return <DatasetDetails uuid={dataset} />
   if (mode === 'scenarios') return <Scenarios />
+  if (mode === 'transformations') return <Transformations />
 
   return <div>Empty</div>
 }

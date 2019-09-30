@@ -114,6 +114,7 @@ class ButtonAppBar extends React.Component {
             <img alt="" src={ADILogo} />
             <span className={classes.spacer} />
             <NavButton label="Datasets" mode="datasets" />
+            <NavButton label="Transformations" mode="transformations" />
             <NavButton label="Scenarios" mode="scenarios" />
             <span className={classes.flex} />
             <OrgSelector />
