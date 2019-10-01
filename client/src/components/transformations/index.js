@@ -1,3 +1,7 @@
 import TransformationList from './TransformationList'
+import FilterPanel from './FilterPanel'
 
-export default TransformationList
+export {
+  TransformationList as TransformationMain,
+  FilterPanel as TransformationSidebar
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types'
 import { hot } from 'react-hot-loader'
 
 import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
@@ -16,11 +17,13 @@ import { getMainDefinition } from 'apollo-utilities';
 
 import { DatasetDetails } from './components/dataset/layout'
 import { Scenarios } from './components/scenarios'
-import Transformations from './components/transformations'
+import { TransformationMain, TransformationSidebar } from './components/transformations'
 import { Login } from './components/auth'
 import { Notifier } from './components/layout'
 import { AppBar } from './components/layout/appbar'
 import NavigationContext from './contexts/NavigationContext'
+import { DatasetSidebar } from './components/dataset'
+
 
 let uri
 
@@ -105,7 +108,7 @@ function MainComponent(props) {
 
   if (mode === 'datasets' || mode === 'chart-editor') return <DatasetDetails uuid={dataset} />
   if (mode === 'scenarios') return <Scenarios />
-  if (mode === 'transformations') return <Transformations />
+  if (mode === 'transformations') return <TransformationMain />
 
   return <div>Empty</div>
 }
@@ -115,6 +118,19 @@ const StyledMainComponent = withStyles(styles)(props => (
     <MainComponent {...props} />
   </div>
 ))
+
+const SidebarComponent = (props) => {
+  const { mode } = props
+
+  if (mode === 'datasets') return <div><DatasetSidebar /></div>
+  if (mode === 'transformations') return <TransformationSidebar />
+
+  return <div />
+}
+
+SidebarComponent.propTypes = {
+  mode: PropTypes.string.isRequired
+}
 
 const StyledCircularProgress = withStyles(styles)((props) => {
   const { classes } = props;
@@ -191,13 +207,15 @@ class App extends React.Component {
         <StyledCircularProgress />
       )
     } else if (user) {
+      const leftComponent = (<SidebarComponent mode={currentMode} />)
+      const rightComponent = (<StyledMainComponent mode={currentMode} dataset={currentDataset} />)
+
       mainComponent = (
-        <AppBar>
-          <StyledMainComponent
-            mode={currentMode}
-            dataset={currentDataset}
-          />
-        </AppBar>
+        <AppBar
+          leftContent={leftComponent}
+          rightContent={rightComponent}
+          key={currentMode}
+        />
       )
     } else {
       mainComponent = <Login />

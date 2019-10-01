@@ -92,7 +92,11 @@ class ButtonAppBar extends React.Component {
   }
 
   render() {
-    const { classes, navigation, children } = this.props;
+    const {
+      classes,
+      leftContent,
+      rightContent
+    } = this.props;
     const { open } = this.state;
 
     return (
@@ -124,13 +128,14 @@ class ButtonAppBar extends React.Component {
         <Sidebar
           open={open}
           handleSidebarToggle={this.toggleDrawer}
+          content={leftContent}
         />
         <main
           className={classNames(classes.content, {
             [classes.contentShift]: open
           })}
         >
-          {children}
+          {rightContent}
         </main>
       </div>
     );
@@ -140,7 +145,8 @@ class ButtonAppBar extends React.Component {
 ButtonAppBar.propTypes = {
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
   navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired,
-  children: PropTypes.node.isRequired
+  leftContent: PropTypes.node.isRequired,
+  rightContent: PropTypes.node.isRequired
 }
 
 export default compose(

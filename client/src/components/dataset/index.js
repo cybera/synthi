@@ -4,6 +4,7 @@ import DatasetEditor from './editor'
 import DatasetList from './list'
 import DatasetMetadata from './metadata'
 import DatasetTransformation from './transformation'
+import Sidebar from './Sidebar'
 
 export {
   DatasetConnections,
@@ -11,5 +12,6 @@ export {
   DatasetEditor,
   DatasetList,
   DatasetMetadata,
-  DatasetTransformation
+  DatasetTransformation,
+  Sidebar as DatasetSidebar
 }
