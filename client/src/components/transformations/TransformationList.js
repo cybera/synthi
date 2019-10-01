@@ -10,6 +10,7 @@ const GET_TRANSFORMATIONS = gql`
     transformations(org: $org) {
       name
       uuid
+      published
     }
   }
 `
@@ -26,7 +27,7 @@ const TransformationList = () => {
   return (
     <div>
       {data.transformations.map((transformation) => (
-        <TransformationDetail transformation={transformation} />
+        <TransformationDetail transformation={transformation} key={transformation.uuid} />
       ))}
     </div>
   )

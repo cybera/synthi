@@ -1,52 +1,85 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+
+import gql from 'graphql-tag'
+import { useMutation } from 'react-apollo'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 
-const useStyles = makeStyles({
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Switch from '@material-ui/core/Switch'
+
+const useStyles = makeStyles((theme) => ({
   card: {
     minWidth: 275,
     marginTop: 10,
     marginBottom: 10,
     marginLeft: 20,
     marginRight: 20,
+    display: 'flex',
   },
-  bullet: {
-    display: 'inline-block',
-    margin: '0 2px',
-    transform: 'scale(0.8)',
+  details: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  operations: {
+    width: 200,
+    marginLeft: 'auto',
   },
   title: {
     fontSize: 18,
   },
-  pos: {
-    marginBottom: 12,
-  },
-})
+}))
+
+const PUBLISH_TRANSFORMATION = gql`
+  mutation TransformationSetPublished($uuid: String!, $published: Boolean) {
+    setPublished(uuid: $uuid, published: $published) {
+      uuid
+      name
+      published
+    }
+  }
+`
 
 const TransformationDetail = ({ transformation }) => {
   const classes = useStyles()
+  const [setPublished] = useMutation(PUBLISH_TRANSFORMATION)
+  const { uuid, name, published } = transformation
 
   return (
     <Card className={classes.card}>
-      <CardContent>
+      <CardContent className={classes.details}>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
           { transformation.name }
         </Typography>
         <Typography variant="body2" component="p">
           Some details about the
           { ' ' }
-          { transformation.name }
+          { name }
           { ' ' }
           transformation.
           <br />
           <b>UUID:</b>
           { ' ' }
-          { transformation.uuid }
+          { uuid }
           ).
         </Typography>
+      </CardContent>
+      <CardContent className={classes.operations}>
+        <FormControlLabel
+          control={(
+            <Switch
+              checked={published}
+              onChange={() => setPublished({ variables: { uuid, published: !published } })}
+              value={published}
+              color="primary"
+            />
+          )}
+          label="Publish"
+        />
       </CardContent>
     </Card>
   )
