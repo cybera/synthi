@@ -26,9 +26,19 @@ export async function deleteTransformation(uuid) {
   return true
 }
 
-export async function transformations(orgRef) {
+export async function transformations(orgRef, filter) {
   const org = await findOrganization(orgRef)
-  return org.transformations()
+  const transformations = await org.transformations()
+
+  let filteredTransformations = transformations
+
+  if (filter) {
+    if (filter.publishedOnly) {
+      filteredTransformations = transformations.filter(transformation => transformation.published)
+    }
+  }
+
+  return filteredTransformations
 }
 
 export async function transformation(uuid, name, orgRef) {

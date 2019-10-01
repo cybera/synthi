@@ -17,7 +17,7 @@ export const resolvers = {
     virtual: transformation => (transformation.virtual ? transformation.virtual : false)
   },
   Query: {
-    transformations: (_, { org }) => transformations(org),
+    transformations: (_, { org, filter }) => transformations(org, filter),
     transformation: (_, { uuid, name, org }) => transformation(uuid, name, org),
   },
   Mutation: {
@@ -72,12 +72,16 @@ export const typeDefs = gql`
     published: Boolean
   }
 
+  input TransformationFilter {
+    publishedOnly: Boolean
+  }
+
   extend type Dataset {
     inputTransformation: Transformation
   }
 
   extend type Query {
-    transformations(org: OrganizationRef!): [Transformation]
+    transformations(org: OrganizationRef!, filter: TransformationFilter): [Transformation]
     transformation(uuid: String, name: String, org: OrganizationRef): Transformation
   }
 
