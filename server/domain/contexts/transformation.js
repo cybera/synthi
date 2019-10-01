@@ -43,3 +43,10 @@ export async function transformation(uuid, name, orgRef) {
 
   return null
 }
+
+export async function setPublished(uuid, published) {
+  const transformation = await ModelFactory.getByUuid(uuid)
+  transformation.published = published
+  await transformation.save()
+  return transformation
+}

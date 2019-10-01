@@ -5,7 +5,8 @@ import {
   createTransformationTemplate,
   deleteTransformation,
   transformations,
-  transformation
+  transformation,
+  setPublished
 } from '../../domain/contexts/transformation'
 
 import { isMember, isOwner } from '../rules'
@@ -27,6 +28,7 @@ export const resolvers = {
       owner
     }, { user }) => createTransformationTemplate(name, inputs, code, owner, user),
     deleteTransformation: (_, { uuid }) => deleteTransformation(uuid),
+    setPublished: (_, { uuid, published }) => setPublished(uuid, published)
   }
 }
 
@@ -40,7 +42,8 @@ export const permissions = {
   },
   Mutation: {
     createTransformationTemplate: isMember({ organizationRef: 'owner' }),
-    deleteTransformation: isOwner()
+    deleteTransformation: isOwner(),
+    setPublished: isOwner(),
   }
 }
 
@@ -66,6 +69,7 @@ export const typeDefs = gql`
     code: String
     error: String
     virtual: Boolean
+    published: Boolean
   }
 
   extend type Dataset {
@@ -81,5 +85,6 @@ export const typeDefs = gql`
     saveInputTransformation(uuid: String!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationRef): Transformation
     createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationRef!): Transformation
     deleteTransformation(uuid: String!): Boolean
+    setPublished(uuid: String!, published: Boolean): Transformation
   }
 `
