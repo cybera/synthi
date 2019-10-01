@@ -64,8 +64,8 @@ export const typeDefs = gql`
     uuid: String!
     name: String
     script: String
-    inputs: [Dataset]
-    outputs: [Dataset]
+    inputs: [String]
+    outputs: [String]
     code: String
     error: String
     virtual: Boolean

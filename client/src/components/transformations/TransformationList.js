@@ -19,6 +19,7 @@ const GET_TRANSFORMATIONS = gql`
     transformations(org: $org, filter: $filter) {
       name
       uuid
+      inputs
       published
     }
   }

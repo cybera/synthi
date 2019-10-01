@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontSize: 18,
   },
+  inputsHeading: {
+    fontSize: 14,
+  },
 }))
 
 const PUBLISH_TRANSFORMATION = gql`
@@ -67,6 +70,11 @@ const TransformationDetail = ({ transformation }) => {
           { uuid }
           ).
         </Typography>
+        <br />
+        <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
+          Expected inputs:
+        </Typography>
+        { transformation.inputs.join(',')}
       </CardContent>
       <CardContent className={classes.operations}>
         <FormControlLabel
@@ -89,6 +97,7 @@ TransformationDetail.propTypes = {
   transformation: PropTypes.shape({
     name: PropTypes.string,
     uuid: PropTypes.string,
+    inputs: PropTypes.arrayOf(PropTypes.string),
     published: PropTypes.bool
   }).isRequired
 }
