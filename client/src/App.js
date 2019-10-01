@@ -22,6 +22,7 @@ import { Login } from './components/auth'
 import { Notifier } from './components/layout'
 import { AppBar } from './components/layout/appbar'
 import NavigationContext from './contexts/NavigationContext'
+import { TransformationFilterProvider } from './contexts/TransformationFilterContext'
 import { DatasetSidebar } from './components/dataset'
 
 
@@ -236,12 +237,14 @@ class App extends React.Component {
             setOrg: this.setOrg
           }}
         >
-          <MuiThemeProvider theme={theme}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <Notifier />
-              {mainComponent}
-            </MuiPickersUtilsProvider>
-          </MuiThemeProvider>
+          <TransformationFilterProvider>
+            <MuiThemeProvider theme={theme}>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <Notifier />
+                {mainComponent}
+              </MuiPickersUtilsProvider>
+            </MuiThemeProvider>
+          </TransformationFilterProvider>
         </NavigationContext.Provider>
       </ApolloProvider>
     )
