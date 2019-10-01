@@ -85,4 +85,12 @@ const TransformationDetail = ({ transformation }) => {
   )
 }
 
+TransformationDetail.propTypes = {
+  transformation: PropTypes.shape({
+    name: PropTypes.string,
+    uuid: PropTypes.string,
+    published: PropTypes.bool
+  }).isRequired
+}
+
 export default TransformationDetail
