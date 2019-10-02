@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
 
 import { makeStyles } from '@material-ui/styles'
 import Checkbox from '@material-ui/core/Checkbox'
@@ -19,6 +20,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+const ContextCheckbox = ({ label, value, setFunction }) => (
+  <FormControlLabel
+    control={(
+      <Checkbox
+        checked={value}
+        onChange={() => setFunction(!value)}
+        value={value}
+        color="primary"
+      />
+    )}
+    label={label}
+  />
+)
+
+ContextCheckbox.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  setFunction: PropTypes.func.isRequired,
+}
+
 const FilterPanel = () => {
   const filter = useContext(TransformationFilterContext)
   const classes = useStyles()
@@ -28,16 +49,15 @@ const FilterPanel = () => {
       <Typography className={classes.title} color="textSecondary" gutterBottom>
         Filter Options
       </Typography>
-      <FormControlLabel
-        control={(
-          <Checkbox
-            checked={filter.publishedOnly}
-            onChange={() => filter.setPublishedOnly(!filter.publishedOnly)}
-            value={filter.publishedOnly}
-            color="primary"
-          />
-        )}
+      <ContextCheckbox
         label="Published Only"
+        value={filter.publishedOnly}
+        setFunction={filter.setPublishedOnly}
+      />
+      <ContextCheckbox
+        label="From other organizations"
+        value={filter.includeShared}
+        setFunction={filter.setIncludeShared}
       />
     </div>
   )

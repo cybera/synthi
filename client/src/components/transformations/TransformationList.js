@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import gql from 'graphql-tag'
 import { useQuery } from 'react-apollo'
+import * as R from 'ramda'
 
 import { makeStyles } from '@material-ui/styles'
 
@@ -30,10 +31,15 @@ const TransformationList = () => {
   const filter = useContext(TransformationFilterContext)
   const classes = useStyles()
 
+  // Our context includes functions to set the filter options that we 
+  // can't send to the GraphQL API.
+  const notFunction = R.compose(R.not, R.is(Function))
+  const options = R.pickBy(notFunction)
+
   const { loading, error, data } = useQuery(GET_TRANSFORMATIONS, {
     variables: {
       org: { uuid: navigation.currentOrg },
-      filter: { publishedOnly: filter.publishedOnly }
+      filter: options(filter)
     },
     fetchPolicy: 'network-only'
   })

@@ -8,12 +8,15 @@ const TransformationFilterContext = React.createContext({
 
 export const TransformationFilterProvider = ({ children }) => {
   const [publishedOnly, setPublishedOnly] = useState(false)
+  const [includeShared, setIncludeShared] = useState(true)
 
   return (
     <TransformationFilterContext.Provider
       value={{
         publishedOnly,
-        setPublishedOnly
+        includeShared,
+        setPublishedOnly,
+        setIncludeShared,
       }}
     >
       { children }
