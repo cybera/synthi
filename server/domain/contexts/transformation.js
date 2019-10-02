@@ -2,6 +2,7 @@ import { AuthenticationError } from 'apollo-server-express'
 
 import { findOrganization } from './util'
 import { ModelFactory } from '../models'
+import Query from '../../neo4j/query'
 
 import logger from '../../config/winston'
 
@@ -26,16 +27,29 @@ export async function deleteTransformation(uuid) {
   return true
 }
 
-export async function transformations(orgRef, filter) {
+export async function transformations(orgRef, filter={}) {
   const org = await findOrganization(orgRef)
   const transformations = await org.transformations()
+  const { publishedOnly, includeShared } = filter
 
   let filteredTransformations = transformations
 
-  if (filter) {
-    if (filter.publishedOnly) {
-      filteredTransformations = transformations.filter(transformation => transformation.published)
-    }
+  if (publishedOnly) {
+    filteredTransformations = transformations.filter(transformation => transformation.published)
+  }
+
+  if (includeShared) {
+    const Transformation = ModelFactory.getClass('Transformation')
+    const otherPublished = new Query(Transformation, 'transformation')
+    otherPublished.addPart(`
+      MATCH (organization:Organization)
+      WHERE (organization.name <> $org.name OR $org.name IS NULL) AND
+            (organization.uuid <> $org.uuid OR $org.uuid IS NULL) AND
+            (ID(organization)  <> $org.id   OR $org.id IS NULL)
+      MATCH (organization)-[:OWNER]->(transformation:Transformation { published: true })
+    `)
+    const otherTransformations = await otherPublished.run({ org: orgRef })
+    filteredTransformations.push(...otherTransformations)
   }
 
   return filteredTransformations

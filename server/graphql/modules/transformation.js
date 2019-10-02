@@ -74,6 +74,7 @@ export const typeDefs = gql`
 
   input TransformationFilter {
     publishedOnly: Boolean
+    includeShared: Boolean
   }
 
   extend type Dataset {
@@ -81,7 +82,10 @@ export const typeDefs = gql`
   }
 
   extend type Query {
-    transformations(org: OrganizationRef!, filter: TransformationFilter): [Transformation]
+    transformations(org: OrganizationRef!, filter: TransformationFilter = {
+      publishedOnly: false,
+      includeShared: true
+    }): [Transformation]
     transformation(uuid: String, name: String, org: OrganizationRef): Transformation
   }
 
