@@ -2,8 +2,7 @@ import { safeQuery } from './connection'
 import * as ModelFactory from '../domain/models/modelFactory'
 
 class Query {
-  constructor(MainReturnType, mainReturnRef) {
-    this.MainReturnType = MainReturnType
+  constructor(mainReturnRef) {
     this.mainReturnRef = mainReturnRef
     this.parts = []
     this.parameters = {}

@@ -39,8 +39,7 @@ export async function transformations(orgRef, filter={}) {
   }
 
   if (includeShared) {
-    const Transformation = ModelFactory.getClass('Transformation')
-    const otherPublished = new Query(Transformation, 'transformation')
+    const otherPublished = new Query('transformation')
     otherPublished.addPart(`
       MATCH (organization:Organization)
       WHERE (organization.name <> $org.name OR $org.name IS NULL) AND
