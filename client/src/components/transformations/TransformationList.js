@@ -22,6 +22,7 @@ const GET_TRANSFORMATIONS = gql`
       uuid
       inputs
       published
+      ownerName
     }
   }
 `

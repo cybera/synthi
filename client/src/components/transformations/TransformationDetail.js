@@ -57,6 +57,8 @@ const TransformationDetail = ({ transformation }) => {
       <CardContent className={classes.details}>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
           { transformation.name }
+          { ' ' }
+          { `(${transformation.ownerName})` }
         </Typography>
         <Typography variant="body2" component="p">
           Some details about the
@@ -98,7 +100,8 @@ TransformationDetail.propTypes = {
     name: PropTypes.string,
     uuid: PropTypes.string,
     inputs: PropTypes.arrayOf(PropTypes.string),
-    published: PropTypes.bool
+    published: PropTypes.bool,
+    ownerName: PropTypes.string
   }).isRequired
 }
 

@@ -70,6 +70,8 @@ export const typeDefs = gql`
     error: String
     virtual: Boolean
     published: Boolean
+    ownerName: String
+    fullName: String
   }
 
   input TransformationFilter {

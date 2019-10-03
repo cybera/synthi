@@ -112,6 +112,16 @@ class Transformation extends Base {
     `
     await safeQuery(query, { transformation: this, error })
   }
+
+  async ownerName() {
+    const owner = await this.owner()
+    return owner.name
+  }
+
+  async fullName() {
+    const owner = await this.owner()
+    return `${owner.name}:${this.owner}`
+  }
 }
 
 Transformation.label = 'Transformation'
