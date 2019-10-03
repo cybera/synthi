@@ -4,7 +4,7 @@ import waitFor from 'p-wait-for'
 import { fullScriptPath } from '../../lib/util'
 import { memberOfOwnerOrg } from '../util'
 import Storage from '../../storage'
-import Base from './base'
+import Base, { log, memoize } from './base'
 import logger from '../../config/winston'
 import { safeQuery } from '../../neo4j/connection';
 
@@ -18,6 +18,11 @@ class Transformation extends Base {
     }
 
     return transformation
+  }
+
+  @memoize()
+  testing() {
+    return 'testing string'
   }
 
   fullPath() {

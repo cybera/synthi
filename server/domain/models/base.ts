@@ -4,6 +4,7 @@ import { safeQuery, Indexable } from '../../neo4j/connection'
 import logger from '../../config/winston'
 import * as ModelFactory from './modelFactory'
 
+type CacheType = Record<string, any>
 
 class Base {
   static readonly ModelFactory = ModelFactory
@@ -12,6 +13,7 @@ class Base {
 
   id: number
   uuid: string
+  public __cache: CacheType
 
   constructor(node: Indexable) {
     // TODO: Re-implement this guard
@@ -21,6 +23,7 @@ class Base {
     // this.__label = this.constructor.label
     // this.__saveProperties = this.constructor.saveProperties
     this.id = node.identity
+    this.__cache = {}
     Object.assign(this, node.properties)
   }
 
@@ -216,6 +219,47 @@ class Base {
 
   label(): string {
     return this.class().label
+  }
+}
+
+export function log( logMessage: string ) {
+  // return decorator function
+  return function<T extends Base>(target:T, property:string, descriptor:PropertyDescriptor) {
+      // save original value, which is method (function)
+      let originalMethod = descriptor.value;
+      // replace method implementation
+      descriptor.value = function( ...args:any) {
+          console.log( `[LOG ${target.constructor.name} ${property}]`, logMessage );
+          // here, call original method
+          // `this` points to the instance
+          return originalMethod.call( this, ...args );
+      };
+      return descriptor;
+  }
+}
+
+export function memoize() {
+  // return decorator function
+  return function<T extends Base>(target:T, property:string, descriptor:PropertyDescriptor) {
+      // save original value, which is method (function)
+      let originalMethod = descriptor.value;
+      // replace method implementation
+      logger.error('memoizing %o: %o', target.constructor.name, property)
+      descriptor.value = function(this: T, ...args:[any]) {
+        const key = property
+
+        if (key in this.__cache) {
+          logger.warn(`using memoized ${property} for ${this.constructor.name}`)
+          return this.__cache[key]
+        }
+  
+        logger.warn(`memoizing ${property} for ${this.constructor.name}`)
+        const value = originalMethod.call(this, ...args)
+        this.__cache[property] = value
+        return value
+      }
+
+      return descriptor
   }
 }
 
