@@ -20,6 +20,7 @@ if [[ $action == 'start' ]]; then
       sleep 1
     done
   '
+  docker-compose exec -T python-worker /usr/src/app/run_migrations.py
   if [[ $some_services_up ]]; then
     echo "==========================================================================="
     echo "  Skipping user/org creation..."
