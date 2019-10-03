@@ -147,3 +147,36 @@ def test_incorrect_property_access_on_dataset():
 
     with pytest.raises(APIError):
         client_test2.dataset.meta(uuid)
+
+def test_transformation_publishing():
+    result = client_test1.transformation.define(
+        'PublishedSimpleMeans',
+        'data/simple_means.py',
+        inputs=['simple_data']
+    )
+    uuid = result['uuid']
+
+    # we shouldn't be able to see this transformation as client_test2 until
+    # it has been published
+    names = [t['name'] for t in client_test2.transformation.list()]
+    assert('PublishedSimpleMeans' not in names)
+
+    publish_query = '''
+    mutation TransformationSetPublished($uuid: String!, $published: Boolean) {
+        setPublished(uuid: $uuid, published: $published) {
+            uuid
+            name
+            published
+        }
+    }
+    '''
+
+    client_test1.query(publish_query, dict(uuid=uuid, published=True))
+
+    # now client_test2 should be able to see it
+    names = [t['name'] for t in client_test2.transformation.list()]
+    assert('PublishedSimpleMeans' in names)
+
+    # but client_test2 shouldn't be able to unpublish it
+    with pytest.raises(APIError):
+        client_test2.query(publish_query, dict(uuid=uuid, published=False))
