@@ -9,7 +9,7 @@ import {
   setPublished
 } from '../../domain/contexts/transformation'
 
-import { isMember, isOwner } from '../rules'
+import { isMember, isOwner, isPublished } from '../rules'
 
 export const resolvers = {
   Transformation: {
@@ -34,7 +34,7 @@ export const resolvers = {
 
 export const permissions = {
   Transformation: {
-    '*': isOwner()
+    '*': or(isOwner(), isPublished())
   },
   Query: {
     transformations: isMember({ organizationRef: 'org' }),
