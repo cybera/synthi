@@ -4,6 +4,9 @@ import os
 import config
 
 import pandas as pd
+from magic import Magic
+
+magic = Magic(mime_encoding=True)
 
 DATA_ROOT = config.storage.legacy.dataRoot
 
@@ -25,8 +28,15 @@ def write_raw(data, relative_path):
   with open(abs_path, 'w') as file:
     file.write(data)
 
-def read_csv(relative_path, params=dict()):
+def read_csv(relative_path, params=dict(), detectEncoding=False):
   abs_path = os.path.join(DATA_ROOT, 'datasets', relative_path)
+
+  encoding = None
+  if detectEncoding:
+    encoding = magic.from_file(abs_path)
+
+  params = { 'encoding': encoding, **params }
+
   return pd.read_csv(abs_path, **params)
 
 def write_csv(df, relative_path):

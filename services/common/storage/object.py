@@ -4,9 +4,12 @@ from importlib.util import spec_from_file_location, module_from_spec
 from tempfile import NamedTemporaryFile
 
 import pandas as pd
+from magic import Magic
 
 import openstack
 import config
+
+magic = Magic(mime_encoding=True)
 
 conn = None
 
@@ -45,17 +48,22 @@ def write_raw(data, relative_path):
                                name=relative_path,
                                data=data)
 
-def read_csv(relative_path, params=dict()):
-  container = config.storage.object.containers['datasets']
-  obj = object_store().download_object(relative_path, container)
+def read_csv(relative_path, params=dict(), detectEncoding=False):
+  obj = read_raw(relative_path)
   bio = BytesIO(obj)
+
+  encoding = None
+  if detectEncoding:
+    # guess the encoding from up to the first 10MB of the file
+    encoding = magic.from_buffer(obj[0:1024*1024*10])
+
+  params = { 'encoding': encoding, **params }
+
   return pd.read_csv(bio, **params)
 
 def write_csv(df, relative_path):
-  container = config.storage.object.containers['datasets']
-  object_store().upload_object(container=container,
-                               name=relative_path,
-                               data=df.to_csv(index=False).encode('utf-8'))
+  data = df.to_csv(index=False).encode('utf-8')
+  write_raw(data, relative_path)
 
 def read_script_module(relative_path):
   container = config.storage.object.containers['scripts']

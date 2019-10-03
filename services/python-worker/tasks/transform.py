@@ -57,6 +57,8 @@ def transform_dataset(params):
       store_csv(output, path, params["storagePaths"][full_name]["sample"])
 
       return { 'type': 'csv', 'columns': columns }
+    elif type(output) is str:
+      storage.write_raw(output.encode('utf-8'), path)
     else:
       storage.write_raw(output, path)
 

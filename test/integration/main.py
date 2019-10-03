@@ -51,7 +51,7 @@ def test_explicit_csv_upload():
 def test_txt_upload():
     client.dataset.upload('txt_document', 'data/test.txt', type='document')
     txt_document = client.dataset.get('txt_document', raw=True)
-    assert(txt_document == "Just a regular ol' text document.\n")
+    assert(txt_document.strip() == "Just a regular ol' text document.")
 
 def test_reusable_csv_transform():
     client.dataset.upload('simple-data-1', 'data/simple_data.csv')

@@ -23,10 +23,6 @@ class DocumentDataset extends Dataset {
       if (this.computed) {
         this.paths.original = this.paths.imported
       }
-
-      if (this.isRawText()) {
-        this.paths.imported = this.paths.original
-      }
     }
   }
 
@@ -38,9 +34,6 @@ class DocumentDataset extends Dataset {
   }
 
   async import(removeExisting = false, options = {}) {
-    // Don't try to import raw text. It's already how we want it
-    if (this.isRawText()) return
-
     const ImportDocumentTask = Base.ModelFactory.getClass('ImportDocumentTask')
     const task = await ImportDocumentTask.create({ dataset: this, removeExisting, options })
     await task.run()
