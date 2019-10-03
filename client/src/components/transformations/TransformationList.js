@@ -23,6 +23,7 @@ const GET_TRANSFORMATIONS = gql`
       inputs
       published
       ownerName
+      canPublish
     }
   }
 `

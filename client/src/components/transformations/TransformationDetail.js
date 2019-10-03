@@ -79,6 +79,7 @@ const TransformationDetail = ({ transformation }) => {
         { transformation.inputs.join(',')}
       </CardContent>
       <CardContent className={classes.operations}>
+        { transformation.canPublish && (
         <FormControlLabel
           control={(
             <Switch
@@ -90,6 +91,7 @@ const TransformationDetail = ({ transformation }) => {
           )}
           label="Publish"
         />
+        )}
       </CardContent>
     </Card>
   )
@@ -101,7 +103,8 @@ TransformationDetail.propTypes = {
     uuid: PropTypes.string,
     inputs: PropTypes.arrayOf(PropTypes.string),
     published: PropTypes.bool,
-    ownerName: PropTypes.string
+    ownerName: PropTypes.string,
+    canPublish: PropTypes.bool,
   }).isRequired
 }
 

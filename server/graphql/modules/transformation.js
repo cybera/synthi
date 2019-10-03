@@ -6,7 +6,7 @@ import {
   deleteTransformation,
   transformations,
   transformation,
-  setPublished
+  setPublished,
 } from '../../domain/contexts/transformation'
 
 import { isMember, isOwner, isPublished } from '../rules'
@@ -14,7 +14,8 @@ import { isMember, isOwner, isPublished } from '../rules'
 export const resolvers = {
   Transformation: {
     code: transformation => transformation.code(),
-    virtual: transformation => (transformation.virtual ? transformation.virtual : false)
+    virtual: transformation => (transformation.virtual ? transformation.virtual : false),
+    canPublish: (transformation, _, { user }) => transformation.canPublish(user)
   },
   Query: {
     transformations: (_, { org, filter }) => transformations(org, filter),
@@ -72,6 +73,7 @@ export const typeDefs = gql`
     published: Boolean
     ownerName: String
     fullName: String
+    canPublish: Boolean
   }
 
   input TransformationFilter {

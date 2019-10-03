@@ -122,6 +122,12 @@ class Transformation extends Base {
     const owner = await this.owner()
     return `${owner.name}:${this.owner}`
   }
+
+  async canPublish(user) {
+    const orgs = await user.orgs()
+    const owner = await this.owner()
+    return orgs.some(org => (org.uuid === owner.uuid))
+  }
 }
 
 Transformation.label = 'Transformation'
