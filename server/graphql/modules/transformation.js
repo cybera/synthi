@@ -5,18 +5,20 @@ import {
   createTransformationTemplate,
   deleteTransformation,
   transformations,
-  transformation
+  transformation,
+  setPublished,
 } from '../../domain/contexts/transformation'
 
-import { isMember, isOwner } from '../rules'
+import { isMember, isOwner, isPublished } from '../rules'
 
 export const resolvers = {
   Transformation: {
     code: transformation => transformation.code(),
-    virtual: transformation => (transformation.virtual ? transformation.virtual : false)
+    virtual: transformation => (transformation.virtual ? transformation.virtual : false),
+    canPublish: (transformation, _, { user }) => transformation.canPublish(user)
   },
   Query: {
-    transformations: (_, { org }) => transformations(org),
+    transformations: (_, { org, filter }) => transformations(org, filter),
     transformation: (_, { uuid, name, org }) => transformation(uuid, name, org),
   },
   Mutation: {
@@ -27,12 +29,13 @@ export const resolvers = {
       owner
     }, { user }) => createTransformationTemplate(name, inputs, code, owner, user),
     deleteTransformation: (_, { uuid }) => deleteTransformation(uuid),
+    setPublished: (_, { uuid, published }) => setPublished(uuid, published)
   }
 }
 
 export const permissions = {
   Transformation: {
-    '*': isOwner()
+    '*': or(isOwner(), isPublished())
   },
   Query: {
     transformations: isMember({ organizationRef: 'org' }),
@@ -40,7 +43,8 @@ export const permissions = {
   },
   Mutation: {
     createTransformationTemplate: isMember({ organizationRef: 'owner' }),
-    deleteTransformation: isOwner()
+    deleteTransformation: isOwner(),
+    setPublished: isOwner(),
   }
 }
 
@@ -61,11 +65,20 @@ export const typeDefs = gql`
     uuid: String!
     name: String
     script: String
-    inputs: [Dataset]
-    outputs: [Dataset]
+    inputs: [String]
+    outputs: [String]
     code: String
     error: String
     virtual: Boolean
+    published: Boolean
+    ownerName: String
+    fullName: String
+    canPublish: Boolean
+  }
+
+  input TransformationFilter {
+    publishedOnly: Boolean
+    includeShared: Boolean
   }
 
   extend type Dataset {
@@ -73,7 +86,10 @@ export const typeDefs = gql`
   }
 
   extend type Query {
-    transformations(org: OrganizationRef!): [Transformation]
+    transformations(org: OrganizationRef!, filter: TransformationFilter = {
+      publishedOnly: false,
+      includeShared: true
+    }): [Transformation]
     transformation(uuid: String, name: String, org: OrganizationRef): Transformation
   }
 
@@ -81,5 +97,6 @@ export const typeDefs = gql`
     saveInputTransformation(uuid: String!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationRef): Transformation
     createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationRef!): Transformation
     deleteTransformation(uuid: String!): Boolean
+    setPublished(uuid: String!, published: Boolean): Transformation
   }
 `

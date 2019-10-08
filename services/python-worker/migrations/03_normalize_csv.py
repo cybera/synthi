@@ -29,21 +29,22 @@ def migrate(tx):
     try:
       dataset = result['d']
       print(f"Migrating {dataset['name']}:{dataset['path']}")
-      if dataset['path']:
+      name, ext = os.path.splitext(dataset['path'])
+      normalized_path = f"{dataset['uuid']}/original{ext}"
+      if dataset['path'] and not storage.exists(normalized_path):
         data = storage.read_raw(dataset['path'])
-        name, ext = os.path.splitext(dataset['path'])
-        normalized_path = f"{dataset['uuid']}/original{ext}"
-        if storage.exists(normalized_path):
+        storage.write_raw(data, normalized_path)
+        params = { "encoding": "utf8"}
+        df = storage.read_csv(dataset['path'], params)
+        store_csv(df, dataset)
+      else:
+        if not dataset['path']:
+          print("  Backing path not found. Skipping...")
+        else:
           print(f"  {dataset['name']}:{dataset['path']} already has normalized version:")
           print(f"  {normalized_path}")
           print("  Skipping...")
-        else:
-          storage.write_raw(data, normalized_path)
-          params = { "encoding": "utf8"}
-          df = storage.read_csv(dataset['path'], params)
-          store_csv(df, dataset)
-      else:
-        print("  Backing path not found. Skipping...")
+
     except Exception as error:
       error_msg = str(error)
       indented_msg = "\n".join([f"  {line}" for line in error_msg.split("\n")])

@@ -54,6 +54,23 @@ export const isOwner = ({ uuid: uuidField } = { uuid: 'uuid' }) => (
   )
 )
 
+export const isPublished = ({ uuid: uuidField, published: publishedField } = { uuid: 'uuid', published: 'published' }) => (
+  rule({ cache: 'strict' })(
+    async (parent, args, ctx /* , info */) => {
+      const uuid = args[uuidField] || (parent ? parent[uuidField] : undefined)
+
+      logger.debug(`checking isOwner for uuid: ${uuid}`)
+
+      if (uuid) {
+        const obj = await ModelFactory.getByUuid(uuid)
+        return obj[publishedField]
+      }
+
+      return false
+    }
+  )
+)
+
 export const isCurrentUser = rule({ cache: 'strict' })(
   async (parent, args, { user } /* , info */) => {
     const uuid = args.uuid || parent.uuid

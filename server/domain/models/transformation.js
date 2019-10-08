@@ -112,10 +112,26 @@ class Transformation extends Base {
     `
     await safeQuery(query, { transformation: this, error })
   }
+
+  async ownerName() {
+    const owner = await this.owner()
+    return owner.name
+  }
+
+  async fullName() {
+    const owner = await this.owner()
+    return `${owner.name}:${this.owner}`
+  }
+
+  async canPublish(user) {
+    const orgs = await user.orgs()
+    const owner = await this.owner()
+    return orgs.some(org => (org.uuid === owner.uuid))
+  }
 }
 
 Transformation.label = 'Transformation'
-Transformation.saveProperties = ['script', 'name']
+Transformation.saveProperties = ['script', 'name', 'published']
 
 Base.ModelFactory.register(Transformation)
 

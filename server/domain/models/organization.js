@@ -135,9 +135,7 @@ class Organization extends Base {
 
   /* eslint-disable class-methods-use-this */
   allDatasetsQuery() {
-    const Dataset = Base.ModelFactory.getClass('Dataset')
-
-    const allDatasetsQuery = new Query(Dataset, 'dataset')
+    const allDatasetsQuery = new Query('dataset')
     allDatasetsQuery.addPart(({ searchString }) => {
       if (searchString) {
         return `

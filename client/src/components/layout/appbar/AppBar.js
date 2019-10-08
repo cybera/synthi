@@ -9,12 +9,12 @@ import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import CssBaseline from '@material-ui/core/CssBaseline'
 
-import { ADIButton } from '../buttons'
 import OrgSelector from './OrgSelector'
 import { withNavigation } from '../../../contexts/NavigationContext'
 import { compose } from '../../../lib/common'
 import ADILogo from '../../../images/ckan-logo.png'
 import UserMenu from './UserMenu'
+import NavButton from './NavButton'
 import { Sidebar } from '../sidebar'
 
 const drawerWidth = 300
@@ -92,7 +92,11 @@ class ButtonAppBar extends React.Component {
   }
 
   render() {
-    const { classes, navigation, children } = this.props;
+    const {
+      classes,
+      leftContent,
+      rightContent
+    } = this.props;
     const { open } = this.state;
 
     return (
@@ -113,20 +117,9 @@ class ButtonAppBar extends React.Component {
             </IconButton>
             <img alt="" src={ADILogo} />
             <span className={classes.spacer} />
-            <ADIButton
-              variant={navigation.currentMode === 'datasets' ? 'contained' : 'outlined'}
-              className={classes.menuButton}
-              onClick={() => navigation.switchMode('datasets')}
-            >
-              Datasets
-            </ADIButton>
-            <ADIButton
-              variant={navigation.currentMode === 'scenarios' ? 'contained' : 'outlined'}
-              className={classes.menuButton}
-              onClick={() => navigation.switchMode('scenarios')}
-            >
-              Scenarios
-            </ADIButton>
+            <NavButton label="Datasets" mode="datasets" />
+            <NavButton label="Transformations" mode="transformations" />
+            <NavButton label="Scenarios" mode="scenarios" />
             <span className={classes.flex} />
             <OrgSelector />
             <UserMenu />
@@ -135,13 +128,14 @@ class ButtonAppBar extends React.Component {
         <Sidebar
           open={open}
           handleSidebarToggle={this.toggleDrawer}
+          content={leftContent}
         />
         <main
           className={classNames(classes.content, {
             [classes.contentShift]: open
           })}
         >
-          {children}
+          {rightContent}
         </main>
       </div>
     );
@@ -151,7 +145,8 @@ class ButtonAppBar extends React.Component {
 ButtonAppBar.propTypes = {
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
   navigation: PropTypes.shape({ switchMode: PropTypes.func }).isRequired,
-  children: PropTypes.node.isRequired
+  leftContent: PropTypes.node.isRequired,
+  rightContent: PropTypes.node.isRequired
 }
 
 export default compose(

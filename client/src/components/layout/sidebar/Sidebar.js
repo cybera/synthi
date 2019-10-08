@@ -9,9 +9,6 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 
 import { withNavigation } from '../../../contexts/NavigationContext'
 import { compose } from '../../../lib/common'
-import { SearchBar } from '../../dataset/list/search'
-import NewDatasetButton from './NewDatasetButton'
-import { DatasetList } from '../../dataset/list'
 
 const drawerWidth = 300
 
@@ -47,9 +44,7 @@ class Sidebar extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = {
-      searchString: undefined
-    }
+    this.content = props.content
 
     this.onToggle = this.onToggle.bind(this)
   }
@@ -60,8 +55,7 @@ class Sidebar extends React.Component {
   }
 
   render() {
-    const { classes, open, navigation } = this.props
-    const { searchString } = this.state
+    const { classes, open } = this.props
 
     return (
       <Drawer
@@ -79,14 +73,7 @@ class Sidebar extends React.Component {
           </IconButton>
         </div>
         <Divider />
-        <div className={classes.searchHeader}>
-          <SearchBar
-            onChange={value => this.setState({ searchString: value })}
-            onCancelSearch={() => this.setState({ searchString: undefined })}
-          />
-          <NewDatasetButton />
-        </div>
-        <DatasetList searchString={searchString} organization={{ uuid: navigation.currentOrg }} />
+        {this.content}
       </Drawer>
     )
   }
@@ -96,7 +83,7 @@ Sidebar.propTypes = {
   handleSidebarToggle: PropTypes.func.isRequired,
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
   open: PropTypes.bool.isRequired,
-  navigation: PropTypes.objectOf(PropTypes.any).isRequired
+  content: PropTypes.node.isRequired
 }
 
 export default compose(
