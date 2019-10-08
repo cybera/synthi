@@ -18,6 +18,7 @@ def run_from_file(path):
   mod = importlib.util.module_from_spec(spec)
   spec.loader.exec_module(mod)
 
+  print(f"Migration: {modname}")
   tx = session.begin_transaction()
   mod.migrate(tx)
   tx.commit()
