@@ -8,8 +8,6 @@ cd $PROJECT_DIR/test
 action=$1
 
 if [[ $action == 'start' ]]; then
-  some_services_up=$(docker-compose ps | grep test)
-
   docker-compose up -d
   docker-compose exec -T neo4j bash -c '
     echo "Waiting for Neo4J to start up"
@@ -20,19 +18,12 @@ if [[ $action == 'start' ]]; then
       sleep 1
     done
   '
-  if [[ $some_services_up ]]; then
-    echo "==========================================================================="
-    echo "  Skipping user/org creation..."
-    echo "  If you want to recreate users and orgs, run 'bin/testenv stop' to fully"
-    echo "  clean your environment. Then re-run this command."
-    echo "============================================================================"
-  else
-    docker-compose exec -T python-worker /usr/src/app/create_user.py test password test-token
-    docker-compose exec -T python-worker /usr/src/app/create_user.py test2 password test-token2
-    docker-compose exec -T python-worker /usr/src/app/create_org.py shared-test-org
-    docker-compose exec -T python-worker /usr/src/app/add_user_to_org.py test shared-test-org
-    docker-compose exec -T python-worker /usr/src/app/add_user_to_org.py test2 shared-test-org
-  fi
+  docker-compose exec -T python-worker /usr/src/app/run_migrations.py
+  docker-compose exec -T python-worker /usr/src/app/create_user.py test password test-token
+  docker-compose exec -T python-worker /usr/src/app/create_user.py test2 password test-token2
+  docker-compose exec -T python-worker /usr/src/app/create_org.py shared-test-org
+  docker-compose exec -T python-worker /usr/src/app/add_user_to_org.py test shared-test-org
+  docker-compose exec -T python-worker /usr/src/app/add_user_to_org.py test2 shared-test-org
 elif [[ $action == 'stop' ]]; then
   docker-compose down -v
   docker-compose rm -v
