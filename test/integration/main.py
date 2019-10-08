@@ -57,21 +57,40 @@ def test_reusable_csv_transform():
     client.dataset.upload('simple-data-1', 'data/simple_data.csv')
     client.dataset.upload('simple-data-2', 'data/simple_data2.csv')
     client.transformation.define('ReusableMeans', 'data/simple_means.py', inputs=['simple_data'])
+    client.transformation.define('ReusableMax', 'data/simple_max.py', inputs=['simple_data'])
 
     for i in [1,2]:
         client.dataset.define(
-            f'simple-data-means-{i}',
+            f'simple-data-transformed-{i}',
             template = 'ReusableMeans',
             inputs = {
                 'simple_data': f'simple-data-{i}'
             }
         )
 
-    df = client.dataset.get(f'simple-data-means-1')
+    df = client.dataset.get('simple-data-transformed-1')
     assert(df['0'].tolist() == [6.0])
 
-    df = client.dataset.get('simple-data-means-2')
+    df = client.dataset.get('simple-data-transformed-2')
     assert(df['0'].tolist() == [9.0])
+
+    # Test that we can change the reusable transformation
+    # on an existing dataset.
+    for i in [1,2]:
+        client.dataset.define(
+            f'simple-data-transformed-{i}',
+            template = 'ReusableMax',
+            inputs = {
+                'simple_data': f'simple-data-{i}'
+            }
+        )
+
+    df = client.dataset.get('simple-data-transformed-1')
+    assert(df['0'].tolist() == [8.0])
+
+    df = client.dataset.get('simple-data-transformed-2')
+    assert(df['0'].tolist() == [14.0])
+
 
 def test_upload_to_shared_organization():
     client_test1_shared_org.dataset.upload('simple_data-shared', 'data/simple_data.csv')
