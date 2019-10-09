@@ -9,6 +9,8 @@ import { SubscriptionServer } from 'subscriptions-transport-ws'
 
 import cors from 'cors'
 
+import config from 'config'
+
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey'
@@ -116,7 +118,7 @@ const main = async () => {
   const RedisStore = require('connect-redis')(session)
   const sessionMiddleware = session({
     store: new RedisStore({ client: NonAsyncRedisClient }),
-    secret: 'secret-token-123456',
+    secret: config.get('server').secret,
     resave: false
   })
   app.use(sessionMiddleware)
