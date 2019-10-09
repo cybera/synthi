@@ -39,7 +39,7 @@ export const permissions = {
   },
   Query: {
     transformations: isMember({ organizationRef: 'org' }),
-    transformation: or(isMember({ organizationRef: 'org'}), isOwner())
+    transformation: or(isMember({ organizationRef: 'org' }), isOwner())
   },
   Mutation: {
     createTransformationTemplate: isMember({ organizationRef: 'owner' }),
