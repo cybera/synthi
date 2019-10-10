@@ -41,17 +41,6 @@ const wsLink = new WebSocketLink({
   }
 });
 
-const subscriptionMiddleware = {
-  applyMiddleware: async (options, next) => {
-    const user = JSON.parse(localStorage.getItem('user'))
-    const apikey = user ? user.apikey : null
-    options.authToken = apikey
-    next()
-  },
-}
-
-wsLink.subscriptionClient.use([subscriptionMiddleware])
-
 const httpLink = ApolloLink.from([createUploadLink({ uri: '/graphql', credentials: 'include' })])
 
 // using the ability to split links, you can send data to each link

@@ -17,7 +17,9 @@ const checkConfig = async () => {
     'storage.object.creds.authUrl',
     // neo4j
     'neo4j.username',
-    'neo4j.password'
+    'neo4j.password',
+    // server
+    'server.secret'
   ]
 
   const notDefined = compact(

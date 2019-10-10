@@ -9,6 +9,8 @@ import { SubscriptionServer } from 'subscriptions-transport-ws'
 
 import cors from 'cors'
 
+import config from 'config'
+
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey'
@@ -41,8 +43,6 @@ const main = async () => {
   if (!passed) {
     process.exit(1)
   }
-
-  const RedisStore = require('connect-redis')(session)
 
   const app = express()
 
@@ -110,14 +110,19 @@ const main = async () => {
   })
 
   app.use(morgan('short', { stream: logger.morganStream }))
+
   // Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
   // logging in.
   app.use(bodyParser.urlencoded({ extended: true }))
-  app.use(session({
+
+  const RedisStore = require('connect-redis')(session)
+  const sessionMiddleware = session({
     store: new RedisStore({ client: NonAsyncRedisClient }),
-    secret: 'secret-token-123456',
+    secret: config.get('server').secret,
     resave: false
-  }))
+  })
+  app.use(sessionMiddleware)
+
   app.use(passport.initialize())
 
   // Normally, we'd do app.use(passport.session()) here, but passport.session() is really just
@@ -210,30 +215,43 @@ const main = async () => {
       schema,
       execute,
       subscribe,
-      onOperation: async (message, params) => {
-        const token = message.payload.authToken
+      /*
+       * Use the session middleware to check that any operation coming over
+       * websocket is part of a valid session. The request headers, which
+       * include the session cookie, are part of the upgradeReq object which we
+       * pass to the middleware. The middleware will retrieve the session from
+       * the session store if it exists which we then use to retrieve the user
+       * and add it to the graphql context. This is poorly documented behaviour
+       * that's been pieced together from multiple sources and there may be
+       * more correct ways to do this.
+      */
+      onOperation: async (message, params, webSocket) => {
+        const wsSession = await new Promise((resolve) => {
+          sessionMiddleware(webSocket.upgradeReq, {}, () => {
+            if (webSocket.upgradeReq.session) {
+              resolve(webSocket.upgradeReq.session)
+            }
+            return false
+          })
+        })
 
-        if (!token) {
-          throw new ForbiddenError('Missing auth token')
+        if (wsSession.passport && wsSession.passport.user) {
+          const user = await User.getByUuid(wsSession.passport.user)
+
+          if (!user) {
+            throw new ForbiddenError('Not logged in')
+          }
+
+          return {
+            ...params,
+            context: {
+              user,
+              ...params.context,
+            },
+          }
         }
 
-        let user
-
-        try {
-          user = await User.getByAPIKey(token)
-        } catch (err) {
-          throw new ForbiddenError('Not authorized')
-        }
-
-        const context = { user }
-
-        return {
-          ...params,
-          context: {
-            ...params.context,
-            ...context,
-          },
-        }
+        throw new ForbiddenError('Not logged in')
       },
     },
     {
