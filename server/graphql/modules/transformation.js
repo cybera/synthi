@@ -3,6 +3,7 @@ import { or } from 'graphql-shield'
 
 import {
   createTransformationTemplate,
+  updateTransformation,
   deleteTransformation,
   transformations,
   transformation,
@@ -28,6 +29,7 @@ export const resolvers = {
       code,
       owner
     }, { user }) => createTransformationTemplate(name, inputs, code, owner, user),
+    updateTransformation: (_, { uuid, fields }) => updateTransformation(uuid, fields),
     deleteTransformation: (_, { uuid }) => deleteTransformation(uuid),
     setPublished: (_, { uuid, published }) => setPublished(uuid, published)
   }
@@ -43,6 +45,7 @@ export const permissions = {
   },
   Mutation: {
     createTransformationTemplate: isMember({ organizationRef: 'owner' }),
+    updateTransformation: isOwner(),
     deleteTransformation: isOwner(),
     setPublished: isOwner(),
   }
@@ -76,6 +79,12 @@ export const typeDefs = gql`
     canPublish: Boolean
   }
 
+  input TransformationUpdate {
+    name: String
+    code: String
+    inputs: [String]
+  }
+
   input TransformationFilter {
     publishedOnly: Boolean
     includeShared: Boolean
@@ -96,6 +105,7 @@ export const typeDefs = gql`
   extend type Mutation {
     saveInputTransformation(uuid: String!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationRef): Transformation
     createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationRef!): Transformation
+    updateTransformation(uuid:String!, fields:TransformationUpdate!): Transformation
     deleteTransformation(uuid: String!): Boolean
     setPublished(uuid: String!, published: Boolean): Transformation
   }
