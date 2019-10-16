@@ -312,7 +312,7 @@ class Dataset extends Base {
     } else {
       this.computed = true
 
-      await this.save()  
+      await this.save()
     }
 
     transformation = await Transformation.create({

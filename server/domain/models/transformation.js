@@ -131,7 +131,7 @@ class Transformation extends Base {
 }
 
 Transformation.label = 'Transformation'
-Transformation.saveProperties = ['script', 'name', 'published', 'inputs']
+Transformation.saveProperties = ['script', 'name', 'published', 'inputs', 'state', 'virtual']
 
 Base.ModelFactory.register(Transformation)
 
