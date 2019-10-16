@@ -66,7 +66,7 @@ class Transformation extends Base {
     writeStream.write(code, 'utf8')
     writeStream.end()
     return new Promise((resolve, reject) => {
-      writeStream.on('end', () => resolve({ path: this.script }))
+      writeStream.on('success', () => resolve({ path: this.script }))
       writeStream.on('error', reject)
     })
   }
