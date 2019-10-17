@@ -119,8 +119,8 @@ class Transformation extends Base {
   }
 
   async fullName() {
-    const owner = await this.owner()
-    return `${owner.name}:${this.owner}`
+    const ownerName = await this.ownerName()
+    return `${ownerName}:${this.name}`
   }
 
   async canPublish(user) {
