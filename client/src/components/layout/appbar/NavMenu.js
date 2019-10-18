@@ -8,6 +8,16 @@ import { makeStyles } from '@material-ui/styles'
 import NavigationContext from '../../../contexts/NavigationContext'
 import { ADIButton } from '../buttons'
 
+function modeToLabel(mode) {
+  switch (mode) {
+    case 'datasets': return 'Datasets'
+    case 'transformations': return 'Browse Transformations'
+    case 'dataset_browser': return 'Browse Datasets'
+    case 'scenarios': return 'Scenarios'
+    default: return ''
+  }
+}
+
 const useStyles = makeStyles((theme) => ({
   menuButton: {
     minWidth: 120
@@ -44,7 +54,7 @@ const NavMenu = () => {
   return (
     <>
       <ADIButton onClick={handleClick} className={classes.menuButton}>
-        { navigation.currentMode }
+        { modeToLabel(navigation.currentMode) }
         <ExpandMoreIcon className={classes.expandIcon} />
       </ADIButton>
       <Menu
@@ -54,9 +64,10 @@ const NavMenu = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <NavMenuItem label="Datasets" mode="datasets" />
-        <NavMenuItem label="Transformations" mode="transformations" />
-        <NavMenuItem label="Scenarios" mode="scenarios" />
+        <NavMenuItem label={modeToLabel('datasets')} mode="datasets" />
+        <NavMenuItem label={modeToLabel('dataset_browser')} mode="dataset_browser" />
+        <NavMenuItem label={modeToLabel('transformations')} mode="transformations" />
+        <NavMenuItem label={modeToLabel('scenarios')} mode="scenarios" />
       </Menu>
     </>
   )
