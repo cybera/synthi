@@ -15,7 +15,7 @@ import { isMember, isOwner, isPublished } from '../rules'
 export const resolvers = {
   Transformation: {
     code: transformation => transformation.code(),
-    virtual: transformation => (transformation.virtual ? transformation.virtual : false),
+    virtual: transformation => transformation.virtual(),
     canPublish: (transformation, _, { user }) => transformation.canPublish(user)
   },
   Query: {

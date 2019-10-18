@@ -128,10 +128,15 @@ class Transformation extends Base {
     const owner = await this.owner()
     return orgs.some(org => (org.uuid === owner.uuid))
   }
+
+  async virtual() {
+    const template = await this.template()
+    return template != null
+  }
 }
 
 Transformation.label = 'Transformation'
-Transformation.saveProperties = ['script', 'name', 'published', 'inputs', 'state', 'virtual']
+Transformation.saveProperties = ['script', 'name', 'published', 'inputs', 'state']
 
 Base.ModelFactory.register(Transformation)
 
