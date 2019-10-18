@@ -21,6 +21,21 @@ export async function createTransformationTemplate(name, inputs, code, owner, us
   return transformation
 }
 
+export async function updateTransformation(uuid, { name, inputs, code }) {
+  const transformation = await ModelFactory.getByUuid(uuid)
+
+  transformation.name = name || transformation.name
+  transformation.inputs = inputs || transformation.inputs
+
+  if (code) {
+    await transformation.storeCode(code)
+  }
+
+  await transformation.save()
+
+  return transformation
+}
+
 export async function deleteTransformation(uuid) {
   const transformation = await ModelFactory.getByUuid(uuid)
   await transformation.delete()

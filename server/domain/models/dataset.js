@@ -312,14 +312,13 @@ class Dataset extends Base {
     } else {
       this.computed = true
 
-      await this.save()  
+      await this.save()
     }
 
     transformation = await Transformation.create({
       name: this.name,
       outputs: [],
       inputs: [],
-      virtual: true,
       // We don't have to put these through a registration operation to figure out
       // inputs, so they're ready right away.
       state: 'ready'

@@ -66,7 +66,7 @@ class Transformation extends Base {
     writeStream.write(code, 'utf8')
     writeStream.end()
     return new Promise((resolve, reject) => {
-      writeStream.on('end', () => resolve({ path: this.script }))
+      writeStream.on('success', () => resolve({ path: this.script }))
       writeStream.on('error', reject)
     })
   }
@@ -119,8 +119,8 @@ class Transformation extends Base {
   }
 
   async fullName() {
-    const owner = await this.owner()
-    return `${owner.name}:${this.owner}`
+    const ownerName = await this.ownerName()
+    return `${ownerName}:${this.name}`
   }
 
   async canPublish(user) {
@@ -128,10 +128,15 @@ class Transformation extends Base {
     const owner = await this.owner()
     return orgs.some(org => (org.uuid === owner.uuid))
   }
+
+  async virtual() {
+    const template = await this.template()
+    return template != null
+  }
 }
 
 Transformation.label = 'Transformation'
-Transformation.saveProperties = ['script', 'name', 'published']
+Transformation.saveProperties = ['script', 'name', 'published', 'inputs', 'state']
 
 Base.ModelFactory.register(Transformation)
 
