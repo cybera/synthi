@@ -119,8 +119,7 @@ class Organization extends Base {
     const transformation = await Transformation.create({
       name,
       inputs,
-      code,
-      virtual: false
+      code
     })
 
     await super.saveRelation(transformation, '<-[:OWNER]-')

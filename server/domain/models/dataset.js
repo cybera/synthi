@@ -319,7 +319,6 @@ class Dataset extends Base {
       name: this.name,
       outputs: [],
       inputs: [],
-      virtual: true,
       // We don't have to put these through a registration operation to figure out
       // inputs, so they're ready right away.
       state: 'ready'
