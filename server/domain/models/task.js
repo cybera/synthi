@@ -70,4 +70,4 @@ export default class Task extends Base {
 Base.ModelFactory.register(Task)
 
 Task.label = 'Task'
-Task.saveProperties = ['state']
+Task.saveProperties = ['state', 'type', 'removeExisting']

@@ -4,10 +4,9 @@ import Task from '../task'
 
 export default class ImportTask extends Task {
   static async create(properties = {}) {
-    const { dataset, options, type, queue, ...rest } = properties;
+    const { dataset, options, type, ...rest } = properties;
     const task = await super.create({
       type,
-      queue,
       ...rest,
       ...options,
     })

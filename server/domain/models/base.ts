@@ -61,7 +61,13 @@ class Base {
     return this.getByUniqueMatch(query, { uuid })
   }
 
-  static async create<T extends typeof Base>(properties: Indexable): ModelPromise<T> {
+  static async create<T extends typeof Base>(this: T, properties: Indexable): ModelPromise<T> {
+    Object.keys(properties).forEach((k) => {
+      if (!this.saveProperties.includes(k)) {
+        logger.warn(`Property ${k} not in saveProperties for ${this.name}`)
+      }
+    })
+
     const query = `
       CREATE (node:${this.label} { uuid: randomUUID() })
       SET node += $properties

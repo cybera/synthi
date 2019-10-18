@@ -1,8 +1,6 @@
 {
   "extends": [
-    "airbnb",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "airbnb"
   ],
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
@@ -30,11 +28,22 @@
     "no-underscore-dangle": "off",
     "no-cond-assign": [2, "except-parens"],
     "no-else-return": ["error", { "allowElseIf": true }],
-    "lines-between-class-members": "off",
-    "@typescript-eslint/member-delimiter-style": ["error", {
-      "multiline": {
-        "delimiter": "none"
+    "lines-between-class-members": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      ],
+      "rules": {
+        "@typescript-eslint/member-delimiter-style": ["error", {
+          "multiline": {
+            "delimiter": "none"
+          }
+        }]
       }
-    }]
-  }
+    }
+  ]
 }

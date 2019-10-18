@@ -307,24 +307,25 @@ class Dataset extends Base {
   async saveInputTransformationRef(template, inputs) {
     const Transformation = Base.ModelFactory.getClass('Transformation')
     let transformation = await this.inputTransformation()
-    if (!transformation) {
-      transformation = await Transformation.create({
-        name: this.name,
-        outputs: [],
-        inputs: [],
-        virtual: true,
-        // We don't have to put these through a registration operation to figure out
-        // inputs, so they're ready right away.
-        state: 'ready'
-      })
-
-      await super.saveRelation(transformation, '-[:OUTPUT]->')
-      await super.saveRelation(transformation, '-[:ALIAS_OF]->', template)
-
+    if (transformation) {
+      transformation.delete()
+    } else {
       this.computed = true
 
       await this.save()
     }
+
+    transformation = await Transformation.create({
+      name: this.name,
+      outputs: [],
+      inputs: [],
+      // We don't have to put these through a registration operation to figure out
+      // inputs, so they're ready right away.
+      state: 'ready'
+    })
+
+    await super.saveRelation(transformation, '-[:OUTPUT]->')
+    await super.saveRelation(transformation, '-[:ALIAS_OF]->', template)
 
     await Promise.all(inputs.map((input) => {
       const { alias, dataset } = input
