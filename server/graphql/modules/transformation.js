@@ -31,7 +31,7 @@ export const resolvers = {
     }, { user }) => createTransformationTemplate(name, inputs, code, owner, user),
     updateTransformation: (_, { uuid, fields }) => updateTransformation(uuid, fields),
     deleteTransformation: (_, { uuid }) => deleteTransformation(uuid),
-    setPublished: (_, { uuid, published }) => setPublished(uuid, published)
+    publishTransformation: (_, { uuid, published }) => setPublished(uuid, published)
   }
 }
 
@@ -47,7 +47,7 @@ export const permissions = {
     createTransformationTemplate: isMember({ organizationRef: 'owner' }),
     updateTransformation: isOwner(),
     deleteTransformation: isOwner(),
-    setPublished: isOwner(),
+    publishTransformation: isOwner(),
   }
 }
 
@@ -107,6 +107,6 @@ export const typeDefs = gql`
     createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationRef!): Transformation
     updateTransformation(uuid:String!, fields:TransformationUpdate!): Transformation
     deleteTransformation(uuid: String!): Boolean
-    setPublished(uuid: String!, published: Boolean): Transformation
+    publishTransformation(uuid: String!, published: Boolean): Transformation
   }
 `

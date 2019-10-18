@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 
 const PUBLISH_TRANSFORMATION = gql`
   mutation TransformationSetPublished($uuid: String!, $published: Boolean) {
-    setPublished(uuid: $uuid, published: $published) {
+    publishTransformation(uuid: $uuid, published: $published) {
       uuid
       name
       published
