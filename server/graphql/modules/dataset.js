@@ -2,7 +2,7 @@ import { or, and, allow, deny } from 'graphql-shield'
 import gql from 'graphql-tag'
 
 import { pubsub, withFilter } from '../pubsub'
-import { isOwner, isMember } from '../rules'
+import { isOwner, isMember, isPublished } from '../rules'
 
 import {
   processDatasetUpdate,
@@ -12,7 +12,9 @@ import {
   importCSV,
   generateDataset,
   toggleColumnVisibility,
-  saveInputTransformation
+  saveInputTransformation,
+  listDatasets,
+  setPublished,
 } from '../../domain/contexts/dataset'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
@@ -20,6 +22,7 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 export const resolvers = {
   Query: {
     dataset: (_, props) => filterDatasets(props),
+    listDatasets: (_, { org, filter }) => listDatasets(org, filter),
   },
   Dataset: {
     columns: dataset => dataset.columns(),
@@ -27,7 +30,8 @@ export const resolvers = {
     rows: dataset => dataset.rows(),
     owner: dataset => dataset.owner(),
     inputTransformation: dataset => dataset.inputTransformation(),
-    connections: dataset => dataset.connections()
+    connections: dataset => dataset.connections(),
+    canPublish: (dataset, _, { user }) => dataset.canPublish(user)
   },
   Mutation: {
     createDataset: (_, { name, owner, type }, { user }) => (
@@ -40,7 +44,8 @@ export const resolvers = {
     toggleColumnVisibility: (_, { uuid }, { user }) => toggleColumnVisibility(uuid, user),
     saveInputTransformation: (_, { uuid, ...props }, { user }) => (
       saveInputTransformation(uuid, props, user)
-    )
+    ),
+    publishDataset: (_, { uuid, published }) => setPublished(uuid, published)
   },
   Subscription: {
     datasetGenerated: {
@@ -55,9 +60,10 @@ export const resolvers = {
 export const permissions = {
   Query: {
     dataset: or(isMember({ organizationRef: 'org' }), isOwner()),
+    listDatasets: isMember({organizationRef: 'org'})
   },
   Dataset: {
-    '*': isOwner(),
+    '*': or(isOwner(), isPublished()),
   },
   Mutation: {
     createDataset: isMember({ organizationUUID: 'owner' }),
@@ -66,7 +72,8 @@ export const permissions = {
     updateDataset: isOwner(),
     generateDataset: isOwner(),
     toggleColumnVisibility: isOwner(),
-    saveInputTransformation: isOwner()
+    saveInputTransformation: isOwner(),
+    publishDataset: isOwner(),
   }
 }
 
@@ -110,10 +117,22 @@ export const typeDefs = gql`
     computed: Boolean
     generating: Boolean
     connections: String
+    published: Boolean
+    canPublish: Boolean
+    ownerName: String
+  }
+
+  input DatasetFilter {
+    publishedOnly: Boolean
+    includeShared: Boolean
   }
 
   extend type Query {
     dataset(uuid: String, name: String, searchString: String, org:OrganizationRef): [Dataset]!
+    listDatasets(org: OrganizationRef!, filter: DatasetFilter = {
+      publishedOnly: false,
+      includeShared: true
+    }): [Dataset]
   }
 
   extend type Mutation {
@@ -123,5 +142,6 @@ export const typeDefs = gql`
     uploadDataset(name: String!, file:Upload!): Dataset
     updateDataset(uuid: String!, file:Upload, computed:Boolean, name:String, generating:Boolean): Dataset
     generateDataset(uuid: String!): Dataset
+    publishDataset(uuid: String!, published: Boolean): Transformation
   }
 `

@@ -14,6 +14,7 @@ import {
   debugTransformationInputObjs
 } from './util'
 
+import Query from '../../neo4j/query'
 import logger from '../../config/winston'
 
 export async function updateDatasetMetadata(datasetUuid, metadata) {
@@ -190,4 +191,38 @@ export async function saveInputTransformation(datasetUuid, {
 export async function updateColumn(columnUuid, values, tagNames) {
   const column = await Column.getByUuid(columnUuid)
   return column.update(values, tagNames)
+}
+
+export async function setPublished(uuid, published) {
+  const dataset = await ModelFactory.getByUuid(uuid)
+  dataset.published = published
+  await dataset.save()
+  return dataset
+}
+
+export async function listDatasets(orgRef, filter={}) {
+  const org = await findOrganization(orgRef)
+  const datasets = await org.datasets()
+  const { publishedOnly, includeShared } = filter
+
+  let filteredDatasets = datasets
+
+  if (publishedOnly) {
+    filteredDatasets = datasets.filter(dataset => dataset.published)
+  }
+
+  if (includeShared) {
+    const otherPublished = new Query('dataset')
+    otherPublished.addPart(`
+      MATCH (organization:Organization)
+      WHERE (organization.name <> $org.name OR $org.name IS NULL) AND
+            (organization.uuid <> $org.uuid OR $org.uuid IS NULL) AND
+            (ID(organization)  <> $org.id   OR $org.id IS NULL)
+      MATCH (organization)-[:OWNER]->(dataset:Dataset { published: true })
+    `)
+    const otherDatasets = await otherPublished.run({ org: orgRef })
+    filteredDatasets.push(...otherDatasets)
+  }
+
+  return filteredDatasets
 }

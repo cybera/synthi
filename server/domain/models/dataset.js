@@ -450,10 +450,30 @@ class Dataset extends Base {
     datasetMetadata.update(metadata)
     await datasetMetadata.save()
   }
+
+  async ownerName() {
+    const owner = await this.owner()
+    return owner.name
+  }
+
+  async canPublish(user) {
+    const orgs = await user.orgs()
+    const owner = await this.owner()
+    return orgs.some(org => (org.uuid === owner.uuid))
+  }
 }
 
 Dataset.label = 'Dataset'
-Dataset.saveProperties = ['name', 'type', 'path', 'computed', 'generating', 'originalFilename', 'mimetype']
+Dataset.saveProperties = [
+  'name',
+  'type',
+  'path',
+  'computed',
+  'generating',
+  'originalFilename',
+  'mimetype',
+  'published'
+]
 
 Base.ModelFactory.register(Dataset)
 
