@@ -36,6 +36,9 @@ export const storeFS = async ({ stream, filename }, unique = false) => {
   const id = shortid.generate()
   const uniqueFilename = unique ? `${id}-${filename}` : filename
   logger.info(`Storing ${filename}`)
+
+  let bytes = 0
+
   return new Promise(
     (resolve, reject) => stream
       .on('error', (error) => {
@@ -47,14 +50,17 @@ export const storeFS = async ({ stream, filename }, unique = false) => {
         }
         reject(error)
       })
+      .on('data', (chunk) => {
+        bytes += chunk.length
+      })
       .pipe(Storage.createWriteStream('datasets', uniqueFilename))
       .on('error', (error) => {
         logger.error(`Error piping to write stream: ${error}`)
         reject(error)
       })
       .on('finish', () => {
-        logger.info(`Finishing upload of ${filename}`)
-        return resolve({ id, path: uniqueFilename })
+        logger.info(`Finishing upload of ${filename} (${bytes} bytes)`)
+        return resolve({ id, path: uniqueFilename, bytes })
       })
   )
 }

@@ -120,6 +120,7 @@ export const typeDefs = gql`
     published: Boolean
     canPublish: Boolean
     ownerName: String
+    bytes: Int
   }
 
   input DatasetFilter {

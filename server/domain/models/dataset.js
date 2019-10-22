@@ -200,12 +200,13 @@ class Dataset extends Base {
   async upload({ stream, filename, mimetype }) {
     try {
       logger.info(`Uploading: ${filename}`)
-      const { path } = await storeFS({ stream, filename: this.paths.original })
+      const { path, bytes } = await storeFS({ stream, filename: this.paths.original })
 
       this.path = path
       this.computed = false
       this.originalFilename = filename
       this.mimetype = mimetype
+      this.bytes = bytes
       logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
@@ -472,7 +473,8 @@ Dataset.saveProperties = [
   'generating',
   'originalFilename',
   'mimetype',
-  'published'
+  'published',
+  'bytes'
 ]
 
 Base.ModelFactory.register(Dataset)
