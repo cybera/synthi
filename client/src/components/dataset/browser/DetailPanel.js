@@ -24,10 +24,12 @@ const GET_DATASETS = gql`
       ownerName
       canPublish
       type
+      bytes
       metadata {
         description
         dateUpdated
         dateCreated
+        format
       }
     }
   }

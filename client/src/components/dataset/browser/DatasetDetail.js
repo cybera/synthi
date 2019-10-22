@@ -15,6 +15,8 @@ import BusinessIcon from '@material-ui/icons/Business';
 
 import Grid from '@material-ui/core/Grid'
 
+import { formatBytes } from '../../../lib/common'
+
 const useStyles = makeStyles((theme) => ({
   card: {
     minWidth: 275,
@@ -82,25 +84,41 @@ const DateSnippet = ({ label, timestamp }) => {
 }
 
 const MainFooter = ({ dataset }) => {
-  const { metadata } = dataset
-  const { dateCreated, dateUpdated } = metadata  
+  const { metadata, bytes, type: datasetType } = dataset
+  const {
+    dateCreated,
+    dateUpdated,
+    format
+  } = metadata
+
+  let displayType
+  switch (datasetType) {
+    case 'csv':
+      displayType = 'Structured'
+      break
+    case 'document':
+      displayType = 'Unstructured'
+      break
+    default:
+      displayType = ''
+  }
 
   return (
-    <Grid container direction="row" spacing={2} justify="space-between">
-      <Grid item>
+    <Grid container item direction="row" spacing={2} xs={12} justify="space-between">
+      <Grid item xs={10} sm={2}>
         <DateSnippet label="Created on" timestamp={dateCreated} />
       </Grid>
-      <Grid item>
+      <Grid item xs={10} sm={2}>
         <DateSnippet label="Last updated" timestamp={dateUpdated} />
       </Grid>
-      <Grid item>
-        <FooterField label="Size" value="" />
+      <Grid item xs={10} sm={2}>
+        <FooterField label="Size" value={formatBytes(bytes)} />
       </Grid>
-      <Grid item>
-        <FooterField label="Filetype" value="" />
+      <Grid item xs={10} sm={2}>
+        <FooterField label="Format" value={format} />
       </Grid>
-      <Grid item>
-        <FooterField label="Origin" value="" />
+      <Grid item xs={10} sm={2}>
+        <FooterField label="Type" value={displayType} />
       </Grid>
     </Grid>
   )
@@ -115,32 +133,18 @@ const DatasetDetail = ({ dataset }) => {
     <Card className={classes.card}>
       <CardContent className={classes.details}>
         <Grid container direction="column" spacing={3}>
-          <Grid item>
-            <Grid container direction="row">
-              <Grid item class={classes.datasetName}>
-                <Typography className={classes.title} color="textSecondary" gutterBottom>
-                  { dataset.name }
-                </Typography>
-              </Grid>
-              <Grid item>
-                <Typography className={classes.title} color="textSecondary" gutterBottom>
-                  <BusinessIcon className={classes.orgIcon} />
-                  { dataset.ownerName }
-                </Typography>
-              </Grid>
+          <Grid container item direction="row">
+            <Grid item class={classes.datasetName}>
+              <Typography variant="h5" color="textPrimary" gutterBottom>
+                { dataset.name }
+              </Typography>
             </Grid>
-          </Grid>
-          <Grid item>
-            <Typography variant="body2" component="p">
-              <b>UUID:</b>
-              { ' ' }
-              { uuid }
-              <br />
-              <b>Type:</b>
-              { ' ' }
-              { dataset.type }
-              <br />
-            </Typography>
+            <Grid item>
+              <Typography className={classes.title} color="textSecondary" gutterBottom>
+                <BusinessIcon className={classes.orgIcon} />
+                { dataset.ownerName }
+              </Typography>
+            </Grid>
           </Grid>
           <Grid item>
             <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
@@ -150,11 +154,8 @@ const DatasetDetail = ({ dataset }) => {
               { dataset.metadata.description }
             </Typography>
           </Grid>
-          <Grid item>
-            <MainFooter dataset={dataset} />
-          </Grid>
+          <MainFooter dataset={dataset} />
         </Grid>
-        <br />
       </CardContent>
       <CardContent className={classes.operations}>
         { dataset.canPublish && (
