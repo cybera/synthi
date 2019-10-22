@@ -11,10 +11,11 @@ import Typography from '@material-ui/core/Typography'
 
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Switch from '@material-ui/core/Switch'
+import BusinessIcon from '@material-ui/icons/Business';
 
 import Grid from '@material-ui/core/Grid'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   card: {
     minWidth: 275,
     marginTop: 10,
@@ -26,13 +27,23 @@ const useStyles = makeStyles(() => ({
   details: {
     display: 'flex',
     flexDirection: 'column',
+    flex: '1 0 auto'
+  },
+  datasetName: {
+    flex: '1 0 auto'
   },
   operations: {
-    width: 200,
-    marginLeft: 'auto',
+    borderLeftStyle: 'dotted',
+    borderLeftWidth: 1,
+    borderLeftColor: '#cfcfcf'
   },
   title: {
     fontSize: 18,
+  },
+  orgIcon: {
+    marginRight: theme.spacing(1),
+    fontSize: 22,
+    verticalAlign: 'text-bottom',
   },
   inputsHeading: {
     fontSize: 14,
@@ -75,7 +86,7 @@ const MainFooter = ({ dataset }) => {
   const { dateCreated, dateUpdated } = metadata  
 
   return (
-    <Grid container direction="row" spacing={2}>
+    <Grid container direction="row" spacing={2} justify="space-between">
       <Grid item>
         <DateSnippet label="Created on" timestamp={dateCreated} />
       </Grid>
@@ -103,29 +114,47 @@ const DatasetDetail = ({ dataset }) => {
   return (
     <Card className={classes.card}>
       <CardContent className={classes.details}>
-        <Typography className={classes.title} color="textSecondary" gutterBottom>
-          { dataset.name }
-          { ' ' }
-          { `(${dataset.ownerName})` }
-        </Typography>
-        <Typography variant="body2" component="p">
-          <b>UUID:</b>
-          { ' ' }
-          { uuid }
-          <br />
-          <b>Type:</b>
-          { ' ' }
-          { dataset.type }
-          <br />
-        </Typography>
+        <Grid container direction="column" spacing={3}>
+          <Grid item>
+            <Grid container direction="row">
+              <Grid item class={classes.datasetName}>
+                <Typography className={classes.title} color="textSecondary" gutterBottom>
+                  { dataset.name }
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography className={classes.title} color="textSecondary" gutterBottom>
+                  <BusinessIcon className={classes.orgIcon} />
+                  { dataset.ownerName }
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Typography variant="body2" component="p">
+              <b>UUID:</b>
+              { ' ' }
+              { uuid }
+              <br />
+              <b>Type:</b>
+              { ' ' }
+              { dataset.type }
+              <br />
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
+              Description:
+            </Typography>
+            <Typography variant="body2" component="p">
+              { dataset.metadata.description }
+            </Typography>
+          </Grid>
+          <Grid item>
+            <MainFooter dataset={dataset} />
+          </Grid>
+        </Grid>
         <br />
-        <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
-          Description:
-        </Typography>
-        <Typography variant="body2" component="p">
-          { dataset.metadata.description }
-        </Typography>
-        <MainFooter dataset={dataset} />
       </CardContent>
       <CardContent className={classes.operations}>
         { dataset.canPublish && (
@@ -136,6 +165,7 @@ const DatasetDetail = ({ dataset }) => {
               onChange={() => setPublished({ variables: { uuid, published: !published } })}
               value={published}
               color="primary"
+              size="small"
             />
           )}
           label="Publish"
