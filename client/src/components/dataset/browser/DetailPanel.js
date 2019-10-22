@@ -26,6 +26,8 @@ const GET_DATASETS = gql`
       type
       metadata {
         description
+        dateUpdated
+        dateCreated
       }
     }
   }

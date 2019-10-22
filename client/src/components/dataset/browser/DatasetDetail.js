@@ -12,6 +12,8 @@ import Typography from '@material-ui/core/Typography'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Switch from '@material-ui/core/Switch'
 
+import Grid from '@material-ui/core/Grid'
+
 const useStyles = makeStyles(() => ({
   card: {
     minWidth: 275,
@@ -47,6 +49,52 @@ const PUBLISH_DATASET = gql`
   }
 `
 
+const FooterField = ({ label, value }) => {
+  const classes = useStyles()
+
+  return (
+    <>
+      <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
+        { label }
+      </Typography>
+      <Typography variant="body2" component="p">
+        { value }
+      </Typography>
+    </>
+  )
+}
+const DateSnippet = ({ label, timestamp }) => {
+  const date = new Date(timestamp)
+  const dateString = new Date(date).toDateString()
+
+  return <FooterField label={label} value={dateString} />
+}
+
+const MainFooter = ({ dataset }) => {
+  const { metadata } = dataset
+  const { dateCreated, dateUpdated } = metadata  
+
+  return (
+    <Grid container direction="row" spacing={2}>
+      <Grid item>
+        <DateSnippet label="Created on" timestamp={dateCreated} />
+      </Grid>
+      <Grid item>
+        <DateSnippet label="Last updated" timestamp={dateUpdated} />
+      </Grid>
+      <Grid item>
+        <FooterField label="Size" value="" />
+      </Grid>
+      <Grid item>
+        <FooterField label="Filetype" value="" />
+      </Grid>
+      <Grid item>
+        <FooterField label="Origin" value="" />
+      </Grid>
+    </Grid>
+  )
+}
+
 const DatasetDetail = ({ dataset }) => {
   const classes = useStyles()
   const [setPublished] = useMutation(PUBLISH_DATASET)
@@ -77,6 +125,7 @@ const DatasetDetail = ({ dataset }) => {
         <Typography variant="body2" component="p">
           { dataset.metadata.description }
         </Typography>
+        <MainFooter dataset={dataset} />
       </CardContent>
       <CardContent className={classes.operations}>
         { dataset.canPublish && (
@@ -108,6 +157,8 @@ DatasetDetail.propTypes = {
     type: PropTypes.string,
     metadata: PropTypes.shape({
       description: PropTypes.string,
+      dateCreated: PropTypes.number,
+      dateUpdated: PropTypes.number,
     }),
   }).isRequired
 }
