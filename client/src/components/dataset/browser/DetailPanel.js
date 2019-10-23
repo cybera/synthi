@@ -43,7 +43,7 @@ const GET_DATASETS = gql`
 
 const DatasetList = () => {
   const navigation = useContext(NavigationContext)
-  const filter = useContext(DatasetFilterContext)
+  const { filter } = useContext(DatasetFilterContext)
   const classes = useStyles()
 
   // Our context includes functions to set the filter options that we

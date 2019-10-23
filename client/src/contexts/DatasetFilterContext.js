@@ -2,28 +2,28 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 const DatasetFilterContext = React.createContext({
-  publishedOnly: false,
-  setPublishedOnly: () => {},
-  includeShared: false,
-  setIncludeShared: () => {},
-  format: '',
-  setFormat: () => {},
+  filter: {
+    publishedOnly: false,
+    includeShared: true,
+    format: '',
+  },
+  setFilter: () => {},
+  updateFilter: () => {}
 })
 
 export const DatasetFilterProvider = ({ children }) => {
-  const [publishedOnly, setPublishedOnly] = useState(false)
-  const [includeShared, setIncludeShared] = useState(true)
-  const [format, setFormat] = useState('')
+  const [filter, setFilter] = useState({
+    publishedOnly: false,
+    includeShared: true,
+    format: ''
+  })
 
   return (
     <DatasetFilterContext.Provider
       value={{
-        publishedOnly,
-        includeShared,
-        setPublishedOnly,
-        setIncludeShared,
-        format,
-        setFormat
+        filter,
+        setFilter,
+        updateFilter: (values) => setFilter({ ...filter, ...values })
       }}
     >
       { children }

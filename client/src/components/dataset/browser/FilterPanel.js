@@ -42,8 +42,11 @@ ContextCheckbox.propTypes = {
 }
 
 const FilterPanel = () => {
-  const filter = useContext(DatasetFilterContext)
+  const { filter, updateFilter } = useContext(DatasetFilterContext)
   const classes = useStyles()
+  const setPublished = (publishedOnly) => updateFilter({ publishedOnly })
+  const setShared = (includeShared) => updateFilter({ includeShared })
+  const setFormat = (format) => updateFilter({ format })
 
   return (
     <div className={classes.root}>
@@ -53,17 +56,17 @@ const FilterPanel = () => {
       <ContextCheckbox
         label="Published Only"
         value={filter.publishedOnly}
-        setFunction={filter.setPublishedOnly}
+        setFunction={setPublished}
       />
       <ContextCheckbox
         label="From other organizations"
         value={filter.includeShared}
-        setFunction={filter.setIncludeShared}
+        setFunction={setShared}
       />
       <FormatSelector
         empty="All Formats"
         format={filter.format}
-        handleFormatChange={(e) => filter.setFormat(e.target.value)}
+        handleFormatChange={(e) => setFormat(e.target.value)}
       />
     </div>
   )
