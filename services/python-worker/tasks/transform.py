@@ -50,20 +50,27 @@ def transform_dataset(params):
     full_name = get_full_name(output_name, owner_name)
     path = params["storagePaths"][full_name]["imported"]
 
+    update_info = dict(
+      format = os.path.splitext(path)[1].lstrip('.'),
+      bytes = storage.bytes(path),
+      columns = []
+    )
+
     if type(output) is pd.DataFrame:
       columns = data_import.column_info(output)
 
       print(f"Updating calculated '{output_name}' dataset: {path}")
       store_csv(output, path, params["storagePaths"][full_name]["sample"])
-
-      return { 'type': 'csv', 'columns': columns }
+      update_info['type'] = 'csv'
+      update_info['columns'] = columns
     elif type(output) is str:
       storage.write_raw(output.encode('utf-8'), path)
     else:
       storage.write_raw(output, path)
+      update_info['type'] = 'document'
 
-      return { 'type': 'document', 'columns': [] }
-
+    return update_info
+  
   body = {
     "type": "task-updated",
     "task": "transform",

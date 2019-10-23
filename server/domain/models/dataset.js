@@ -1,5 +1,6 @@
 import shortid from 'shortid'
 import waitFor from 'p-wait-for'
+import pathlib from 'path'
 
 import withNext from '../../lib/withNext'
 
@@ -211,6 +212,14 @@ class Dataset extends Base {
       await this.save()
       logger.debug('Triggering import...')
       await this.import()
+      // figure out and store the default format
+      const metadata = await this.metadata()
+      let ext = pathlib.extname(filename)
+      if (ext.startsWith('.')) {
+        ext = ext.substr(1)
+      }
+      metadata.format = ext
+      await metadata.save()
     } catch (e) {
       // TODO: What should we do here?
       logger.error(`Error in upload resolver: ${e.message}`)
@@ -354,9 +363,14 @@ class Dataset extends Base {
     return datasetMetadata
   }
 
-  // eslint-disable-next-line class-methods-use-this, no-unused-vars
-  async handleUpdate(msg) {
-    // Do nothing
+  async handleUpdate(data) {
+    const { format, bytes } = data
+    this.bytes = bytes
+    await this.save()
+
+    const metadata = await this.metadata()
+    metadata.format = format
+    await metadata.save()
   }
 
   async registerTransformation(inputs, outputs) {
