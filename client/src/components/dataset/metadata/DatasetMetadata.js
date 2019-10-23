@@ -56,6 +56,12 @@ export const updateDatasetMetadataMutation = gql`
   }
 `
 
+const knownFormats = [
+  'csv',
+  'pdf',
+  'txt',
+]
+
 const styles = theme => ({
   container: {
     display: 'flex',
@@ -364,7 +370,11 @@ class DatasetMetadata extends React.Component {
                       onChange={this.handleStringChange('format')}
                       input={<Input name="format" id="format-label-placeholder" />}
                     >
-                      <MenuItem value="csv">CSV</MenuItem>
+                      { knownFormats.map((format) => (
+                        <MenuItem value={format} key={format}>
+                          { format.toUpperCase() }
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </div>
