@@ -2,6 +2,8 @@ import { GraphQLScalarType } from 'graphql'
 import { Kind } from 'graphql/language'
 import gql from 'graphql-tag'
 
+import { Tag } from '../../domain/models'
+
 export const resolvers = {
   // From: https://www.apollographql.com/docs/graphql-tools/scalars.html
   Date: new GraphQLScalarType({
@@ -23,7 +25,11 @@ export const resolvers = {
       }
       return null
     }
-  })
+  }),
+  Query: {
+    tags: (_, { prefix }) => (prefix ? Tag.findByPrefix(prefix) : Tag.all()),
+    tag: (_, { name }) => Tag.getByName(name)
+  }
 }
 
 // PATCH: Handle and reject parsing errors
@@ -55,6 +61,8 @@ export const typeDefs = gql`
 
   type Query {
     uploads: [File]
+    tags(prefix: String): [Tag]
+    tag(name: String!): Tag
   }
 
   type Mutation {

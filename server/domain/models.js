@@ -5,6 +5,7 @@ import Dataset from './models/dataset'
 import DatasetCSV from './models/datasetCSV'
 import DocumentDataset from './models/documentDataset'
 import Organization from './models/organization'
+import Tag from './models/tag'
 import Task from './models/task'
 import TransformTask from './models/tasks/transformTask'
 import RegisterTask from './models/tasks/registerTask'
@@ -24,6 +25,7 @@ export {
   DatasetCSV,
   DocumentDataset,
   Organization,
+  Tag,
   Task,
   TransformTask,
   RegisterTask,
