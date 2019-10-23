@@ -31,6 +31,12 @@ const GET_DATASETS = gql`
         dateCreated
         format
       }
+      columns {
+        name
+        tags {
+          name
+        }
+      }
     }
   }
 `

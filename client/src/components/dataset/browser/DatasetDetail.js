@@ -14,8 +14,10 @@ import Switch from '@material-ui/core/Switch'
 import BusinessIcon from '@material-ui/icons/Business';
 
 import Grid from '@material-ui/core/Grid'
+import ColumnSummary from './ColumnSummary'
 
 import { formatBytes } from '../../../lib/common'
+import { datasetProptype } from '../../../lib/adiProptypes'
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -76,11 +78,22 @@ const FooterField = ({ label, value }) => {
     </>
   )
 }
+
+FooterField.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOf(PropTypes.string, PropTypes.number).isRequired
+}
+
 const DateSnippet = ({ label, timestamp }) => {
   const date = new Date(timestamp)
   const dateString = new Date(date).toDateString()
 
   return <FooterField label={label} value={dateString} />
+}
+
+DateSnippet.propTypes = {
+  label: PropTypes.string.isRequired,
+  timestamp: PropTypes.number.isRequired
 }
 
 const MainFooter = ({ dataset }) => {
@@ -124,10 +137,14 @@ const MainFooter = ({ dataset }) => {
   )
 }
 
+MainFooter.propTypes = {
+  dataset: datasetProptype.isRequired
+}
+
 const DatasetDetail = ({ dataset }) => {
   const classes = useStyles()
   const [setPublished] = useMutation(PUBLISH_DATASET)
-  const { uuid, published, } = dataset
+  const { uuid, published, columns } = dataset
 
   return (
     <Card className={classes.card}>
@@ -148,12 +165,22 @@ const DatasetDetail = ({ dataset }) => {
           </Grid>
           <Grid item>
             <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
-              Description:
+              Description
             </Typography>
             <Typography variant="body2" component="p">
               { dataset.metadata.description }
             </Typography>
           </Grid>
+          { columns.length > 0 && (
+            <Grid item>
+              <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
+                Columns
+              </Typography>
+              <Typography variant="body2" component="p">
+                <ColumnSummary columns={columns} />
+              </Typography>
+            </Grid>
+          )}
           <MainFooter dataset={dataset} />
         </Grid>
       </CardContent>
@@ -178,20 +205,7 @@ const DatasetDetail = ({ dataset }) => {
 }
 
 DatasetDetail.propTypes = {
-  dataset: PropTypes.shape({
-    name: PropTypes.string,
-    uuid: PropTypes.string,
-    inputs: PropTypes.arrayOf(PropTypes.string),
-    published: PropTypes.bool,
-    ownerName: PropTypes.string,
-    canPublish: PropTypes.bool,
-    type: PropTypes.string,
-    metadata: PropTypes.shape({
-      description: PropTypes.string,
-      dateCreated: PropTypes.number,
-      dateUpdated: PropTypes.number,
-    }),
-  }).isRequired
+  dataset: datasetProptype.isRequired
 }
 
 export default DatasetDetail
