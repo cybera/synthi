@@ -7,11 +7,9 @@ import Grid from '@material-ui/core/Grid'
 import { DatePicker } from '@material-ui/pickers'
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
-import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
-import Input from '@material-ui/core/Input'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import ChipInput from 'material-ui-chip-input'
@@ -21,6 +19,7 @@ import * as Ramda from 'ramda'
 
 import { ADIButton } from '../../layout/buttons'
 import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
+import FormatSelector from './FormatSelector'
 import { PanelLoadingState } from '../../layout'
 import { datasetViewQuery } from '../../../queries'
 
@@ -55,12 +54,6 @@ export const updateDatasetMetadataMutation = gql`
     }
   }
 `
-
-const knownFormats = [
-  'csv',
-  'pdf',
-  'txt',
-]
 
 const styles = theme => ({
   container: {
@@ -360,23 +353,10 @@ class DatasetMetadata extends React.Component {
               </Grid>
               <Grid item xs={12}>
                 <div className={classes.formatSelector}>
-                  <FormControl className={classes.formControl}>
-                    <InputLabel shrink htmlFor="format-label-placeholder">
-                      Format
-                    </InputLabel>
-                    <Select
-                      className={classes.formatSelectComponent}
-                      value={fields.format}
-                      onChange={this.handleStringChange('format')}
-                      input={<Input name="format" id="format-label-placeholder" />}
-                    >
-                      { knownFormats.map((format) => (
-                        <MenuItem value={format} key={format}>
-                          { format.toUpperCase() }
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <FormatSelector
+                    format={fields.format}
+                    handleFormatChange={this.handleStringChange('format')}
+                  />
                 </div>
               </Grid>
               <Grid item xs={12}>
