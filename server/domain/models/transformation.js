@@ -37,7 +37,7 @@ class Transformation extends Base {
       return template.script
     }
 
-    throw Error(`A transformation should either have its own script or reference 
+    throw Error(`A transformation should either have its own script or reference
                  a template transformation with one`)
   }
 
