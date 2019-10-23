@@ -109,7 +109,7 @@ class Organization extends Base {
     return this.canCreateDatasets(user)
   }
 
-  async createTransformationTemplate(name, inputs, code) {
+  async createTransformationTemplate(name, inputs, code, tags) {
     const Transformation = Base.ModelFactory.getClass('Transformation')
 
     if (await this.transformationTemplateByName(name)) {
@@ -119,7 +119,8 @@ class Organization extends Base {
     const transformation = await Transformation.create({
       name,
       inputs,
-      code
+      code,
+      tags
     })
 
     await super.saveRelation(transformation, '<-[:OWNER]-')

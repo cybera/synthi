@@ -7,31 +7,31 @@ import Query from '../../neo4j/query'
 import logger from '../../config/winston'
 
 // eslint-disable-next-line import/prefer-default-export
-export async function createTransformationTemplate(name, inputs, code, owner, user) {
+export async function createTransformationTemplate(name, inputs, code, owner, user, tagNames) {
   const org = await findOrganization(owner)
 
   if (!await org.canCreateTransformationTemplates(user)) {
     throw new AuthenticationError('You cannot create transformations for this organization')
   }
 
-  const transformation = await org.createTransformationTemplate(name, inputs, code)
+  const transformation = await org.createTransformationTemplate(name, inputs, code, tagNames)
 
   logger.debug('%o', transformation)
 
   return transformation
 }
 
-export async function updateTransformation(uuid, { name, inputs, code }) {
+export async function updateTransformation(uuid, { name, inputs, code, tagNames }) {
   const transformation = await ModelFactory.getByUuid(uuid)
-
   transformation.name = name || transformation.name
   transformation.inputs = inputs || transformation.inputs
+  await transformation.save()
+
+  await transformation.setTags(tagNames)
 
   if (code) {
     await transformation.storeCode(code)
   }
-
-  await transformation.save()
 
   return transformation
 }
