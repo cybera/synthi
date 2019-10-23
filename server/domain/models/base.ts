@@ -61,6 +61,22 @@ class Base {
     return this.getByUniqueMatch(query, { uuid })
   }
 
+  static async all<T extends typeof Base>(this: T): Promise<InstanceType<T>[]> {
+    return this.find('', {})
+  }
+
+  static async find<T extends typeof Base>(this: T, whereQuery: string, params: object): Promise<InstanceType<T>[]> {
+    const query = `
+      MATCH (node:${this.label})
+      ${whereQuery}
+      RETURN node
+    `
+
+    const results = await safeQuery(query, params)
+
+    return results.map(r => ModelFactory.derive<T>(r.node))
+  }
+
   static async create<T extends typeof Base>(this: T, properties: Indexable): ModelPromise<T> {
     Object.keys(properties).forEach((k) => {
       if (!this.saveProperties.includes(k)) {
