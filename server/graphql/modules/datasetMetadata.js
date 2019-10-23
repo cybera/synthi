@@ -34,7 +34,7 @@ export const DatasetMetadata = `
   updates: Boolean
   updateFrequencyAmount: Int
   updateFrequencyUnit: FrequencyUnit
-  format: DatasetFormat
+  format: String
   description: String
   source: String
   identifier: String

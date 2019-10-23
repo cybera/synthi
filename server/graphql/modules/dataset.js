@@ -83,10 +83,6 @@ export const typeDefs = gql`
     document
   }
 
-  enum DatasetFormat {
-    csv
-  }
-
   input CSVImportOptions {
     header: Boolean,
     delimiter: String,
