@@ -20,7 +20,7 @@ const useStyles = makeStyles({
   },
 })
 
-const FormatSelector = ({ format, handleFormatChange }) => {
+const FormatSelector = ({ format, handleFormatChange, empty }) => {
   const classes = useStyles()
 
   return (
@@ -33,7 +33,9 @@ const FormatSelector = ({ format, handleFormatChange }) => {
         value={format}
         onChange={handleFormatChange}
         input={<Input name="format" id="format-label-placeholder" />}
+        displayEmpty={Boolean(empty)}
       >
+        { empty && <MenuItem value="" key="">{empty}</MenuItem> }
         { knownFormats.map((formatValue) => (
           <MenuItem value={formatValue} key={formatValue}>
             { formatValue.toUpperCase() }
@@ -47,11 +49,13 @@ const FormatSelector = ({ format, handleFormatChange }) => {
 
 FormatSelector.propTypes = {
   format: PropTypes.string,
-  handleFormatChange: PropTypes.func.isRequired
+  handleFormatChange: PropTypes.func.isRequired,
+  empty: PropTypes.string,
 }
 
 FormatSelector.defaultProps = {
-  format: 'csv'
+  format: 'csv',
+  empty: null,
 }
 
 export default FormatSelector
