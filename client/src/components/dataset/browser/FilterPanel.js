@@ -7,6 +7,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Typography from '@material-ui/core/Typography'
 
 import DatasetFilterContext from '../../../contexts/DatasetFilterContext'
+import FormatSelector from '../metadata/FormatSelector'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,7 +37,7 @@ const ContextCheckbox = ({ label, value, setFunction }) => (
 
 ContextCheckbox.propTypes = {
   label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.bool.isRequired,
   setFunction: PropTypes.func.isRequired,
 }
 
@@ -58,6 +59,11 @@ const FilterPanel = () => {
         label="From other organizations"
         value={filter.includeShared}
         setFunction={filter.setIncludeShared}
+      />
+      <FormatSelector
+        empty="All Formats"
+        format={filter.format}
+        handleFormatChange={(e) => filter.setFormat(e.target.value)}
       />
     </div>
   )

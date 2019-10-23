@@ -5,12 +5,15 @@ const DatasetFilterContext = React.createContext({
   publishedOnly: false,
   setPublishedOnly: () => {},
   includeShared: false,
-  setIncludeShared: () => {}
+  setIncludeShared: () => {},
+  format: '',
+  setFormat: () => {},
 })
 
 export const DatasetFilterProvider = ({ children }) => {
   const [publishedOnly, setPublishedOnly] = useState(false)
   const [includeShared, setIncludeShared] = useState(true)
+  const [format, setFormat] = useState('')
 
   return (
     <DatasetFilterContext.Provider
@@ -19,6 +22,8 @@ export const DatasetFilterProvider = ({ children }) => {
         includeShared,
         setPublishedOnly,
         setIncludeShared,
+        format,
+        setFormat
       }}
     >
       { children }

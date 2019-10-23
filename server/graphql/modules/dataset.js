@@ -122,13 +122,15 @@ export const typeDefs = gql`
   input DatasetFilter {
     publishedOnly: Boolean
     includeShared: Boolean
+    format: String
   }
 
   extend type Query {
     dataset(uuid: String, name: String, searchString: String, org:OrganizationRef): [Dataset]!
     listDatasets(org: OrganizationRef!, filter: DatasetFilter = {
       publishedOnly: false,
-      includeShared: true
+      includeShared: true,
+      format: null
     }): [Dataset]
   }
 

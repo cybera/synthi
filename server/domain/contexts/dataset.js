@@ -201,28 +201,53 @@ export async function setPublished(uuid, published) {
 }
 
 export async function listDatasets(orgRef, filter={}) {
-  const org = await findOrganization(orgRef)
-  const datasets = await org.datasets()
-  const { publishedOnly, includeShared } = filter
+  const query = new Query('dataset')
 
-  let filteredDatasets = datasets
+  query.addPart('MATCH (organization:Organization)-[:OWNER]->(dataset:Dataset)')
 
-  if (publishedOnly) {
-    filteredDatasets = datasets.filter(dataset => dataset.published)
-  }
+  // organization/dataset filtering
+  query.addPart(({ filter }) => {
+    const { includeShared, publishedOnly } = filter
 
-  if (includeShared) {
-    const otherPublished = new Query('dataset')
-    otherPublished.addPart(`
-      MATCH (organization:Organization)
-      WHERE (organization.name <> $org.name OR $org.name IS NULL) AND
-            (organization.uuid <> $org.uuid OR $org.uuid IS NULL) AND
-            (ID(organization)  <> $org.id   OR $org.id IS NULL)
-      MATCH (organization)-[:OWNER]->(dataset:Dataset { published: true })
-    `)
-    const otherDatasets = await otherPublished.run({ org: orgRef })
-    filteredDatasets.push(...otherDatasets)
-  }
+    let where
+    if (includeShared && publishedOnly) {
+      // If we include datasets from other organizations and only want published ones,
+      // then we don't bother adding a restriction to a specific organization.
+      where = 'WHERE dataset.published = true'
+    } else {
+      // We're going to need to restrict to the given organization at this point
+      where = `WHERE (
+        ($org.name IS NOT NULL AND organization.name = $org.name) OR 
+        ($org.uuid IS NOT NULL AND organization.uuid = $org.uuid) OR 
+        ($org.id   IS NOT NULL AND ID(organization)  = $org.id))
+      `
 
-  return filteredDatasets
+      if (publishedOnly) {
+        where += 'AND dataset.published = true'
+      } else if (includeShared) {
+        where += 'OR dataset.published = true'
+      }
+    }
+
+    return where
+  })
+
+  // metadata filtering
+  query.addPart(({ filter }) => {
+    let conditions = []
+    if (filter.format) {
+      conditions.push('metadata.format = $filter.format')
+    }
+    
+    if (conditions.length > 0) {
+      return `
+        MATCH (dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)
+        WHERE ${conditions.join(' AND \n')}
+      `
+    }
+
+    return ''
+  })
+
+  return query.run({ org: orgRef, filter })
 }
