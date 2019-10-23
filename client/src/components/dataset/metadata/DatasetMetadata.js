@@ -55,7 +55,7 @@ export const updateDatasetMetadataMutation = gql`
   }
 `
 
-const styles = theme => ({
+const styles = (theme) => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -140,7 +140,7 @@ const LocalDatePicker = (props) => {
       label={label}
       format="yyyy/MM/dd"
       placeholder="2018/10/10"
-      mask={valueToMask => (valueToMask ? [/\d/, /\d/, /\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/] : [])}
+      mask={(valueToMask) => (valueToMask ? [/\d/, /\d/, /\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/] : [])}
       value={value}
       onChange={onChange}
       disableOpenOnEnter
@@ -163,25 +163,6 @@ LocalDatePicker.defaultProps = {
 }
 
 class DatasetMetadata extends React.Component {
-  static defaultProps = {
-    fields: {
-      title: '',
-      contributor: '',
-      contact: '',
-      dateAdded: null,
-      dateCreated: null,
-      dateUpdated: null,
-      updates: null,
-      updateFrequencyAmount: 0,
-      updateFrequencyUnit: 'weeks',
-      format: 'csv',
-      description: '',
-      source: '',
-      identifier: '',
-      topic: []
-    }
-  }
-
   constructor(props) {
     super(props)
 
@@ -192,7 +173,7 @@ class DatasetMetadata extends React.Component {
     }
   }
 
-  handleChange = convertEvent => name => (event) => {
+  handleChange = (convertEvent) => (name) => (event) => {
     const { fields } = this.state
 
     fields[name] = convertEvent(event)
@@ -203,24 +184,24 @@ class DatasetMetadata extends React.Component {
     })
   }
 
-  handleChipsChange = name => chips => this.handleChange(
+  handleChipsChange = (name) => (chips) => this.handleChange(
     () => chips
   )(name)(chips)
 
-  handleStringChange = name => event => this.handleChange(
-    e => e.target.value
+  handleStringChange = (name) => (event) => this.handleChange(
+    (e) => e.target.value
   )(name)(event)
 
-  handleCheckboxChange = name => event => this.handleChange(
-    e => e.target.checked
+  handleCheckboxChange = (name) => (event) => this.handleChange(
+    (e) => e.target.checked
   )(name)(event)
 
-  handleIntChange = name => event => this.handleChange(
-    e => parseInt(e.target.value, 10)
+  handleIntChange = (name) => (event) => this.handleChange(
+    (e) => parseInt(e.target.value, 10)
   )(name)(event)
 
-  handleDateChange = name => date => this.handleChange(
-    d => d.getTime()
+  handleDateChange = (name) => (date) => this.handleChange(
+    (d) => d.getTime()
   )(name)(date)
 
   handleSave = (mutation) => {
@@ -371,7 +352,7 @@ class DatasetMetadata extends React.Component {
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>
                 <ChipInput
-                  onChange={chips => this.handleChipsChange('topic')(chips)}
+                  onChange={(chips) => this.handleChipsChange('topic')(chips)}
                   defaultValue={fields.topic}
                   margin="normal"
                   fullWidth
@@ -430,6 +411,25 @@ DatasetMetadata.propTypes = {
   saveMutation: PropTypes.func.isRequired
 }
 
+DatasetMetadata.defaultProps = {
+  fields: {
+    title: '',
+    contributor: '',
+    contact: '',
+    dateAdded: null,
+    dateCreated: null,
+    dateUpdated: null,
+    updates: null,
+    updateFrequencyAmount: 0,
+    updateFrequencyUnit: 'weeks',
+    format: 'csv',
+    description: '',
+    source: '',
+    identifier: '',
+    topic: []
+  }
+}
+
 const StyledDatasetMetadata = withStyles(styles)(DatasetMetadata)
 
 const ConnectedDatasetMetadata = (props) => {
@@ -447,7 +447,7 @@ const ConnectedDatasetMetadata = (props) => {
       ]}
       awaitRefetchQueries
     >
-      { updateDatasetMetadata => (
+      { (updateDatasetMetadata) => (
         <Query
           query={datasetMetadataQuery}
           variables={{ uuid }}
@@ -462,7 +462,7 @@ const ConnectedDatasetMetadata = (props) => {
 
             if (data.dataset) {
               fields = Ramda.pick(fieldKeys, data.dataset[0].metadata)
-              fields = Ramda.reject(field => field == null, fields)
+              fields = Ramda.reject((field) => field == null, fields)
               fields = Ramda.merge(DatasetMetadata.defaultProps.fields, fields)
             }
 
