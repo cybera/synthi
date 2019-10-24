@@ -17,13 +17,14 @@ export const DatasetFilterProvider = ({ children }) => {
     includeShared: true,
     format: ''
   })
+  const updateFilter = (values) => setFilter({ ...filter, ...values })
 
   return (
     <DatasetFilterContext.Provider
       value={{
         filter,
         setFilter,
-        updateFilter: (values) => setFilter({ ...filter, ...values })
+        updateFilter
       }}
     >
       { children }
