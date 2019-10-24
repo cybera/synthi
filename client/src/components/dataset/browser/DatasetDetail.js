@@ -176,9 +176,7 @@ const DatasetDetail = ({ dataset }) => {
               <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
                 Columns
               </Typography>
-              <Typography variant="body2" component="p">
                 <ColumnSummary columns={columns} />
-              </Typography>
             </Grid>
           )}
           <MainFooter dataset={dataset} />
