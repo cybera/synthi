@@ -28,15 +28,15 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 
-const NavMenuItem = ({ label, mode }) => {
+const NavMenuItem = React.forwardRef(({ label, mode }, ref) => {
   const navigation = useContext(NavigationContext)
 
   return (
-    <MenuItem onClick={() => navigation.switchMode(mode)}>
+    <MenuItem ref={ref} onClick={() => navigation.switchMode(mode)}>
       { label }
     </MenuItem>
   )
-}
+})
 
 const NavMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null)
