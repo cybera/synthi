@@ -81,7 +81,11 @@ const FooterField = ({ label, value }) => {
 
 FooterField.propTypes = {
   label: PropTypes.string.isRequired,
-  value: PropTypes.oneOf(PropTypes.string, PropTypes.number).isRequired
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+}
+
+FooterField.defaultProps = {
+  value: ''
 }
 
 const DateSnippet = ({ label, timestamp }) => {
@@ -176,7 +180,7 @@ const DatasetDetail = ({ dataset }) => {
               <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
                 Columns
               </Typography>
-                <ColumnSummary columns={columns} />
+              <ColumnSummary columns={columns} />
             </Grid>
           )}
           <MainFooter dataset={dataset} />
