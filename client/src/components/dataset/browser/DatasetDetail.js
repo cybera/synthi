@@ -151,7 +151,7 @@ const DatasetDetail = ({ dataset }) => {
       <CardContent className={classes.details}>
         <Grid container direction="column" spacing={3}>
           <Grid container item direction="row">
-            <Grid item class={classes.datasetName}>
+            <Grid item className={classes.datasetName}>
               <Typography variant="h5" color="textPrimary" gutterBottom>
                 { dataset.name }
               </Typography>
