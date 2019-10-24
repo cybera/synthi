@@ -193,7 +193,7 @@ const DatasetDetail = ({ dataset }) => {
             <Switch
               checked={Boolean(published)}
               onChange={() => setPublished({ variables: { uuid, published: !published } })}
-              value={published}
+              value={`published-${uuid}`}
               color="primary"
               size="small"
             />

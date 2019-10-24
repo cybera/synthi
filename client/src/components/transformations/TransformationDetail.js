@@ -83,9 +83,9 @@ const TransformationDetail = ({ transformation }) => {
         <FormControlLabel
           control={(
             <Switch
-              checked={published}
+              checked={Boolean(published)}
               onChange={() => setPublished({ variables: { uuid, published: !published } })}
-              value={published}
+              value={`published-${uuid}`}
               color="primary"
             />
           )}
