@@ -17,7 +17,7 @@ import UserMenu from './UserMenu'
 import NavMenu from './NavMenu'
 import { Sidebar } from '../sidebar'
 
-const drawerWidth = 300
+const drawerWidth = 320
 
 const styles = theme => ({
   root: {
