@@ -32,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
   },
   filterRow: {
     width: '100%'
+  },
+  filterButton: {
+    width: '100%'
   }
 }))
 
@@ -61,12 +64,24 @@ const FilterPanel = () => {
   const changeFilter = (name) => (value) => setFilter({ ...filter, [name]: value })
   const classes = useStyles()
 
+  const filterSubmitOnEnter = (event) => {
+    if (event.key === 'Enter') {
+      updateFilter(filter)
+    }
+  }
+
   return (
     <div className={classes.root}>
       <Typography className={classes.title} color="textSecondary" gutterBottom>
         Filter Options
       </Typography>
-      <Grid container spacing={2} direction="column" className={classes.optionGrid}>
+      <Grid
+        container
+        spacing={2}
+        direction="column"
+        className={classes.optionGrid}
+        onKeyPress={filterSubmitOnEnter}
+      >
         <Grid item className={classes.filterRow}>
           <TextField
             id="outlined-search"
@@ -115,7 +130,12 @@ const FilterPanel = () => {
           />
         </Grid>
         <Grid item className={classes.filterRow}>
-          <ADIButton onClick={() => updateFilter(filter)}>Filter</ADIButton>
+          <ADIButton
+            onClick={() => updateFilter(filter)}
+            className={classes.filterButton}
+          >
+            Filter
+          </ADIButton>
         </Grid>
       </Grid>
     </div>
