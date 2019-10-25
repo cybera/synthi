@@ -5,7 +5,8 @@ const filterDefaults = {
   publishedOnly: false,
   includeShared: true,
   format: '',
-  sizeRange: { min: null, max: null, unit: 'kb' }
+  sizeRange: { min: null, max: null, unit: 'kb' },
+  topics: []
 }
 
 const DatasetFilterContext = React.createContext({

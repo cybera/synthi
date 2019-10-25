@@ -254,6 +254,10 @@ export async function listDatasets(orgRef, filter={}) {
       conditions.push('metadata.format = $filter.format')
     }
     
+    if (filter.topics && filter.topics.length > 0) {
+      conditions.push('SIZE(apoc.coll.intersection($filter.topics, metadata.topic)) > 0')
+    }
+
     if (conditions.length > 0) {
       return `
         MATCH (dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)

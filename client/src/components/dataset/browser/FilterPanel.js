@@ -6,6 +6,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
+import ChipInput from 'material-ui-chip-input'
 
 import DatasetFilterContext from '../../../contexts/DatasetFilterContext'
 import FormatSelector from '../metadata/FormatSelector'
@@ -80,6 +81,16 @@ const FilterPanel = () => {
           <FileSizeFilter
             sizeRange={filter.sizeRange}
             handleUpdatedRange={changeFilter('sizeRange')}
+          />
+        </Grid>
+        <Grid item>
+          <ChipInput
+            onChange={changeFilter('topics')}
+            defaultValue={filter.topics}
+            margin="normal"
+            fullWidth
+            fullWidthInput
+            label="Topics"
           />
         </Grid>
         <Grid item>

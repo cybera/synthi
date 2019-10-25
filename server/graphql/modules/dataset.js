@@ -136,6 +136,7 @@ export const typeDefs = gql`
     includeShared: Boolean
     format: String
     sizeRange: FileSizeRange
+    topics: [String]
   }
 
   extend type Query {
