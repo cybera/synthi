@@ -1,25 +1,50 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Chip,
+  Button,
+} from '@material-ui/core'
 
 import { columnsProptype } from '../../../lib/adiProptypes'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   tableWrapper: {
     maxHeight: 250,
     overflow: 'auto',
   },
-});
+  columnsCompact: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    '& > *': {
+      margin: theme.spacing(0.5),
+      '& span': {
+        maxWidth: 300,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    },
+  },
+}))
 
 const ColumnSummary = ({ columns }) => {
   const classes = useStyles();
+  const [showDetails, setShowDetails] = useState(false)
 
-  return (
+  const compactView = (
+    <div className={classes.columnsCompact}>
+      { columns.map((column) => (
+        <Chip variant="outlined" size="small" label={column.name} key={column.name} />
+      ))}
+    </div>
+  )
+
+  const detailView = (
     <div className={classes.tableWrapper}>
       <Table aria-label="simple table" size="small" stickyHeader>
         <colgroup>
@@ -43,6 +68,15 @@ const ColumnSummary = ({ columns }) => {
           ))}
         </TableBody>
       </Table>
+    </div>
+  )
+
+  return (
+    <div>
+      { showDetails ? detailView : compactView }
+      <Button color="primary" onClick={() => setShowDetails(!showDetails)}>
+        { `${showDetails ? 'Hide' : 'Show'} Column Details` }
+      </Button>
     </div>
   )
 }

@@ -183,7 +183,7 @@ const DatasetDetail = ({ dataset }) => {
             ))}
           </Grid>
           { columns.length > 0 && (
-            <Grid item>
+            <Grid item style={{ width: '100%' }}>
               <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
                 Columns
               </Typography>
