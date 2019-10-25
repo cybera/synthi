@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2.5),
     marginBottom: theme.spacing(1),
     marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(0),
   },
   title: {
     fontSize: 18,
