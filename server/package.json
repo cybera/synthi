@@ -73,19 +73,16 @@
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-react": "^7.11.1",
     "jest": "^25.0.0",
-    "nodemon": "^1.18.6",
     "ts-node": "^8.3.0",
+    "ts-node-dev": "^1.0.0-pre.43",
     "typescript": "^3.6.2"
   },
   "scripts": {
     "test": "jest",
     "build": "tsc",
     "start": "ts-node main.js",
-    "devStart": "nodemon --exec ts-node ./main.js",
-    "debug": "nodemon --inspect-brk=0.0.0.0:9222 --nolazy --exec ts-node ./main.js"
-  },
-  "nodemonConfig": {
-    "ext": "ts"
+    "devStart": "ts-node-dev --ignore-watch node_modules --respawn --transpileOnly main.js",
+    "debug": "ts-node-dev --nolazy --inspect=0.0.0.0:9222 --ignore-watch node_modules --respawn --transpileOnly main.js"
   },
   "author": "",
   "license": "ISC",
