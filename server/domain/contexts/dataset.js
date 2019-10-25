@@ -209,27 +209,42 @@ export async function listDatasets(orgRef, filter={}) {
   query.addPart(({ filter }) => {
     const { includeShared, publishedOnly } = filter
 
-    let where
+    let conditions = []
     if (includeShared && publishedOnly) {
       // If we include datasets from other organizations and only want published ones,
       // then we don't bother adding a restriction to a specific organization.
-      where = 'WHERE dataset.published = true'
+      conditions.push('dataset.published = true')
     } else {
       // We're going to need to restrict to the given organization at this point
-      where = `WHERE (
-        ($org.name IS NOT NULL AND organization.name = $org.name) OR 
-        ($org.uuid IS NOT NULL AND organization.uuid = $org.uuid) OR 
-        ($org.id   IS NOT NULL AND ID(organization)  = $org.id))
+      let condition = `
+        (($org.name IS NOT NULL AND organization.name = $org.name) OR 
+         ($org.uuid IS NOT NULL AND organization.uuid = $org.uuid) OR 
+         ($org.id   IS NOT NULL AND ID(organization)  = $org.id))
       `
 
       if (publishedOnly) {
-        where += 'AND dataset.published = true'
+        condition += 'AND dataset.published = true'
       } else if (includeShared) {
-        where += 'OR dataset.published = true'
+        condition += 'OR dataset.published = true'
       }
+
+      conditions.push(`(${condition})`)
     }
 
-    return where
+    const { sizeRange: range } = filter
+    if (range) {
+      const multipliers = {
+        'kb': 1024,
+        'mb': 1024 ** 2,
+        'gb': 1024 ** 3,
+      }
+      const multiplier = multipliers[filter.sizeRange.unit]
+
+      if (range.min) conditions.push(`dataset.bytes >= ($filter.sizeRange.min * ${multiplier})`)
+      if (range.max) conditions.push(`dataset.bytes <= ($filter.sizeRange.max * ${multiplier})`)
+    }
+
+    return `WHERE ${conditions.join(' AND ')}`
   })
 
   // metadata filtering

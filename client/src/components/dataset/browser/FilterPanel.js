@@ -1,13 +1,17 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles } from '@material-ui/styles'
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Typography from '@material-ui/core/Typography'
+import Grid from '@material-ui/core/Grid'
 
 import DatasetFilterContext from '../../../contexts/DatasetFilterContext'
 import FormatSelector from '../metadata/FormatSelector'
+
+import FileSizeFilter from './FileSizeFilter'
+import ADIButton from '../../layout/buttons/ADIButton'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,32 +46,46 @@ ContextCheckbox.propTypes = {
 }
 
 const FilterPanel = () => {
-  const { filter, updateFilter } = useContext(DatasetFilterContext)
+  const { filter: currentFilter, updateFilter } = useContext(DatasetFilterContext)
+  const [filter, setFilter] = useState(currentFilter)
+  const changeFilter = (name) => (value) => setFilter({ ...filter, [name]: value })
   const classes = useStyles()
-  const setPublished = (publishedOnly) => updateFilter({ publishedOnly })
-  const setShared = (includeShared) => updateFilter({ includeShared })
-  const setFormat = (format) => updateFilter({ format })
 
   return (
     <div className={classes.root}>
       <Typography className={classes.title} color="textSecondary" gutterBottom>
         Filter Options
       </Typography>
-      <ContextCheckbox
-        label="Published Only"
-        value={filter.publishedOnly}
-        setFunction={setPublished}
-      />
-      <ContextCheckbox
-        label="From other organizations"
-        value={filter.includeShared}
-        setFunction={setShared}
-      />
-      <FormatSelector
-        empty="All Formats"
-        format={filter.format}
-        handleFormatChange={(e) => setFormat(e.target.value)}
-      />
+      <Grid container spacing={2} direction="column">
+        <Grid item>
+          <ContextCheckbox
+            label="Published Only"
+            value={filter.publishedOnly}
+            setFunction={changeFilter('publishedOnly')}
+          />
+          <ContextCheckbox
+            label="From other organizations"
+            value={filter.includeShared}
+            setFunction={changeFilter('includeShared')}
+          />
+        </Grid>
+        <Grid item>
+          <FormatSelector
+            empty="All Formats"
+            format={filter.format}
+            handleFormatChange={(e) => changeFilter('format')(e.target.value)}
+          />
+        </Grid>
+        <Grid item>
+          <FileSizeFilter
+            sizeRange={filter.sizeRange}
+            handleUpdatedRange={changeFilter('sizeRange')}
+          />
+        </Grid>
+        <Grid item>
+          <ADIButton onClick={() => updateFilter(filter)}>Filter</ADIButton>
+        </Grid>
+      </Grid>
     </div>
   )
 }

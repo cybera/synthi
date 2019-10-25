@@ -119,10 +119,23 @@ export const typeDefs = gql`
     bytes: Int
   }
 
+  enum FileSizeUnit {
+    kb
+    mb
+    gb
+  }
+
+  input FileSizeRange {
+    min: Int
+    max: Int
+    unit: FileSizeUnit
+  }
+
   input DatasetFilter {
     publishedOnly: Boolean
     includeShared: Boolean
     format: String
+    sizeRange: FileSizeRange
   }
 
   extend type Query {
