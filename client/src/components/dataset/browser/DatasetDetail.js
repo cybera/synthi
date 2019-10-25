@@ -31,7 +31,10 @@ const useStyles = makeStyles((theme) => ({
   details: {
     display: 'flex',
     flexDirection: 'column',
-    flex: '1 0 auto'
+    flex: '1 0 70%',
+    '& p': {
+      marginBottom: theme.spacing(1.5)
+    }
   },
   datasetName: {
     flex: '1 0 auto'
@@ -149,6 +152,7 @@ const DatasetDetail = ({ dataset }) => {
   const classes = useStyles()
   const [setPublished] = useMutation(PUBLISH_DATASET)
   const { uuid, published, columns } = dataset
+  const { description } = dataset.metadata
 
   return (
     <Card className={classes.card}>
@@ -171,9 +175,12 @@ const DatasetDetail = ({ dataset }) => {
             <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
               Description
             </Typography>
-            <Typography variant="body2" component="p">
-              { dataset.metadata.description }
-            </Typography>
+            { description && description.split('\n').map((paragraph, index) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <Typography variant="body2" component="p" key={index}>
+                { paragraph }
+              </Typography>
+            ))}
           </Grid>
           { columns.length > 0 && (
             <Grid item>
