@@ -137,6 +137,7 @@ export const typeDefs = gql`
     format: String
     sizeRange: FileSizeRange
     topics: [String]
+    searchString: String
   }
 
   extend type Query {

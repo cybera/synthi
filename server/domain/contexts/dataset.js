@@ -202,8 +202,19 @@ export async function setPublished(uuid, published) {
 
 export async function listDatasets(orgRef, filter={}) {
   const query = new Query('dataset')
+  const searchIndex = 'DefaultDatasetSearchIndex'
 
-  query.addPart('MATCH (organization:Organization)-[:OWNER]->(dataset:Dataset)')
+  query.addPart(({ filter }) => {
+    if (filter.searchString) {
+      return `
+        CALL apoc.index.search($searchIndex, $filter.searchString)
+        YIELD node AS searchResult
+        MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO]-(dataset:Dataset)
+        MATCH (organization:Organization)-[:OWNER]->(dataset)
+      `
+    }
+    return 'MATCH (organization:Organization)-[:OWNER]->(dataset:Dataset)'
+  })
 
   // organization/dataset filtering
   query.addPart(({ filter }) => {
@@ -268,5 +279,5 @@ export async function listDatasets(orgRef, filter={}) {
     return ''
   })
 
-  return query.run({ org: orgRef, filter })
+  return query.run({ org: orgRef, filter, searchIndex })
 }

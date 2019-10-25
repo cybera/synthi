@@ -6,7 +6,8 @@ const filterDefaults = {
   includeShared: true,
   format: '',
   sizeRange: { min: null, max: null, unit: 'kb' },
-  topics: []
+  topics: [],
+  searchString: ''
 }
 
 const DatasetFilterContext = React.createContext({
