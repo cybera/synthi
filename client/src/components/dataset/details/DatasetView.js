@@ -5,18 +5,16 @@ import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
 
 import { datasetViewQuery } from '../../../queries'
 import ToggleVisibility from '../../layout/ToggleVisibility'
-import DataTableView from './DataTableView'
 import DatasetEditor from '../editor'
-import DatasetColumnChips from './DatasetColumnChips'
 import { UploadButton, DatasetComputeModeButton } from '../editor/buttons'
 import NoDataSvg from '../../layout/svg/NoData'
 import PanelLoadingState from '../../layout/PanelLoadingState'
 import GeneratingProgress from '../layout/GeneratingProgress'
 import SubscribedWarningBanner from './SubscribedWarningBanner'
+import Preview from './Preview'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($uuid: String!) {
@@ -116,9 +114,7 @@ class DatasetView extends React.Component {
     if (uuid == null) return <div />
 
     const { errors } = this.state
-    const displayColumns = dataset.columns
-    const selectedColumns = displayColumns.filter(c => c.visible)
-    const dataExists = selectedColumns.length > 0
+    const dataExists = dataset.columns.length > 0
 
     if (!dataset.computed) {
       if (dataset.type != 'csv') {
@@ -166,10 +162,6 @@ class DatasetView extends React.Component {
       }
     }
 
-    const sampleRows = dataset.samples.map((s) => {
-      const record = JSON.parse(s)
-      return selectedColumns.map(c => record[c.originalName || c.name])
-    })
 
     return (
       <div className={classes.root}>
@@ -177,10 +169,7 @@ class DatasetView extends React.Component {
         <Typography className={classes.error}>{errors[uuid]}</Typography>
         <GeneratingProgress dataset={dataset} />
         <ToggleVisibility visible={!dataset.generating && dataExists}>
-          <Paper>
-            <DataTableView columns={selectedColumns} rows={sampleRows} />
-          </Paper>
-          <DatasetColumnChips dataset={dataset} columns={displayColumns} />
+          <Preview dataset={dataset} />
         </ToggleVisibility>
       </div>
     )

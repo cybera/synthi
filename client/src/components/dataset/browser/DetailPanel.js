@@ -9,6 +9,8 @@ import NavigationContext from '../../../contexts/NavigationContext'
 import DatasetFilterContext from '../../../contexts/DatasetFilterContext'
 import DatasetDetail from './DatasetDetail'
 
+import PanelLoadingState from '../../layout/PanelLoadingState'
+
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: theme.spacing(1),
@@ -59,7 +61,7 @@ const DatasetList = () => {
     fetchPolicy: 'network-only'
   })
 
-  if (loading) return 'Loading...'
+  if (loading) return <PanelLoadingState />
   if (error) return `Error! ${error.message}`
 
   return (

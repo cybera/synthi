@@ -1,21 +1,24 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import gql from 'graphql-tag'
 import { useMutation } from 'react-apollo'
 
 import { makeStyles } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import Typography from '@material-ui/core/Typography'
 
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Switch from '@material-ui/core/Switch'
+import {
+  Card,
+  CardContent,
+  Typography,
+  FormControlLabel,
+  Switch,
+  Grid,
+  Button
+} from '@material-ui/core'
 import BusinessIcon from '@material-ui/icons/Business';
-
-import Grid from '@material-ui/core/Grid'
 import ColumnSummary from './ColumnSummary'
 
+import Preview from '../details/Preview'
 import { formatBytes } from '../../../lib/common'
 import { datasetProptype } from '../../../lib/adiProptypes'
 
@@ -148,6 +151,21 @@ MainFooter.propTypes = {
   dataset: datasetProptype.isRequired
 }
 
+const PreviewSection = ({ dataset }) => {
+  const [showPreview, setShowPreview] = useState(false)
+
+  return (
+    dataset.type === 'csv' && (
+      <Grid>
+        <Button color="primary" onClick={() => setShowPreview(!showPreview)}>
+          { `${showPreview ? 'Hide' : 'Show'} Preview` }
+        </Button>
+        { showPreview && <Preview dataset={dataset} /> }
+      </Grid>
+    )
+  )
+}
+
 const DatasetDetail = ({ dataset }) => {
   const classes = useStyles()
   const [setPublished] = useMutation(PUBLISH_DATASET)
@@ -191,6 +209,7 @@ const DatasetDetail = ({ dataset }) => {
             </Grid>
           )}
           <MainFooter dataset={dataset} />
+          <PreviewSection dataset={dataset} />
         </Grid>
       </CardContent>
       <CardContent className={classes.operations}>
