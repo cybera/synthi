@@ -3,7 +3,10 @@ import {
   number,
   bool,
   string,
-  arrayOf
+  arrayOf,
+  node,
+  func,
+  oneOfType,
 } from 'prop-types'
 
 export const tagProptype = shape({
@@ -34,3 +37,11 @@ export const datasetProptype = shape({
   columns: columnsProptype,
   metadata: datasetMetadataProptype,
 })
+
+export const datasetsProptype = arrayOf(datasetProptype)
+
+export const childrenProptype = oneOfType([
+  arrayOf(node),
+  node,
+  func
+])
