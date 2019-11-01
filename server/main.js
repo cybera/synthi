@@ -273,6 +273,13 @@ const main = async () => {
 
   DefaultQueue.start()
 
+  // TODO: Somehow SIGTERM is being ignored, this is a hack to make it
+  // trigger onExit()
+  process.on('SIGTERM', () => {
+    process.exit()
+  })
+
+
   // Close all connections on shutdown
   onExit(() => {
     logger.info('Shutting down...')

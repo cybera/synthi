@@ -61,6 +61,22 @@ class Base {
     return this.getByUniqueMatch(query, { uuid })
   }
 
+  static async all<T extends typeof Base>(this: T): Promise<InstanceType<T>[]> {
+    return this.find('', {})
+  }
+
+  static async find<T extends typeof Base>(this: T, whereQuery: string, params: object): Promise<InstanceType<T>[]> {
+    const query = `
+      MATCH (node:${this.label})
+      ${whereQuery}
+      RETURN node
+    `
+
+    const results = await safeQuery(query, params)
+
+    return results.map(r => ModelFactory.derive<T>(r.node))
+  }
+
   static async create<T extends typeof Base>(this: T, properties: Indexable): ModelPromise<T> {
     Object.keys(properties).forEach((k) => {
       if (!this.saveProperties.includes(k)) {
@@ -79,7 +95,7 @@ class Base {
   }
 
   async relatedRaw(relation: string, relatedLabel: string, name: string, relatedProps: Indexable = {}): Promise<Indexable[]> {
-    const label = this.label()
+    const label = this.classLabel()
 
     let identityMatch = `
       MATCH (node:${label} { uuid: $node.uuid })
@@ -164,7 +180,7 @@ class Base {
     if (!preSave.proceed) throw new Error(preSave.message)
 
     const query = `
-      MATCH (node:${this.label()} { uuid: $node.uuid })
+      MATCH (node:${this.classLabel()} { uuid: $node.uuid })
       SET node += $values
     `
     const params = { node: this, values: this.valuesForNeo4J() }
@@ -180,8 +196,8 @@ class Base {
   // should rethink this solution.
   async saveRelation(left: Base, relation: string, right = this, relationName: string, relationProps: Indexable): Promise<void> {
     let query = `
-      MATCH (right:${right.label()} { uuid: $right.uuid })
-      MATCH (left:${left.label()} { uuid: $left.uuid })
+      MATCH (right:${right.classLabel()} { uuid: $right.uuid })
+      MATCH (left:${left.classLabel()} { uuid: $left.uuid })
       MERGE (left)${relation}(right)
     `
 
@@ -204,7 +220,7 @@ class Base {
 
   async delete(): Promise<void> {
     const query = `
-      MATCH (node:${this.label()} { uuid: $node.uuid })
+      MATCH (node:${this.classLabel()} { uuid: $node.uuid })
       DETACH DELETE node`
     const params = { node: this }
     await safeQuery(query, params)
@@ -220,7 +236,7 @@ class Base {
     return this.constructor as typeof Base
   }
 
-  label(): string {
+  classLabel(): string {
     return this.class().label
   }
 }

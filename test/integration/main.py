@@ -253,3 +253,38 @@ def test_update_transformation():
     assert result['name'] == name2
     assert result['inputs'] == inputs2
     assert result['code'] == code2
+
+def test_transformation_tags():
+    result = client.transformation.define(
+        'SimpleMeans',
+        'data/simple_means.py',
+        inputs=['simple_data']
+    )
+    assert result['tags'] == []
+
+    result = client.transformation.define(
+        'SimpleMeans2',
+        'data/simple_means.py',
+        inputs=['simple_data'],
+        tags=['Integer', 'Float', 'String', 'Elephant']
+    )
+    uuid = result['uuid']
+    assert _tag_names(result['tags']) == ['Float', 'Integer', 'String']
+
+    result = client.transformation.update(uuid)
+    assert _tag_names(result['tags']) == ['Float', 'Integer', 'String']
+
+    result = client.transformation.update(
+        uuid,
+        tags=['String']
+    )
+    assert _tag_names(result['tags']) == ['String']
+
+    result = client.transformation.update(
+        uuid,
+        tags=[]
+    )
+    assert result['tags'] == []
+
+def _tag_names(tags):
+    return sorted(list(map(lambda t: t['name'], tags)))

@@ -10,8 +10,10 @@ import { safeQuery } from '../../neo4j/connection';
 
 class Transformation extends Base {
   static async create(properties) {
-    const { code, ...rest } = properties
+    const { code, tags, ...rest } = properties
+
     const transformation = await super.create(rest)
+    await transformation.setTags(tags)
 
     if (code) {
       await transformation.storeCode(code)
@@ -35,7 +37,7 @@ class Transformation extends Base {
       return template.script
     }
 
-    throw Error(`A transformation should either have its own script or reference 
+    throw Error(`A transformation should either have its own script or reference
                  a template transformation with one`)
   }
 
@@ -132,6 +134,40 @@ class Transformation extends Base {
   async virtual() {
     const template = await this.template()
     return template != null
+  }
+
+  async tags() {
+    const query = `
+      MATCH (transformation:Transformation { uuid: $transformation.uuid })
+      MATCH (tag:Tag)-[:DESCRIBES]->(transformation)
+      RETURN tag
+    `
+
+    const results = await safeQuery(query, { transformation: this })
+
+    return results.map(n => n.tag.properties)
+  }
+
+  async setTags(tagNames) {
+    // Don't modify tags if they're null/undefined so that graphql args can be
+    // blindly passed without worrying whether they were actually set
+    if (tagNames == null) {
+      return
+    }
+
+    const query = `
+      MATCH (transformation:Transformation { uuid: $transformation.uuid })
+      WITH transformation
+      OPTIONAL MATCH (tag:Tag)-[r:DESCRIBES]->(transformation)
+      WHERE NOT tag.name IN $tagNames
+      DELETE r
+      WITH transformation
+      MATCH (tag:Tag)
+      WHERE tag.name in $tagNames
+      MERGE (tag)-[:DESCRIBES]->(transformation)
+    `
+
+    await safeQuery(query, { transformation: this, tagNames })
   }
 }
 
