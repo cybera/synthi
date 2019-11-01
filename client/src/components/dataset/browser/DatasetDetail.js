@@ -58,6 +58,9 @@ const useStyles = makeStyles((theme) => ({
   inputsHeading: {
     fontSize: 14,
   },
+  previewGridItem: {
+    width: '100%'
+  }
 }))
 
 const PUBLISH_DATASET = gql`
@@ -153,10 +156,11 @@ MainFooter.propTypes = {
 
 const PreviewSection = ({ dataset }) => {
   const [showPreview, setShowPreview] = useState(false)
+  const classes = useStyles()
 
   return (
     dataset.type === 'csv' && (
-      <Grid>
+      <Grid item className={classes.previewGridItem}>
         <Button color="primary" onClick={() => setShowPreview(!showPreview)}>
           { `${showPreview ? 'Hide' : 'Show'} Preview` }
         </Button>
