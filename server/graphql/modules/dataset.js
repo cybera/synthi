@@ -22,7 +22,7 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 export const resolvers = {
   Query: {
     dataset: (_, props) => filterDatasets(props),
-    listDatasets: (_, { org, filter }) => listDatasets(org, filter),
+    listDatasets: (_, { org, filter, offset, limit }) => listDatasets(org, filter, offset, limit),
   },
   Dataset: {
     columns: dataset => dataset.columns(),
@@ -140,13 +140,18 @@ export const typeDefs = gql`
     searchString: String
   }
 
+  type ListDatasetsResult {
+    datasets: [Dataset]
+    last: Boolean
+  }
+
   extend type Query {
     dataset(uuid: String, name: String, searchString: String, org:OrganizationRef): [Dataset]!
     listDatasets(org: OrganizationRef!, filter: DatasetFilter = {
       publishedOnly: false,
       includeShared: true,
       format: null
-    }): [Dataset]
+    }, offset: Int = 0, limit: Int = 10): ListDatasetsResult
   }
 
   extend type Mutation {

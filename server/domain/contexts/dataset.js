@@ -200,7 +200,7 @@ export async function setPublished(uuid, published) {
   return dataset
 }
 
-export async function listDatasets(orgRef, filter={}) {
+export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
   const query = new Query('dataset')
   const searchIndex = 'DefaultDatasetSearchIndex'
 
@@ -279,5 +279,10 @@ export async function listDatasets(orgRef, filter={}) {
     return ''
   })
 
-  return query.run({ org: orgRef, filter, searchIndex })
+  // Query for one more than we actually asked for, just to test if there ARE more
+  const params = { org: orgRef, filter, searchIndex, skip: offset, limit: limit + 1 }
+  const datasets = await query.run(params)
+
+  // Don't return the one extra, but last should be true if we don't get it
+  return { datasets: datasets.slice(0, limit), last: datasets.length < limit + 1 }
 }
