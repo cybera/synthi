@@ -1,6 +1,6 @@
 import { containsProperties } from '../../lib/util'
 import { safeQuery, Indexable } from '../../neo4j/connection'
-import Base, { ModelPromise } from './base'
+import Base, { ModelPromise, ModelPromiseNull } from './base'
 
 interface LabelRegistry {
   [key: string]: {
@@ -62,7 +62,7 @@ export function getClass<T extends typeof Base>(datasetClassname: string): Const
   return classRegistry[datasetClassname]
 }
 
-export async function getByUniqueMatch<T extends typeof Base>(matchQuery: string, params: Indexable): ModelPromise<T> {
+export async function getByUniqueMatch<T extends typeof Base>(matchQuery: string, params: Indexable): ModelPromiseNull<T> {
   const results = await safeQuery(matchQuery, params)
   if (!results[0]) {
     return null
@@ -76,7 +76,7 @@ export async function getByUniqueMatch<T extends typeof Base>(matchQuery: string
   return derive<T>(result[resultKeys[0]])
 }
 
-export async function get<T extends typeof Base>(id: string): ModelPromise<T> {
+export async function get<T extends typeof Base>(id: string): ModelPromiseNull<T> {
   const safeId = parseInt(id, 10)
   const query = `
     MATCH (node)
@@ -86,7 +86,7 @@ export async function get<T extends typeof Base>(id: string): ModelPromise<T> {
   return getByUniqueMatch<T>(query, { id: safeId })
 }
 
-export async function getByUuid<T extends typeof Base>(uuid: string): ModelPromise<T> {
+export async function getByUuid<T extends typeof Base>(uuid: string): ModelPromiseNull<T> {
   const query = `
     MATCH (node { uuid: $uuid })
     RETURN node
@@ -94,7 +94,7 @@ export async function getByUuid<T extends typeof Base>(uuid: string): ModelPromi
   return getByUniqueMatch<T>(query, { uuid })
 }
 
-export async function getByName<T extends typeof Base>(name: string, label: string, ownerUUID: string): ModelPromise<T> {
+export async function getByName<T extends typeof Base>(name: string, label: string, ownerUUID: string): ModelPromiseNull<T> {
   // TODO: Throw error if the label provided is not one where we guarantee unique names per org
   const query = `
     MATCH (node:${label} { name: $name })<-[:OWNER]-(:Organization { uuid: $ownerUUID })
