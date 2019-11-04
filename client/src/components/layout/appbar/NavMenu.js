@@ -10,7 +10,7 @@ import { ADIButton } from '../buttons'
 
 function modeToLabel(mode) {
   switch (mode) {
-    case 'datasets': return 'Datasets'
+    case 'datasets': return 'Dataset Workbench'
     case 'transformations': return 'Browse Transformations'
     case 'dataset_browser': return 'Browse Datasets'
     case 'scenarios': return 'Scenarios'
