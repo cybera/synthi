@@ -181,8 +181,8 @@ def test_transformation_publishing():
     assert('PublishedSimpleMeans' not in names)
 
     publish_query = '''
-    mutation TransformationSetPublished($uuid: String!, $published: Boolean) {
-        setPublished(uuid: $uuid, published: $published) {
+    mutation PublishTransformation($uuid: String!, $published: Boolean) {
+        publishTransformation(uuid: $uuid, published: $published) {
             uuid
             name
             published
