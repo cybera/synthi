@@ -22,6 +22,7 @@
   },
   "rules": {
     "no-undef": "off",
+    "no-unused-vars": "off",
     "max-len": "off",
     "comma-dangle": "off",
     "semi": "off",
