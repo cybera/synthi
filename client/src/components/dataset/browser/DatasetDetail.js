@@ -206,10 +206,7 @@ const DatasetDetail = ({ dataset }) => {
           </Grid>
           { columns.length > 0 && (
             <Grid item style={{ width: '100%' }}>
-              <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
-                Columns
-              </Typography>
-              <ColumnSummary columns={columns} />
+              <ColumnSummary columns={columns} dataset={dataset} />
             </Grid>
           )}
           <MainFooter dataset={dataset} />
