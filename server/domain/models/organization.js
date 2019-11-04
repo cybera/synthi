@@ -4,6 +4,8 @@ import { safeQuery } from '../../neo4j/connection'
 import Query from '../../neo4j/query'
 
 class Organization extends Base {
+  name
+
   static async getByName(name) {
     const query = `
       MATCH (node:${this.label} { name: $name })
