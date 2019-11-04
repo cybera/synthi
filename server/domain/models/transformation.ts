@@ -180,6 +180,14 @@ class Transformation extends Base {
       return
     }
 
+    const availableTags = (await Tag.all()).map(t => t.name)
+
+    tagNames.forEach((t) => {
+      if (!availableTags.includes(t)) {
+        throw new Error(`'${t}' is not a valid tag`)
+      }
+    })
+
     const query = `
       MATCH (transformation:Transformation { uuid: $transformation.uuid })
       WITH transformation
