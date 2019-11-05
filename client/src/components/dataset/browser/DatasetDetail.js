@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import PropTypes from 'prop-types'
 
 import gql from 'graphql-tag'
@@ -21,6 +21,9 @@ import ColumnSummary from './ColumnSummary'
 import Preview from '../details/Preview'
 import { formatBytes } from '../../../lib/common'
 import { datasetProptype } from '../../../lib/adiProptypes'
+import { ADIButton } from '../../layout/buttons'
+import NavigationContext from '../../../contexts/NavigationContext'
+import { DownloadButton } from '../editor/buttons'
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -45,7 +48,11 @@ const useStyles = makeStyles((theme) => ({
   operations: {
     borderLeftStyle: 'dotted',
     borderLeftWidth: 1,
-    borderLeftColor: '#cfcfcf'
+    borderLeftColor: '#cfcfcf',
+    width: 240,
+  },
+  opButton: {
+    width: '100%',
   },
   title: {
     fontSize: 18,
@@ -175,6 +182,11 @@ const DatasetDetail = ({ dataset }) => {
   const [setPublished] = useMutation(PUBLISH_DATASET)
   const { uuid, published, columns } = dataset
   const { description } = dataset.metadata
+  const navigation = useContext(NavigationContext)
+  const handleDatasetNavigation = () => {
+    navigation.selectDataset(uuid)
+    navigation.switchMode('datasets')
+  }
 
   return (
     <Card className={classes.card}>
@@ -214,20 +226,32 @@ const DatasetDetail = ({ dataset }) => {
         </Grid>
       </CardContent>
       <CardContent className={classes.operations}>
-        { dataset.canPublish && (
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={Boolean(published)}
-              onChange={() => setPublished({ variables: { uuid, published: !published } })}
-              value={`published-${uuid}`}
-              color="primary"
-              size="small"
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            { dataset.canPublish && (
+            <FormControlLabel
+              control={(
+                <Switch
+                  checked={Boolean(published)}
+                  onChange={() => setPublished({ variables: { uuid, published: !published } })}
+                  value={`published-${uuid}`}
+                  color="primary"
+                  size="small"
+                />
+              )}
+              label="Publish"
             />
-          )}
-          label="Publish"
-        />
-        )}
+            )}
+          </Grid>
+          <Grid item>
+            <ADIButton size="small" onClick={handleDatasetNavigation} className={classes.opButton}>
+              Dataset Workbench
+            </ADIButton>
+          </Grid>
+          <Grid item>
+            <DownloadButton size="small" dataset={dataset} className={classes.opButton} />
+          </Grid>
+        </Grid>
       </CardContent>
     </Card>
   )
