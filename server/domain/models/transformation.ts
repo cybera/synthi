@@ -7,6 +7,9 @@ import Storage from '../../storage'
 import Base, { ModelPromise } from './base'
 import logger from '../../config/winston'
 import { safeQuery, Indexable } from '../../neo4j/connection';
+
+// Only safe to disable import/no-cycle when importing types
+// eslint-disable-next-line import/no-cycle, object-curly-newline
 import { User, Tag, Dataset, Organization } from '../models'
 
 class Transformation extends Base {
