@@ -52,7 +52,6 @@ def transform_dataset(params):
 
     update_info = dict(
       format = os.path.splitext(path)[1].lstrip('.'),
-      bytes = storage.bytes(path),
       columns = []
     )
 
@@ -68,6 +67,8 @@ def transform_dataset(params):
     else:
       storage.write_raw(output, path)
       update_info['type'] = 'document'
+
+    update_info['bytes'] = storage.bytes(path)
 
     return update_info
   
