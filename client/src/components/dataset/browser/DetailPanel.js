@@ -13,10 +13,14 @@ import DatasetFilterContext from '../../../contexts/DatasetFilterContext'
 import DatasetDetail from './DatasetDetail'
 
 import PanelLoadingState from '../../layout/PanelLoadingState'
+import SearchEmptyState from '../list/search/SearchEmptyState'
 
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: theme.spacing(1),
+  },
+  rootEmpty: {
+    paddingTop: '10vh',
   },
   loadMoreVisible: {
     width: '100%',
@@ -104,6 +108,7 @@ const DatasetList = () => {
         // TODO: prev shouldn't be undefined here, but it is after a query is
         // triggered for a Preview panel. Assigning datasets directly in this
         // case seems to work, but it would be better to fix it at the root.
+        console.log(prev)
         const prevDatasets = prev ? prev.listDatasets.datasets : datasets
         const moreDatasets = fetchMoreResult.listDatasets.datasets
 
@@ -112,6 +117,14 @@ const DatasetList = () => {
         return updated
       }
     })
+  }
+
+  if (!datasets || datasets.length === 0) {
+    return (
+      <div className={classes.rootEmpty}>
+        <SearchEmptyState text="Try changing your filter options" width="40%" />
+      </div>
+    )
   }
 
   return (
