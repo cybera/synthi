@@ -266,7 +266,7 @@ def test_transformation_tags():
         'SimpleMeans2',
         'data/simple_means.py',
         inputs=['simple_data'],
-        tags=['Integer', 'Float', 'String', 'Elephant']
+        tags=['Integer', 'Float', 'String']
     )
     uuid = result['uuid']
     assert _tag_names(result['tags']) == ['Float', 'Integer', 'String']
@@ -285,6 +285,12 @@ def test_transformation_tags():
         tags=[]
     )
     assert result['tags'] == []
+
+    with pytest.raises(APIError):
+        client.transformation.update(
+            uuid,
+            tags=['Elephant']
+        )
 
 def _tag_names(tags):
     return sorted(list(map(lambda t: t['name'], tags)))

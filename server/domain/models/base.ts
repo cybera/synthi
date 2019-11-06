@@ -24,7 +24,7 @@ class Base {
     Object.assign(this, node.properties)
   }
 
-  static async getByUniqueMatch<T extends typeof Base>(this: T, matchQuery: string, params: object): ModelPromise<T> {
+  static async getByUniqueMatch<T extends typeof Base>(this: T, matchQuery: string, params: object): ModelPromiseNull<T> {
     const model = await ModelFactory.getByUniqueMatch<T>(matchQuery, params)
 
     if (model === null) {
@@ -41,7 +41,7 @@ class Base {
     return model
   }
 
-  static async get<T extends typeof Base>(this: T, id: string|number): ModelPromise<T> {
+  static async get<T extends typeof Base>(this: T, id: string|number): ModelPromiseNull<T> {
     const safeId = typeof id === 'string' ? parseInt(id, 10) : id
 
     const query = `
@@ -53,7 +53,7 @@ class Base {
     return this.getByUniqueMatch<T>(query, { id: safeId })
   }
 
-  static async getByUuid<T extends typeof Base>(this: T, uuid: string): ModelPromise<T> {
+  static async getByUuid<T extends typeof Base>(this: T, uuid: string): ModelPromiseNull<T> {
     const query = `
       MATCH (node:${this.label} { uuid: $uuid })
       RETURN node
@@ -129,7 +129,7 @@ class Base {
     return safeQuery(query, params)
   }
 
-  async relatedOne<T extends typeof Base>(relation: string, relatedLabel: string, relatedProps = {}): ModelPromise<T> {
+  async relatedOne<T extends typeof Base>(relation: string, relatedLabel: string, relatedProps = {}): ModelPromiseNull<T> {
     const relatedName = 'relatedNode'
     const results = await this.relatedRaw(relation, relatedLabel, relatedName, relatedProps)
     if (results && results[0]) {
@@ -241,5 +241,6 @@ class Base {
   }
 }
 
-export type ModelPromise<T extends typeof Base> = Promise<InstanceType<T>|null>
+export type ModelPromise<T extends typeof Base> = Promise<InstanceType<T>>
+export type ModelPromiseNull<T extends typeof Base> = Promise<InstanceType<T>|null>
 export default Base

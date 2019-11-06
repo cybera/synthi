@@ -13,6 +13,7 @@
     "@types/passport": "^1.0.1",
     "@types/passport-local": "^1.0.33",
     "@types/passport-strategy": "^0.2.35",
+    "@types/shortid": "0.0.29",
     "@types/signal-exit": "^3.0.0",
     "amqp-connection-manager": "^2.3.0",
     "amqplib": "^0.5.2",

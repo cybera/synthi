@@ -4,29 +4,48 @@ import waitFor from 'p-wait-for'
 import { fullScriptPath } from '../../lib/util'
 import { memberOfOwnerOrg } from '../util'
 import Storage from '../../storage'
-import Base from './base'
+import Base, { ModelPromise } from './base'
 import logger from '../../config/winston'
-import { safeQuery } from '../../neo4j/connection';
+import { safeQuery, Indexable } from '../../neo4j/connection';
+
+// Only safe to disable import/no-cycle when importing types
+// eslint-disable-next-line import/no-cycle, object-curly-newline
+import { User, Tag, Dataset, Organization } from '../models'
 
 class Transformation extends Base {
-  static async create(properties) {
+  static readonly label = 'Transformation'
+  static readonly saveProperties = ['script', 'name', 'published', 'inputs', 'state']
+
+  name: string
+  script: string
+  inputs: [string]
+  state: string
+  publish: boolean
+
+  static async create<T extends typeof Base>(this: T, properties: Indexable): ModelPromise<T> {
     const { code, tags, ...rest } = properties
 
-    const transformation = await super.create(rest)
-    await transformation.setTags(tags)
+    const transformation = (await super.create(rest)) as Transformation
+
+    try {
+      await transformation.setTags(tags)
+    } catch (e) {
+      await transformation.delete()
+      throw e
+    }
 
     if (code) {
       await transformation.storeCode(code)
     }
 
-    return transformation
+    return transformation as InstanceType<T>
   }
 
-  fullPath() {
+  fullPath(): string {
     return fullScriptPath(this.script)
   }
 
-  async realScript() {
+  async realScript(): Promise<string> {
     if (this.script) {
       return this.script
     }
@@ -41,7 +60,7 @@ class Transformation extends Base {
                  a template transformation with one`)
   }
 
-  async code() {
+  async code(): Promise<string|null> {
     try {
       const realScript = await this.realScript()
       if (realScript && Storage.exists('scripts', realScript)) {
@@ -55,7 +74,7 @@ class Transformation extends Base {
     return null
   }
 
-  async storeCode(code) {
+  async storeCode(code: string): Promise<Record<string, string>> {
     if (!this.script) {
       const id = shortid.generate()
       const uniqueFilename = `${id}-${this.name}.py`.replace(/ /g, '_')
@@ -67,25 +86,33 @@ class Transformation extends Base {
     const writeStream = Storage.createWriteStream('scripts', this.script)
     writeStream.write(code, 'utf8')
     writeStream.end()
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       writeStream.on('success', () => resolve({ path: this.script }))
       writeStream.on('error', reject)
     })
   }
 
-  async template() {
-    return this.relatedOne('-[:ALIAS_OF]->', 'Transformation')
+  template(): Promise<Transformation|null> {
+    return this.relatedOne<typeof Transformation>('-[:ALIAS_OF]->', 'Transformation')
   }
 
-  async outputDataset() {
-    return this.relatedOne('-[:OUTPUT]->', 'Dataset')
+  outputDataset(): Promise<Dataset|null> {
+    return this.relatedOne<typeof Dataset>('-[:OUTPUT]->', 'Dataset')
   }
 
-  async owner() {
-    return this.relatedOne('<-[:OWNER]-', 'Organization')
+  async owner(): Promise<Organization> {
+    const org = await this.relatedOne<typeof Organization>('<-[:OWNER]-', 'Organization')
+
+    // This should never happen
+    if (!org) {
+      logger.error(`No owner found for dataset ${this.name} (${this.uuid})!`)
+      throw new Error('No owner found')
+    }
+
+    return org
   }
 
-  async canAccess(user) {
+  async canAccess(user: User): Promise<boolean> {
     const output = await this.outputDataset()
 
     if (output) {
@@ -95,7 +122,7 @@ class Transformation extends Base {
     return memberOfOwnerOrg(user, this)
   }
 
-  async waitForReady() {
+  async waitForReady(): Promise<boolean> {
     try {
       await waitFor(async () => (await this.refresh()).state === 'ready', { interval: 1000, timeout: 30000 })
     } catch (e) {
@@ -105,7 +132,7 @@ class Transformation extends Base {
     return true
   }
 
-  async recordError(error) {
+  async recordError(error: string): Promise<void> {
     const query = `
       MATCH (transformation:Transformation { uuid: $transformation.uuid })
       MATCH (transformation)-[:OUTPUT]->(dataset:Dataset)
@@ -115,28 +142,29 @@ class Transformation extends Base {
     await safeQuery(query, { transformation: this, error })
   }
 
-  async ownerName() {
+  async ownerName(): Promise<string> {
     const owner = await this.owner()
-    return owner.name
+    return owner ? owner.name : ''
   }
 
-  async fullName() {
+  async fullName(): Promise<string> {
     const ownerName = await this.ownerName()
     return `${ownerName}:${this.name}`
   }
 
-  async canPublish(user) {
+  async canPublish(user: User): Promise<boolean> {
     const orgs = await user.orgs()
     const owner = await this.owner()
+
     return orgs.some(org => (org.uuid === owner.uuid))
   }
 
-  async virtual() {
+  async virtual(): Promise<boolean> {
     const template = await this.template()
     return template != null
   }
 
-  async tags() {
+  async tags(): Promise<string[]> {
     const query = `
       MATCH (transformation:Transformation { uuid: $transformation.uuid })
       MATCH (tag:Tag)-[:DESCRIBES]->(transformation)
@@ -148,12 +176,20 @@ class Transformation extends Base {
     return results.map(n => n.tag.properties)
   }
 
-  async setTags(tagNames) {
+  async setTags(tagNames: string[]): Promise<void> {
     // Don't modify tags if they're null/undefined so that graphql args can be
     // blindly passed without worrying whether they were actually set
     if (tagNames == null) {
       return
     }
+
+    const availableTags = (await Tag.all()).map(t => t.name)
+
+    tagNames.forEach((t) => {
+      if (!availableTags.includes(t)) {
+        throw new Error(`'${t}' is not a valid tag`)
+      }
+    })
 
     const query = `
       MATCH (transformation:Transformation { uuid: $transformation.uuid })
@@ -170,9 +206,6 @@ class Transformation extends Base {
     await safeQuery(query, { transformation: this, tagNames })
   }
 }
-
-Transformation.label = 'Transformation'
-Transformation.saveProperties = ['script', 'name', 'published', 'inputs', 'state']
 
 Base.ModelFactory.register(Transformation)
 
