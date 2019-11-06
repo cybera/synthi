@@ -6,7 +6,7 @@ export const SINGLE_NODES = query => result => result[query.returnRefs[0]]
 export const NODE_MAP     = _     => result => result
 
 class Query {
-  constructor(returnRefOrRefs, resultMapper) {
+  constructor(returnRefOrRefs, options={}) {
     if (isArray(returnRefOrRefs)) {
       this.returnRefs = returnRefOrRefs
       // If we have more than one return reference, we probably want our rows
@@ -20,11 +20,14 @@ class Query {
       this.resultMapper = SINGLE_NODES
     }
     // If we're explicitly specifying a result mapper, use that
-    if (resultMapper) {
-      this.resultMapper = resultMapper
+    if (options.resultMapper) {
+      this.resultMapper = options.resultMapper
     }
     this.parts = []
     this.parameters = {}
+
+    if (options.skip)  this.parameters.skip  = options.skip
+    if (options.limit) this.parameters.limit = options.limit
   }
 
   addPart(strOrFunc) {
@@ -43,6 +46,10 @@ class Query {
       return strOrFunc
     })
     strs.push(`RETURN ${this.returnRefs.join(', ')}`)
+
+    if (params.skip)  strs.push('SKIP $skip')
+    if (params.limit) strs.push('LIMIT $limit')
+
     return strs.join('\n')
   }
 

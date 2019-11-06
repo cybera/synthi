@@ -26,7 +26,7 @@ const ContextCheckbox = ({ label, value, setFunction }) => (
       <Checkbox
         checked={value}
         onChange={() => setFunction(!value)}
-        value={value}
+        value={label}
         color="primary"
       />
     )}

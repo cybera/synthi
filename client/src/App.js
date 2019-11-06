@@ -24,6 +24,8 @@ import { AppBar } from './components/layout/appbar'
 import NavigationContext from './contexts/NavigationContext'
 import { TransformationFilterProvider } from './contexts/TransformationFilterContext'
 import { DatasetSidebar } from './components/dataset'
+import { DatasetFilterProvider } from './contexts/DatasetFilterContext'
+import * as DatasetBrowser from './components/dataset/browser'
 
 
 let uri
@@ -99,6 +101,7 @@ function MainComponent(props) {
   if (mode === 'datasets' || mode === 'chart-editor') return <DatasetDetails uuid={dataset} />
   if (mode === 'scenarios') return <Scenarios />
   if (mode === 'transformations') return <TransformationMain />
+  if (mode === 'dataset_browser') return <DatasetBrowser.DetailPanel />
 
   return <div>Empty</div>
 }
@@ -114,6 +117,7 @@ const SidebarComponent = (props) => {
 
   if (mode === 'datasets') return <div><DatasetSidebar /></div>
   if (mode === 'transformations') return <TransformationSidebar />
+  if (mode === 'dataset_browser') return <DatasetBrowser.FilterPanel />
 
   return <div />
 }
@@ -226,14 +230,16 @@ class App extends React.Component {
             setOrg: this.setOrg
           }}
         >
-          <TransformationFilterProvider>
-            <MuiThemeProvider theme={theme}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                <Notifier />
-                {mainComponent}
-              </MuiPickersUtilsProvider>
-            </MuiThemeProvider>
-          </TransformationFilterProvider>
+          <DatasetFilterProvider>
+            <TransformationFilterProvider>
+              <MuiThemeProvider theme={theme}>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <Notifier />
+                  {mainComponent}
+                </MuiPickersUtilsProvider>
+              </MuiThemeProvider>
+            </TransformationFilterProvider>
+          </DatasetFilterProvider>
         </NavigationContext.Provider>
       </ApolloProvider>
     )

@@ -30,12 +30,15 @@ def object_store():
 def exists(relative_path):
   object_exists = True
   try:
-    container = config.storage.object.containers['datasets']
-    object_store().get_object_metadata(container=container, obj=relative_path)
+    __metadata(relative_path)
   except openstack.exceptions.ResourceNotFound as error:
     object_exists = False
 
   return object_exists
+
+def bytes(relative_path):
+  metadata = __metadata(relative_path)
+  return metadata.content_length
 
 def read_raw(relative_path):
   container = config.storage.object.containers['datasets']
@@ -84,3 +87,12 @@ def cleanup_script_module(script_module):
   # since the source file is a temp one written from object storage,
   # we'll want to clean it up
   os.unlink(script_module.__file__)
+
+def ls(relative_prefix):
+  container = config.storage.object.containers['datasets']
+  objs = list(object_store().objects(container=container, prefix=relative_prefix))
+  return [obj['name'] for obj in objs]
+
+def __metadata(relative_path):
+  container = config.storage.object.containers['datasets']
+  return object_store().get_object_metadata(container=container, obj=relative_path)

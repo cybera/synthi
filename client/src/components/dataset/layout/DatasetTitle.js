@@ -25,7 +25,11 @@ const DatasetTitle = (props) => {
       partialRefetch
     >
       {
-        ({ data }) => {
+        ({ loading, error, data }) => {
+          if (loading || error) {
+            return <div />
+          }
+
           const { dataset } = data
 
           return (

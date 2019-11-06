@@ -14,10 +14,10 @@ import { withNavigation } from '../../../contexts/NavigationContext'
 import { compose } from '../../../lib/common'
 import ADILogo from '../../../images/ckan-logo.png'
 import UserMenu from './UserMenu'
-import NavButton from './NavButton'
+import NavMenu from './NavMenu'
 import { Sidebar } from '../sidebar'
 
-const drawerWidth = 300
+const drawerWidth = 320
 
 const styles = theme => ({
   root: {
@@ -117,9 +117,7 @@ class ButtonAppBar extends React.Component {
             </IconButton>
             <img alt="" src={ADILogo} />
             <span className={classes.spacer} />
-            <NavButton label="Datasets" mode="datasets" />
-            <NavButton label="Transformations" mode="transformations" />
-            <NavButton label="Scenarios" mode="scenarios" />
+            <NavMenu />
             <span className={classes.flex} />
             <OrgSelector />
             <UserMenu />

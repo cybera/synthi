@@ -1,5 +1,6 @@
 import shortid from 'shortid'
 import waitFor from 'p-wait-for'
+import pathlib from 'path'
 
 import withNext from '../../lib/withNext'
 
@@ -200,16 +201,25 @@ class Dataset extends Base {
   async upload({ stream, filename, mimetype }) {
     try {
       logger.info(`Uploading: ${filename}`)
-      const { path } = await storeFS({ stream, filename: this.paths.original })
+      const { path, bytes } = await storeFS({ stream, filename: this.paths.original })
 
       this.path = path
       this.computed = false
       this.originalFilename = filename
       this.mimetype = mimetype
+      this.bytes = bytes
       logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
       await this.import()
+      // figure out and store the default format
+      const metadata = await this.metadata()
+      let ext = pathlib.extname(filename)
+      if (ext.startsWith('.')) {
+        ext = ext.substr(1)
+      }
+      metadata.format = ext
+      await metadata.save()
     } catch (e) {
       // TODO: What should we do here?
       logger.error(`Error in upload resolver: ${e.message}`)
@@ -353,9 +363,14 @@ class Dataset extends Base {
     return datasetMetadata
   }
 
-  // eslint-disable-next-line class-methods-use-this, no-unused-vars
-  async handleUpdate(msg) {
-    // Do nothing
+  async handleUpdate(data) {
+    const { format, bytes } = data
+    this.bytes = bytes
+    await this.save()
+
+    const metadata = await this.metadata()
+    metadata.format = format
+    await metadata.save()
   }
 
   async registerTransformation(inputs, outputs) {
@@ -450,10 +465,31 @@ class Dataset extends Base {
     datasetMetadata.update(metadata)
     await datasetMetadata.save()
   }
+
+  async ownerName() {
+    const owner = await this.owner()
+    return owner.name
+  }
+
+  async canPublish(user) {
+    const orgs = await user.orgs()
+    const owner = await this.owner()
+    return orgs.some(org => (org.uuid === owner.uuid))
+  }
 }
 
 Dataset.label = 'Dataset'
-Dataset.saveProperties = ['name', 'type', 'path', 'computed', 'generating', 'originalFilename', 'mimetype']
+Dataset.saveProperties = [
+  'name',
+  'type',
+  'path',
+  'computed',
+  'generating',
+  'originalFilename',
+  'mimetype',
+  'published',
+  'bytes'
+]
 
 Base.ModelFactory.register(Dataset)
 

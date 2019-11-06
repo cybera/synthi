@@ -10,7 +10,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import { withNavigation } from '../../../contexts/NavigationContext'
 import { compose } from '../../../lib/common'
 
-const drawerWidth = 300
+const drawerWidth = 320
 
 const styles = (theme) => ({
   drawer: {

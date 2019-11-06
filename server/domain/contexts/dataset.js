@@ -14,6 +14,7 @@ import {
   debugTransformationInputObjs
 } from './util'
 
+import Query from '../../neo4j/query'
 import logger from '../../config/winston'
 
 export async function updateDatasetMetadata(datasetUuid, metadata) {
@@ -190,4 +191,98 @@ export async function saveInputTransformation(datasetUuid, {
 export async function updateColumn(columnUuid, values, tagNames) {
   const column = await Column.getByUuid(columnUuid)
   return column.update(values, tagNames)
+}
+
+export async function setPublished(uuid, published) {
+  const dataset = await ModelFactory.getByUuid(uuid)
+  dataset.published = published
+  await dataset.save()
+  return dataset
+}
+
+export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
+  const query = new Query('dataset')
+  const searchIndex = 'DefaultDatasetSearchIndex'
+
+  query.addPart(({ filter }) => {
+    if (filter.searchString) {
+      return `
+        CALL apoc.index.search($searchIndex, $filter.searchString)
+        YIELD node AS searchResult
+        MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO]-(dataset:Dataset)
+        MATCH (organization:Organization)-[:OWNER]->(dataset)
+      `
+    }
+    return 'MATCH (organization:Organization)-[:OWNER]->(dataset:Dataset)'
+  })
+
+  // organization/dataset filtering
+  query.addPart(({ filter }) => {
+    const { includeShared, publishedOnly } = filter
+
+    let conditions = []
+    if (includeShared && publishedOnly) {
+      // If we include datasets from other organizations and only want published ones,
+      // then we don't bother adding a restriction to a specific organization.
+      conditions.push('dataset.published = true')
+    } else {
+      // We're going to need to restrict to the given organization at this point
+      let condition = `
+        (($org.name IS NOT NULL AND organization.name = $org.name) OR 
+         ($org.uuid IS NOT NULL AND organization.uuid = $org.uuid) OR 
+         ($org.id   IS NOT NULL AND ID(organization)  = $org.id))
+      `
+
+      if (publishedOnly) {
+        condition += 'AND dataset.published = true'
+      } else if (includeShared) {
+        condition += 'OR dataset.published = true'
+      }
+
+      conditions.push(`(${condition})`)
+    }
+
+    const { sizeRange: range } = filter
+    if (range) {
+      const multipliers = {
+        'kb': 1024,
+        'mb': 1024 ** 2,
+        'gb': 1024 ** 3,
+      }
+      const multiplier = multipliers[filter.sizeRange.unit]
+
+      if (range.min) conditions.push(`dataset.bytes >= ($filter.sizeRange.min * ${multiplier})`)
+      if (range.max) conditions.push(`dataset.bytes <= ($filter.sizeRange.max * ${multiplier})`)
+    }
+
+    return `WHERE ${conditions.join(' AND ')}`
+  })
+
+  // metadata filtering
+  query.addPart(({ filter }) => {
+    let conditions = []
+    if (filter.format) {
+      conditions.push('metadata.format = $filter.format')
+    }
+    
+    if (filter.topics && filter.topics.length > 0) {
+      conditions.push('SIZE(apoc.coll.intersection($filter.topics, metadata.topic)) > 0')
+    }
+
+    if (conditions.length > 0) {
+      return `
+        MATCH (dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)
+        WHERE ${conditions.join(' AND \n')}
+      `
+    }
+
+    return ''
+  })
+
+  // Query for one more than we actually asked for, just to test if there ARE more
+  const params = { org: orgRef, filter, searchIndex, skip: offset, limit: limit + 1 }
+  const datasets = await query.run(params)
+
+  // Don't return the one extra, but last should be true if we don't get it
+  return { datasets: datasets.slice(0, limit), last: datasets.length < limit + 1 }
 }

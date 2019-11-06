@@ -2,6 +2,7 @@ from importlib.util import spec_from_file_location, module_from_spec
 
 import os
 import config
+from glob import glob
 
 import pandas as pd
 from magic import Magic
@@ -13,6 +14,10 @@ DATA_ROOT = config.storage.legacy.dataRoot
 def exists(relative_path):
   abs_path = os.path.join(DATA_ROOT, 'datasets', relative_path)
   return os.path.exists(abs_path)
+
+def bytes(relative_path):
+  abs_path = os.path.join(DATA_ROOT, 'datasets', relative_path)
+  return os.stat(abs_path).st_size
 
 def read_raw(relative_path):
   abs_path = os.path.join(DATA_ROOT, 'datasets', relative_path)
@@ -51,3 +56,9 @@ def read_script_module(relative_path):
 def cleanup_script_module(script_module):
   # do nothing... we don't want to delete the source file
   pass
+
+def ls(relative_prefix):
+  root_path = os.path.join(DATA_ROOT, 'datasets')
+  abs_path = os.path.join(root_path, relative_prefix)
+  abs_paths = glob(abs_path + '*')
+  return [os.path.relpath(abs_path, root_path) for abs_path in abs_paths]

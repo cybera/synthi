@@ -1,3 +1,4 @@
+// SVG from: https://undraw.co and converted into JSX with main color replaced by prop
 import React from 'react'
 import PropTypes from 'prop-types'
 

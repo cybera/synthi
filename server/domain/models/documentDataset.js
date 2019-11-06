@@ -54,11 +54,6 @@ class DocumentDataset extends Dataset {
     Storage.remove('datasets', this.paths.imported)
   }
 
-  // eslint-disable-next-line class-methods-use-this, no-unused-vars
-  async handleUpdate(msg) {
-    // Do nothing
-  }
-
   // TODO: We should probably be figuring out if we're dealing with
   // regular text in a smarter way than this. Perhaps by actually
   // looking at the filestream when uploaded. Something like this

@@ -38,10 +38,10 @@ const styles = theme => ({
 })
 
 const SearchEmptyState = (props) => {
-  const { classes, text } = props
+  const { classes, text, width } = props
   return (
     <div className={classes.root}>
-      <div className={classes.svgContainer}>
+      <div className={classes.svgContainer} style={{ width }}>
         <EmptySvg color="#303f9f" className={classes.svg} />
       </div>
       <Typography variant="subtitle1" guttertop="true" className={classes.heading}>
@@ -56,7 +56,12 @@ const SearchEmptyState = (props) => {
 
 SearchEmptyState.propTypes = {
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
-  text: PropTypes.string.isRequired
+  text: PropTypes.string.isRequired,
+  width: PropTypes.oneOfType(PropTypes.string, PropTypes.number)
+}
+
+SearchEmptyState.defaultProps = {
+  width: 200
 }
 
 export default withStyles(styles)(SearchEmptyState)
