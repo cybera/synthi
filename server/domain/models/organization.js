@@ -111,7 +111,7 @@ class Organization extends Base {
     return this.canCreateDatasets(user)
   }
 
-  async createTransformationTemplate(name, inputs, code, tags) {
+  async createTransformationTemplate(name, description, inputs, code, tags) {
     const Transformation = Base.ModelFactory.getClass('Transformation')
 
     if (await this.transformationTemplateByName(name)) {
@@ -120,6 +120,7 @@ class Organization extends Base {
 
     const transformation = await Transformation.create({
       name,
+      description,
       inputs,
       code,
       tags

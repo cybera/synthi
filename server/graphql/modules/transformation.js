@@ -26,11 +26,12 @@ export const resolvers = {
   Mutation: {
     createTransformationTemplate: (_, {
       name,
+      description,
       inputs,
       code,
       owner,
       tagNames
-    }, { user }) => createTransformationTemplate(name, inputs, code, owner, user, tagNames),
+    }, { user }) => createTransformationTemplate(name, description, inputs, code, owner, user, tagNames),
     updateTransformation: (_, { uuid, fields }) => updateTransformation(uuid, fields),
     deleteTransformation: (_, { uuid }) => deleteTransformation(uuid),
     setPublished: (_, { uuid, published }) => setPublished(uuid, published)
@@ -69,6 +70,7 @@ export const typeDefs = gql`
     id: Int
     uuid: String!
     name: String
+    description: String
     script: String
     inputs: [String]
     outputs: [String]
@@ -84,6 +86,7 @@ export const typeDefs = gql`
 
   input TransformationUpdate {
     name: String
+    description: String
     code: String
     inputs: [String]
     tagNames: [String]
@@ -107,8 +110,8 @@ export const typeDefs = gql`
   }
 
   extend type Mutation {
-    saveInputTransformation(uuid: String!, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationRef): Transformation
-    createTransformationTemplate(name:String!, inputs:[String], code:String, owner:OrganizationRef!, tagNames:[String]): Transformation
+    saveInputTransformation(uuid: String!, description: String, code:String, template:TemplateRef, inputs:[TransformationInputMapping], org:OrganizationRef): Transformation
+    createTransformationTemplate(name:String!, description: String, inputs:[String], code:String, owner:OrganizationRef!, tagNames:[String]): Transformation
     updateTransformation(uuid:String!, fields:TransformationUpdate!): Transformation
     deleteTransformation(uuid: String!): Boolean
     setPublished(uuid: String!, published: Boolean): Transformation
