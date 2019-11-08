@@ -20,6 +20,15 @@ class DatasetMetadata extends Base {
 
     return super.beforeSave()
   }
+
+  async dataset() {
+    return this.relatedOne('<-[:HAS_METADATA]-', 'Dataset')
+  }
+
+  async isPublished() {
+    const dataset = await this.dataset()
+    return dataset.published
+  }
 }
 
 DatasetMetadata.label = 'DatasetMetadata'

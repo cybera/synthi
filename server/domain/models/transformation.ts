@@ -20,7 +20,7 @@ class Transformation extends Base {
   script: string
   inputs: [string]
   state: string
-  publish: boolean
+  published: boolean
 
   static async create<T extends typeof Base>(this: T, properties: Indexable): ModelPromise<T> {
     const { code, tags, ...rest } = properties
@@ -120,6 +120,10 @@ class Transformation extends Base {
     }
 
     return memberOfOwnerOrg(user, this)
+  }
+
+  async isPublished(): Promise<boolean> {
+    return this.published
   }
 
   async waitForReady(): Promise<boolean> {

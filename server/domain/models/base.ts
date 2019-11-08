@@ -156,6 +156,14 @@ class Base {
   /* eslint-enable class-methods-use-this, @typescript-eslint/no-unused-vars,
    @typescript-eslint/require-await, @typescript-eslint/no-explicit-any */
 
+  /* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars,
+   @typescript-eslint/require-await, @typescript-eslint/no-explicit-any */
+   async isPublished(): Promise<boolean> {
+    logger.warn('This should be implemented in a subclass')
+    return false
+  }
+  /* eslint-enable class-methods-use-this, @typescript-eslint/no-unused-vars,
+   @typescript-eslint/require-await, @typescript-eslint/no-explicit-any */
 
   update(bulkProperties: Indexable): void {
     Object.assign(this, bulkProperties)
