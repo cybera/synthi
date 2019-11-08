@@ -1,6 +1,7 @@
 import gql from 'graphql-tag'
+import { or } from 'graphql-shield'
 
-import { isOwner } from '../rules'
+import { isOwner, isPublished } from '../rules'
 import { updateDatasetMetadata } from '../../domain/contexts/dataset'
 
 export const resolvers = {
@@ -17,7 +18,7 @@ export const resolvers = {
 
 export const permissions = {
   Dataset: {
-    metadata: isOwner()
+    metadata: or(isOwner(), isPublished()),
   },
   Mutation: {
     updateDatasetMetadata: isOwner()

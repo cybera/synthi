@@ -78,6 +78,11 @@ class Column extends Base {
     return dataset.canAccess(user)
   }
 
+  async isPublished() {
+    const dataset = await this.dataset()
+    return dataset.published
+  }
+
   __cacheKeyForUser(user) {
     return `user:${user.uuid}:column:${this.uuid}`
   }

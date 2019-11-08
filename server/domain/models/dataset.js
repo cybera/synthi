@@ -128,6 +128,10 @@ class Dataset extends Base {
     return memberOfOwnerOrg(user, this)
   }
 
+  async isPublished() {
+    return this.published
+  }
+
   async save() {
     if (!(await this.isUnique())) {
       throw new Error('Name must be unique')
