@@ -280,7 +280,15 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
   })
 
   // Query for one more than we actually asked for, just to test if there ARE more
-  const params = { org: orgRef, filter, searchIndex, skip: offset, limit: limit + 1 }
+  const params = {
+    org: orgRef,
+    filter,
+    searchIndex,
+    skip: offset,
+    limit: limit + 1,
+    order: 'dataset.name ASC',
+  }
+
   const datasets = await query.run(params)
 
   // Don't return the one extra, but last should be true if we don't get it
