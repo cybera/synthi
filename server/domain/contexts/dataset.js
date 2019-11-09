@@ -209,7 +209,7 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
       return `
         CALL apoc.index.search($searchIndex, $filter.searchString)
         YIELD node AS searchResult
-        MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO]-(dataset:Dataset)
+        MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO*0..1]-(dataset:Dataset)
         MATCH (organization:Organization)-[:OWNER]->(dataset)
       `
     }

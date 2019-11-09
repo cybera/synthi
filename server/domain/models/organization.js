@@ -144,7 +144,7 @@ class Organization extends Base {
         return `
           CALL apoc.index.search($searchIndex, $searchString)
           YIELD node AS searchResult
-          MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO]-(dataset:Dataset)
+          MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO*0..1]-(dataset:Dataset)
           MATCH (dataset)<-[:OWNER]-(:Organization { uuid: $organization.uuid })
         `
       }
