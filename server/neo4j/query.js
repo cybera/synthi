@@ -28,6 +28,7 @@ class Query {
 
     if (options.skip)  this.parameters.skip  = options.skip
     if (options.limit) this.parameters.limit = options.limit
+    if (options.order) this.parameters.order = options.order
   }
 
   addPart(strOrFunc) {
@@ -47,6 +48,7 @@ class Query {
     })
     strs.push(`RETURN ${this.returnRefs.join(', ')}`)
 
+    if (params.order) strs.push(`ORDER BY ${params.order}`)
     if (params.skip)  strs.push('SKIP $skip')
     if (params.limit) strs.push('LIMIT $limit')
 
