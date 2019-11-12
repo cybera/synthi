@@ -36,7 +36,7 @@ const ContextCheckbox = ({ label, value, setFunction }) => (
 
 ContextCheckbox.propTypes = {
   label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.bool.isRequired,
   setFunction: PropTypes.func.isRequired,
 }
 
