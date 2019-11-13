@@ -2,7 +2,7 @@ import { or, and, allow, deny } from 'graphql-shield'
 import gql from 'graphql-tag'
 
 import { pubsub, withFilter } from '../pubsub'
-import { isOwner, isMember, isPublished } from '../rules'
+import { isOwner, isMember, isPublished, memberCanCreateDatasets } from '../rules'
 
 import {
   processDatasetUpdate,
@@ -34,8 +34,8 @@ export const resolvers = {
     canPublish: (dataset, _, { user }) => dataset.canPublish(user)
   },
   Mutation: {
-    createDataset: (_, { name, owner, type }, { user }) => (
-      createDataset(owner, name, type, user)
+    createDataset: (_, { name, owner, type }) => (
+      createDataset({ uuid: owner }, name, type)
     ),
     deleteDataset: (_, { uuid }) => deleteDataset(uuid),
     importCSV: (_, { uuid, ...props }) => importCSV(uuid, props),
@@ -66,7 +66,10 @@ export const permissions = {
     '*': or(isOwner(), isPublished()),
   },
   Mutation: {
-    createDataset: isMember({ organizationUUID: 'owner' }),
+    createDataset: and(
+      isMember({ organizationUUID: 'owner' }),
+      memberCanCreateDatasets({ organizationUUID: 'owner' })
+    ),
     deleteDataset: isOwner(),
     importCSV: isOwner(),
     updateDataset: isOwner(),

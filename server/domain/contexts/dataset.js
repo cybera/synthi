@@ -114,19 +114,14 @@ export async function filterDatasets({
   return datasets
 }
 
-export async function createDataset(owner, name, type, user) {
+export async function createDataset(owner, name, type) {
   let datasetType = type
   if (!datasetType) {
     datasetType = 'csv'
   }
 
-  // TODO: context.user.createDataset(org, { name })
-  const org = await Organization.getByUuid(owner)
-  if (!await org.canAccess(user)) {
-    throw new AuthenticationError('You cannot create datasets for this organization')
-  }
+  const org = await findOrganization(owner)
 
-  if (await org.canCreateDatasets(user)) {
     const dataset = await org.createDataset({ name, type: datasetType })
     // Initialize metadata (this will set some dates to when the dataset is created)
     const metadata = await dataset.metadata()
@@ -134,8 +129,6 @@ export async function createDataset(owner, name, type, user) {
 
     return dataset
   }
-  return null
-}
 
 export async function deleteDataset(uuid) {
   const dataset = await ModelFactory.getByUuid(uuid)
