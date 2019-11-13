@@ -122,13 +122,13 @@ export async function createDataset(owner, name, type) {
 
   const org = await findOrganization(owner)
 
-    const dataset = await org.createDataset({ name, type: datasetType })
-    // Initialize metadata (this will set some dates to when the dataset is created)
-    const metadata = await dataset.metadata()
-    await metadata.save()
+  const dataset = await org.createDataset({ name, type: datasetType })
+  // Initialize metadata (this will set some dates to when the dataset is created)
+  const metadata = await dataset.metadata()
+  await metadata.save()
 
-    return dataset
-  }
+  return dataset
+}
 
 export async function deleteDataset(uuid) {
   const dataset = await ModelFactory.getByUuid(uuid)
@@ -286,4 +286,30 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
 
   // Don't return the one extra, but last should be true if we don't get it
   return { datasets: datasets.slice(0, limit), last: datasets.length < limit + 1 }
+}
+
+export async function createComputedDatasetFromTransformation(params, owner) {
+  const { inputs, template, name } = params
+  const templateObj = await findTransformation(template, owner)
+  const inputObjs = await findTransformationInputs(inputs, owner)
+
+  // TODO: We should be specifying this on the transformation itself
+  const outputType = 'csv'
+
+  logger.debug(`Computed Dataset Name: ${name}`)
+  logger.debug(`Transformation Ref: ${templateObj.name} (${templateObj.uuid})`)
+  logger.debug(`Inputs: {\n${debugTransformationInputObjs(inputObjs)}\n}`)
+  logger.debug(`outputType: ${outputType}`)
+
+  let dataset = null
+  let error = null
+  try {
+    dataset = await createDataset(owner, name, outputType)
+    await dataset.saveInputTransformationRef(templateObj, inputObjs)
+  } catch (errorCreating) {
+    error = errorCreating.message
+    logger.warn('error: %o', error)
+  }
+
+  return { dataset, error }
 }

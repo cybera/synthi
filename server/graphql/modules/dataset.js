@@ -15,6 +15,7 @@ import {
   saveInputTransformation,
   listDatasets,
   setPublished,
+  createComputedDatasetFromTransformation,
 } from '../../domain/contexts/dataset'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
@@ -44,6 +45,9 @@ export const resolvers = {
     toggleColumnVisibility: (_, { uuid }, { user }) => toggleColumnVisibility(uuid, user),
     saveInputTransformation: (_, { uuid, ...props }, { user }) => (
       saveInputTransformation(uuid, props, user)
+    ),
+    createComputedDatasetFromTransformation: (_, { params, owner }) => (
+      createComputedDatasetFromTransformation(params, owner)
     ),
     publishDataset: (_, { uuid, published }) => setPublished(uuid, published)
   },
@@ -77,6 +81,7 @@ export const permissions = {
     toggleColumnVisibility: isOwner(),
     saveInputTransformation: isOwner(),
     publishDataset: isOwner(),
+    createComputedDatasetFromTransformation: isMember({ organizationRef: 'owner' }),
   }
 }
 
@@ -157,6 +162,17 @@ export const typeDefs = gql`
     }, offset: Int = 0, limit: Int = 10): ListDatasetsResult
   }
 
+  input ComputedDatasetFromTransformationParams {
+    name: String
+    inputs: [TransformationInputMapping]
+    template: TemplateRef
+  }
+
+  type CreateComputedDatasetResult {
+    dataset: Dataset
+    error: String
+  }
+
   extend type Mutation {
     createDataset(name: String, owner: String, type: DatasetType = csv): Dataset
     deleteDataset(uuid: String!): Boolean
@@ -165,5 +181,9 @@ export const typeDefs = gql`
     updateDataset(uuid: String!, file:Upload, computed:Boolean, name:String, generating:Boolean): Dataset
     generateDataset(uuid: String!): Dataset
     publishDataset(uuid: String!, published: Boolean): Transformation
+    createComputedDatasetFromTransformation(
+      params: ComputedDatasetFromTransformationParams,
+      owner: OrganizationRef
+    ): CreateComputedDatasetResult!
   }
 `

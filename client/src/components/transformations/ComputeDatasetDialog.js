@@ -1,20 +1,24 @@
-import React, { useContext, useState } from 'react';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import React, { useContext, useState } from 'react'
+import PropTypes from 'prop-types'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import FormHelperText from '@material-ui/core/FormHelperText'
 
 import gql from 'graphql-tag'
-import { useQuery } from 'react-apollo'
+import { useQuery, useMutation } from 'react-apollo'
 
-import { debounce } from 'lodash'
+import { debounce, pick } from 'lodash'
 
 import { AutocompleteInput } from '../layout/form-fields/AutocompleteInput'
 import ADIButton from '../layout/buttons/ADIButton'
 import NavigationContext from '../../contexts/NavigationContext'
+import { transformationProptype, transformationInputMappingProptype } from '../../lib/adiProptypes'
+import { openSnackbar } from '../layout/Notifier'
 
 const DATASET_LIST = gql`
   query DatasetList($org: OrganizationRef!, $filter: DatasetFilter) {
@@ -67,12 +71,29 @@ const DatasetInput = ({ alias, onChange, value }) => {
   )
 }
 
+const CREATE_COMPUTED_DATASET = gql`
+  mutation CreateComputedDatasetFromTransformation(
+    $params: ComputedDatasetFromTransformationParams,
+    $owner: OrganizationRef
+  ) {
+    createComputedDatasetFromTransformation(params: $params, owner: $owner) {
+      dataset {
+        name
+        uuid
+      }
+      error
+    }
+  }
+`
+
 export default function ComputeDatasetDialog({ transformation }) {
-  const [open, setOpen] = React.useState(false);
-  const [params, setParams] = React.useState({
+  const [open, setOpen] = useState(false);
+  const [params, setParams] = useState({
     name: 'Computed Dataset',
-    inputs: transformation.inputs.map(input => ({ alias: input, dataset: null }))
+    inputs: transformation.inputs.map((input) => ({ alias: input, dataset: null })),
+    template: { uuid: transformation.uuid }
   });
+  const [error, setError] = useState(null)
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -84,10 +105,48 @@ export default function ComputeDatasetDialog({ transformation }) {
 
   const handleInputChange = (alias) => (event, value) => {
     const temp = { ...params }
-    const newInput = { alias, dataset: value }
+    const newInput = { alias, dataset: pick(value, ['uuid', 'name']) }
     const index = temp.inputs.findIndex((input) => input.alias === alias)
     temp.inputs[index] = newInput
     setParams(temp)
+  }
+
+  const handleNameChange = (event) => {
+    setParams({
+      ...params,
+      name: event.target.value
+    })
+  }
+
+  const navigation = useContext(NavigationContext)
+
+  const [createComputedDatasetFromTransformation] = useMutation(CREATE_COMPUTED_DATASET, {
+    variables: {
+      owner: { uuid: navigation.currentOrg }
+    }
+  })
+
+  const handleConfirm = async () => {
+    const mutationResult = await createComputedDatasetFromTransformation({ variables: { params } })
+    const result = mutationResult.data.createComputedDatasetFromTransformation
+
+    if (result.error) {
+      setError(result.error)
+    } else {
+      setOpen(false)
+      const handleWorkbenchNav = () => {
+        navigation.switchMode('datasets')
+        navigation.selectDataset(result.dataset.uuid)
+      }
+
+      const action = (
+        <Button color="primary" size="small" onClick={handleWorkbenchNav}>
+          View in Workbench
+        </Button>
+      )
+
+      openSnackbar({ message: `'${result.dataset.name}' created!`, action, variant: 'success' })
+    }
   }
 
   return (
@@ -108,6 +167,7 @@ export default function ComputeDatasetDialog({ transformation }) {
             label="Name"
             value={params.name}
             fullWidth
+            onChange={handleNameChange}
           />
           { params.inputs.map(({ alias, dataset }) => (
             <DatasetInput
@@ -117,16 +177,35 @@ export default function ComputeDatasetDialog({ transformation }) {
               onChange={handleInputChange(alias)}
             />
           ))}
+          { error && (
+            <FormHelperText error>
+              { error }
+            </FormHelperText>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleConfirm} color="primary">
             Create
           </Button>
         </DialogActions>
       </Dialog>
     </div>
   );
+}
+
+ComputeDatasetDialog.propTypes = {
+  transformation: transformationProptype.isRequired,
+}
+
+DatasetInput.propTypes = {
+  alias: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  value: transformationInputMappingProptype,
+}
+
+DatasetInput.defaultProps = {
+  value: null
 }
