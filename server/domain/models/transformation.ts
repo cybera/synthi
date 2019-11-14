@@ -14,9 +14,10 @@ import { User, Tag, Dataset, Organization } from '../models'
 
 class Transformation extends Base {
   static readonly label = 'Transformation'
-  static readonly saveProperties = ['script', 'name', 'published', 'inputs', 'state']
+  static readonly saveProperties = ['script', 'name', 'description', 'published', 'inputs', 'state']
 
   name: string
+  description: string
   script: string
   inputs: [string]
   state: string

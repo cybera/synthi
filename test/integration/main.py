@@ -200,10 +200,29 @@ def test_transformation_publishing():
     with pytest.raises(APIError):
         client_test2.query(publish_query, dict(uuid=uuid, published=False))
 
+def test_create_transformation():
+    name = 'Test'
+    code='import foo from bar'
+    description='My test transformation'
+    inputs=['simple_data']
+
+    result = client.transformation.define(
+        name=name,
+        code=code,
+        description=description,
+        inputs=inputs
+    )
+
+    assert result['name'] == name
+    assert result['description'] == description
+    assert result['inputs'] == inputs
+    assert result['code'] == code
+
 def test_update_transformation():
     result = client.transformation.define(
         'SimpleMeans',
         'data/simple_means.py',
+        description='My simple means transformation',
         inputs=['simple_data']
     )
     uuid = result['uuid']
