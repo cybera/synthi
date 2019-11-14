@@ -114,27 +114,20 @@ export async function filterDatasets({
   return datasets
 }
 
-export async function createDataset(owner, name, type, user) {
+export async function createDataset(owner, name, type) {
   let datasetType = type
   if (!datasetType) {
     datasetType = 'csv'
   }
 
-  // TODO: context.user.createDataset(org, { name })
-  const org = await Organization.getByUuid(owner)
-  if (!await org.canAccess(user)) {
-    throw new AuthenticationError('You cannot create datasets for this organization')
-  }
+  const org = await findOrganization(owner)
 
-  if (await org.canCreateDatasets(user)) {
-    const dataset = await org.createDataset({ name, type: datasetType })
-    // Initialize metadata (this will set some dates to when the dataset is created)
-    const metadata = await dataset.metadata()
-    await metadata.save()
+  const dataset = await org.createDataset({ name, type: datasetType })
+  // Initialize metadata (this will set some dates to when the dataset is created)
+  const metadata = await dataset.metadata()
+  await metadata.save()
 
-    return dataset
-  }
-  return null
+  return dataset
 }
 
 export async function deleteDataset(uuid) {
@@ -209,7 +202,7 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
       return `
         CALL apoc.index.search($searchIndex, $filter.searchString)
         YIELD node AS searchResult
-        MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO]-(dataset:Dataset)
+        MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO*0..1]-(dataset:Dataset)
         MATCH (organization:Organization)-[:OWNER]->(dataset)
       `
     }
@@ -280,9 +273,43 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
   })
 
   // Query for one more than we actually asked for, just to test if there ARE more
-  const params = { org: orgRef, filter, searchIndex, skip: offset, limit: limit + 1 }
+  const params = {
+    org: orgRef,
+    filter,
+    searchIndex,
+    skip: offset,
+    limit: limit + 1,
+    order: 'dataset.name ASC',
+  }
+
   const datasets = await query.run(params)
 
   // Don't return the one extra, but last should be true if we don't get it
   return { datasets: datasets.slice(0, limit), last: datasets.length < limit + 1 }
+}
+
+export async function createComputedDatasetFromTransformation(params, owner) {
+  const { inputs, template, name } = params
+  const templateObj = await findTransformation(template, owner)
+  const inputObjs = await findTransformationInputs(inputs, owner)
+
+  // TODO: We should be specifying this on the transformation itself
+  const outputType = 'csv'
+
+  logger.debug(`Computed Dataset Name: ${name}`)
+  logger.debug(`Transformation Ref: ${templateObj.name} (${templateObj.uuid})`)
+  logger.debug(`Inputs: {\n${debugTransformationInputObjs(inputObjs)}\n}`)
+  logger.debug(`outputType: ${outputType}`)
+
+  let dataset = null
+  let error = null
+  try {
+    dataset = await createDataset(owner, name, outputType)
+    await dataset.saveInputTransformationRef(templateObj, inputObjs)
+  } catch (errorCreating) {
+    error = errorCreating.message
+    logger.warn('error: %o', error)
+  }
+
+  return { dataset, error }
 }

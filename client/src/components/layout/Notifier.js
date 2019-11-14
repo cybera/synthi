@@ -6,24 +6,30 @@ let openSnackbarFn
 export default class Notifier extends React.Component {
   state = {
     open: false,
-    message: ''
+    message: '',
+    action: undefined,
+    variant: undefined,
   }
 
   componentDidMount() {
     openSnackbarFn = this.openSnackbar
   }
 
-  openSnackbar = ({ message }) => {
+  openSnackbar = ({ message, action, variant }) => {
     this.setState({
       open: true,
-      message
+      message,
+      action,
+      variant,
     })
   }
 
   handleSnackbarClose = () => {
     this.setState({
       open: false,
-      message: ''
+      message: '',
+      action: undefined,
+      variant: undefined,
     })
   }
 
@@ -41,6 +47,8 @@ export default class Notifier extends React.Component {
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         message={message}
+        action={state.action}
+        variant={state.variant}
         autoHideDuration={3000}
         onClose={this.handleSnackbarClose}
         open={state.open}
@@ -52,6 +60,6 @@ export default class Notifier extends React.Component {
   }
 }
 
-export function openSnackbar({ message }) {
-  openSnackbarFn({ message })
+export function openSnackbar({ message, action, variant }) {
+  openSnackbarFn({ message, action, variant })
 }

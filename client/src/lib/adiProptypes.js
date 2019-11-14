@@ -45,3 +45,13 @@ export const childrenProptype = oneOfType([
   node,
   func
 ])
+
+export const transformationInputMappingProptype = shape({
+  alias: string,
+  dataset: shape({ name: string, uuid: string }),
+})
+
+export const transformationProptype = shape({
+  name: string,
+  inputs: arrayOf(string),
+})

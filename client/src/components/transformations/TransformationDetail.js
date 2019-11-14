@@ -5,12 +5,16 @@ import gql from 'graphql-tag'
 import { useMutation } from 'react-apollo'
 
 import { makeStyles } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import Typography from '@material-ui/core/Typography'
+import {
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  FormControlLabel,
+  Switch,
+} from '@material-ui/core'
 
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Switch from '@material-ui/core/Switch'
+import ComputeDatasetDialog from './ComputeDatasetDialog'
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -26,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
   },
   operations: {
-    width: 200,
+    width: 240,
     marginLeft: 'auto',
   },
   title: {
@@ -79,19 +83,28 @@ const TransformationDetail = ({ transformation }) => {
         { transformation.inputs.join(',')}
       </CardContent>
       <CardContent className={classes.operations}>
-        { transformation.canPublish && (
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={Boolean(published)}
-              onChange={() => setPublished({ variables: { uuid, published: !published } })}
-              value={`published-${uuid}`}
-              color="primary"
+        <Grid container direction="column">
+          <Grid item>
+            { transformation.canPublish && (
+            <FormControlLabel
+              control={(
+                <Switch
+                  checked={Boolean(published)}
+                  onChange={() => setPublished({ variables: { uuid, published: !published } })}
+                  value={`published-${uuid}`}
+                  color="primary"
+                />
+              )}
+              label="Publish"
             />
-          )}
-          label="Publish"
-        />
-        )}
+            )}
+          </Grid>
+          <Grid item>
+            <ComputeDatasetDialog
+              transformation={transformation}
+            />
+          </Grid>
+        </Grid>
       </CardContent>
     </Card>
   )
