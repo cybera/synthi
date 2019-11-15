@@ -313,3 +313,8 @@ export async function createComputedDatasetFromTransformation(params, owner) {
 
   return { dataset, error }
 }
+
+export async function uniqueDefaultDatasetName(organizationRef) {
+  const organization = await findOrganization(organizationRef)
+  return organization.uniqueDefaultDatasetName()
+}
