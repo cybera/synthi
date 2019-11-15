@@ -40,6 +40,10 @@ const GET_TRANSFORMATIONS = gql`
       ownerName
       canPublish
       description
+      tags {
+        name
+        uuid
+      }
     }
   }
 `

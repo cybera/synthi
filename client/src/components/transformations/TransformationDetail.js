@@ -116,6 +116,14 @@ const TransformationDetail = ({ transformation }) => {
               <Chip variant="outlined" size="small" label={input} key={input} />
             ))}
           </Grid>
+          <Grid item>
+            <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
+              Tags:
+            </Typography>
+            { transformation.tags.map((tag) => (
+              <Chip variant="outlined" size="small" label={tag.name} key={tag.uuid} />
+            ))}
+          </Grid>
         </Grid>
       </CardContent>
       <CardContent className={classes.operations}>
@@ -157,6 +165,12 @@ TransformationDetail.propTypes = {
     ownerName: PropTypes.string,
     canPublish: PropTypes.bool,
     description: PropTypes.string,
+    tags: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        uuid: PropTypes.string,
+      })
+    ),
   }).isRequired
 }
 
