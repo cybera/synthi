@@ -3,6 +3,7 @@ import { or } from 'graphql-shield'
 
 import { isOwner, isPublished } from '../rules'
 import { updateDatasetMetadata } from '../../domain/contexts/dataset'
+import { TOPICS } from '../../domain/models/dataset-metadata'
 
 export const resolvers = {
   Dataset: {
@@ -13,6 +14,9 @@ export const resolvers = {
     updateDatasetMetadata: async (_, { uuid, metadata }, context) => (
       updateDatasetMetadata(uuid, metadata)
     )
+  },
+  Query: {
+    topics: () => TOPICS
   }
 }
 
@@ -58,5 +62,9 @@ export const typeDefs = gql`
 
   extend type Mutation {
     updateDatasetMetadata(uuid: String!, metadata:DatasetMetadataInput): DatasetMetadata
+  }
+
+  extend type Query {
+    topics: [String]
   }
 `
