@@ -86,7 +86,7 @@ const CREATE_COMPUTED_DATASET = gql`
   }
 `
 
-export default function ComputeDatasetDialog({ transformation }) {
+export default function ComputeDatasetDialog({ transformation, buttonClass }) {
   const [open, setOpen] = useState(false);
   const [params, setParams] = useState({
     name: 'Computed Dataset',
@@ -151,7 +151,7 @@ export default function ComputeDatasetDialog({ transformation }) {
 
   return (
     <div>
-      <ADIButton size="small" onClick={handleClickOpen}>
+      <ADIButton size="small" onClick={handleClickOpen} className={buttonClass}>
         Compute Dataset
       </ADIButton>
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -198,6 +198,11 @@ export default function ComputeDatasetDialog({ transformation }) {
 
 ComputeDatasetDialog.propTypes = {
   transformation: transformationProptype.isRequired,
+  buttonClass: PropTypes.string,
+}
+
+ComputeDatasetDialog.defaultProps = {
+  buttonClass: undefined,
 }
 
 DatasetInput.propTypes = {

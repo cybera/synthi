@@ -9,11 +9,26 @@ import NavigationContext from '../../contexts/NavigationContext'
 import TransformationFilterContext from '../../contexts/TransformationFilterContext'
 import TransformationDetail from './TransformationDetail'
 
+import PanelLoadingState from '../layout/PanelLoadingState'
+
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: theme.spacing(1),
-  }
+  },
+  loadingSpinner: {
+    marginTop: 200
+  },
 }))
+
+const LoadingSpinner = () => {
+  const classes = useStyles()
+
+  return (
+    <div className={classes.loadingSpinner}>
+      <PanelLoadingState />
+    </div>
+  )
+}
 
 const GET_TRANSFORMATIONS = gql`
   query ListTransformations($org: OrganizationRef!, $filter: TransformationFilter) {
@@ -24,6 +39,7 @@ const GET_TRANSFORMATIONS = gql`
       published
       ownerName
       canPublish
+      description
     }
   }
 `
@@ -33,7 +49,7 @@ const TransformationList = () => {
   const filter = useContext(TransformationFilterContext)
   const classes = useStyles()
 
-  // Our context includes functions to set the filter options that we 
+  // Our context includes functions to set the filter options that we
   // can't send to the GraphQL API.
   const notFunction = R.compose(R.not, R.is(Function))
   const options = R.pickBy(notFunction)
@@ -46,7 +62,7 @@ const TransformationList = () => {
     fetchPolicy: 'network-only'
   })
 
-  if (loading) return 'Loading...'
+  if (loading) return <LoadingSpinner />
   if (error) return `Error! ${error.message}`
 
   return (

@@ -12,7 +12,10 @@ import {
   Typography,
   FormControlLabel,
   Switch,
+  Chip,
 } from '@material-ui/core'
+
+import BusinessIcon from '@material-ui/icons/Business';
 
 import ComputeDatasetDialog from './ComputeDatasetDialog'
 
@@ -28,16 +31,33 @@ const useStyles = makeStyles((theme) => ({
   details: {
     display: 'flex',
     flexDirection: 'column',
+    flex: '1 0 70%',
+    '& p': {
+      marginBottom: theme.spacing(1.5)
+    }
   },
   operations: {
+    borderLeftStyle: 'dotted',
+    borderLeftWidth: 1,
+    borderLeftColor: '#cfcfcf',
     width: 240,
-    marginLeft: 'auto',
   },
   title: {
     fontSize: 18,
   },
   inputsHeading: {
     fontSize: 14,
+  },
+  transformationName: {
+    flex: '1 0 auto'
+  },
+  opButton: {
+    width: '100%',
+  },
+  orgIcon: {
+    marginRight: theme.spacing(1),
+    fontSize: 22,
+    verticalAlign: 'text-bottom',
   },
 }))
 
@@ -54,36 +74,52 @@ const PUBLISH_TRANSFORMATION = gql`
 const TransformationDetail = ({ transformation }) => {
   const classes = useStyles()
   const [setPublished] = useMutation(PUBLISH_TRANSFORMATION)
-  const { uuid, name, published } = transformation
+  const {
+    uuid,
+    published,
+    description,
+  } = transformation
 
   return (
     <Card className={classes.card}>
       <CardContent className={classes.details}>
-        <Typography className={classes.title} color="textSecondary" gutterBottom>
-          { transformation.name }
-          { ' ' }
-          { `(${transformation.ownerName})` }
-        </Typography>
-        <Typography variant="body2" component="p">
-          Some details about the
-          { ' ' }
-          { name }
-          { ' ' }
-          transformation.
-          <br />
-          <b>UUID:</b>
-          { ' ' }
-          { uuid }
-          ).
-        </Typography>
-        <br />
-        <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
-          Expected inputs:
-        </Typography>
-        { transformation.inputs.join(',')}
+        <Grid container direction="column" spacing={3}>
+          <Grid container item direction="row">
+            <Grid item className={classes.transformationName}>
+              <Typography variant="h5" color="textPrimary" gutterBottom>
+                { transformation.name }
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography className={classes.title} color="textSecondary" gutterBottom>
+                <BusinessIcon className={classes.orgIcon} />
+                { transformation.ownerName }
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
+              Description
+            </Typography>
+            { description && description.split('\n').map((paragraph, index) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <Typography variant="body2" component="p" key={index}>
+                { paragraph }
+              </Typography>
+            ))}
+          </Grid>
+          <Grid item>
+            <Typography className={classes.inputsHeading} color="textSecondary" gutterBottom>
+              Expected inputs:
+            </Typography>
+            { transformation.inputs.map((input) => (
+              <Chip variant="outlined" size="small" label={input} key={input} />
+            ))}
+          </Grid>
+        </Grid>
       </CardContent>
       <CardContent className={classes.operations}>
-        <Grid container direction="column">
+        <Grid container direction="column" spacing={2}>
           <Grid item>
             { transformation.canPublish && (
             <FormControlLabel
@@ -93,6 +129,7 @@ const TransformationDetail = ({ transformation }) => {
                   onChange={() => setPublished({ variables: { uuid, published: !published } })}
                   value={`published-${uuid}`}
                   color="primary"
+                  size="small"
                 />
               )}
               label="Publish"
@@ -102,6 +139,7 @@ const TransformationDetail = ({ transformation }) => {
           <Grid item>
             <ComputeDatasetDialog
               transformation={transformation}
+              buttonClass={classes.opButton}
             />
           </Grid>
         </Grid>
@@ -118,6 +156,7 @@ TransformationDetail.propTypes = {
     published: PropTypes.bool,
     ownerName: PropTypes.string,
     canPublish: PropTypes.bool,
+    description: PropTypes.string,
   }).isRequired
 }
 
