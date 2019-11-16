@@ -1,6 +1,9 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 
+import { useQuery } from 'react-apollo'
+import gql from 'graphql-tag'
+
 import { makeStyles } from '@material-ui/styles'
 import {
   Checkbox,
@@ -9,10 +12,9 @@ import {
   Grid,
   TextField,
 } from '@material-ui/core'
-import ChipInput from 'material-ui-chip-input'
 
+import { AutocompleteChipInput } from '../layout/form-fields/AutocompleteInput'
 import TransformationFilterContext from '../../contexts/TransformationFilterContext'
-
 import ADIButton from '../layout/buttons/ADIButton'
 
 const useStyles = makeStyles((theme) => ({
@@ -54,6 +56,33 @@ ContextCheckbox.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.bool.isRequired,
   setFunction: PropTypes.func.isRequired,
+}
+
+const VALID_TAGS_QUERY = gql`
+  query {
+    tags {
+      name
+    }
+  }
+`
+
+const TagInput = ({ onChange, value }) => {
+  const { loading, error, data } = useQuery(VALID_TAGS_QUERY)
+
+  const options = loading || error ? [] : data.tags.map((tag) => tag.name)
+
+  return (
+    <AutocompleteChipInput
+      value={value}
+      onChange={onChange}
+      options={options}
+      loading={loading}
+      margin="normal"
+      fullWidth
+      fullWidthInput
+      label="Tags"
+    />
+  )
 }
 
 const FilterPanel = () => {
@@ -105,13 +134,9 @@ const FilterPanel = () => {
           />
         </Grid>
         <Grid item className={classes.filterRow}>
-          <ChipInput
-            onChange={changeFilter('tags')}
-            defaultValue={filter.tags}
-            margin="normal"
-            fullWidth
-            fullWidthInput
-            label="Tags"
+          <TagInput
+            onChange={(_, value) => changeFilter('tags')(value)}
+            value={filter.tags}
           />
         </Grid>
         <Grid item className={classes.filterRow}>
@@ -125,6 +150,11 @@ const FilterPanel = () => {
       </Grid>
     </div>
   )
+}
+
+TagInput.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.arrayOf(PropTypes.string).isRequired
 }
 
 export default FilterPanel
