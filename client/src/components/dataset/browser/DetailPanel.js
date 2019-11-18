@@ -35,8 +35,21 @@ const useStyles = makeStyles((theme) => ({
     visibility: 'hidden',
     height: 0,
     overflow: 'hidden',
-  }
+  },
+  loadingSpinner: {
+    marginTop: 200
+  },
 }))
+
+const LoadingSpinner = () => {
+  const classes = useStyles()
+
+  return (
+    <div className={classes.loadingSpinner}>
+      <PanelLoadingState />
+    </div>
+  )
+}
 
 const GET_DATASETS = gql`
   query ListDatasets($org: OrganizationRef!, $filter: DatasetFilter, $offset: Int, $limit: Int) {
@@ -92,7 +105,7 @@ const DatasetList = () => {
     fetchPolicy: 'network-only'
   })
 
-  if (loading) return <PanelLoadingState />
+  if (loading) return <LoadingSpinner />
   if (error) return `Error! ${error.message}`
 
   const { datasets, last } = data.listDatasets

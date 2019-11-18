@@ -1,22 +1,29 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
-const TransformationFilterContext = React.createContext({
+const filterDefaults = {
   publishedOnly: false,
-  setPublishedOnly: () => {}
+  includeShared: true,
+  tags: [],
+  searchString: ''
+}
+
+const TransformationFilterContext = React.createContext({
+  filter: filterDefaults,
+  setFilter: () => {},
+  updateFilter: () => {}
 })
 
 export const TransformationFilterProvider = ({ children }) => {
-  const [publishedOnly, setPublishedOnly] = useState(false)
-  const [includeShared, setIncludeShared] = useState(true)
+  const [filter, setFilter] = useState(filterDefaults)
+  const updateFilter = (values) => setFilter({ ...filter, ...values })
 
   return (
     <TransformationFilterContext.Provider
       value={{
-        publishedOnly,
-        includeShared,
-        setPublishedOnly,
-        setIncludeShared,
+        filter,
+        setFilter,
+        updateFilter
       }}
     >
       { children }

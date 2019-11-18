@@ -16,6 +16,7 @@ import {
   listDatasets,
   setPublished,
   createComputedDatasetFromTransformation,
+  uniqueDefaultDatasetName,
 } from '../../domain/contexts/dataset'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
@@ -24,6 +25,7 @@ export const resolvers = {
   Query: {
     dataset: (_, props) => filterDatasets(props),
     listDatasets: (_, { org, filter, offset, limit }) => listDatasets(org, filter, offset, limit),
+    uniqueDefaultDatasetName: (_, { org }) => uniqueDefaultDatasetName(org),
   },
   Dataset: {
     columns: dataset => dataset.columns(),
@@ -64,7 +66,8 @@ export const resolvers = {
 export const permissions = {
   Query: {
     dataset: or(isMember({ organizationRef: 'org' }), isOwner()),
-    listDatasets: isMember({organizationRef: 'org'})
+    listDatasets: isMember({organizationRef: 'org'}),
+    uniqueDefaultDatasetName: isMember({organizationRef: 'org'}),
   },
   Dataset: {
     '*': or(isOwner(), isPublished()),
@@ -160,6 +163,7 @@ export const typeDefs = gql`
       includeShared: true,
       format: null
     }, offset: Int = 0, limit: Int = 10): ListDatasetsResult
+    uniqueDefaultDatasetName(org: OrganizationRef!): String!
   }
 
   input ComputedDatasetFromTransformationParams {

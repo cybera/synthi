@@ -5,7 +5,7 @@ import {
   createTransformationTemplate,
   updateTransformation,
   deleteTransformation,
-  transformations,
+  listTransformations,
   transformation,
   setPublished,
 } from '../../domain/contexts/transformation'
@@ -20,7 +20,7 @@ export const resolvers = {
     tags: transformation => transformation.tags()
   },
   Query: {
-    transformations: (_, { org, filter }) => transformations(org, filter),
+    listTransformations: (_, { org, filter, offset, limit  }) => listTransformations(org, filter, offset, limit),
     transformation: (_, { uuid, name, org }) => transformation(uuid, name, org),
   },
   Mutation: {
@@ -43,7 +43,7 @@ export const permissions = {
     '*': or(isOwner(), isPublished())
   },
   Query: {
-    transformations: isMember({ organizationRef: 'org' }),
+    listTransformations: isMember({ organizationRef: 'org' }),
     transformation: or(isMember({ organizationRef: 'org' }), isOwner())
   },
   Mutation: {
@@ -95,6 +95,13 @@ export const typeDefs = gql`
   input TransformationFilter {
     publishedOnly: Boolean
     includeShared: Boolean
+    tags: [String]
+    searchString: String
+  }
+
+  type ListTransformationsResult {
+    transformations: [Transformation]
+    last: Boolean
   }
 
   extend type Dataset {
@@ -102,10 +109,10 @@ export const typeDefs = gql`
   }
 
   extend type Query {
-    transformations(org: OrganizationRef!, filter: TransformationFilter = {
+    listTransformations(org: OrganizationRef!, filter: TransformationFilter = {
       publishedOnly: false,
       includeShared: true
-    }): [Transformation]
+    }, offset: Int = 0, limit: Int = 10): ListTransformationsResult
     transformation(uuid: String, name: String, org: OrganizationRef): Transformation
   }
 

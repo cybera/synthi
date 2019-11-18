@@ -10,7 +10,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import FormHelperText from '@material-ui/core/FormHelperText'
 
 import gql from 'graphql-tag'
-import { useQuery, useMutation } from 'react-apollo'
+import { useQuery, useMutation, useLazyQuery } from 'react-apollo'
 
 import { debounce, pick } from 'lodash'
 
@@ -86,21 +86,38 @@ const CREATE_COMPUTED_DATASET = gql`
   }
 `
 
-export default function ComputeDatasetDialog({ transformation }) {
+const UNIQUE_DATASET_NAME_QUERY = gql`
+  query UniqueDatasetName($org: OrganizationRef!) {
+    uniqueDefaultDatasetName(org: $org)
+  }
+`
+
+export default function ComputeDatasetDialog({ transformation, buttonClass }) {
   const [open, setOpen] = useState(false);
   const [params, setParams] = useState({
-    name: 'Computed Dataset',
+    name: '',
     inputs: transformation.inputs.map((input) => ({ alias: input, dataset: null })),
     template: { uuid: transformation.uuid }
   });
   const [error, setError] = useState(null)
+  const navigation = useContext(NavigationContext)
+  const [fetchUniqueDatasetName] = useLazyQuery(UNIQUE_DATASET_NAME_QUERY, {
+    variables: { org: { uuid: navigation.currentOrg } },
+    onCompleted: (data) => {
+      setParams({ ...params, name: data.uniqueDefaultDatasetName })
+    },
+    fetchPolicy: 'network-only'
+  })
+
 
   const handleClickOpen = () => {
+    fetchUniqueDatasetName()
+    setError(null)
     setOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCancel = () => {
+    setOpen(false)
   };
 
   const handleInputChange = (alias) => (event, value) => {
@@ -118,8 +135,6 @@ export default function ComputeDatasetDialog({ transformation }) {
     })
   }
 
-  const navigation = useContext(NavigationContext)
-
   const [createComputedDatasetFromTransformation] = useMutation(CREATE_COMPUTED_DATASET, {
     variables: {
       owner: { uuid: navigation.currentOrg }
@@ -127,6 +142,11 @@ export default function ComputeDatasetDialog({ transformation }) {
   })
 
   const handleConfirm = async () => {
+    if (!params.name) {
+      setError('Please enter a name for your dataset')
+      return
+    }
+
     const mutationResult = await createComputedDatasetFromTransformation({ variables: { params } })
     const result = mutationResult.data.createComputedDatasetFromTransformation
 
@@ -151,10 +171,10 @@ export default function ComputeDatasetDialog({ transformation }) {
 
   return (
     <div>
-      <ADIButton size="small" onClick={handleClickOpen}>
+      <ADIButton size="small" onClick={handleClickOpen} className={buttonClass}>
         Compute Dataset
       </ADIButton>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+      <Dialog open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Create Computed Dataset</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -184,7 +204,7 @@ export default function ComputeDatasetDialog({ transformation }) {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleCancel} color="primary">
             Cancel
           </Button>
           <Button onClick={handleConfirm} color="primary">
@@ -198,6 +218,11 @@ export default function ComputeDatasetDialog({ transformation }) {
 
 ComputeDatasetDialog.propTypes = {
   transformation: transformationProptype.isRequired,
+  buttonClass: PropTypes.string,
+}
+
+ComputeDatasetDialog.defaultProps = {
+  buttonClass: undefined,
 }
 
 DatasetInput.propTypes = {

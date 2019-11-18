@@ -43,31 +43,77 @@ export async function deleteTransformation(uuid) {
   return true
 }
 
-export async function transformations(orgRef, filter={}) {
-  const org = await findOrganization(orgRef)
-  const transformations = await org.transformations()
-  const { publishedOnly, includeShared } = filter
+export async function listTransformations(orgRef, filter={}, offset=0, limit=10) {
+  const query = new Query('transformation')
+  const searchIndex = 'DefaultTransformationSearchIndex'
 
-  let filteredTransformations = transformations
+  query.addPart(({ filter }) => {
+    if (filter.searchString) {
+      return `
+        CALL apoc.index.search($searchIndex, $filter.searchString)
+        YIELD node AS searchResult
+        MATCH (searchResult)-[:DESCRIBES*0..1]-(transformation:Transformation)
+        MATCH (organization:Organization)-[:OWNER]->(transformation)
+      `
+    }
+    return 'MATCH (organization:Organization)-[:OWNER]->(transformation:Transformation)'
+  })
 
-  if (publishedOnly) {
-    filteredTransformations = transformations.filter(transformation => transformation.published)
+  // organization/dataset filtering
+  query.addPart(({ filter }) => {
+    const { includeShared, publishedOnly } = filter
+
+    let conditions = []
+    if (includeShared && publishedOnly) {
+      // If we include datasets from other organizations and only want published ones,
+      // then we don't bother adding a restriction to a specific organization.
+      conditions.push('transformation.published = true')
+    } else {
+      // We're going to need to restrict to the given organization at this point
+      let condition = `
+        (($org.name IS NOT NULL AND organization.name = $org.name) OR 
+         ($org.uuid IS NOT NULL AND organization.uuid = $org.uuid) OR 
+         ($org.id   IS NOT NULL AND ID(organization)  = $org.id))
+      `
+
+      if (publishedOnly) {
+        condition += 'AND transformation.published = true'
+      } else if (includeShared) {
+        condition += 'OR transformation.published = true'
+      }
+
+      conditions.push(`(${condition})`)
+    }
+
+    return `WHERE ${conditions.join(' AND ')}`
+  })
+
+  query.addPart(({ filter }) => {
+    if (filter.tags && filter.tags.length > 0) {
+      return `
+        MATCH (tag:Tag)-[:DESCRIBES]->(transformation)
+        WHERE tag.name IN $filter.tags
+      `
+    } else {
+      return ''
+    }
+  })
+
+  // Query for one more than we actually asked for, just to test if there ARE more
+  const params = {
+    org: orgRef,
+    filter,
+    searchIndex,
+    skip: offset,
+    limit: limit + 1,
+    order: 'transformation.name ASC',
   }
 
-  if (includeShared) {
-    const otherPublished = new Query('transformation')
-    otherPublished.addPart(`
-      MATCH (organization:Organization)
-      WHERE (organization.name <> $org.name OR $org.name IS NULL) AND
-            (organization.uuid <> $org.uuid OR $org.uuid IS NULL) AND
-            (ID(organization)  <> $org.id   OR $org.id IS NULL)
-      MATCH (organization)-[:OWNER]->(transformation:Transformation { published: true })
-    `)
-    const otherTransformations = await otherPublished.run({ org: orgRef })
-    filteredTransformations.push(...otherTransformations)
-  }
-
-  return filteredTransformations
+  const transformations = await query.run(params)
+logger.warn('%o', transformations.map(t => t.name))
+logger.warn('%o < %o + 1: %o', transformations.length, limit, transformations.length < limit + 1)
+  // Don't return the one extra, but last should be true if we don't get it
+  return { transformations: transformations.slice(0, limit), last: transformations.length < limit + 1 }
 }
 
 export async function transformation(uuid, name, orgRef) {
