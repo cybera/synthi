@@ -12,8 +12,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
-import ChipInput from 'material-ui-chip-input'
-import { Query, Mutation } from 'react-apollo'
+import { useQuery, Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 import * as Ramda from 'ramda'
 
@@ -22,6 +21,7 @@ import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
 import FormatSelector from './FormatSelector'
 import { PanelLoadingState } from '../../layout'
 import { datasetViewQuery } from '../../../queries'
+import { AutocompleteChipInput } from '../../layout/form-fields/AutocompleteInput'
 
 export const datasetMetadataQuery = gql`
 query($uuid: String) {
@@ -52,6 +52,12 @@ export const updateDatasetMetadataMutation = gql`
     updateDatasetMetadata(uuid: $uuid, metadata: $metadata) {
       title
     }
+  }
+`
+
+export const topicsQuery = gql`
+  query {
+    topics
   }
 `
 
@@ -160,6 +166,35 @@ LocalDatePicker.propTypes = {
 LocalDatePicker.defaultProps = {
   className: '',
   value: null
+}
+
+const TopicInput = ({ defaultValue, onChange }) => {
+  const { data, loading, error } = useQuery(topicsQuery)
+
+  const topics = loading || error ? [] : data.topics
+
+  return (
+    <AutocompleteChipInput
+      options={topics}
+      onChange={onChange}
+      value={defaultValue}
+      margin="normal"
+      fullWidth
+      fullWidthInput
+      label="Topic"
+      style={{ marginLeft: 10 }}
+    />
+  )
+}
+
+TopicInput.propTypes = {
+  defaultValue: PropTypes.arrayOf(PropTypes.string),
+  onChange: PropTypes.func
+}
+
+TopicInput.defaultProps = {
+  defaultValue: [],
+  onChange: null
 }
 
 class DatasetMetadata extends React.Component {
@@ -351,14 +386,9 @@ class DatasetMetadata extends React.Component {
                 />
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>
-                <ChipInput
-                  onChange={(chips) => this.handleChipsChange('topic')(chips)}
+                <TopicInput
                   defaultValue={fields.topic}
-                  margin="normal"
-                  fullWidth
-                  fullWidthInput
-                  label="Topic"
-                  style={{ marginLeft: 10 }}
+                  onChange={(_, chips) => this.handleChipsChange('topic')(chips)}
                 />
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>
