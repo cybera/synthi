@@ -33,3 +33,4 @@ password = "password"
 [server]
 
 secret = "secret-token-123456"
+graphqlShieldDebug = true

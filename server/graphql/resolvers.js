@@ -3,6 +3,8 @@ import { shield } from 'graphql-shield'
 import { AuthenticationError } from 'apollo-server-express'
 import hash from 'object-hash'
 import { Base } from '../domain/models'
+import config from 'config'
+import logger from '../config/winston'
 
 import {
   dataset,
@@ -68,5 +70,23 @@ export const permissions = shield(merge(
   organization.permissions,
 ), {
   fallbackError: new AuthenticationError('Operation not allowed on this resource'),
-  hashFunction
+  hashFunction,
+  debug: config.get('server').graphqlShieldDebug
 })
+
+const shieldDebug = config.get('server').graphqlShieldDebug
+if (process.env.NODE_ENV === 'development' && !shieldDebug) {
+  logger.warn(`GraphQL Shield Debug is off!
+
+  Since you're in development mode, you probably want to turn it on in your development.toml.
+  This will keep GraphQL Shield from swallowing exceptions and turning them into generic 
+  authentication errors.
+  `)
+} else if (process.env.NODE_ENV !== 'development' && shieldDebug) {
+  logger.warn(`GraphQL Shield Debug is on!
+
+  GraphQL shield's documentation recommends against automatically passing thrown exception
+  info to the user, and it looks like you're not in development mode. Set graphqlShieldDebug
+  to false in the associated .toml file.
+  `)
+}

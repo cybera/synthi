@@ -30,5 +30,8 @@ module.exports = {
     url: defer(function () {
       return `${this.neo4j.protocol}://${this.neo4j.host}:${this.neo4j.port}`
     })
+  },
+  server: {
+    graphqlShieldDebug: false
   }
 }
