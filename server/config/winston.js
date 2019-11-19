@@ -6,7 +6,10 @@ function extraErrorInfoString(error) {
   let cleanedError = omit(error, ['timestamp', 'level', 'message'])
   let { stack } = error
   if (error instanceof GraphQLError) {
-    ({ stack } = error.originalError)
+    if (error.originalError) {
+      ({ stack } = error.originalError)
+    }
+
     // We're already getting the stack from originalError, and the other info
     // in it is redundant. We also don't need extensions.exception.stacktrace
     // because we're already getting the stack from the originalError. Why from
