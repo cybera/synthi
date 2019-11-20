@@ -1,6 +1,6 @@
 import { AuthenticationError } from 'apollo-server-express'
 
-import { uniqBy } from 'lodash'
+import { uniqBy, compact } from 'lodash'
 
 import {
   Dataset,
@@ -113,7 +113,7 @@ export async function filterDatasets({
     }
   }
 
-  datasets = uniqBy(datasets, (dataset) => dataset.uuid)
+  datasets = uniqBy(compact(datasets), (dataset) => dataset.uuid)
 
   return datasets
 }
