@@ -1,8 +1,0 @@
-#!/bin/bash
-
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR="$(dirname $SCRIPT_DIR)"
-
-USERNAME=$1
-
-docker-compose run python-worker /usr/src/app/create_user.py $USERNAME

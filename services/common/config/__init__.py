@@ -1,1 +1,0 @@
-from .__config import *

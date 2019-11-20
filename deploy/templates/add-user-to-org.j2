@@ -1,6 +1,0 @@
-#!/bin/bash
-
-USER_NAME=$1
-ORGANIZATION_NAME=$2
-
-docker exec -ti adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) ./add_user_to_org.py $USER_NAME $ORGANIZATION_NAME
