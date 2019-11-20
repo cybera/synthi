@@ -18,8 +18,14 @@ const styles = () => ({
     bottom: 0,
     height: 'calc(100% - 178px)',
     width: '100%',
-    overflowY: 'auto'
-  }
+    overflowY: 'auto',
+    '& .editableTextFieldInputMode': {
+      marginRight: 32
+    },
+    '& .editableTextFieldDisplayMode': {
+      marginRight: 32
+    },
+  },
 })
 
 const DatasetList = (props) => {

@@ -6,7 +6,10 @@ import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 
 const styles = () => ({
-  input: {
+  editableInput: {
+
+  },
+  editableSpan: {
 
   }
 })
@@ -68,9 +71,9 @@ class EditableTextField extends React.Component {
       return (
         <TextField
           value={value}
-          className={classes.input}
+          className={{ editableTextFieldInputMode: classes.editableInput }}
           onChange={this.handleChange}
-          margin="none"
+          fullWidth
           onKeyDown={this.keyPress}
           inputRef={input => this.autofocus(input)}
           inputProps={{ onBlur: () => this.handleBlur() }}
@@ -82,6 +85,7 @@ class EditableTextField extends React.Component {
       <Typography
         variant={variant}
         component="span"
+        className={{ editableTextFieldDisplayMode: classes.editableSpan }}
       >
         {value}
       </Typography>
