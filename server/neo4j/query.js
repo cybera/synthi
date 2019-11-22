@@ -29,6 +29,7 @@ class Query {
     if (options.skip)  this.parameters.skip  = options.skip
     if (options.limit) this.parameters.limit = options.limit
     if (options.order) this.parameters.order = options.order
+    if (options.distinct) this.parameters.distinct = options.distinct
   }
 
   addPart(strOrFunc) {
@@ -46,7 +47,8 @@ class Query {
       }
       return strOrFunc
     })
-    strs.push(`RETURN ${this.returnRefs.join(', ')}`)
+    const distinct = params.distinct ? 'DISTINCT' : ''
+    strs.push(`RETURN ${distinct} ${this.returnRefs.join(', ')}`)
 
     if (params.order) strs.push(`ORDER BY ${params.order}`)
     if (params.skip)  strs.push('SKIP $skip')

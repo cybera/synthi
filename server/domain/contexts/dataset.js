@@ -283,6 +283,7 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
     searchIndex,
     skip: offset,
     limit: limit + 1,
+    distinct: true,
     order: 'dataset.name ASC',
   }
 
