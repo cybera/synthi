@@ -14,7 +14,7 @@ class JobConfig {
 function runJob(config: JobConfig): void {
   const container = new k8s.V1Container()
   container.name = 'worker'
-  container.image = config.image
+  container.image = config.image || 'continuumio/miniconda'
   container.command = config.command
   container.args = config.args
 
