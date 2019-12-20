@@ -11,6 +11,7 @@ import { fullDatasetPath, storeFS } from '../../lib/util'
 
 import { pubsub } from '../../graphql/pubsub'
 import { safeQuery } from '../../neo4j/connection'
+import Query from '../../neo4j/query'
 import logger from '../../config/winston'
 import { memberOfOwnerOrg } from '../util'
 
@@ -479,6 +480,17 @@ class Dataset extends Base {
     const orgs = await user.orgs()
     const owner = await this.owner()
     return orgs.some(org => (org.uuid === owner.uuid))
+  }
+
+  async lastTask(taskType) {
+    const query = new Query('task', { order: 'task.dateUpdated DESC', limit: 1 })
+    query.addPart(`
+      MATCH (task:Task { type: $taskType })-[:FOR]->(dataset:Dataset)
+      WHERE EXISTS(task.dateUpdated)
+    `)
+    const results = await query.run({ taskType })
+
+    return results ? results[0] : null
   }
 }
 
