@@ -1,5 +1,5 @@
 import lodash from 'lodash'
-
+import { neo4j } from '../../neo4j/connection'
 import { safeQuery, Indexable } from '../../neo4j/connection'
 import logger from '../../config/winston'
 import * as ModelFactory from './modelFactory'
@@ -223,7 +223,15 @@ class Base {
   // Subclass should call the superclass method first to get the subset of
   // properties that are valid to save.
   valuesForNeo4J(): Indexable {
-    return lodash.pick(this, this.class().saveProperties)
+    let values = lodash.pick(this, this.class().saveProperties)
+    values = lodash.mapValues(values, (v:any) => {
+      if (lodash.isDate(v)) {
+        return neo4j.types.DateTime.fromStandardDate(v)
+      }
+      return v
+    })
+
+    return values
   }
 
   async delete(): Promise<void> {
