@@ -12,6 +12,7 @@ pipeline {
                 returnStdout: true,
                 script: 'echo -n "$(git log -1 --pretty="%an (%ce)")"'
             )}"""
+     COMPOSE_HTTP_TIMEOUT = 300
    }
 
   stages {
