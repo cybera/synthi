@@ -44,30 +44,39 @@ def import_csv(params):
   csv_parse_params['warn_bad_lines'] = True
   csv_parse_params['error_bad_lines'] = False
 
+  task_message = ""
+  task_status = "success"
+  columns = []
+  error_log_output = None
+
   with redirect_stderr(error_log):
-    df = storage.read_csv(params['paths']['original'], params=csv_parse_params, detectEncoding=True)
+    try:
+      df = storage.read_csv(params['paths']['original'], params=csv_parse_params, detectEncoding=True)
 
-  data_import.ensure_column_names(df)
+      data_import.ensure_column_names(df)
 
-  # Write out normalized versions of the CSV file. These will have header
-  # rows, even if the original data has none (auto-generated headers will
-  # be generic: 'Column_1', 'Column_2', etc.). This makes it easier for
-  # anything reading this data, as it can assume a single way of storing
-  # CSV files that we can't assume during the import process.
-  sample_size = min(df.shape[0], SAMPLE_SIZE)
-  storage.write_csv(df, params['paths']['imported'])
-  storage.write_csv(df.sample(sample_size), params['paths']['sample'])
-  error_log_output = error_log.getvalue().strip()
-  error_log.close()
+      # Write out normalized versions of the CSV file. These will have header
+      # rows, even if the original data has none (auto-generated headers will
+      # be generic: 'Column_1', 'Column_2', etc.). This makes it easier for
+      # anything reading this data, as it can assume a single way of storing
+      # CSV files that we can't assume during the import process.
+      sample_size = min(df.shape[0], SAMPLE_SIZE)
+      storage.write_csv(df, params['paths']['imported'])
+      storage.write_csv(df.sample(sample_size), params['paths']['sample'])
+      error_log_output = error_log.getvalue().strip()
+      error_log.close()
 
-  columns = data_import.column_info(df)
+      columns = data_import.column_info(df)
+    except Exception as e:
+      task_status = "error"
+      task_message = repr(e)
 
   body = {
     "type": "task-updated",
     "task": "import_csv",
     "taskid": params["taskid"],
-    "status": "success",
-    "message": "",
+    "status": task_status,
+    "message": task_message,
     "data": {
       "columns": columns
     }
