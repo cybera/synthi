@@ -13,5 +13,6 @@ export const typeDefs = gql`
     state: String!
     dateUpdated: Date
     type: String
+    message: String
   }
 `
