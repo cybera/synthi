@@ -32,6 +32,7 @@ export default class Task extends Base {
     logger.debug(`Task ${this.uuid} completed:`)
     logger.debug('%o', msg)
 
+    this.dateUpdated = new Date()
     if (msg.status === 'success') {
       await this.onSuccess(msg)
       this.state = 'done'
@@ -43,6 +44,9 @@ export default class Task extends Base {
     } else if (msg.status === 'error') {
       logger.error(`Task ${this.uuid} failed with message: ${msg.message}`)
       await this.onError(msg)
+      this.state = 'error'
+      this.message = msg.message
+      await this.save()
     } else {
       logger.error(`Task ${this.uuid} finished with unexpected status: ${msg.status}`)
     }
@@ -70,4 +74,4 @@ export default class Task extends Base {
 Base.ModelFactory.register(Task)
 
 Task.label = 'Task'
-Task.saveProperties = ['state', 'type', 'removeExisting']
+Task.saveProperties = ['state', 'type', 'removeExisting', 'message', 'dateUpdated']
