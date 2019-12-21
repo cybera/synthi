@@ -482,13 +482,13 @@ class Dataset extends Base {
     return orgs.some(org => (org.uuid === owner.uuid))
   }
 
-  async lastTask(taskType) {
+  async lastTask(types) {
     const query = new Query('task', { order: 'task.dateUpdated DESC', limit: 1 })
     query.addPart(`
-      MATCH (task:Task { type: $taskType })-[:FOR]->(dataset:Dataset)
-      WHERE EXISTS(task.dateUpdated)
+      MATCH (task:Task)-[:FOR]->(dataset:Dataset { uuid: $uuid })
+      WHERE EXISTS(task.dateUpdated) AND task.type IN $types
     `)
-    const results = await query.run({ taskType })
+    const results = await query.run({ types, uuid: this.uuid })
 
     return results ? results[0] : null
   }
