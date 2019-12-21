@@ -1,10 +1,14 @@
 import Base from './base'
 import logger from '../../config/winston'
 
+import { pubsub } from '../../graphql/pubsub'
+
+export const TASK_UPDATED = 'TASK_UPDATED'
+
 export default class Task extends Base {
   static async create(properties = {}) {
     const { user, ...rest } = properties
-    const task = await super.create({ ...rest, state: 'initialized' })
+    const task = await super.create({ ...rest, state: 'initialized', dateUpdated: new Date() })
     if (user) {
       await task.saveRelation(user, '<-[:SCHEDULED_BY]-')
     }
@@ -50,6 +54,7 @@ export default class Task extends Base {
     } else {
       logger.error(`Task ${this.uuid} finished with unexpected status: ${msg.status}`)
     }
+    this.sendUpdateNotification()
   }
 
   async addNext(task) {
@@ -68,6 +73,11 @@ export default class Task extends Base {
   async isDone() {
     await this.refresh()
     return this.state === 'done'
+  }
+
+  sendUpdateNotification() {
+    logger.debug('Publishing to clients...')
+    pubsub.publish(TASK_UPDATED, { taskUpdated: { task: this } });
   }
 }
 
