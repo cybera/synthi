@@ -84,14 +84,32 @@ class Base {
       }
     })
 
+    const databaseReadyProperties = this.valuesForNeo4J(properties)
+
     const query = `
       CREATE (node:${this.label} { uuid: randomUUID() })
       SET node += $properties
       return node
     `
-    const results = await safeQuery(query, { properties })
+    const results = await safeQuery(query, { properties: databaseReadyProperties })
 
     return ModelFactory.derive<T>(results[0].node)
+  }
+
+  // Can be overridden to specially prepare values for saving to the database
+  // This can return a simple object/hash, as long as it has the same keys.
+  // Subclass should call the superclass method first to get the subset of
+  // properties that are valid to save.
+  static valuesForNeo4J(properties: Indexable): Indexable {
+    let values = lodash.pick(properties, this.saveProperties)
+    values = lodash.mapValues(values, (v:any) => {
+      if (lodash.isDate(v)) {
+        return neo4j.types.DateTime.fromStandardDate(v)
+      }
+      return v
+    })
+
+    return values
   }
 
   async relatedRaw(relation: string, relatedLabel: string, name: string, relatedProps: Indexable = {}): Promise<Indexable[]> {
@@ -191,7 +209,7 @@ class Base {
       MATCH (node:${this.classLabel()} { uuid: $node.uuid })
       SET node += $values
     `
-    const params = { node: this, values: this.valuesForNeo4J() }
+    const params = { node: this, values: this.class().valuesForNeo4J(this) }
 
     await safeQuery(query, params)
   }
@@ -216,22 +234,6 @@ class Base {
     }
 
     await safeQuery(query, { left, right, relationProps })
-  }
-
-  // Can be overridden to specially prepare values for saving to the database
-  // This can return a simple object/hash, as long as it has the same keys.
-  // Subclass should call the superclass method first to get the subset of
-  // properties that are valid to save.
-  valuesForNeo4J(): Indexable {
-    let values = lodash.pick(this, this.class().saveProperties)
-    values = lodash.mapValues(values, (v:any) => {
-      if (lodash.isDate(v)) {
-        return neo4j.types.DateTime.fromStandardDate(v)
-      }
-      return v
-    })
-
-    return values
   }
 
   async delete(): Promise<void> {
