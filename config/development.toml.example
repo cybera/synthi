@@ -33,3 +33,10 @@ password = "password"
 [server]
 
 secret = "secret-token-123456"
+
+[k8s.images]
+
+import_csv = "cybera/python-worker"
+transform = "cybera/python-worker"
+register = "cybera/python-worker"
+import_document = "cybera/tika-worker"
