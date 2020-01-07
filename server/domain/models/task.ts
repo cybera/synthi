@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+
 import Base, { ModelPromise, ModelPromiseNull } from './base'
 import User from './user'
 
@@ -10,21 +12,28 @@ export interface Message {
   taskid: string
   status: string
   message: string
+  data: {[index: string]: any}
 }
 
 export default class Task extends Base {
   static readonly label = 'Task'
-  static readonly saveProperties = ['state', 'type', 'removeExisting']
+  static readonly saveProperties = ['state', 'type', 'removeExisting', 'token']
 
   type: string
   state: string
   removeExisting: boolean
+  token: string
 
   static async create<T extends typeof Base>(this: T, properties: Indexable): ModelPromise<T> {
-    const { user, ...rest } = properties
-    const task = await super.create({ ...rest, state: 'initialized' })
+    const { user, token, ...rest } = properties
+    const task = await super.create({ ...rest, state: 'initialized' }) as Task
+
     if (user) {
       await task.saveRelation(user, '<-[:SCHEDULED_BY]-')
+    }
+
+    if (!token) {
+      task.token = crypto.randomBytes(64).toString('base64')
     }
 
     return task as InstanceType<T>
