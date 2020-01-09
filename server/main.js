@@ -36,6 +36,7 @@ import DefaultQueue from './lib/queue'
 import { NonAsyncRedisClient } from './lib/redisClient'
 import User from './domain/models/user'
 import { checkConfig } from './lib/startup-checks'
+import { updateTask } from './domain/contexts/task'
 
 
 const main = async () => {
@@ -206,6 +207,10 @@ const main = async () => {
     } else {
       res.status(404).send('Not found')
     }
+  })
+
+  app.post('/updateTask', async (req) => {
+    updateTask(req.body.message)
   })
 
   const httpServer = http.createServer(app)
