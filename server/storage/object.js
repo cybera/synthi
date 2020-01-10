@@ -63,16 +63,18 @@ const exists = async (area, relativePath) => {
 }
 
 const createTempUrl = (area, relativePath) => {
-  const url = area + relativePath // this isn't right, figure it out later
-  const key = config.get('storage.object.tempUrlKey')
+  const container = config.get('storage.object.containers')[area],
   const tenant = config.get('storage.object.creds.tenantName')
+  const key = config.get('storage.object.tempUrlKey')
+
+  const objectPath = `${container}/${relativePath}`
+  const path = `/v1/${tenant}/${objectPath}`
   const expires = Math.floor(Date.now() / 1000) + 12 * 60 * 60 // Use seconds
-  const objectPath = `/v1/AUTH_${tenant}/${url}`
-  const hmacBody = `GET\n${expires}\n${objectPath}`
+  const hmacBody = `GET\n${expires}\n${path}`
   const sig = require('crypto').createHmac('sha1', key).update(hmacBody).digest('hex')
   const baseUrl = 'CAN WE USE THE AUTH URL?'
 
-  return `${baseUrl}${objectPath}?temp_url_sig=${sig}&temp_url_expires=${expires}`
+  return baseUrl + encodeURI(`${path}?temp_url_sig=${sig}&temp_url_expires=${expires}`)
 }
 
 // Object storage won't have the file in the first place if there was a failure

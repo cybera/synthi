@@ -1,7 +1,6 @@
 import * as k8s from '@kubernetes/client-node'
 import config from 'config'
 
-import { Task } from '../domain/models'
 import { Message } from '../domain/models/task'
 
 const kc = new k8s.KubeConfig()
