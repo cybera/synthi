@@ -140,9 +140,9 @@ export async function importCSV(uuid, { removeExisting, options }) {
   const dataset = await ModelFactory.getByUuid(uuid)
   // Only allow importing if the user can access the dataset in the first place
   if (dataset) {
-    dataset.importCSV(removeExisting, options)
+    await dataset.import(removeExisting, options)
   }
-  return dataset
+  return dataset.refresh()
 }
 
 export async function generateDataset(uuid, user) {
