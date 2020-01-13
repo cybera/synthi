@@ -7,6 +7,7 @@ import {
   node,
   func,
   oneOfType,
+  oneOf,
 } from 'prop-types'
 
 export const tagProptype = shape({
@@ -54,4 +55,11 @@ export const transformationInputMappingProptype = shape({
 export const transformationProptype = shape({
   name: string,
   inputs: arrayOf(string),
+})
+
+export const taskProptype = shape({
+  uuid: string,
+  state: oneOf(['done', 'initialized', 'error', 'registering']),
+  message: string,
+  type: oneOf(['import_csv', 'import_document', 'register', 'transform']),
 })
