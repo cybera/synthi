@@ -15,6 +15,7 @@ import PanelLoadingState from '../../layout/PanelLoadingState'
 import GeneratingProgress from '../layout/GeneratingProgress'
 import SubscribedWarningBanner from './SubscribedWarningBanner'
 import Preview from './Preview'
+import TaskStatus from './TaskStatus'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($uuid: String!) {
@@ -165,6 +166,7 @@ class DatasetView extends React.Component {
 
     return (
       <div className={classes.root}>
+        <TaskStatus task={dataset.importTask} />
         <DatasetEditor dataset={dataset} dataExists={dataExists} />
         <Typography className={classes.error}>{errors[uuid]}</Typography>
         <GeneratingProgress dataset={dataset} />
