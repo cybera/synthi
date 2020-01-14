@@ -25,7 +25,8 @@ export const datasetStorageMap = async (transformation, user) => {
   const ioNodes = results.map(({ dataset, org, ioEdge }) => ({
     dataset: Base.ModelFactory.derive(dataset),
     org: new Organization(org),
-    alias: ioEdge.type === 'INPUT' ? ioEdge.properties.alias : undefined
+    alias: ioEdge.type === 'INPUT' ? ioEdge.properties.alias : undefined,
+    ioEdge
   }))
 
   // This is probably going to be overly restrictive once we start allowing organizations to
@@ -41,7 +42,13 @@ export const datasetStorageMap = async (transformation, user) => {
 
   const mapping = {}
   ioNodes.forEach(({ dataset, org, alias }) => {
-    mapping[`${org.name}:${alias || dataset.name}`] = dataset.paths
+    method = ioEdge === 'INPUT' ? 'GET' : 'PUT'
+    urls = {
+      original: Storage.createTempUrl('datasets', dataset.paths.original, method),
+      imported: Storage.createTempUrl('datasets', dataset.paths.imported, method),
+      sample: Storage.createTempUrl('datasets', dataset.paths.sample, method)
+    }
+    mapping[`${org.name}:${alias || dataset.name}`] = urls
   })
 
   return mapping
@@ -67,15 +74,16 @@ export default class TransformTask extends Task {
 
     await transformation.waitForReady()
 
-    const storagePaths = await datasetStorageMap(transformation, user)
+    const urls = await datasetStorageMap(transformation, user)
     const outputDataset = await transformation.outputDataset()
     const owner = await outputDataset.owner()
 
     const script = await transformation.realScript()
+    const scriptUrl = Storage.createTempUrl('scripts', script, 'GET')
 
     const taskTransformationInfo = {
       id: transformation.id,
-      script,
+      scriptUrl,
       output_name: outputDataset.name,
       owner: owner.id,
     }
@@ -87,7 +95,7 @@ export default class TransformTask extends Task {
       taskid: this.uuid,
       state: this.state,
       transformation: taskTransformationInfo,
-      storagePaths,
+      urls,
     })
   }
 

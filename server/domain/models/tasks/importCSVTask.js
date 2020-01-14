@@ -1,5 +1,6 @@
 import Base from '../base'
 import DefaultQueue from '../../../lib/queue'
+import Storage from '../../../storage'
 
 import ImportTask from './importTask'
 
@@ -16,6 +17,12 @@ export default class ImportCSVTask extends ImportTask {
   async run() {
     const dataset = await this.dataset();
 
+    const urls = {
+      original: Storage.createTempUrl('datasets', dataset.paths.original, 'GET'),
+      imported: Storage.createTempUrl('datasets', dataset.paths.imported, 'PUT'),
+      sample: Storage.createTempUrl('datasets', dataset.paths.sample, 'PUT'),
+    }
+
     const {
       header,
       delimiter,
@@ -25,7 +32,7 @@ export default class ImportCSVTask extends ImportTask {
     await DefaultQueue.sendToPythonWorker({
       task: this.type,
       taskid: this.uuid,
-      paths: dataset.paths,
+      urls,
       header,
       delimiter,
       customDelimiter,

@@ -18,10 +18,15 @@ export default class ImportDocumentTask extends ImportTask {
   async run() {
     const dataset = await this.dataset();
 
+    const urls = {
+      original: Storage.createTempUrl('datasets', dataset.paths.original, 'GET'),
+      imported: Storage.createTempUrl('datasets', dataset.paths.imported, 'PUT'),
+    }
+
     await DefaultQueue.sendToTikaWorker({
       task: this.type,
       taskid: this.uuid,
-      paths: dataset.paths,
+      urls
     })
   }
 }

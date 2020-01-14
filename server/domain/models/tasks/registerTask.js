@@ -2,6 +2,7 @@ import { filter } from 'lodash'
 
 import Base from '../base'
 import DefaultQueue from '../../../lib/queue'
+import Storage from '../../../storage'
 
 import Task from '../task'
 
@@ -25,7 +26,7 @@ export default class RegisterTask extends Task {
     await DefaultQueue.sendToPythonWorker({
       task: 'register_transformation',
       taskid: this.uuid,
-      transformationScript: transformation.script
+      transformationUrl: Storage.createTempUrl('scripts', transformation.script, 'GET')
     })
   }
 
