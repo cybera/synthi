@@ -139,7 +139,7 @@ class DatasetView extends React.Component {
       // clause won't match (it's not an else, it's an else if). However, it's probably
       // a good indication that we should break things down further into smaller components.
       // eslint-disable-next-line no-else-return
-      } else if (!dataExists) {
+      } else if (!dataExists && !dataset.importTask) {
         return (
           <div className={classes.root}>
             <div className={classes.empty}>
