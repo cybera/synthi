@@ -12,7 +12,7 @@ export interface Message {
   taskid: string
   status: string
   message: string
-  data: {[index: string]: any}
+  data?: {[index: string]: any}
 }
 
 export default class Task extends Base {

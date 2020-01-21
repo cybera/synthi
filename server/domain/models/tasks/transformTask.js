@@ -43,12 +43,12 @@ export const datasetStorageMap = async (transformation, user) => {
   const mapping = {}
   ioNodes.forEach(({ dataset, org, alias }) => {
     method = ioEdge === 'INPUT' ? 'GET' : 'PUT'
-    urls = {
+    paths = {
       original: Storage.createTempUrl('datasets', dataset.paths.original, method),
       imported: Storage.createTempUrl('datasets', dataset.paths.imported, method),
       sample: Storage.createTempUrl('datasets', dataset.paths.sample, method)
     }
-    mapping[`${org.name}:${alias || dataset.name}`] = urls
+    mapping[`${org.name}:${alias || dataset.name}`] = paths
   })
 
   return mapping
@@ -74,12 +74,12 @@ export default class TransformTask extends Task {
 
     await transformation.waitForReady()
 
-    const urls = await datasetStorageMap(transformation, user)
+    const paths = await datasetStorageMap(transformation, user)
     const outputDataset = await transformation.outputDataset()
     const owner = await outputDataset.owner()
 
     const script = await transformation.realScript()
-    const scriptUrl = Storage.createTempUrl('scripts', script, 'GET')
+    const transformationScript = Storage.createTempUrl('scripts', script, 'GET')
 
     const taskTransformationInfo = {
       id: transformation.id,
@@ -95,7 +95,7 @@ export default class TransformTask extends Task {
       taskid: this.uuid,
       state: this.state,
       transformation: taskTransformationInfo,
-      urls,
+      paths,
     })
   }
 

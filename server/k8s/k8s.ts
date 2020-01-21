@@ -8,7 +8,7 @@ kc.loadFromFile('/home/cameron/devel/adi/server/config/kubeconfig')
 
 const k8sApi = kc.makeApiClient(k8s.BatchV1Api)
 
-function runTask(message: Message): void {
+function runTask(message: Message): any {
   const container = new k8s.V1Container()
   container.name = 'worker'
   container.image = config.get(`k8s.images.${message.type}`)
@@ -34,5 +34,7 @@ function runTask(message: Message): void {
   job.apiVersion = 'batch/v1'
   job.kind = 'Job'
 
-  k8sApi.createNamespacedJob('default', job).catch(e => console.log(e))
+  return k8sApi.createNamespacedJob('default', job).catch(e => console.log(e))
 }
+
+runTask({ type: 'import_csv', task: 'hi', taskid: 'id', status: 'hello', message: 'wassup' }).catch((e:any) => console.log(e))
