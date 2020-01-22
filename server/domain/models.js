@@ -1,6 +1,5 @@
 import Base from './models/base'
 import Column from './models/column'
-import DatasetMetadata from './models/dataset-metadata'
 import Dataset from './models/dataset'
 import DatasetCSV from './models/datasetCSV'
 import DocumentDataset from './models/documentDataset'
@@ -20,7 +19,6 @@ import * as ModelFactory from './models/modelFactory'
 export {
   Base,
   Column,
-  DatasetMetadata,
   Dataset,
   DatasetCSV,
   DocumentDataset,

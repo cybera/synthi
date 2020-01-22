@@ -4,6 +4,9 @@ import gql from 'graphql-tag'
 import { pubsub, withFilter } from '../pubsub'
 import { isOwner, isMember, isPublished, memberCanCreateDatasets } from '../rules'
 
+import { updateDatasetMetadata } from '../../domain/contexts/dataset'
+import { TOPICS } from '../../domain/models/dataset'
+
 import {
   processDatasetUpdate,
   filterDatasets,
@@ -26,6 +29,7 @@ export const resolvers = {
     dataset: (_, props) => filterDatasets(props),
     listDatasets: (_, { org, filter, offset, limit }) => listDatasets(org, filter, offset, limit),
     uniqueDefaultDatasetName: (_, { org }) => uniqueDefaultDatasetName(org),
+    topics: () => TOPICS,
   },
   Dataset: {
     columns: dataset => dataset.columns(),
@@ -52,7 +56,10 @@ export const resolvers = {
     createComputedDatasetFromTransformation: (_, { params, owner }) => (
       createComputedDatasetFromTransformation(params, owner)
     ),
-    publishDataset: (_, { uuid, published }) => setPublished(uuid, published)
+    publishDataset: (_, { uuid, published }) => setPublished(uuid, published),
+    updateDatasetMetadata: async (_, { uuid, metadata }, context) => (
+      updateDatasetMetadata(uuid, metadata)
+    )
   },
   Subscription: {
     datasetGenerated: {
@@ -86,6 +93,7 @@ export const permissions = {
     saveInputTransformation: isOwner(),
     publishDataset: isOwner(),
     createComputedDatasetFromTransformation: isMember({ organizationRef: 'owner' }),
+    updateDatasetMetadata: isOwner()
   }
 }
 
@@ -130,6 +138,37 @@ export const typeDefs = gql`
     ownerName: String
     bytes: Int
     lastTask(types: [String]): Task
+    title: String
+    dateAdded: Date
+    dateCreated: Date
+    dateUpdated: Date
+    format: String
+    description: String
+    ext_contributor: String
+    ext_contact: String
+    ext_updates: Boolean
+    ext_updateFrequencyAmount: Int
+    ext_updateFrequencyUnit: FrequencyUnit
+    ext_source: String
+    ext_identifier: String
+    ext_topic: [String]
+  }
+
+  input DatasetMetadataInput {
+    title: String
+    dateAdded: Date
+    dateCreated: Date
+    dateUpdated: Date
+    format: String
+    description: String
+    ext_contributor: String
+    ext_contact: String
+    ext_updates: Boolean
+    ext_updateFrequencyAmount: Int
+    ext_updateFrequencyUnit: FrequencyUnit
+    ext_source: String
+    ext_identifier: String
+    ext_topic: [String]
   }
 
   enum FileSizeUnit {
@@ -166,6 +205,7 @@ export const typeDefs = gql`
       format: null
     }, offset: Int = 0, limit: Int = 10): ListDatasetsResult
     uniqueDefaultDatasetName(org: OrganizationRef!): String!
+    topics: [String]
   }
 
   input ComputedDatasetFromTransformationParams {
@@ -191,5 +231,6 @@ export const typeDefs = gql`
       params: ComputedDatasetFromTransformationParams,
       owner: OrganizationRef
     ): CreateComputedDatasetResult!
+    updateDatasetMetadata(uuid: String!, metadata:DatasetMetadataInput): Dataset
   }
 `
