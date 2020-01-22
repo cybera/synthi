@@ -4,15 +4,16 @@ import config from 'config'
 import { Message } from '../domain/models/task'
 
 const kc = new k8s.KubeConfig()
-kc.loadFromFile('/home/cameron/devel/adi/server/config/kubeconfig')
+kc.loadFromFile('/usr/src/app/config/kubeconfig')
 
 const k8sApi = kc.makeApiClient(k8s.BatchV1Api)
 
-function runTask(message: Message): any {
+export default function runTask(message: any): any {
   const container = new k8s.V1Container()
   container.name = 'worker'
-  container.image = config.get(`k8s.images.${message.type}`)
+  container.image = config.get(`k8s.images.${message.task}`)
   container.args = [JSON.stringify(message)]
+  container.imagePullPolicy = 'IfNotPresent'
 
   const podSpec = new k8s.V1PodSpec()
   podSpec.containers = [container]
@@ -37,4 +38,4 @@ function runTask(message: Message): any {
   return k8sApi.createNamespacedJob('default', job).catch(e => console.log(e))
 }
 
-runTask({ type: 'import_csv', task: 'hi', taskid: 'id', status: 'hello', message: 'wassup' }).catch((e:any) => console.log(e))
+// runTask({ type: 'import_csv', task: 'hi', taskid: 'id', status: 'hello', message: 'wassup' }).catch((e:any) => console.log(e))

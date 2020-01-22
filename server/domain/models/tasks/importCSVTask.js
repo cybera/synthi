@@ -4,6 +4,8 @@ import Storage from '../../../storage'
 
 import ImportTask from './importTask'
 
+import runTask from '../../../k8s/k8s'
+
 export default class ImportCSVTask extends ImportTask {
   static async create(properties = {}) {
     const task = await super.create({
@@ -29,7 +31,7 @@ export default class ImportCSVTask extends ImportTask {
       customDelimiter,
     } = this
 
-    await DefaultQueue.sendToPythonWorker({
+    await runTask({
       task: this.type,
       taskid: this.uuid,
       paths,
