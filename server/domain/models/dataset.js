@@ -17,6 +17,36 @@ import { memberOfOwnerOrg } from '../util'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
+export const TOPICS = [
+  'Aboriginal Peoples',
+  'Agriculture',
+  'Arts, Culture and History',
+  'Business and Industry',
+  'Economy and Finance',
+  'Education - Adult and Continuing',
+  'Education - Early Childhood to Grade 12',
+  'Education - Post-Secondary and Skills Training',
+  'Employment and Labour',
+  'Energy and Natural Resources',
+  'Environment',
+  'Families and Children',
+  'Government',
+  'Health and Wellness',
+  'Housing and Utilities',
+  'Immigration and Migration',
+  'Interprovincial and International Affairs',
+  'Laws and Justice',
+  'Persons with Disabilities',
+  'Population and Demography',
+  'Roads, Driving and Transport',
+  'Safety and Emergency Services',
+  'Science, Technology and Innovation',
+  'Seniors',
+  'Society and Communities',
+  'Sports and Recreation',
+  'Tourism & Parks'
+]
+
 class Dataset extends Base {
   // Given a particular user and name reference for a dataset,
   // get an accessible dataset following rules for name resolution
@@ -80,6 +110,23 @@ class Dataset extends Base {
     super(node)
     this.paths = {
     }
+    
+  }
+
+  beforeSave() {
+    if (this.topic) {
+      this.ext_topic.forEach((topic) => {
+        if (!TOPICS.includes(topic)) {
+          throw new Error(`${topic} is not a valid topic`)
+        }
+      })
+    }
+
+    if (!this.dateCreated) this.dateCreated = new Date()
+    if (!this.dateAdded) this.dateAdded = new Date()
+    if (!this.dateUpdated) this.dateUpdated = new Date()
+
+    return super.beforeSave()
   }
 
   async owner() {
@@ -214,17 +261,16 @@ class Dataset extends Base {
       this.mimetype = mimetype
       this.bytes = bytes
       logger.debug('Saving upload info')
-      await this.save()
-      logger.debug('Triggering import...')
-      await this.import()
       // figure out and store the default format
-      const metadata = await this.metadata()
       let ext = pathlib.extname(filename)
       if (ext.startsWith('.')) {
         ext = ext.substr(1)
       }
-      metadata.format = ext
-      await metadata.save()
+      this.format = ext
+
+      await this.save()
+      logger.debug('Triggering import...')
+      await this.import()
     } catch (e) {
       // TODO: What should we do here?
       logger.error(`Error in upload resolver: ${e.message}`)
@@ -350,33 +396,13 @@ class Dataset extends Base {
     return transformation
   }
 
-  async metadata() {
-    const DatasetMetadata = Base.ModelFactory.getClass('DatasetMetadata')
-
-    let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', 'DatasetMetadata')
-    if (!datasetMetadata) {
-      const query = `
-        MATCH (dataset:Dataset { uuid: $uuid })
-        MERGE (dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)
-        RETURN metadata
-      `
-      const results = await safeQuery(query, this)
-      // Have to re-get after the transaction to ensure a proper uuid
-      datasetMetadata = DatasetMetadata.get(results[0].metadata.identity)
-    }
-
-    return datasetMetadata
-  }
-
   async handleUpdate(data) {
     const { format, bytes } = data
     this.bytes = bytes
+    this.format = format
     await this.save()
-
-    const metadata = await this.metadata()
-    metadata.format = format
-    await metadata.save()
   }
+
 
   async registerTransformation(inputs, outputs) {
     if (outputs.length > 0) {
@@ -458,17 +484,15 @@ class Dataset extends Base {
     pubsub.publish(DATASET_UPDATED, { datasetGenerated: { uuid: this.uuid, status: 'success', message: '' } });
   }
 
-  // Record a new dateUpdated on the metadata for the current time
+  // Record a new dateUpdated for the current time
   async touch() {
-    const metadata = await this.metadata()
-    metadata.dateUpdated = new Date()
-    await metadata.save()
+    this.dateUpdated = new Date()
+    await this.save()
   }
 
   async updateMetadata(metadata) {
-    const datasetMetadata = await this.metadata()
-    datasetMetadata.update(metadata)
-    await datasetMetadata.save()
+    this.update(metadata)
+    await this.save()
   }
 
   async ownerName() {
@@ -504,7 +528,21 @@ Dataset.saveProperties = [
   'originalFilename',
   'mimetype',
   'published',
-  'bytes'
+  'bytes',
+  'title',
+  'dateAdded',
+  'dateCreated',
+  'dateUpdated',
+  'format',
+  'description',
+  'ext_contributor',
+  'ext_contact',
+  'ext_updates',
+  'ext_updateFrequencyAmount',
+  'ext_updateFrequencyUnit',
+  'ext_source',
+  'ext_identifier',
+  'ext_topic',
 ]
 
 Base.ModelFactory.register(Dataset)

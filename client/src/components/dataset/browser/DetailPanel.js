@@ -63,12 +63,10 @@ const GET_DATASETS = gql`
         canPublish
         type
         bytes
-        metadata {
-          description
-          dateUpdated
-          dateCreated
-          format
-        }
+        description
+        dateUpdated
+        dateCreated
+        format
         columns {
           name
           tags {

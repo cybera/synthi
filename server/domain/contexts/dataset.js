@@ -20,7 +20,7 @@ import logger from '../../config/winston'
 export async function updateDatasetMetadata(datasetUuid, metadata) {
   const dataset = await Dataset.getByUuid(datasetUuid)
   await dataset.updateMetadata(metadata)
-  return metadata
+  return dataset
 }
 
 export async function processDatasetUpdate(uuid, datasetProps) {
@@ -122,10 +122,7 @@ export async function createDataset(owner, name, type) {
 
   const org = await findOrganization(owner)
 
-  const dataset = await org.createDataset({ name, type: datasetType })
-  // Initialize metadata (this will set some dates to when the dataset is created)
-  const metadata = await dataset.metadata()
-  await metadata.save()
+  
 
   return dataset
 }

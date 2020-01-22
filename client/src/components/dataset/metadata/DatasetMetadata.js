@@ -28,29 +28,27 @@ query($uuid: String) {
   dataset(uuid: $uuid) {
     name
     uuid
-    metadata {
-      title
-      contributor
-      contact
-      dateAdded
-      dateCreated
-      dateUpdated
-      updates
-      updateFrequencyAmount
-      updateFrequencyUnit
-      format
-      description
-      source
-      identifier
-      topic
-    }
+    title
+    dateAdded
+    dateCreated
+    dateUpdated
+    format
+    description
+    ext_contributor
+    ext_contact
+    ext_updates
+    ext_updateFrequencyAmount
+    ext_updateFrequencyUnit
+    ext_source
+    ext_identifier
+    ext_topic
   }
 }
 `
 export const updateDatasetMetadataMutation = gql`
   mutation UpdateDatasetMetadata($uuid: String!, $metadata: DatasetMetadataInput) {
     updateDatasetMetadata(uuid: $uuid, metadata: $metadata) {
-      title
+      uuid
     }
   }
 `
@@ -282,8 +280,8 @@ class DatasetMetadata extends React.Component {
                   id="metadata-identifier"
                   label="Identifier"
                   className={classes.textField}
-                  value={fields.identifier}
-                  onChange={this.handleStringChange('identifier')}
+                  value={fields.ext_identifier}
+                  onChange={this.handleStringChange('ext_identifier')}
                   margin="normal"
                 />
               </Grid>
@@ -293,8 +291,8 @@ class DatasetMetadata extends React.Component {
                   id="metadata-contributor"
                   label="Contributor"
                   className={classes.textField}
-                  value={fields.contributor}
-                  onChange={this.handleStringChange('contributor')}
+                  value={fields.ext_contributor}
+                  onChange={this.handleStringChange('ext_contributor')}
                   margin="normal"
                 />
               </Grid>
@@ -303,8 +301,8 @@ class DatasetMetadata extends React.Component {
                   id="metadata-contact"
                   label="Contact"
                   className={classes.textField}
-                  value={fields.contact}
-                  onChange={this.handleStringChange('contact')}
+                  value={fields.ext_contact}
+                  onChange={this.handleStringChange('ext_contact')}
                   margin="normal"
                 />
               </Grid>
@@ -338,8 +336,8 @@ class DatasetMetadata extends React.Component {
                     <FormControlLabel
                       control={(
                         <Checkbox
-                          checked={fields.updates}
-                          onChange={this.handleCheckboxChange('updates')}
+                          checked={fields.ext_updates}
+                          onChange={this.handleCheckboxChange('ext_updates')}
                           value="updates"
                           color="primary"
                         />
@@ -351,14 +349,14 @@ class DatasetMetadata extends React.Component {
                     id="metadata-frequency-amount"
                     label="Amount"
                     className={classes.amountField}
-                    value={fields.updateFrequencyAmount}
-                    onChange={this.handleIntChange('updateFrequencyAmount', parseInt)}
+                    value={fields.ext_updateFrequencyAmount}
+                    onChange={this.handleIntChange('ext_updateFrequencyAmount', parseInt)}
                     margin="normal"
                   />
                   <FormControl className={classes.formControl} style={{ verticalAlign: 'bottom', marginBottom: 8 }}>
                     <Select
-                      value={fields.updateFrequencyUnit}
-                      onChange={this.handleStringChange('updateFrequencyUnit')}
+                      value={fields.ext_updateFrequencyUnit}
+                      onChange={this.handleStringChange('ext_updateFrequencyUnit')}
                     >
                       <MenuItem value="days">days</MenuItem>
                       <MenuItem value="weeks">weeks</MenuItem>
@@ -380,15 +378,15 @@ class DatasetMetadata extends React.Component {
                   id="metadata-source"
                   label="Source"
                   className={classes.sourceField}
-                  value={fields.source}
-                  onChange={this.handleStringChange('source')}
+                  value={fields.ext_source}
+                  onChange={this.handleStringChange('ext_source')}
                   margin="normal"
                 />
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>
                 <TopicInput
-                  defaultValue={fields.topic}
-                  onChange={(_, chips) => this.handleChipsChange('topic')(chips)}
+                  defaultValue={fields.ext_topic}
+                  onChange={(_, chips) => this.handleChipsChange('ext_topic')(chips)}
                 />
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>
@@ -422,19 +420,19 @@ class DatasetMetadata extends React.Component {
 DatasetMetadata.propTypes = {
   fields: PropTypes.shape({
     title: PropTypes.string,
-    contributor: PropTypes.string,
-    contact: PropTypes.string,
     dateAdded: PropTypes.number,
     dateCreated: PropTypes.number,
     dateUpdated: PropTypes.number,
-    updates: PropTypes.bool,
-    updateFrequencyAmount: PropTypes.number,
-    updateFrequencyUnit: PropTypes.string,
     format: PropTypes.string,
     description: PropTypes.string,
-    source: PropTypes.string,
-    identifier: PropTypes.string,
-    theme: PropTypes.string
+    ext_contributor: PropTypes.string,
+    ext_contact: PropTypes.string,
+    ext_updates: PropTypes.bool,
+    ext_updateFrequencyAmount: PropTypes.number,
+    ext_updateFrequencyUnit: PropTypes.string,
+    ext_source: PropTypes.string,
+    ext_identifier: PropTypes.string,
+    ext_theme: PropTypes.string
   }),
   uuid: PropTypes.string.isRequired,
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
@@ -444,19 +442,19 @@ DatasetMetadata.propTypes = {
 DatasetMetadata.defaultProps = {
   fields: {
     title: '',
-    contributor: '',
-    contact: '',
     dateAdded: null,
     dateCreated: null,
     dateUpdated: null,
-    updates: null,
-    updateFrequencyAmount: 0,
-    updateFrequencyUnit: 'weeks',
     format: 'csv',
     description: '',
-    source: '',
-    identifier: '',
-    topic: []
+    ext_contributor: '',
+    ext_contact: '',
+    ext_updates: null,
+    ext_updateFrequencyAmount: 0,
+    ext_updateFrequencyUnit: 'weeks',
+    ext_source: '',
+    ext_identifier: '',
+    ext_topic: []
   }
 }
 
@@ -491,7 +489,7 @@ const ConnectedDatasetMetadata = (props) => {
             let fields = {}
 
             if (data.dataset) {
-              fields = Ramda.pick(fieldKeys, data.dataset[0].metadata)
+              fields = Ramda.pick(fieldKeys, data.dataset[0])
               fields = Ramda.reject((field) => field == null, fields)
               fields = Ramda.merge(DatasetMetadata.defaultProps.fields, fields)
             }
