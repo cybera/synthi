@@ -12,6 +12,7 @@ export default function runTask(message: any): any {
   const container = new k8s.V1Container()
   container.name = 'worker'
   container.image = config.get(`k8s.images.${message.task}`)
+  container.command = ["/usr/src/app/main.py"]
   container.args = [JSON.stringify(message)]
   container.imagePullPolicy = 'IfNotPresent'
 
