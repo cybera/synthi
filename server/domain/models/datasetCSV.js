@@ -10,8 +10,8 @@ class DatasetCSV extends Dataset {
   constructor(node) {
     super(node)
 
-    if (!this.type) {
-      this.type = 'csv'
+    if (!this.format) {
+      this.format = 'csv'
     }
 
     this.paths = {
