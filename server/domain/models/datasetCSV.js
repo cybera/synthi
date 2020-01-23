@@ -57,7 +57,7 @@ class DatasetCSV extends Dataset {
   }
 
   async handleUpdate(data) {
-    super.handleUpdate(data)
+    await super.handleUpdate(data)
 
     const { columns } = data;
 
