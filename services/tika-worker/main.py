@@ -18,6 +18,9 @@ def callback(ch, method, properties, body):
     "taskid": params["taskid"],
     "status": "success",
     "message": "",
+    "data": {
+      "format": "txt"
+    }
   }
 
   try:
@@ -27,6 +30,7 @@ def callback(ch, method, properties, body):
     if type(output) is str:
       output = output.encode('utf-8')
     storage.write_raw(output, params['paths']['imported'])
+    body["data"]["bytes"] = storage.bytes(params['paths']['imported'])
   except Exception as e:
     body['status'] = "error"
     body['message'] = str(e)
