@@ -68,6 +68,7 @@ def import_csv(params):
     "type": "task-updated",
     "task": "import_csv",
     "taskid": params["taskid"],
+    "token": params["token"],
     "status": "success",
     "message": "",
     "data": {
@@ -81,8 +82,8 @@ def import_csv(params):
 
   # status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
 
-  url = params['host'] + '/updateTask'
-  requests.post(url, data=json.dumps(body))
+  url = params['callback']
+  requests.post(url, json=body)
 
 if __name__ == "__main__":
   params = parse_params()

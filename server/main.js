@@ -115,6 +115,7 @@ const main = async () => {
   // Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
   // logging in.
   app.use(bodyParser.urlencoded({ extended: true }))
+  app.use(express.json())
 
   const RedisStore = require('connect-redis')(session)
   const sessionMiddleware = session({
@@ -209,8 +210,10 @@ const main = async () => {
     }
   })
 
-  app.post('/updateTask', async (req) => {
-    updateTask(req.body.message)
+  app.post('/updateTask', async (req, res) => {
+    console.log(req.body)
+    updateTask(req.body)
+    res.send('')
   })
 
   const httpServer = http.createServer(app)

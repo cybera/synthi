@@ -1,17 +1,21 @@
 import * as k8s from '@kubernetes/client-node'
 import config from 'config'
 
+import logger from '../config/winston'
+
 const kc = new k8s.KubeConfig()
 kc.loadFromFile('/usr/src/app/config/kubeconfig')
 
 const k8sApi = kc.makeApiClient(k8s.BatchV1Api)
 
 export default function runTask(message: any): any {
+  const baseUrl = config.get('server.baseUrl')
+
   const container = new k8s.V1Container()
   container.name = 'worker'
   container.image = config.get(`k8s.images.${message.task}`)
   container.command = ['/usr/src/app/main.py']
-  container.args = [JSON.stringify({ host: 'server.host', ...message })]
+  container.args = [JSON.stringify({ callback: `${baseUrl}/updateTask`, ...message })]
   container.imagePullPolicy = 'IfNotPresent'
 
   const podSpec = new k8s.V1PodSpec()
@@ -26,7 +30,7 @@ export default function runTask(message: any): any {
   jobSpec.backoffLimit = 0
 
   const metadata = new k8s.V1ObjectMeta()
-  metadata.generateName = 'cameron-'
+  metadata.generateName = 'adi-'
 
   const job = new k8s.V1Job()
   job.spec = jobSpec
@@ -34,7 +38,5 @@ export default function runTask(message: any): any {
   job.apiVersion = 'batch/v1'
   job.kind = 'Job'
 
-  return k8sApi.createNamespacedJob('default', job).catch(e => console.log(e))
+  return k8sApi.createNamespacedJob('default', job)
 }
-
-// runTask({ type: 'import_csv', task: 'hi', taskid: 'id', status: 'hello', message: 'wassup' }).catch((e:any) => console.log(e))

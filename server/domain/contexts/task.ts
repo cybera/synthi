@@ -1,8 +1,8 @@
 import { AuthenticationError } from 'apollo-server-express'
 
-import Task, { Message } from '../models/task'
+import Task from '../models/task'
 
-async function updateTask(message: Message): Promise<void> {
+async function updateTask(message: any): Promise<void> {
   if (!message || !message.taskid) {
     throw new Error('Invalid message')
   }
@@ -13,9 +13,11 @@ async function updateTask(message: Message): Promise<void> {
     throw new Error(`Task ${message.taskid} not found`)
   }
 
-  if (message.data && message.data.token && task.token && message.data.token === task.token) {
+  if (message.token && task.token && message.token === task.token) {
     task.done(message)
   } else {
     throw new AuthenticationError('Invalid or missing token')
   }
 }
+
+export { updateTask }

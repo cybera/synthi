@@ -26,6 +26,7 @@ export default class RegisterTask extends Task {
     await DefaultQueue.sendToPythonWorker({
       task: 'register_transformation',
       taskid: this.uuid,
+      token: this.token,
       transformationUrl: Storage.createTempUrl('scripts', transformation.script, 'GET')
     })
   }

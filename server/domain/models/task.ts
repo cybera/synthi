@@ -34,6 +34,7 @@ export default class Task extends Base {
 
     if (!token) {
       task.token = crypto.randomBytes(64).toString('base64')
+      task.save()
     }
 
     return task as InstanceType<T>

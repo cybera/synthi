@@ -3,6 +3,8 @@ import config from 'config'
 
 import logger from '../config/winston'
 
+const crypto = require('crypto')
+
 let openstack
 
 const connection = () => {
@@ -64,18 +66,16 @@ const exists = async (area, relativePath) => {
 
 const createTempUrl = (area, relativePath, method) => {
   const container = config.get('storage.object.containers')[area],
-  const tenant = config.get('storage.object.creds.tenantName')
+  const tenant = config.get('storage.object.creds.tenantId')
   const key = config.get('storage.object.creds.tempUrlKey')
-  const host = config.get('server.host')
+  const swiftUrl = config.get('storage.object.creds.swiftUrl')
 
-  const objectPath = `${container}/${relativePath}`
-  const path = `/v1/233e84cd313945c992b4b585f7b9125d/${objectPath}`
+  const path = `/v1/AUTH_${tenant}/${container}/${relativePath}`
   const expires = Math.floor(Date.now() / 1000) + 12 * 60 * 60 // Use seconds
   const hmacBody = `${method}\n${expires}\n${path}`
-  const sig = require('crypto').createHmac('sha1', key).update(hmacBody).digest('hex')
-  const baseUrl = 'https://swift-yeg.cloud.cybera.ca:8080'
+  const sig = crypto.createHmac('sha1', key).update(hmacBody).digest('hex')
 
-  return baseUrl + '/' + encodeURI(`${path}?temp_url_sig=${sig}&temp_url_expires=${expires}`)
+  return swiftUrl + encodeURI(`${path}?temp_url_sig=${sig}&temp_url_expires=${expires}`)
 }
 
 // Object storage won't have the file in the first place if there was a failure

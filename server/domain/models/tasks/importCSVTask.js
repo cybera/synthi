@@ -34,6 +34,7 @@ export default class ImportCSVTask extends ImportTask {
     await runTask({
       task: this.type,
       taskid: this.uuid,
+      token: this.token,
       paths,
       header,
       delimiter,

@@ -26,6 +26,7 @@ export default class ImportDocumentTask extends ImportTask {
     await DefaultQueue.sendToTikaWorker({
       task: this.type,
       taskid: this.uuid,
+      token: this.token,
       paths
     })
   }

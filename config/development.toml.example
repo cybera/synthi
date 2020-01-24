@@ -8,6 +8,8 @@ tempUrlKey = "your-temp-url-key"
 tenantName = "your-openstack-tenant-name"
 # you should not include the "/v2.0" path found in default openstack credentials
 authUrl = "https://your-auth-endpoint:5000"
+swiftUrl = 'https://your-swift-endpoint:8080'
+tempUrlKey = "your-swift-temp-url-key"
 
 [storage.object.containers]
 
@@ -34,6 +36,7 @@ password = "password"
 [server]
 
 secret = "secret-token-123456"
+baseUrl = "http://192.168.122.1:3000"
 
 [k8s.images]
 
