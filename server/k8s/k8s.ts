@@ -1,8 +1,6 @@
 import * as k8s from '@kubernetes/client-node'
 import config from 'config'
 
-import { Message } from '../domain/models/task'
-
 const kc = new k8s.KubeConfig()
 kc.loadFromFile('/usr/src/app/config/kubeconfig')
 
@@ -12,8 +10,8 @@ export default function runTask(message: any): any {
   const container = new k8s.V1Container()
   container.name = 'worker'
   container.image = config.get(`k8s.images.${message.task}`)
-  container.command = ["/usr/src/app/main.py"]
-  container.args = [JSON.stringify(message)]
+  container.command = ['/usr/src/app/main.py']
+  container.args = [JSON.stringify({ host: 'server.host', ...message })]
   container.imagePullPolicy = 'IfNotPresent'
 
   const podSpec = new k8s.V1PodSpec()

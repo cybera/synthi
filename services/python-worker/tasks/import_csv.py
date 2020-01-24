@@ -3,13 +3,15 @@
 import os, sys, json, re
 
 import pandas as pd
+import requests
 
 # get around sibling import problem
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from utils import get_status_channel, parse_params
-status_channel = get_status_channel()
+# from utils import get_status_channel, parse_params
+# status_channel = get_status_channel()
+from utils import parse_params
 from lib import data_import
 
 import common.storage as storage
@@ -77,7 +79,10 @@ def import_csv(params):
     storage.write_raw(error_log_output, os.path.join(os.path.dirname(params['paths']['original']), 'error.log'))
     body['import_errors'] = True
 
-  status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
+  # status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
+
+  url = params['host'] + '/updateTask'
+  requests.post(url, data=json.dumps(body))
 
 if __name__ == "__main__":
   params = parse_params()

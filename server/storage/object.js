@@ -69,13 +69,13 @@ const createTempUrl = (area, relativePath, method) => {
   const host = config.get('server.host')
 
   const objectPath = `${container}/${relativePath}`
-  const path = `/v1/${tenant}/${objectPath}`
+  const path = `/v1/233e84cd313945c992b4b585f7b9125d/${objectPath}`
   const expires = Math.floor(Date.now() / 1000) + 12 * 60 * 60 // Use seconds
   const hmacBody = `${method}\n${expires}\n${path}`
   const sig = require('crypto').createHmac('sha1', key).update(hmacBody).digest('hex')
-  const baseUrl = host
+  const baseUrl = 'https://swift-yeg.cloud.cybera.ca:8080'
 
-  return baseUrl + encodeURI(`${path}?temp_url_sig=${sig}&temp_url_expires=${expires}`)
+  return baseUrl + '/' + encodeURI(`${path}?temp_url_sig=${sig}&temp_url_expires=${expires}`)
 }
 
 // Object storage won't have the file in the first place if there was a failure
