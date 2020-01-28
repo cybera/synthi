@@ -9,8 +9,6 @@ import requests
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-# from utils import get_status_channel, parse_params
-# status_channel = get_status_channel()
 from utils import parse_params
 from lib import data_import
 
@@ -80,10 +78,7 @@ def import_csv(params):
     storage.write_raw(error_log_output, os.path.join(os.path.dirname(params['paths']['original']), 'error.log'))
     body['import_errors'] = True
 
-  # status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
-
-  url = params['callback']
-  requests.post(url, json=body)
+  requests.post(params['callback'], json=body)
 
 if __name__ == "__main__":
   params = parse_params()

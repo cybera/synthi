@@ -13,6 +13,7 @@ async function updateTask(message: any): Promise<void> {
     throw new Error(`Task ${message.taskid} not found`)
   }
 
+  // TODO: Invalidate token/check whether task is already complete
   if (message.token && task.token && message.token === task.token) {
     task.done(message)
   } else {

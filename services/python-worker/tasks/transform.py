@@ -5,14 +5,13 @@ import os
 import importlib
 import json
 import pandas as pd
+import requests
 
 # get around sibling import problem
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from utils import get_queue_conn, get_status_channel, parse_params
-queue_conn = get_queue_conn()
-status_channel = get_status_channel(queue_conn)
+from utils import parse_params
 
 from utils import load_transform, parse_params, get_full_name
 
@@ -36,7 +35,7 @@ def transform_dataset(params):
         return storage.read_raw(path)
       else:
         return storage.read_csv(path)
-    
+
     # If we don't have the dataset in our list of inputs, not much we can do
     raise Exception(f"Dataset {full_name} not found")
 
@@ -71,10 +70,11 @@ def transform_dataset(params):
     update_info['bytes'] = storage.bytes(path)
 
     return update_info
-  
+
   body = {
     "type": "task-updated",
     "task": "transform",
+    "token": params["token"],
     "taskid": params["taskid"],
     "status": "success",
     "message": "",
@@ -92,7 +92,7 @@ def transform_dataset(params):
     body["status"] = "error"
     body["message"] = repr(e)
 
-  status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
+  requests.post(params['callback'], json=body)
 
 def store_csv(df, path, sample_path):
   # Write out normalized versions of the CSV file. These will have header
@@ -107,4 +107,3 @@ def store_csv(df, path, sample_path):
 if __name__ == "__main__":
   params = parse_params()
   transform_dataset(params)
-  queue_conn.close()

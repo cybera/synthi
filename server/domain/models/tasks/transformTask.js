@@ -1,7 +1,8 @@
 import { AuthenticationError } from 'apollo-server-express'
 
 import Base from '../base'
-import DefaultQueue from '../../../lib/queue'
+import runTask from '../../../k8s/k8s'
+import Storage from '../../../storage'
 
 import { safeQuery } from '../../../neo4j/connection';
 import { canTransform } from '../../util'
@@ -41,9 +42,9 @@ export const datasetStorageMap = async (transformation, user) => {
   }
 
   const mapping = {}
-  ioNodes.forEach(({ dataset, org, alias }) => {
-    method = ioEdge === 'INPUT' ? 'GET' : 'PUT'
-    paths = {
+  ioNodes.forEach(({ dataset, org, alias, ioEdge }) => {
+    const method = ioEdge === 'INPUT' ? 'GET' : 'PUT'
+    const paths = {
       original: Storage.createTempUrl('datasets', dataset.paths.original, method),
       imported: Storage.createTempUrl('datasets', dataset.paths.imported, method),
       sample: Storage.createTempUrl('datasets', dataset.paths.sample, method)
@@ -74,28 +75,29 @@ export default class TransformTask extends Task {
 
     await transformation.waitForReady()
 
-    const paths = await datasetStorageMap(transformation, user)
+    const storagePaths = await datasetStorageMap(transformation, user)
     const outputDataset = await transformation.outputDataset()
     const owner = await outputDataset.owner()
 
     const script = await transformation.realScript()
-    const transformationScript = Storage.createTempUrl('scripts', script, 'GET')
+    const scriptUrl = Storage.createTempUrl('scripts', script, 'GET')
 
     const taskTransformationInfo = {
       id: transformation.id,
-      scriptUrl,
+      script: scriptUrl,
       output_name: outputDataset.name,
       owner: owner.id,
     }
 
-    await DefaultQueue.sendToPythonWorker({
+    await runTask({
       task: 'transform',
       // TODO: We really shouldn't need to be passing this in anymore
       ownerName: owner.name,
       taskid: this.uuid,
+      token: this.token,
       state: this.state,
       transformation: taskTransformationInfo,
-      paths,
+      storagePaths,
     })
   }
 

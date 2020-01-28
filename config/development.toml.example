@@ -40,7 +40,7 @@ baseUrl = "http://192.168.122.1:3000"
 
 [k8s.images]
 
-import_csv = "cybera/python-worker"
-transform = "cybera/python-worker"
-register = "cybera/python-worker"
-import_document = "cybera/tika-worker"
+import_csv = "cybera/adi-python-worker"
+transform = "cybera/adi-python-worker"
+register_transformation = "cybera/adi-python-worker"
+import_document = "cybera/adi-tika-worker"

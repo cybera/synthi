@@ -1,8 +1,6 @@
 import * as k8s from '@kubernetes/client-node'
 import config from 'config'
 
-import logger from '../config/winston'
-
 const kc = new k8s.KubeConfig()
 kc.loadFromFile('/usr/src/app/config/kubeconfig')
 
@@ -16,6 +14,9 @@ export default function runTask(message: any): any {
   container.image = config.get(`k8s.images.${message.task}`)
   container.command = ['/usr/src/app/main.py']
   container.args = [JSON.stringify({ callback: `${baseUrl}/updateTask`, ...message })]
+  // We don't want minikube trying to pull the production image in development
+  // because it will fail if not logged in to docker hub and if it is logged in,
+  // it will overwrite the development image.
   container.imagePullPolicy = 'IfNotPresent'
 
   const podSpec = new k8s.V1PodSpec()

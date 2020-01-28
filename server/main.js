@@ -211,7 +211,6 @@ const main = async () => {
   })
 
   app.post('/updateTask', async (req, res) => {
-    console.log(req.body)
     updateTask(req.body)
     res.send('')
   })

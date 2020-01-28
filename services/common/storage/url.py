@@ -9,7 +9,6 @@ import pandas as pd
 magic = Magic(mime_encoding=True)
 
 def read_raw(url):
-  # print(url)
   res = requests.get(url)
   if res.status_code != 200:
     raise Exception(f"Failed to read dataset {url} got {res.status_code}")
@@ -39,7 +38,6 @@ def write_csv(df, url):
 
 def read_script_module(url):
   raw = read_raw(url)
-  res = config.storage.object.containers['scripts']
 
   # Write to a temporary file so we can load the script
   temp_script = NamedTemporaryFile(delete=False, suffix='.py')
@@ -51,3 +49,6 @@ def read_script_module(url):
   transform_module = module_from_spec(transform_spec)
 
   return transform_module
+
+def cleanup_script_module(module):
+  pass
