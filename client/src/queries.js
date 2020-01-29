@@ -24,6 +24,7 @@ query($uuid: String) {
     uuid
     type
     name
+    format
     columns {
       uuid
       name

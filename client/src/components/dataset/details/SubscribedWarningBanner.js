@@ -1,11 +1,15 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
 
 import WarningBanner from '../layout/WarningBanner'
 import UploadParsingOptions from '../../upload-parsing'
 import { WarnSvg } from '../../layout/svg'
 
+import UploadButton from '../editor/buttons/UploadButton'
+import { datasetProptype } from '../../../lib/adiProptypes'
 
 export default class SubscribedWarningBanner extends React.Component {
   constructor(props) {
@@ -16,13 +20,13 @@ export default class SubscribedWarningBanner extends React.Component {
   }
 
   componentDidMount() {
-    const { subscribeToDatasetGenerated, uuid } = this.props
-    this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
+    const { subscribeToDatasetGenerated, dataset: { uuid } } = this.props
+    this.unsubscribe = subscribeToDatasetGenerated(({ status, message }) => {
       const { errors } = this.state
       if (status === 'error') {
-        this.setState({ errors: Object.assign({}, errors, { [uuid]: message }) })
+        this.setState({ errors: { ...errors, [uuid]: message } })
       } else {
-        this.setState({ errors: Object.assign({}, errors, { [uuid]: '' }) })
+        this.setState({ errors: { ...errors, [uuid]: '' } })
       }
     })
   }
@@ -32,7 +36,7 @@ export default class SubscribedWarningBanner extends React.Component {
   }
 
   render() {
-    const { classes, uuid, error } = this.props
+    const { classes, dataset, error } = this.props
 
     return (
       <div>
@@ -54,17 +58,26 @@ export default class SubscribedWarningBanner extends React.Component {
               <Typography variant="subtitle1" gutterBottom>
                 You can try uploading your file again.
               </Typography>
-              <DatasetUploadButton uuid={uuid} type="csv" />
+              <UploadButton dataset={dataset} type="csv" />
             </div>
             <div className={classes.adviceContainer}>
               <Typography variant="subtitle1" gutterBottom>
                 Or you can try providing some more information and rescanning:
               </Typography>
-              <UploadParsingOptions uuid={uuid} error={error} />
+              <UploadParsingOptions uuid={dataset.uuid} error={error} />
             </div>
           </Grid>
         </Grid>
       </div>
     )
   }
+}
+
+SubscribedWarningBanner.propTypes = {
+  dataset: datasetProptype.isRequired,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  error: PropTypes.shape({
+    message: PropTypes.string
+  }).isRequired,
+  subscribeToDatasetGenerated: PropTypes.func.isRequired,
 }

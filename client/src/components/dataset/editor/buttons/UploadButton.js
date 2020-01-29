@@ -21,13 +21,6 @@ const uploadDatasetGQL = gql`
 const DatasetUploadButton = (props) => {
   const { uuid, type } = props
 
-  let uploadTypes = []
-  if (type === 'csv') {
-    uploadTypes = ['.csv']
-  } else if (type === 'document') {
-    uploadTypes = ['.pdf', '.txt', '.doc', '.docx']
-  }
-
   return (
     <Mutation
       mutation={uploadDatasetGQL}
@@ -36,10 +29,10 @@ const DatasetUploadButton = (props) => {
     >
       {(uploadFileMutation, { loading }) => (
         <UploadFile
-          uploadTypes={uploadTypes}
-          handleFileChange={file => uploadFileMutation({ variables: { uuid, file } })}
-          text={`Upload ${type}`}
-          loading={loading}
+            uploadTypes={[]}
+            handleFileChange={file => uploadFileMutation({ variables: { uuid, file } })}
+            text={`Upload ${type}`}
+            loading={loading}
         />
       )}
     </Mutation>
