@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import { ADIButton } from '../../layout/buttons'
 import DatasetGenerator from './DatasetGenerator'
 import { ToggleVisibility } from '../../layout'
-import { DownloadButton, UploadButton } from './buttons'
+import { DownloadButton, UploadButton, ImportButton } from './buttons'
 import { TransformationEditor, SaveTransformationButton } from '../transformation'
 
 const styles = theme => ({
@@ -70,6 +70,10 @@ class DatasetEditor extends React.Component {
         </ToggleVisibility>
 
         <div className={classes.buttonsRight}>
+          <span className={classes.editorButton}>
+            <ImportButton dataset={dataset} />
+          </span>
+
           <ToggleVisibility visible={dataset.computed && !virtualTransformation}>
             <span className={classes.editorButton}>
               <SaveTransformationButton dataset={dataset} currentCode={this.transformationCode} />

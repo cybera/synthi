@@ -11,6 +11,7 @@ import { fullDatasetPath, storeFS } from '../../lib/util'
 
 import { pubsub } from '../../graphql/pubsub'
 import { safeQuery } from '../../neo4j/connection'
+import Query from '../../neo4j/query'
 import logger from '../../config/winston'
 import { memberOfOwnerOrg } from '../util'
 
@@ -341,9 +342,9 @@ class Dataset extends Base {
     await super.saveRelation(transformation, '-[:OUTPUT]->')
     await super.saveRelation(transformation, '-[:ALIAS_OF]->', template)
 
-    await Promise.all(inputs.map((input) => {
+    await Promise.all(inputs.map(async (input) => {
       const { alias, dataset } = input
-      return super.saveRelation(transformation, '<-[r:INPUT]-', dataset, 'r', { alias })
+      await super.saveRelation(transformation, `<-[r:INPUT { alias: '${alias}'}]-`, dataset)
     }))
 
     return transformation
@@ -479,6 +480,17 @@ class Dataset extends Base {
     const orgs = await user.orgs()
     const owner = await this.owner()
     return orgs.some(org => (org.uuid === owner.uuid))
+  }
+
+  async lastTask(types) {
+    const query = new Query('task', { order: 'task.dateUpdated DESC', limit: 1 })
+    query.addPart(`
+      MATCH (task:Task)-[:FOR]->(dataset:Dataset { uuid: $uuid })
+      WHERE EXISTS(task.dateUpdated) AND task.type IN $types
+    `)
+    const results = await query.run({ types, uuid: this.uuid })
+
+    return results ? results[0] : null
   }
 }
 

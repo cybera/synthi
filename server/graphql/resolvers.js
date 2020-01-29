@@ -12,7 +12,8 @@ import {
   column,
   general,
   user,
-  organization
+  organization,
+  task,
 } from './modules'
 
 export const resolvers = merge(
@@ -23,7 +24,8 @@ export const resolvers = merge(
   column.resolvers,
   datasetMetadata.resolvers,
   plot.resolvers,
-  transformation.resolvers
+  transformation.resolvers,
+  task.resolvers,
 )
 
 /*
@@ -66,6 +68,7 @@ export const permissions = shield(merge(
   datasetMetadata.permissions,
   user.permissions,
   organization.permissions,
+  task.permissions,
 ), {
   fallbackError: new AuthenticationError('Operation not allowed on this resource'),
   hashFunction

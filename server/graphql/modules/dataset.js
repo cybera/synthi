@@ -34,7 +34,8 @@ export const resolvers = {
     owner: dataset => dataset.owner(),
     inputTransformation: dataset => dataset.inputTransformation(),
     connections: dataset => dataset.connections(),
-    canPublish: (dataset, _, { user }) => dataset.canPublish(user)
+    canPublish: (dataset, _, { user }) => dataset.canPublish(user),
+    lastTask: (dataset, { types }) => dataset.lastTask(types),
   },
   Mutation: {
     createDataset: (_, { name, owner, type }) => (
@@ -128,6 +129,7 @@ export const typeDefs = gql`
     canPublish: Boolean
     ownerName: String
     bytes: Int
+    lastTask(types: [String]): Task
   }
 
   enum FileSizeUnit {

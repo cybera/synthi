@@ -40,6 +40,12 @@ query($uuid: String) {
       error
       virtual
     }
+    importTask: lastTask(types: ["import_csv", "import_document"]) {
+      uuid
+      state
+      message
+      type
+    }
   }
 }
 `

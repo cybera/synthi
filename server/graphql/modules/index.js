@@ -6,6 +6,7 @@ import * as column from './column'
 import * as general from './general'
 import * as user from './user'
 import * as organization from './organization'
+import * as task from './task'
 
 export {
   dataset,
@@ -15,5 +16,6 @@ export {
   column,
   general,
   user,
-  organization
+  organization,
+  task,
 }

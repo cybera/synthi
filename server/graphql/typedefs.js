@@ -6,7 +6,8 @@ import {
   column,
   general,
   user,
-  organization
+  organization,
+  task,
 } from './modules'
 
 
@@ -19,6 +20,7 @@ const typeDefs = [
   organization.typeDefs,
   user.typeDefs,
   transformation.typeDefs,
+  task.typeDefs,
 ]
 
 export default typeDefs

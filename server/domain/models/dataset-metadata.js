@@ -1,7 +1,4 @@
-import { mapValues, isDate } from 'lodash'
-
 import Base from './base'
-import { neo4j } from '../../neo4j/connection'
 
 export const TOPICS = [
   'Aboriginal Peoples',
@@ -34,15 +31,6 @@ export const TOPICS = [
 ]
 
 class DatasetMetadata extends Base {
-  valuesForNeo4J() {
-    return mapValues(super.valuesForNeo4J(), (v) => {
-      if (isDate(v)) {
-        return neo4j.types.DateTime.fromStandardDate(v)
-      }
-      return v
-    })
-  }
-
   beforeSave() {
     if (this.topic) {
       this.topic.forEach((topic) => {
