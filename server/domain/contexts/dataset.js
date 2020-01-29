@@ -122,7 +122,7 @@ export async function createDataset(owner, name, type) {
 
   const org = await findOrganization(owner)
 
-  
+  const dataset = await org.createDataset({ name, type: datasetType })
 
   return dataset
 }
