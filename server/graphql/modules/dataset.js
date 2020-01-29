@@ -101,6 +101,7 @@ export const typeDefs = gql`
   enum DatasetType {
     csv
     document
+    other
   }
 
   input CSVImportOptions {
