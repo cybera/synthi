@@ -44,11 +44,6 @@ class DocumentDataset extends Dataset {
     return `${this.name}${extension}`
   }
 
-  readStream(type = 'imported') {
-    logger.info(`Reading ${this.paths[type]}`)
-    return Storage.createReadStream('datasets', this.paths[type])
-  }
-
   async deleteStorage() {
     Storage.remove('datasets', this.paths.original)
     Storage.remove('datasets', this.paths.imported)
