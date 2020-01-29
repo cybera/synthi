@@ -5,6 +5,7 @@ import { Mutation } from 'react-apollo'
 
 import { datasetViewQuery } from '../../../../queries'
 import UploadFile from './UploadFile'
+import { datasetProptype } from '../../../../lib/adiProptypes'
 
 const uploadDatasetGQL = gql`
   mutation UploadDataset($uuid: String!, $file: Upload!) {
@@ -19,28 +20,40 @@ const uploadDatasetGQL = gql`
 `
 
 const DatasetUploadButton = (props) => {
-  const { uuid, type } = props
+  const { dataset, type } = props
 
   return (
     <Mutation
       mutation={uploadDatasetGQL}
-      refetchQueries={[{ query: datasetViewQuery, variables: { uuid } }]}
+      refetchQueries={[{ query: datasetViewQuery, variables: { uuid: dataset.uuid } }]}
       awaitRefetchQueries
     >
-      {(uploadFileMutation, { loading }) => (
-        <UploadFile
+      {(uploadFileMutation, { loading }) => {
+        const importing = dataset.importTask !== null && dataset.importTask.state !== 'done'
+        let buttonText = 'Upload'
+        if (loading) {
+          buttonText = `Uploading ${type}...`
+        } else if (importing) {
+          buttonText = `Processing ${type}...`
+        }
+
+        return (
+          <UploadFile
             uploadTypes={[]}
-            handleFileChange={file => uploadFileMutation({ variables: { uuid, file } })}
-            text={`Upload ${type}`}
-            loading={loading}
-        />
-      )}
+            handleFileChange={(file) => uploadFileMutation({
+              variables: { uuid: dataset.uuid, file }
+            })}
+            text={buttonText}
+            loading={loading || importing}
+          />
+        )
+      }}
     </Mutation>
   )
 }
 
 DatasetUploadButton.propTypes = {
-  uuid: PropTypes.string.isRequired,
+  dataset: datasetProptype.isRequired,
   type: PropTypes.string
 }
 
