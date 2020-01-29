@@ -185,7 +185,7 @@ class Dataset extends Base {
       throw new Error('Name must be unique')
     }
 
-    super.save()
+    await super.save()
   }
 
   async isUnique() {
