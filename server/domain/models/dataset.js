@@ -144,7 +144,7 @@ class Dataset extends Base {
   }
 
   readStream(type = 'imported') {
-    logger.info(`Reading ${this.paths.imported}`)
+    logger.info(`Reading ${this.paths[type]}`)
     return Storage.createReadStream('datasets', this.paths[type])
   }
 
