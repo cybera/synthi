@@ -16,6 +16,8 @@ import {
   debugTransformationInputObjs
 } from './util'
 
+import Formats from '../../lib/formats'
+
 import Query from '../../neo4j/query'
 import logger from '../../config/winston'
 
@@ -330,3 +332,9 @@ export async function uniqueDefaultDatasetName(organizationRef) {
   const organization = await findOrganization(organizationRef)
   return organization.uniqueDefaultDatasetName()
 }
+
+export const SUPPORTED_FORMATS = [
+  ...Formats.csv,
+  ...Formats.document,
+  ...Formats.other,
+]

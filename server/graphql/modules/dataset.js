@@ -20,6 +20,7 @@ import {
   setPublished,
   createComputedDatasetFromTransformation,
   uniqueDefaultDatasetName,
+  SUPPORTED_FORMATS,
 } from '../../domain/contexts/dataset'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
@@ -30,6 +31,7 @@ export const resolvers = {
     listDatasets: (_, { org, filter, offset, limit }) => listDatasets(org, filter, offset, limit),
     uniqueDefaultDatasetName: (_, { org }) => uniqueDefaultDatasetName(org),
     topics: () => TOPICS,
+    supportedFormats: () => SUPPORTED_FORMATS,
   },
   Dataset: {
     columns: dataset => dataset.columns(),
@@ -207,6 +209,7 @@ export const typeDefs = gql`
     }, offset: Int = 0, limit: Int = 10): ListDatasetsResult
     uniqueDefaultDatasetName(org: OrganizationRef!): String!
     topics: [String]
+    supportedFormats: [String]
   }
 
   input ComputedDatasetFromTransformationParams {
