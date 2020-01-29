@@ -34,7 +34,7 @@ export async function processDatasetUpdate(uuid, datasetProps) {
   } = datasetProps
 
   // TODO: access control
-  const dataset = await ModelFactory.getByUuid(uuid)
+  let dataset = await ModelFactory.getByUuid(uuid)
 
   if (file) {
     /*
@@ -68,6 +68,16 @@ export async function processDatasetUpdate(uuid, datasetProps) {
       during upload, and larger files once again work.
     */
     const uploadInfo = await file
+    dataset.setFormatFromFilename(uploadInfo.filename)
+    // Setting the format may turn the dataset into a different subclass. While it's really
+    // inefficient to reload from the database, it's probably better than some of the other
+    // weird ideas of dynamically changing classes that I was coming up with. Maybe the
+    // inefficiency will be painful enough to force us to come up with a better way to model
+    // the differences between datasets given how they're now being used.
+    await dataset.save()
+
+    dataset = await ModelFactory.getByUuid(dataset.uuid)
+
     await dataset.upload(uploadInfo)
   }
 
