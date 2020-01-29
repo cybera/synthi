@@ -11,7 +11,13 @@ import Input from '@material-ui/core/Input'
 const knownFormats = [
   'csv',
   'pdf',
+  'doc',
+  'docx',
   'txt',
+  'zip',
+  'jpg',
+  'gif',
+  'other',
 ]
 
 const useStyles = makeStyles({
