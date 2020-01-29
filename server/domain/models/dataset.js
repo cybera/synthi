@@ -110,7 +110,7 @@ class Dataset extends Base {
     super(node)
     this.paths = {
     }
-    
+
   }
 
   beforeSave() {
@@ -125,6 +125,8 @@ class Dataset extends Base {
     if (!this.dateCreated) this.dateCreated = new Date()
     if (!this.dateAdded) this.dateAdded = new Date()
     if (!this.dateUpdated) this.dateUpdated = new Date()
+
+    if (!this.format) this.format = 'csv'
 
     return super.beforeSave()
   }
@@ -261,12 +263,7 @@ class Dataset extends Base {
       this.mimetype = mimetype
       this.bytes = bytes
       logger.debug('Saving upload info')
-      // figure out and store the default format
-      let ext = pathlib.extname(filename)
-      if (ext.startsWith('.')) {
-        ext = ext.substr(1)
-      }
-      this.format = ext
+      this.setFormatFromFilename(filename)
 
       await this.save()
       logger.debug('Triggering import...')
@@ -275,6 +272,15 @@ class Dataset extends Base {
       // TODO: What should we do here?
       logger.error(`Error in upload resolver: ${e.message}`)
     }
+  }
+
+  setFormatFromFilename(filename) {
+    // figure out and store the default format
+    let ext = pathlib.extname(filename)
+    if (ext.startsWith('.')) {
+      ext = ext.substr(1)
+    }
+    this.format = ext
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
@@ -403,6 +409,32 @@ class Dataset extends Base {
     await this.save()
   }
 
+  // Ideally .type would be a derived value only, but that creates some complications
+  // with how we determine different subclasses based on .type coming directly from
+  // the database. Instead of adding another framework-level layer of indirection,
+  // allowing us to consider computed properties as well, without instantiating an actual
+  // model object (see modelFactory's deriveClass), this deals with the highly coupled
+  // nature of format ('pdf', 'doc', 'csv', etc.) and dataset type by intercepting the
+  // setting of format and setting type as well. If we get more situations like this
+  // we should reconsider that extra layer of indirection or whether or not dividing
+  // dataset subclasses these way is the right approach.
+  set format(value) {
+    this.__format = value
+    const csvFormats = ['csv']
+    const documentFormats = ['doc', 'docx', 'pdf', 'txt']
+
+    if (csvFormats.includes(this.__format)) {
+      this.type = 'csv'
+    } else if (documentFormats.includes(this.__format)) {
+      this.type = 'document'
+    } else {
+      this.type = 'other'
+    }
+  }
+
+  get format() {
+    return this.__format
+  }
 
   async registerTransformation(inputs, outputs) {
     if (outputs.length > 0) {
