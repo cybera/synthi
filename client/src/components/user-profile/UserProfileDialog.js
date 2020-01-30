@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+
+import { useMutation } from '@apollo/react-hooks'
+import gql from 'graphql-tag'
 
 import { withStyles } from '@material-ui/core/styles'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -9,8 +12,91 @@ import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 
 import { ADIButton } from '../layout/buttons'
+import { openSnackbar } from '../layout/Notifier'
 
 const styles = {
+}
+
+const UPDATE_PASSWORD = gql`
+  mutation UpdatePassword($password: String!) {
+    updatePassword(password: $password)
+  }
+`
+
+function UpdatePassword() {
+  const [updatePassword, { data, error: mutationError }] = useMutation(UPDATE_PASSWORD)
+  const [error, setError] = useState(false)
+  const [errorText, setErrorText] = useState('')
+  const [disabled, setDisabled] = useState('true')
+
+  let input
+  let verifyInput
+
+  if (mutationError) {
+    openSnackbar({ message: 'Password update failed' })
+  } else if (data) {
+    openSnackbar({ message: 'Password updated' })
+  }
+
+  const verify = () => {
+    if (verifyInput.value !== '') {
+      if (verifyInput.value === input.value) {
+        setDisabled(false)
+        setError(false)
+        setErrorText('')
+      } else {
+        setDisabled(true)
+        setError(true)
+        setErrorText('Password does not match')
+      }
+    } else {
+      setDisabled(true)
+      setError(false)
+      setErrorText('')
+    }
+  }
+
+  return (
+    <div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          setDisabled(true)
+          updatePassword({ variables: { password: input.value } })
+          input.value = ''
+          verifyInput.value = ''
+        }}
+      >
+        <TextField
+          label="New Password"
+          type="password"
+          margin="normal"
+          defaultValue=""
+          fullWidth
+          inputRef={(node) => {
+            input = node
+          }}
+          onChange={verify}
+        />
+        <TextField
+          label="Verify Password"
+          type="password"
+          margin="normal"
+          defaultValue=""
+          fullWidth
+          error={error}
+          helperText={errorText}
+          inputRef={(node) => {
+            verifyInput = node
+          }}
+          onChange={verify}
+        />
+        <Grid item xs={12}>
+          <ADIButton type="submit" disabled={disabled}>Update Password</ADIButton>
+        </Grid>
+      </form>
+    </div>
+  )
 }
 
 class UserProfileDialog extends React.Component {
@@ -47,6 +133,10 @@ class UserProfileDialog extends React.Component {
                 label="Username"
                 fullWidth
               />
+            </Grid>
+            <Grid item xs={6} />
+            <Grid item xs={6}>
+              <UpdatePassword />
             </Grid>
             <Grid item xs={12}>
               <TextField

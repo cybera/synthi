@@ -65,7 +65,7 @@ class DatasetListItem extends React.Component {
         button
         selected={active}
         onClick={this.selectDataset}
-        className={classNames(deleting && classes.hide)}
+        className={classNames(deleting && classes.hide, 'MuiListItem-secondaryAction')}
       >
         <DatasetNameEditor
           dataset={dataset}

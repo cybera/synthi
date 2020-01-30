@@ -1,5 +1,7 @@
 import { AuthenticationError } from 'apollo-server-express'
 
+import { uniqBy, compact } from 'lodash'
+
 import {
   Dataset,
   Organization,
@@ -122,6 +124,8 @@ export async function filterDatasets({
       datasets = await organization.datasets(searchString)
     }
   }
+
+  datasets = uniqBy(compact(datasets), (dataset) => dataset.uuid)
 
   return datasets
 }
@@ -288,6 +292,7 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
     searchIndex,
     skip: offset,
     limit: limit + 1,
+    distinct: true,
     order: 'dataset.name ASC',
   }
 

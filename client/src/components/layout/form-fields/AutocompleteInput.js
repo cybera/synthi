@@ -4,7 +4,16 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const AutocompleteInput = ({ onChange, options, value, loading, onTextChange, label, ...rest }) => {
+const AutocompleteInput = ({
+  onChange,
+  options,
+  value,
+  loading,
+  onTextChange,
+  label,
+  variant,
+  ...rest
+}) => {
   return (
     <Autocomplete
       options={options}
@@ -13,9 +22,7 @@ const AutocompleteInput = ({ onChange, options, value, loading, onTextChange, la
       onChange={onChange}
       renderInput={(params) => (
         <TextField
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          {...params}
-          variant="outlined"
+          variant={variant}
           label={label}
           margin="normal"
           fullWidth
@@ -29,15 +36,26 @@ const AutocompleteInput = ({ onChange, options, value, loading, onTextChange, la
               </>
             ),
           }}
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...params}
         />
       )}
+      variant={variant}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...rest}
     />
   );
 }
 
-const AutocompleteChipInput = ({ onChange, options, value, loading, onTextChange, label }) => {
+const AutocompleteChipInput = ({
+  onChange,
+  options,
+  value,
+  loading,
+  onTextChange,
+  label,
+  ...rest,
+}) => {
   return (
     <AutocompleteInput
       multiple
@@ -47,6 +65,8 @@ const AutocompleteChipInput = ({ onChange, options, value, loading, onTextChange
       loading={loading}
       label={label}
       onTextChange={onTextChange}
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...rest}
     />
   )
 }

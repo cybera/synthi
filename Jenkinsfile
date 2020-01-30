@@ -25,6 +25,14 @@ pipeline {
       }
     }
 
+    stage('Clean docker environment') {
+      // Wipe out all named volumes so leftovers from previous builds don't
+      // affect the current build.
+      steps {
+        sh 'docker-compose down -v'
+      }
+    }
+
     stage('Build client container') {
       steps {
         sh 'docker-compose build client'

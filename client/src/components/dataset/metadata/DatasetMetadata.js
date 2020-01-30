@@ -12,7 +12,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
-import { useQuery, Query, Mutation } from 'react-apollo'
+import { Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 import * as Ramda from 'ramda'
 
@@ -21,7 +21,7 @@ import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
 import FormatSelector from './FormatSelector'
 import { PanelLoadingState } from '../../layout'
 import { datasetViewQuery } from '../../../queries'
-import { AutocompleteChipInput } from '../../layout/form-fields/AutocompleteInput'
+import TopicInput from './TopicInput'
 
 export const datasetMetadataQuery = gql`
 query($uuid: String) {
@@ -50,12 +50,6 @@ export const updateDatasetMetadataMutation = gql`
     updateDatasetMetadata(uuid: $uuid, metadata: $metadata) {
       uuid
     }
-  }
-`
-
-export const topicsQuery = gql`
-  query {
-    topics
   }
 `
 
@@ -164,35 +158,6 @@ LocalDatePicker.propTypes = {
 LocalDatePicker.defaultProps = {
   className: '',
   value: null
-}
-
-const TopicInput = ({ defaultValue, onChange }) => {
-  const { data, loading, error } = useQuery(topicsQuery)
-
-  const topics = loading || error ? [] : data.topics
-
-  return (
-    <AutocompleteChipInput
-      options={topics}
-      onChange={onChange}
-      value={defaultValue}
-      margin="normal"
-      fullWidth
-      fullWidthInput
-      label="Topic"
-      style={{ marginLeft: 10 }}
-    />
-  )
-}
-
-TopicInput.propTypes = {
-  defaultValue: PropTypes.arrayOf(PropTypes.string),
-  onChange: PropTypes.func
-}
-
-TopicInput.defaultProps = {
-  defaultValue: [],
-  onChange: null
 }
 
 class DatasetMetadata extends React.Component {
@@ -385,8 +350,10 @@ class DatasetMetadata extends React.Component {
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>
                 <TopicInput
-                  defaultValue={fields.ext_topic}
+                  value={fields.ext_topic}
                   onChange={(_, chips) => this.handleChipsChange('ext_topic')(chips)}
+                  style={{ marginLeft: 10 }}
+                  variant="standard"
                 />
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>

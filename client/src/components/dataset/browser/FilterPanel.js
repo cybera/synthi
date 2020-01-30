@@ -9,13 +9,13 @@ import {
   Grid,
   TextField,
 } from '@material-ui/core'
-import ChipInput from 'material-ui-chip-input'
 
 import DatasetFilterContext from '../../../contexts/DatasetFilterContext'
 import FormatSelector from '../metadata/FormatSelector'
 
 import FileSizeFilter from './FileSizeFilter'
 import ADIButton from '../../layout/buttons/ADIButton'
+import TopicInput from '../metadata/TopicInput'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -111,6 +111,7 @@ const FilterPanel = () => {
             empty="All Formats"
             format={filter.format}
             handleFormatChange={(e) => changeFilter('format')(e.target.value)}
+            variant="outlined"
           />
         </Grid>
         <Grid item className={classes.filterRow}>
@@ -120,12 +121,10 @@ const FilterPanel = () => {
           />
         </Grid>
         <Grid item className={classes.filterRow}>
-          <ChipInput
-            onChange={changeFilter('topics')}
-            defaultValue={filter.topics}
-            margin="normal"
-            fullWidth
-            fullWidthInput
+          <TopicInput
+            onChange={(_, value) => changeFilter('topics')(value)}
+            value={filter.topics}
+            variant="outlined"
             label="Topics"
           />
         </Grid>
