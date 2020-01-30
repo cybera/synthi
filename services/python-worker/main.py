@@ -4,6 +4,8 @@ import os
 from subprocess import run, CalledProcessError
 import json
 
+import requests
+
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 params = json.loads(sys.argv[1])
@@ -13,6 +15,7 @@ body = {
   "type": "task-updated",
   "task": "transform",
   "taskid": params["taskid"],
+  "token": params["token"],
   "status": "error",
   "message": "",
   "data": {}
@@ -24,9 +27,6 @@ try:
   run([process_path, json.dumps(params)], check=True)
 except (OSError, CalledProcessError) as err:
   body["message"] = "An unknown error occurred, please try again later."
-  # status_channel = get_status_channel()
-  # status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
+  requests.post(params["callback"], json=body)
 
 sys.stdout.flush()
-
-# worker.start('python-worker', callback)

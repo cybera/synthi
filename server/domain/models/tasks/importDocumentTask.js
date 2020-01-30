@@ -1,5 +1,6 @@
 import Base from '../base'
 import runTask from '../../../k8s/k8s'
+import Storage from '../../../storage'
 
 import ImportTask from './importTask'
 import logger from '../../../config/winston';

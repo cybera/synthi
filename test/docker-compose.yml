@@ -25,10 +25,6 @@ services:
     networks:
       - default
     command: npm run devStart
-  queue:
-    image: rabbitmq:3.7
-    networks:
-      - default
   python-worker:
     build:
       context: ../services
@@ -42,27 +38,7 @@ services:
       - ../config/testing.toml:/usr/src/app/common/config/development.toml
       - ../data/uploads:/mnt/data
       - ../data/scripts:/mnt/scripts
-    depends_on:
-      - queue
-  tika-worker:
-    build:
-      context: ../services
-      target: tika-worker
-    image: cybera/adi-tika-worker:latest
-    networks:
-      - default
-    volumes:
-      - ../services/tika-worker:/usr/src/app
-      - ../services/common:/usr/src/app/common
-      - ../config/testing.toml:/usr/src/app/common/config/development.toml
-      - ../data/uploads:/mnt/data
-      - ../data/scripts:/mnt/scripts
-    depends_on:
-      - queue
-  tika:
-    image: logicalspark/docker-tikaserver
-    networks:
-      - default
+    command: /bin/true
   redis:
     image: redis:4.0
     networks:

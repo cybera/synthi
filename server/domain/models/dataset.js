@@ -203,7 +203,7 @@ class Dataset extends Base {
   }
 
   async upload({ stream, filename, mimetype }) {
-    try {
+    // try {
       logger.info(`Uploading: ${filename}`)
       const { path, bytes } = await storeFS({ stream, filename: this.paths.original })
 
@@ -224,10 +224,10 @@ class Dataset extends Base {
       }
       metadata.format = ext
       await metadata.save()
-    } catch (e) {
-      // TODO: What should we do here?
-      logger.error(`Error in upload resolver: ${e.message}`)
-    }
+    // } catch (e) {
+    //   // TODO: What should we do here?
+    //   logger.error(`Error in upload resolver: ${e.message}`)
+    // }
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars

@@ -42,6 +42,20 @@ services:
       - client_node_modules:/usr/src/app/node_modules
     networks:
       - default
+  python-worker:
+    build:
+      context: ./services
+      target: python-worker
+    image: cybera/adi-python-worker:${TAG}
+    networks:
+      - default
+    volumes:
+      - ./services/python-worker:/usr/src/app
+      - ./services/common:/usr/src/app/common
+      - ./config/development.toml:/usr/src/app/common/config/development.toml
+      - ./data/uploads:/mnt/data
+      - ./data/scripts:/mnt/scripts
+    command: /bin/true
   manual:
     build: ./manual
     image: cybera/adi-manual:${TAG}

@@ -58,16 +58,16 @@ def transform_dataset(params):
       columns = data_import.column_info(output)
 
       print(f"Updating calculated '{output_name}' dataset: {path}")
-      store_csv(output, path, params["storagePaths"][full_name]["sample"])
+      size = store_csv(output, path, params["storagePaths"][full_name]["sample"])
       update_info['type'] = 'csv'
       update_info['columns'] = columns
     elif type(output) is str:
-      storage.write_raw(output.encode('utf-8'), path)
+      size = storage.write_raw(output.encode('utf-8'), path)
     else:
-      storage.write_raw(output, path)
+      size = storage.write_raw(output, path)
       update_info['type'] = 'document'
 
-    update_info['bytes'] = storage.bytes(path)
+    update_info['bytes'] = size
 
     return update_info
 

@@ -7,7 +7,7 @@ RUN apt-get update && \
                 toml
 ADD build/wait-for-it.sh /
 WORKDIR /usr/src/app
-CMD [ "/wait-for-it.sh", "-t", "60", "queue:5672", "--", "./main.py"]
+CMD ["/usr/src/app/main.py"]
 
 FROM base as python-worker
 RUN pip install neo4j-driver \
@@ -19,6 +19,6 @@ ADD common ./common
 FROM base as tika-worker
 RUN apt-get install default-jre tesseract-ocr -y
 RUN pip install python-magic
-RUN wget https://www.apache.org/dyn/closer.cgi/tika/tika-app-1.22.jar -O /tika-app.jar
+RUN wget http://archive.apache.org/dist/tika/tika-app-1.22.jar -O /tika-app.jar
 ADD tika-worker ./
 ADD common ./common

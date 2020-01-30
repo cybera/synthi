@@ -31,10 +31,11 @@ def write_raw(data, url):
   res = requests.put(url, data)
   if res.status_code != 200 and res.status_code != 201:
     raise Exception("Failed to write dataset")
+  return len(data)
 
 def write_csv(df, url):
   data = df.to_csv(index=False).encode('utf-8')
-  write_raw(data, url)
+  return write_raw(data, url)
 
 def read_script_module(url):
   raw = read_raw(url)

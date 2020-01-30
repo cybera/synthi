@@ -43,12 +43,15 @@ export const datasetStorageMap = async (transformation, user) => {
 
   const mapping = {}
   ioNodes.forEach(({ dataset, org, alias, ioEdge }) => {
-    const method = ioEdge === 'INPUT' ? 'GET' : 'PUT'
+    const method = ioEdge.type === 'INPUT' ? 'GET' : 'PUT'
     const paths = {
       original: Storage.createTempUrl('datasets', dataset.paths.original, method),
       imported: Storage.createTempUrl('datasets', dataset.paths.imported, method),
       sample: Storage.createTempUrl('datasets', dataset.paths.sample, method)
     }
+    console.log(ioEdge)
+    console.log(method)
+    console.log(paths)
     mapping[`${org.name}:${alias || dataset.name}`] = paths
   })
 
