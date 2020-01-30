@@ -36,6 +36,7 @@ services:
        - "3000:3000"
     volumes:
       - ./server:/usr/src/app
+      - ./config/kubeconfig:/usr/src/app/config/kubeconfig
       - ./config/development.toml:/usr/src/app/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts

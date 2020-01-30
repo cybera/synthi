@@ -4,3 +4,4 @@ __pycache__
 
 development.toml
 testing.toml
+config/kubeconfig
