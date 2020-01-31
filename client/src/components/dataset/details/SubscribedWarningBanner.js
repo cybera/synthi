@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import WarningBanner from '../layout/WarningBanner'
 import UploadParsingOptions from '../../upload-parsing'
 import { WarnSvg } from '../../layout/svg'
+import DatasetUploadButton from '../editor/buttons/UploadFile'
 
 import UploadButton from '../editor/buttons/UploadButton'
 import { datasetProptype } from '../../../lib/adiProptypes'
