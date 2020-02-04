@@ -57,7 +57,7 @@ class DatasetEditor extends React.Component {
 
         <ToggleVisibility visible={dataExists}>
           <span className={classes.editorButton}>
-            <DownloadButton dataset={dataset} />
+            <DownloadButton dataset={dataset} fullText />
           </span>
         </ToggleVisibility>
 
