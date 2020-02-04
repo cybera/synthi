@@ -67,6 +67,12 @@ const GET_DATASETS = gql`
         dateUpdated
         dateCreated
         format
+        downloadOptions {
+          variant
+          format
+          filename
+          uri
+        }
         columns {
           name
           tags {
