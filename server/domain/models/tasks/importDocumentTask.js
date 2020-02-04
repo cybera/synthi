@@ -1,5 +1,6 @@
 import Base from '../base'
-import DefaultQueue from '../../../lib/queue'
+import runTask from '../../../k8s/k8s'
+import Storage from '../../../storage'
 
 import ImportTask from './importTask'
 import logger from '../../../config/winston';
@@ -18,10 +19,16 @@ export default class ImportDocumentTask extends ImportTask {
   async run() {
     const dataset = await this.dataset();
 
-    await DefaultQueue.sendToTikaWorker({
+    const paths = {
+      original: Storage.createTempUrl('datasets', dataset.paths.original, 'GET'),
+      imported: Storage.createTempUrl('datasets', dataset.paths.imported, 'PUT'),
+    }
+
+    await runTask({
       task: this.type,
       taskid: this.uuid,
-      paths: dataset.paths,
+      token: this.token,
+      paths
     })
   }
 }

@@ -7,7 +7,7 @@ RUN apt-get update && \
                 toml
 ADD build/wait-for-it.sh /
 WORKDIR /usr/src/app
-CMD [ "/wait-for-it.sh", "-t", "60", "queue:5672", "--", "./main.py"]
+CMD ["/usr/src/app/main.py"]
 
 FROM base as python-worker
 RUN pip install neo4j-driver \
