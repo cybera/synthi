@@ -4,6 +4,7 @@
   "description": "server for adi",
   "main": "main.js",
   "dependencies": {
+    "@kubernetes/client-node": "^0.11.0",
     "@types/bcrypt": "^3.0.0",
     "@types/config": "0.0.34",
     "@types/connect-redis": "0.0.11",
