@@ -16,13 +16,9 @@ tempUrlKey = "your-swift-temp-url-key"
 datasets = "adi_datasets"
 scripts = "adi_scripts"
 
-[storage.legacy]
-
-dataRoot = "/mnt/data"
-
 [storage]
 
-# Can be "object" or "legacy"
+# Can be "object"
 type = "object"
 
 [neo4j]

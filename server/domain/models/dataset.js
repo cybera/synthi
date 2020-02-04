@@ -139,10 +139,6 @@ class Dataset extends Base {
     return this.relatedOne('<-[:OUTPUT]-', 'Transformation')
   }
 
-  fullPath() {
-    return fullDatasetPath(this.path)
-  }
-
   readStream(type = 'imported') {
     logger.info(`Reading ${this.paths[type]}`)
     return Storage.createReadStream('datasets', this.paths[type])
