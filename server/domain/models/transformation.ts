@@ -1,7 +1,6 @@
 import shortid from 'shortid'
 import waitFor from 'p-wait-for'
 
-import { fullScriptPath } from '../../lib/util'
 import { memberOfOwnerOrg } from '../util'
 import Storage from '../../storage'
 import Base, { ModelPromise } from './base'
@@ -40,10 +39,6 @@ class Transformation extends Base {
     }
 
     return transformation as InstanceType<T>
-  }
-
-  fullPath(): string {
-    return fullScriptPath(this.script)
   }
 
   async realScript(): Promise<string> {
