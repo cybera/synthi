@@ -68,7 +68,7 @@ class DatasetCSV extends Dataset {
     }
   }
 
-  downloadName() {
+  downloadName(variant) {
     return `${this.name}.csv`
   }
 

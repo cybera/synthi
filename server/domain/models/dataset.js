@@ -150,7 +150,7 @@ class Dataset extends Base {
 
   async download(req, res, type = 'imported') {
     if (await this.canAccess(req.user)) {
-      res.attachment(this.downloadName())
+      res.attachment(this.downloadName(type))
 
       const lastPrepTask = this.computed ? (await this.runTransformation(req.user)) : undefined
 
@@ -436,6 +436,17 @@ class Dataset extends Base {
     return this.__format
   }
 
+  get originalFormat() {
+    if (!this.originalFilename) return null
+
+    let ext = pathlib.extname(this.originalFilename)
+    if (ext.startsWith('.')) {
+      ext = ext.substr(1)
+    }
+
+    return ext
+  }
+
   async registerTransformation(inputs, outputs) {
     if (outputs.length > 0) {
       throw new Error('Specifying outputs other than the original dataset not supported')
@@ -503,8 +514,32 @@ class Dataset extends Base {
     return []
   }
 
-  downloadName() {
+  downloadName(variant) {
     return `${this.originalFilename}`
+  }
+
+  downloadUri(variant) {
+    return `/dataset/${this.uuid}?type=${variant}`
+  }
+
+  downloadOptions() {
+    const options = [{
+      variant: 'imported',
+      format: this.format,
+      filename: this.downloadName('imported'),
+      uri: this.downloadUri('imported'),
+    }]
+
+    if (!this.computed) {
+      options.push({
+        variant: 'original',
+        format: this.originalFormat,
+        filename: this.downloadName('original'),
+        uri: this.downloadUri('original'),
+      })
+    }
+
+    return options
   }
 
   debugSummary() {

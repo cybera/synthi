@@ -124,6 +124,13 @@ export const typeDefs = gql`
     id: Int
   }
 
+  type DownloadFormat {
+    variant: String,
+    format: String,
+    filename: String,
+    uri: String
+  }
+
   type Dataset {
     id: Int
     type: DatasetType!
@@ -146,6 +153,7 @@ export const typeDefs = gql`
     dateCreated: Date
     dateUpdated: Date
     format: String
+    downloadOptions: [DownloadFormat]
     description: String
     ext_contributor: String
     ext_contact: String

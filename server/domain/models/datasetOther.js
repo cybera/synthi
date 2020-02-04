@@ -31,9 +31,13 @@ class DatasetOther extends Dataset {
     super.upload({ stream, filename, mimetype })
   }
 
-  downloadName() {
-    const extension = pathlib.extname(this.originalFilename || '')
-    return `${this.name}${extension}`
+  downloadName(variant) {
+    return `${this.name}.${this.format}`
+  }
+
+  downloadOptions() {
+    const options = super.downloadOptions()
+    return options.filter(opt => opt.variant !== 'imported')
   }
 
   async deleteStorage() {
