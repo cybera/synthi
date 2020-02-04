@@ -62,7 +62,7 @@ class DatasetEditor extends React.Component {
         </ToggleVisibility>
 
         <div className={classes.buttonsRight}>
-          {dataset.type !== 'other' && (
+          {(dataset.type !== 'other' && !dataset.computed) && (
             <span className={classes.editorButton}>
               <ImportButton dataset={dataset} />
             </span>
