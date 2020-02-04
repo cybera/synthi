@@ -1,7 +1,8 @@
 import { filter } from 'lodash'
 
 import Base from '../base'
-import DefaultQueue from '../../../lib/queue'
+import Storage from '../../../storage'
+import runTask from '../../../k8s/k8s'
 
 import Task from '../task'
 
@@ -22,10 +23,11 @@ export default class RegisterTask extends Task {
   async run() {
     const transformation = await this.transformation();
 
-    await DefaultQueue.sendToPythonWorker({
+    await runTask({
       task: 'register_transformation',
       taskid: this.uuid,
-      transformationScript: transformation.script
+      token: this.token,
+      transformationScript: Storage.createTempUrl('scripts', transformation.script, 'GET')
     })
   }
 
