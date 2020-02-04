@@ -33,3 +33,11 @@ password = "password"
 [server]
 
 secret = "secret-token-123456"
+baseUrl = "http://192.168.122.1:3000"
+
+[k8s.images]
+
+import_csv = "cybera/adi-python-worker"
+transform = "cybera/adi-python-worker"
+register_transformation = "cybera/adi-python-worker"
+import_document = "cybera/adi-tika-worker"
