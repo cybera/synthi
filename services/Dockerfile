@@ -17,7 +17,7 @@ ADD python-worker ./
 ADD common ./common
 
 FROM base as tika-worker
-RUN apt-get install default-jre tesseract-ocr -y
+RUN apt-get update && apt-get install default-jre tesseract-ocr -y
 RUN pip install python-magic
 <<<<<<< HEAD
 <<<<<<< HEAD
