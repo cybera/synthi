@@ -29,7 +29,7 @@ const DatasetUploadButton = (props) => {
       awaitRefetchQueries
     >
       {(uploadFileMutation, { loading }) => {
-        const importing = dataset.importTask !== null && dataset.importTask.state !== 'done'
+        const importing = Boolean(dataset.importTask) && dataset.importTask.state !== 'done'
         let buttonText = 'Upload'
         if (loading) {
           buttonText = `Uploading ${type}...`
