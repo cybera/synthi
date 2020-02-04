@@ -138,7 +138,7 @@ const MainFooter = ({ dataset }) => {
   }
 
   return (
-    <Grid container item direction="row" spacing={2} xs={12} justify="space-between">
+    <Grid container item direction="row" spacing={2} xs={12} justify="space-between" style={{ flexBasis: 'inherit' }}>
       <Grid item xs={10} sm={2}>
         <DateSnippet label="Created on" timestamp={dateCreated} />
       </Grid>
