@@ -39,8 +39,11 @@ class DocumentDataset extends Dataset {
     await task.run()
   }
 
-  downloadName() {
-    const extension = pathlib.extname(this.originalFilename || '')
+  downloadName(variant) {
+    let extension = pathlib.extname(this.originalFilename || '')
+    if (variant === 'imported') {
+      extension = '.txt'
+    }
     return `${this.name}${extension}`
   }
 
