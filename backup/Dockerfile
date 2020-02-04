@@ -1,9 +1,8 @@
 FROM python:3
 
 WORKDIR /usr/src/app
-
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY REQUIREMENTS.TXT ./
+RUN pip install --no-cache-dir -r REQUIREMENTS.TXT
 
 COPY . .
 

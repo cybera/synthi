@@ -1,0 +1,2 @@
+0 * * * * bin/neo4j-admin backup --backup-dir=/backup --pagecache=4G --name=neo4j_$NOW.db-backup
+

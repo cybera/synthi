@@ -1,5 +1,16 @@
 version: '3.4'
 services:
+  backups:
+    build: ./backup
+    image: cybera/backups:${TAG}
+    volumes:
+      - backup:/backup
+    environment:
+      BACKUP_DIR: /backup
+      SWIFT_CONTAINER: "container"
+      DB_SERVER: "localhost"
+      DB_USER: "neo4j"
+      DB_PASSWORD: "password"
   neo4j:
     build: ./neo4j
     image: cybera/adi-neo4j:${TAG}
@@ -8,9 +19,11 @@ services:
       - "7687:7687"
     volumes:
       - neo4j_data:/data
+      - backup:/backup
     networks:
       - default
     environment:
+      NOW: date +"%m_%d_%Y"
       NEO4J_AUTH: neo4j/password
       NEO4J_dbms_memory_heap_maxSize: 2048
       NEO4J_dbms_memory_pagecache_size: 1048576
@@ -107,3 +120,4 @@ volumes:
   client_node_modules:
   manual_node_modules:
   manual_gitbook_comp:
+  backup:

@@ -2,18 +2,8 @@ import logging
 from os import walk, environ
 import logging.handlers
 from time import sleep
-
-
-class OneLineExceptionFormatter(logging.Formatter):
-    def formatException(self, exc_info):
-        result = super().formatException(exc_info)
-        return repr(result)
-
-    def format(self, record):
-        result = super().format(record)
-        if record.exc_text:
-            result = result.replace("\n", "")
-        return result
+import os.path
+from os import path
 
 
 adi_backup = logging.getLogger('ADIBackup')
@@ -128,5 +118,9 @@ def upload():
 
 while True:
     adi_backup.debug("Still Alive")
+    if path.exists("/backup"):
+        adi_backup.info(os.listdir("/backup"))
+    else:
+        adi_backup.info("Backup folder does not exist")
     sleep(60)
 
