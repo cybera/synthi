@@ -32,7 +32,6 @@ import logger from './config/winston'
 // registered without having to directly import them in places where that could cause
 // dependency cycles.
 import { ModelFactory } from './domain/models'
-import DefaultQueue from './lib/queue'
 import { NonAsyncRedisClient } from './lib/redisClient'
 import User from './domain/models/user'
 import { checkConfig } from './lib/startup-checks'
@@ -278,8 +277,6 @@ const main = async () => {
     logger.info(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
   })
 
-  DefaultQueue.start()
-
   // TODO: Somehow SIGTERM is being ignored, this is a hack to make it
   // trigger onExit()
   process.on('SIGTERM', () => {
@@ -291,7 +288,6 @@ const main = async () => {
   onExit(() => {
     logger.info('Shutting down...')
     server.close()
-    DefaultQueue.close()
   }, { alwaysLast: true })
 }
 

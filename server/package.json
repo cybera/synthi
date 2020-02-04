@@ -16,8 +16,6 @@
     "@types/passport-strategy": "^0.2.35",
     "@types/shortid": "0.0.29",
     "@types/signal-exit": "^3.0.0",
-    "amqp-connection-manager": "^2.3.0",
-    "amqplib": "^0.5.2",
     "apollo-server-express": "^2.9.3",
     "async-redis": "^1.1.7",
     "bcrypt": "^3.0.2",
