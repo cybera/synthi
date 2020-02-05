@@ -24,11 +24,11 @@ class DatasetOther extends Dataset {
     }
   }
 
-  upload({ stream, filename, mimetype }) {
+  async upload({ stream, filename, mimetype }) {
     const extension = pathlib.extname(filename)
     this.paths.original = `${this.uuid}/original${extension}`
 
-    super.upload({ stream, filename, mimetype })
+    await super.upload({ stream, filename, mimetype })
   }
 
   downloadName(variant) {
