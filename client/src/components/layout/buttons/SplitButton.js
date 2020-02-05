@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types'
-import { PropTypes as MUIPropTypes } from '@material-ui/core/'
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -121,8 +120,8 @@ SplitButton.propTypes = {
   })).isRequired,
   handleClick: PropTypes.func,
   size: PropTypes.oneOf(['small', 'medium', 'large']),
-  color: MUIPropTypes.color,
-  className: MUIPropTypes.className,
+  color: PropTypes.oneOf(['inherit', 'primary', 'secondary', 'default']),
+  className: PropTypes.string,
   downloads: PropTypes.bool,
   renderContent: PropTypes.func.isRequired,
 }
@@ -131,6 +130,6 @@ SplitButton.defaultProps = {
   size: 'medium',
   handleClick: undefined,
   color: 'default',
-  className: null,
+  className: undefined,
   downloads: false,
 }
