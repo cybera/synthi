@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
@@ -21,6 +21,7 @@ const uploadDatasetGQL = gql`
 
 const DatasetUploadButton = (props) => {
   const { dataset, type } = props
+  const [uploadingDetail, setUploadingDetail] = useState('file')
 
   return (
     <Mutation
@@ -32,7 +33,7 @@ const DatasetUploadButton = (props) => {
         const importing = Boolean(dataset.importTask) && dataset.importTask.state !== 'done'
         let buttonText = 'Upload'
         if (loading) {
-          buttonText = `Uploading ${type}...`
+          buttonText = `Uploading ${uploadingDetail}...`
         } else if (importing) {
           buttonText = `Processing ${type}...`
         }
@@ -40,9 +41,12 @@ const DatasetUploadButton = (props) => {
         return (
           <UploadFile
             uploadTypes={[]}
-            handleFileChange={(file) => uploadFileMutation({
-              variables: { uuid: dataset.uuid, file }
-            })}
+            handleFileChange={(file) => {
+              setUploadingDetail(file.name)
+              uploadFileMutation({
+                variables: { uuid: dataset.uuid, file }
+              })
+            }}
             text={buttonText}
             loading={loading || importing}
           />
