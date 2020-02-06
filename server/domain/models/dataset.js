@@ -17,6 +17,36 @@ import { memberOfOwnerOrg } from '../util'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
+export const TOPICS = [
+  'Aboriginal Peoples',
+  'Agriculture',
+  'Arts, Culture and History',
+  'Business and Industry',
+  'Economy and Finance',
+  'Education - Adult and Continuing',
+  'Education - Early Childhood to Grade 12',
+  'Education - Post-Secondary and Skills Training',
+  'Employment and Labour',
+  'Energy and Natural Resources',
+  'Environment',
+  'Families and Children',
+  'Government',
+  'Health and Wellness',
+  'Housing and Utilities',
+  'Immigration and Migration',
+  'Interprovincial and International Affairs',
+  'Laws and Justice',
+  'Persons with Disabilities',
+  'Population and Demography',
+  'Roads, Driving and Transport',
+  'Safety and Emergency Services',
+  'Science, Technology and Innovation',
+  'Seniors',
+  'Society and Communities',
+  'Sports and Recreation',
+  'Tourism & Parks'
+]
+
 class Dataset extends Base {
   // Given a particular user and name reference for a dataset,
   // get an accessible dataset following rules for name resolution
@@ -80,6 +110,25 @@ class Dataset extends Base {
     super(node)
     this.paths = {
     }
+
+  }
+
+  beforeSave() {
+    if (this.topic) {
+      this.ext_topic.forEach((topic) => {
+        if (!TOPICS.includes(topic)) {
+          throw new Error(`${topic} is not a valid topic`)
+        }
+      })
+    }
+
+    if (!this.dateCreated) this.dateCreated = new Date()
+    if (!this.dateAdded) this.dateAdded = new Date()
+    if (!this.dateUpdated) this.dateUpdated = new Date()
+
+    if (!this.format) this.format = 'csv'
+
+    return super.beforeSave()
   }
 
   async owner() {
@@ -95,13 +144,13 @@ class Dataset extends Base {
   }
 
   readStream(type = 'imported') {
-    logger.info(`Reading ${this.paths.imported}`)
+    logger.info(`Reading ${this.paths[type]}`)
     return Storage.createReadStream('datasets', this.paths[type])
   }
 
   async download(req, res, type = 'imported') {
     if (await this.canAccess(req.user)) {
-      res.attachment(this.downloadName())
+      res.attachment(this.downloadName(type))
 
       const lastPrepTask = this.computed ? (await this.runTransformation(req.user)) : undefined
 
@@ -138,7 +187,7 @@ class Dataset extends Base {
       throw new Error('Name must be unique')
     }
 
-    super.save()
+    await super.save()
   }
 
   async isUnique() {
@@ -214,21 +263,24 @@ class Dataset extends Base {
       this.mimetype = mimetype
       this.bytes = bytes
       logger.debug('Saving upload info')
+      this.setFormatFromFilename(filename)
+
       await this.save()
       logger.debug('Triggering import...')
       await this.import()
-      // figure out and store the default format
-      const metadata = await this.metadata()
-      let ext = pathlib.extname(filename)
-      if (ext.startsWith('.')) {
-        ext = ext.substr(1)
-      }
-      metadata.format = ext
-      await metadata.save()
     } catch (e) {
       // TODO: What should we do here?
       logger.error(`Error in upload resolver: ${e.message}`)
     }
+  }
+
+  setFormatFromFilename(filename) {
+    // figure out and store the default format
+    let ext = pathlib.extname(filename)
+    if (ext.startsWith('.')) {
+      ext = ext.substr(1)
+    }
+    this.format = ext
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
@@ -350,32 +402,49 @@ class Dataset extends Base {
     return transformation
   }
 
-  async metadata() {
-    const DatasetMetadata = Base.ModelFactory.getClass('DatasetMetadata')
-
-    let datasetMetadata = await this.relatedOne('-[:HAS_METADATA]->', 'DatasetMetadata')
-    if (!datasetMetadata) {
-      const query = `
-        MATCH (dataset:Dataset { uuid: $uuid })
-        MERGE (dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)
-        RETURN metadata
-      `
-      const results = await safeQuery(query, this)
-      // Have to re-get after the transaction to ensure a proper uuid
-      datasetMetadata = DatasetMetadata.get(results[0].metadata.identity)
-    }
-
-    return datasetMetadata
-  }
-
   async handleUpdate(data) {
     const { format, bytes } = data
     this.bytes = bytes
+    this.format = format
     await this.save()
+  }
 
-    const metadata = await this.metadata()
-    metadata.format = format
-    await metadata.save()
+  // Ideally .type would be a derived value only, but that creates some complications
+  // with how we determine different subclasses based on .type coming directly from
+  // the database. Instead of adding another framework-level layer of indirection,
+  // allowing us to consider computed properties as well, without instantiating an actual
+  // model object (see modelFactory's deriveClass), this deals with the highly coupled
+  // nature of format ('pdf', 'doc', 'csv', etc.) and dataset type by intercepting the
+  // setting of format and setting type as well. If we get more situations like this
+  // we should reconsider that extra layer of indirection or whether or not dividing
+  // dataset subclasses these way is the right approach.
+  set format(value) {
+    this.__format = value
+    const csvFormats = ['csv']
+    const documentFormats = ['doc', 'docx', 'pdf', 'txt']
+
+    if (csvFormats.includes(this.__format)) {
+      this.type = 'csv'
+    } else if (documentFormats.includes(this.__format)) {
+      this.type = 'document'
+    } else {
+      this.type = 'other'
+    }
+  }
+
+  get format() {
+    return this.__format
+  }
+
+  get originalFormat() {
+    if (!this.originalFilename) return null
+
+    let ext = pathlib.extname(this.originalFilename)
+    if (ext.startsWith('.')) {
+      ext = ext.substr(1)
+    }
+
+    return ext
   }
 
   async registerTransformation(inputs, outputs) {
@@ -445,8 +514,32 @@ class Dataset extends Base {
     return []
   }
 
-  downloadName() {
+  downloadName(variant) {
     return `${this.originalFilename}`
+  }
+
+  downloadUri(variant) {
+    return `/dataset/${this.uuid}?type=${variant}`
+  }
+
+  downloadOptions() {
+    const options = [{
+      variant: 'imported',
+      format: this.format,
+      filename: this.downloadName('imported'),
+      uri: this.downloadUri('imported'),
+    }]
+
+    if (!this.computed) {
+      options.push({
+        variant: 'original',
+        format: this.originalFormat,
+        filename: this.downloadName('original'),
+        uri: this.downloadUri('original'),
+      })
+    }
+
+    return options
   }
 
   debugSummary() {
@@ -458,17 +551,15 @@ class Dataset extends Base {
     pubsub.publish(DATASET_UPDATED, { datasetGenerated: { uuid: this.uuid, status: 'success', message: '' } });
   }
 
-  // Record a new dateUpdated on the metadata for the current time
+  // Record a new dateUpdated for the current time
   async touch() {
-    const metadata = await this.metadata()
-    metadata.dateUpdated = new Date()
-    await metadata.save()
+    this.dateUpdated = new Date()
+    await this.save()
   }
 
   async updateMetadata(metadata) {
-    const datasetMetadata = await this.metadata()
-    datasetMetadata.update(metadata)
-    await datasetMetadata.save()
+    this.update(metadata)
+    await this.save()
   }
 
   async ownerName() {
@@ -504,7 +595,21 @@ Dataset.saveProperties = [
   'originalFilename',
   'mimetype',
   'published',
-  'bytes'
+  'bytes',
+  'title',
+  'dateAdded',
+  'dateCreated',
+  'dateUpdated',
+  'format',
+  'description',
+  'ext_contributor',
+  'ext_contact',
+  'ext_updates',
+  'ext_updateFrequencyAmount',
+  'ext_updateFrequencyUnit',
+  'ext_source',
+  'ext_identifier',
+  'ext_topic',
 ]
 
 Base.ModelFactory.register(Dataset)

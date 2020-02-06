@@ -24,6 +24,13 @@ query($uuid: String) {
     uuid
     type
     name
+    format
+    downloadOptions {
+      variant
+      format
+      filename
+      uri
+    }
     columns {
       uuid
       name

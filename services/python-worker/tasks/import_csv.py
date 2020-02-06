@@ -48,6 +48,7 @@ def import_csv(params):
   task_status = "success"
   columns = []
   error_log_output = None
+  imported_bytes = 0
 
   with redirect_stderr(error_log):
     try:
@@ -62,6 +63,7 @@ def import_csv(params):
       # CSV files that we can't assume during the import process.
       sample_size = min(df.shape[0], SAMPLE_SIZE)
       storage.write_csv(df, params['paths']['imported'])
+      imported_bytes = storage.bytes(params['paths']['imported'])
       storage.write_csv(df.sample(sample_size), params['paths']['sample'])
       error_log_output = error_log.getvalue().strip()
       error_log.close()
@@ -78,7 +80,9 @@ def import_csv(params):
     "status": task_status,
     "message": task_message,
     "data": {
-      "columns": columns
+      "columns": columns,
+      "format": "csv",
+      "bytes": imported_bytes
     }
   }
   

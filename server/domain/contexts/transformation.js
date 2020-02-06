@@ -110,8 +110,7 @@ export async function listTransformations(orgRef, filter={}, offset=0, limit=10)
   }
 
   const transformations = await query.run(params)
-logger.warn('%o', transformations.map(t => t.name))
-logger.warn('%o < %o + 1: %o', transformations.length, limit, transformations.length < limit + 1)
+
   // Don't return the one extra, but last should be true if we don't get it
   return { transformations: transformations.slice(0, limit), last: transformations.length < limit + 1 }
 }

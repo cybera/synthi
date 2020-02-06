@@ -117,12 +117,13 @@ DateSnippet.propTypes = {
 }
 
 const MainFooter = ({ dataset }) => {
-  const { metadata, bytes, type: datasetType } = dataset
   const {
     dateCreated,
     dateUpdated,
-    format
-  } = metadata
+    format,
+    bytes,
+    type: datasetType
+  } = dataset
 
   let displayType
   switch (datasetType) {
@@ -137,7 +138,7 @@ const MainFooter = ({ dataset }) => {
   }
 
   return (
-    <Grid container item direction="row" spacing={2} xs={12} justify="space-between">
+    <Grid container item direction="row" spacing={2} xs={12} justify="space-between" style={{ flexBasis: 'inherit' }}>
       <Grid item xs={10} sm={2}>
         <DateSnippet label="Created on" timestamp={dateCreated} />
       </Grid>
@@ -180,8 +181,12 @@ const PreviewSection = ({ dataset }) => {
 const DatasetDetail = ({ dataset }) => {
   const classes = useStyles()
   const [setPublished] = useMutation(PUBLISH_DATASET)
-  const { uuid, published, columns } = dataset
-  const { description } = dataset.metadata
+  const {
+    uuid,
+    published,
+    columns,
+    description
+  } = dataset
   const navigation = useContext(NavigationContext)
   const handleDatasetNavigation = () => {
     navigation.selectDataset(uuid)

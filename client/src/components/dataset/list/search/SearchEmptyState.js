@@ -57,7 +57,7 @@ const SearchEmptyState = (props) => {
 SearchEmptyState.propTypes = {
   classes: PropTypes.objectOf(PropTypes.any).isRequired,
   text: PropTypes.string.isRequired,
-  width: PropTypes.oneOfType(PropTypes.string, PropTypes.number)
+  width: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 }
 
 SearchEmptyState.defaultProps = {

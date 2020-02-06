@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 
 import { datasetViewQuery } from '../../../../queries'
 import UploadFile from './UploadFile'
+import { datasetProptype } from '../../../../lib/adiProptypes'
 
 const uploadDatasetGQL = gql`
   mutation UploadDataset($uuid: String!, $file: Upload!) {
@@ -19,35 +20,44 @@ const uploadDatasetGQL = gql`
 `
 
 const DatasetUploadButton = (props) => {
-  const { uuid, type } = props
-
-  let uploadTypes = []
-  if (type === 'csv') {
-    uploadTypes = ['.csv']
-  } else if (type === 'document') {
-    uploadTypes = ['.pdf', '.txt', '.doc', '.docx']
-  }
+  const { dataset, type } = props
+  const [uploadingDetail, setUploadingDetail] = useState('file')
 
   return (
     <Mutation
       mutation={uploadDatasetGQL}
-      refetchQueries={[{ query: datasetViewQuery, variables: { uuid } }]}
+      refetchQueries={[{ query: datasetViewQuery, variables: { uuid: dataset.uuid } }]}
       awaitRefetchQueries
     >
-      {(uploadFileMutation, { loading }) => (
-        <UploadFile
-          uploadTypes={uploadTypes}
-          handleFileChange={file => uploadFileMutation({ variables: { uuid, file } })}
-          text={`Upload ${type}`}
-          loading={loading}
-        />
-      )}
+      {(uploadFileMutation, { loading }) => {
+        const importing = Boolean(dataset.importTask) && dataset.importTask.state !== 'done'
+        let buttonText = 'Upload'
+        if (loading) {
+          buttonText = `Uploading ${uploadingDetail}...`
+        } else if (importing) {
+          buttonText = `Processing ${type}...`
+        }
+
+        return (
+          <UploadFile
+            uploadTypes={[]}
+            handleFileChange={(file) => {
+              setUploadingDetail(file.name)
+              uploadFileMutation({
+                variables: { uuid: dataset.uuid, file }
+              })
+            }}
+            text={buttonText}
+            loading={loading || importing}
+          />
+        )
+      }}
     </Mutation>
   )
 }
 
 DatasetUploadButton.propTypes = {
-  uuid: PropTypes.string.isRequired,
+  dataset: datasetProptype.isRequired,
   type: PropTypes.string
 }
 
