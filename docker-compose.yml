@@ -7,10 +7,7 @@ services:
       - backup:/backup
     environment:
       BACKUP_DIR: /backup
-      SWIFT_CONTAINER: "container"
-      DB_SERVER: "localhost"
-      DB_USER: "neo4j"
-      DB_PASSWORD: "password"
+      SWIFT_CONTAINER: "adi_backup"
   neo4j:
     build: ./neo4j
     image: cybera/adi-neo4j:${TAG}

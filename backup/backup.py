@@ -35,24 +35,6 @@ else:
     # print('The environment variable SWIFT_CONTAINER doesnt exist')
     adi_backup.critical('The environment variable SWIFT_CONTAINER doesnt exist')
 
-if "DB_SERVER" in environ:
-    db_server = environ['DB_SERVER']
-else:
-    # print('The environment variable DB_SERVER doesnt exist')
-    adi_backup.critical('The environment variable DB_SERVER doesnt exist')
-
-if "DB_USER" in environ:
-    db_user = environ['DB_USER']
-else:
-    # print('The environment variable DB_USER doesnt exist')
-    adi_backup.critical('The environment variable DB_USER doesnt exist')
-
-if "DB_PASSWORD" in environ:
-    db_password = environ['DB_PASSWORD']
-else:
-    # print('The environment variable DB_PASSWORD doesnt exist')
-    adi_backup.critical('The environment variable DB_PASSWORD doesnt exist')
-
 
 def getbackup():
     print("Get Backups")

@@ -10,4 +10,3 @@ RUN touch /var/log/cron.log
 RUN /usr/sbin/crond
 ADD ./plugins/* /plugins/
 RUN chown -R neo4j:neo4j /plugins/
-CMD ["/usr/sbin/crond", "-f"]
