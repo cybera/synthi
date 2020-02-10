@@ -28,5 +28,8 @@
 
 * [Using the Python API](sections/PythonAPI.md)
 
+### Transforming Data
+* [Transformations](sections/Transformations.md)
+
 ### Addendum
 * [Limitations](sections/Limitations.md)
