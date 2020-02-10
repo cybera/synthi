@@ -4,6 +4,8 @@ import logging.handlers
 from time import sleep
 import os.path
 from os import path
+import openstack
+import config
 
 
 adi_backup = logging.getLogger('ADIBackup')
@@ -34,6 +36,22 @@ if "SWIFT_CONTAINER" in environ:
 else:
     # print('The environment variable SWIFT_CONTAINER doesnt exist')
     adi_backup.critical('The environment variable SWIFT_CONTAINER doesnt exist')
+
+conn = None
+
+def object_store():
+  global conn
+
+  if not conn:
+    conn = openstack.connect(
+      auth_url=config.storage.object.creds.authUrl,
+      project_name=config.storage.object.creds.tenantName,
+      username=config.storage.object.creds.username,
+      password=config.storage.object.creds.password,
+      region_name=config.storage.object.creds.region
+    )
+
+  return conn.object_store
 
 
 def getbackup():
