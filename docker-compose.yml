@@ -28,7 +28,6 @@ services:
       - ./config/development.toml:/usr/src/app/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
-      - server_node_modules:/usr/src/app/node_modules
     networks:
       - default
     command: npm run devStart
@@ -39,7 +38,6 @@ services:
       - "8888:8888"
     volumes:
       - ./client:/usr/src/app
-      - client_node_modules:/usr/src/app/node_modules
     networks:
       - default
   queue:
@@ -93,7 +91,6 @@ services:
     volumes:
       - ./manual/src:/usr/src/app
       - ./manual/outputs:/usr/src/outputs
-      - manual_node_modules:/usr/src/app/node_modules
       - manual_gitbook_comp:/usr/src/app/_book
     command: gitbook serve
   redis:
@@ -103,7 +100,4 @@ services:
 
 volumes:
   neo4j_data:
-  server_node_modules:
-  client_node_modules:
-  manual_node_modules:
   manual_gitbook_comp:
