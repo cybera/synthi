@@ -87,12 +87,6 @@ pipeline {
       }
     }
 
-    stage('Update test deps') {
-      steps {
-        sh 'bin/update-test-deps'
-      }
-    }
-
     stage('Bring up integration test environment') {
       steps {
         sh 'bin/testenv start'
