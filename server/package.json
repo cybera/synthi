@@ -19,7 +19,7 @@
     "amqplib": "^0.5.2",
     "apollo-server-express": "^2.9.3",
     "async-redis": "^1.1.7",
-    "bcrypt": "^3.0.2",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "config": "^2.0.2",
     "connect-flash": "^0.1.1",
