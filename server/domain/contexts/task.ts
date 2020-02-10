@@ -14,7 +14,7 @@ async function updateTask(message: any): Promise<void> {
   }
 
   // TODO: Invalidate token/check whether task is already complete
-  if (message.token && task.token && message.token === task.token) {
+  if (message.token && task.state !== 'done' && task.token && message.token === task.token) {
     task.done(message)
   } else {
     throw new AuthenticationError('Invalid or missing token')

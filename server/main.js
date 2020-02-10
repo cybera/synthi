@@ -36,6 +36,7 @@ import DefaultQueue from './lib/queue'
 import { NonAsyncRedisClient } from './lib/redisClient'
 import User from './domain/models/user'
 import { checkConfig } from './lib/startup-checks'
+import { updateTask } from './domain/contexts/task'
 
 
 const main = async () => {
@@ -114,6 +115,7 @@ const main = async () => {
   // Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
   // logging in.
   app.use(bodyParser.urlencoded({ extended: true }))
+  app.use(express.json())
 
   const RedisStore = require('connect-redis')(session)
   const sessionMiddleware = session({
@@ -206,6 +208,11 @@ const main = async () => {
     } else {
       res.status(404).send('Not found')
     }
+  })
+
+  app.post('/updateTask', async (req, res) => {
+    updateTask(req.body)
+    res.send('')
   })
 
   const httpServer = http.createServer(app)
