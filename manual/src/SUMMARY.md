@@ -20,5 +20,8 @@
 * [Exporting and Importing Data](sections/ExportingAndImporting.md)
 * [Connections](sections/Connections.md)
 
+### Transforming Data
+* [Transformations](sections/Transformations.md)
+
 ### Addendum
 * [Limitations](sections/Limitations.md)
