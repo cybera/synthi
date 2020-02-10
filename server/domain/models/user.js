@@ -1,7 +1,7 @@
 import { safeQuery } from '../../neo4j/connection'
 import Base from './base'
 
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const crypto = require('crypto')
 
 class User extends Base {

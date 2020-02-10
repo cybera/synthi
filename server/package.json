@@ -6,6 +6,7 @@
   "dependencies": {
     "@kubernetes/client-node": "^0.11.0",
     "@types/bcrypt": "^3.0.0",
+    "@types/bcryptjs": "^2.4.2",
     "@types/config": "0.0.34",
     "@types/connect-redis": "0.0.11",
     "@types/express-session": "^1.15.14",
@@ -18,7 +19,7 @@
     "@types/signal-exit": "^3.0.0",
     "apollo-server-express": "^2.9.3",
     "async-redis": "^1.1.7",
-    "bcrypt": "^3.0.2",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "config": "^2.0.2",
     "connect-flash": "^0.1.1",
