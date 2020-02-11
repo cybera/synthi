@@ -24,7 +24,7 @@ if [[ $action == 'start' ]]; then
   docker-compose run --rm python-worker /usr/src/app/create_org.py shared-test-org
   docker-compose run --rm python-worker /usr/src/app/add_user_to_org.py test shared-test-org
   docker-compose run --rm python-worker /usr/src/app/add_user_to_org.py test2 shared-test-org
-  docker-compose run --rm python-worker /usr/src/app/run_migrations.py
+  docker-compose run --rm server npm run migrate
 elif [[ $action == 'stop' ]]; then
   docker-compose down -v
   docker-compose rm -v
