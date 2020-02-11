@@ -78,6 +78,7 @@
     "typescript": "^3.6.2"
   },
   "scripts": {
+    "migrate": "ts-node tasks/run-migrations.ts",
     "test": "jest",
     "build": "tsc",
     "start": "ts-node main.js",
