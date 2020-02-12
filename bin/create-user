@@ -4,5 +4,22 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 
 USERNAME=$1
+PASSWORD=$2
+APIKEY=$3
 
-docker-compose run python-worker /usr/src/app/create_user.py $USERNAME
+if [[ -z "${USERNAME}" ]]; then
+    echo "Useage: create-user USERNAME <PASSWORD> <APIKEY>"
+    exit -1
+fi
+
+if [[ -z "${PASSWORD}" ]]; then
+    read -s -p "Password: " PASSWORD; echo
+    read -s -p "Confirm Password: " PASSCONFIRM; echo
+
+    if [[ "$PASSWORD" != "$PASSCONFIRM" ]]; then
+        echo "Passwords do not match, exiting"
+        exit -1
+    fi
+fi
+
+docker-compose run server npx ts-node tasks/create-user.ts $USERNAME $PASSWORD $APIKEY
