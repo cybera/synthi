@@ -66,7 +66,7 @@ cd server && npm install
 cd client && npm install
 ```
 
-All source code is bind mounted into its respective container so any local changes will automatically be reflected in the running application without the need to restart containers or rebuild images. However, this does *not* include the `node_modules` directories because some modules have compiled components that need to be built for the correct architecture. Unfortunately that means `npm install` needs to be run locally *and* in the client and/or server containers when dependencies change.
+All source code is bind mounted into its respective container so any local changes will automatically be reflected in the running application without the need to restart containers or rebuild images.
 
 ### Scripts
 
@@ -77,7 +77,6 @@ There are a number of useful helper scripts in the `bin` directory:
 * `create-user <user>` - Creates a user
 * `migrate` - Run the database migrations
 * `shell <service>` - Drops you to a bash shell in the specified service container
-* `update-deps [client|server]` - Runs `npm install` on the client, server or both
 
 ### Endpoints
 
