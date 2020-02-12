@@ -4,10 +4,8 @@ import logging.handlers
 from time import sleep
 import os.path
 from os import path
-import openstack
-import config
 
-
+# Set up logging
 adi_backup = logging.getLogger('ADIBackup')
 adi_backup.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
@@ -37,22 +35,15 @@ else:
     # print('The environment variable SWIFT_CONTAINER doesnt exist')
     adi_backup.critical('The environment variable SWIFT_CONTAINER doesnt exist')
 
-conn = None
 
-def object_store():
-  global conn
-
-  if not conn:
-    conn = openstack.connect(
-      auth_url=config.storage.object.creds.authUrl,
-      project_name=config.storage.object.creds.tenantName,
-      username=config.storage.object.creds.username,
-      password=config.storage.object.creds.password,
-      region_name=config.storage.object.creds.region
-    )
-
-  return conn.object_store
-
+def loadcreds():
+    import toml
+    file = "/config/development.toml"
+    with open(file, 'r') as myfile:
+        data = myfile.read()
+    settings = toml.loads(data)
+    return settings    
+    
 
 def getbackup():
     print("Get Backups")
@@ -60,66 +51,28 @@ def getbackup():
 
 def upload():
     from os.path import join
-    from swiftclient.multithreading import OutputManager
-    from swiftclient.service import SwiftError, SwiftService, SwiftUploadObject
-    _opts = {'object_uu_threads': 20}
-    with SwiftService(options=_opts) as swift, OutputManager() as out_manager:
-        try:
-            objs = []
-            dir_markers = []
-            for (_dir, _ds, _fs) in walk(backup_dir):
-                if not (_ds + _fs):
-                    dir_markers.append(_dir)
-                else:
-                    objs.extend([join(_dir, _f) for _f in _fs])
-            objs = [
-                SwiftUploadObject(
-                    o, object_name=o.replace(
-                        backup_dir, 'my-%s-objects' % backup_dir, 1
-                    )
-                ) for o in objs
-            ]
-
-            dir_markers = [
-                SwiftUploadObject(
-                    None, object_name=d.replace(
-                        backup_dir, 'my-%s-objects' % backup_dir, 1
-                    ), options={'dir_marker': True}
-                ) for d in dir_markers
-            ]
-
-            for r in swift.upload(container, objs + dir_markers):
-                if r['success']:
-                    if 'object' in r:
-                        swift_error.debug(r['object'])
-                    elif 'for_object' in r:
-                        swift_error.debug(
-                            '%s segment %s' % (r['for_object'],
-                                               r['segment_index'])
-                            )
-                else:
-                    error = r['error']
-                    if r['action'] == "create_container":
-                        swift_error.critical(
-                            'Warning: failed to create container '
-                            "'%s'%s", container, error
-                        )
-                    elif r['action'] == "upload_object":
-                        swift_error.critical(
-                            "Failed to upload object %s to container %s: %s" %
-                            (container, r['object'], error)
-                        )
-                    else:
-                        swift_error.critical("%s" % error)
-
-        except SwiftError as e:
-            swift_error.critical(e.value)
-
+    import swiftclient
+    settings = loadcreds()
+    user = settings['storage']['object']['creds']['username']
+    password = settings['storage']['object']['creds']['password']
+    region = settings['storage']['object']['creds']['region']
+    url = settings['storage']['object']['creds']['authUrl']
+    tenant = settings['storage']['object']['creds']['tenantName']
+    swift_conn = swiftclient.client.Connection(authurl=url, user=user, key=password, tenant_name=tenant, auth_version='2.0', os_options={'region_name': region})
+    toupload = os.listdir("/backup")
+    # adi_backup.info(user, password, region, url, tenant)
+    for folder in toupload:
+        swift_conn.put_object('adi_backup', folder, "/backup/" + folder)
+        adi_backup.info(folder + " is backed up")
+    swift_conn.close() 
 
 while True:
     adi_backup.debug("Still Alive")
     if path.exists("/backup"):
-        adi_backup.info(os.listdir("/backup"))
+        adi_backup.info("Backup Directory contains: " + str(os.listdir("/backup")))
+        
+        loadcreds()
+        upload()
     else:
         adi_backup.info("Backup folder does not exist")
     sleep(60)

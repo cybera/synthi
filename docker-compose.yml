@@ -5,6 +5,7 @@ services:
     image: cybera/backups:${TAG}
     volumes:
       - backup:/backup
+      - ./config/development.toml:/config/development.toml
     environment:
       BACKUP_DIR: /backup
       SWIFT_CONTAINER: "adi_backup"

@@ -8,4 +8,4 @@ setuptools==40.8.0
 six==1.14.0
 urllib3==1.25.8
 python-openstackclient==4.0.0
-config==0.4.2
+toml==0.10.0
