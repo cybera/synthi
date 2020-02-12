@@ -19,11 +19,11 @@ if [[ $action == 'start' ]]; then
     done
   '
 
-  docker-compose run --rm python-worker /usr/src/app/create_user.py test password test-token
-  docker-compose run --rm python-worker /usr/src/app/create_user.py test2 password test-token2
-  docker-compose run --rm python-worker /usr/src/app/create_org.py shared-test-org
-  docker-compose run --rm python-worker /usr/src/app/add_user_to_org.py test shared-test-org
-  docker-compose run --rm python-worker /usr/src/app/add_user_to_org.py test2 shared-test-org
+  docker-compose run server npx ts-node tasks/create-user.ts test password test-token
+  docker-compose run --rm server npx ts-node tasks/create-user.ts test2 password test-token2
+  docker-compose run --rm server npx ts-node tasks/create-org.ts shared-test-org
+  docker-compose run --rm server npx ts-node tasks/add-user-to-org.ts test shared-test-org
+  docker-compose run --rm server npx ts-node tasks/add-user-to-org.ts test2 shared-test-org
   docker-compose run --rm server npm run migrate
 elif [[ $action == 'stop' ]]; then
   docker-compose down -v
