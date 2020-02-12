@@ -59,12 +59,17 @@ Now you should be able to login and start using the application from http://loca
 
 ### Development
 
-Node.js dependencies need to be installed locally for autocompletion and linting:
+Node.js dependencies need to be installed locally (and you will need to install
+[Node 12](https://nodejs.org/en/) on your machine) for autocompletion and linting:
 
 ```bash
 cd server && npm install
 cd client && npm install
 ```
+
+If for some reason you don't want to install Node on your system, you should be able to get
+away with the fact that the docker images do their own install by default. However, in this
+case you would need to rebuild the affected images every time new packages are installed.
 
 All source code is bind mounted into its respective container so any local changes will automatically be reflected in the running application without the need to restart containers or rebuild images.
 
