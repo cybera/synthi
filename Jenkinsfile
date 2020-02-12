@@ -140,7 +140,7 @@ pipeline {
           }
 
           // Wait for neo4j to be available
-          sh 'docker exec adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) /wait-for-it.sh  -t 45 -h neo4j -p 7474'
+          sh 'docker exec adi_server.1.$(docker service ps adi_server -q --no-trunc | head -n1) ./wait-for-it.sh  -t 45 -h neo4j -p 7474'
 
           sh 'docker exec adi_server.1.$(docker service ps adi_server -q --no-trunc | head -n1) npm run migrate'
         }

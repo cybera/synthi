@@ -5,7 +5,6 @@ RUN apt-get update && \
     pip install pika \
                 openstacksdk \
                 toml
-ADD build/wait-for-it.sh /
 WORKDIR /usr/src/app
 CMD ["/usr/src/app/main.py"]
 
