@@ -4,6 +4,14 @@ import logging.handlers
 from time import sleep
 import os.path
 from os import path
+from os.path import join
+import swiftclient
+from sys import argv
+import toml
+import tarfile
+
+
+argument = argv[1]
 
 # Set up logging
 adi_backup = logging.getLogger('ADIBackup')
@@ -36,44 +44,74 @@ else:
     adi_backup.critical('The environment variable SWIFT_CONTAINER doesnt exist')
 
 
-def loadcreds():
-    import toml
-    file = "/config/development.toml"
-    with open(file, 'r') as myfile:
-        data = myfile.read()
-    settings = toml.loads(data)
-    return settings    
-    
+# Prepare credentials for use
 
-def getbackup():
-    print("Get Backups")
+file = "/config/development.toml"
+with open(file, 'r') as myfile:
+    data = myfile.read()
+settings = toml.loads(data) 
+user = settings['storage']['object']['creds']['username']
+password = settings['storage']['object']['creds']['password']
+region = settings['storage']['object']['creds']['region']
+url = settings['storage']['object']['creds']['authUrl']
+tenant = settings['storage']['object']['creds']['tenantName']
+swift_conn = swiftclient.client.Connection(authurl=url, user=user, key=password, tenant_name=tenant, auth_version='2.0', os_options={'region_name': region})
 
+
+def list():
+    return swift_conn.get_container('adi_backup')[1]
 
 def upload():
-    from os.path import join
-    import swiftclient
-    settings = loadcreds()
-    user = settings['storage']['object']['creds']['username']
-    password = settings['storage']['object']['creds']['password']
-    region = settings['storage']['object']['creds']['region']
-    url = settings['storage']['object']['creds']['authUrl']
-    tenant = settings['storage']['object']['creds']['tenantName']
-    swift_conn = swiftclient.client.Connection(authurl=url, user=user, key=password, tenant_name=tenant, auth_version='2.0', os_options={'region_name': region})
+    if not path.exists("/backup/compressed"):
+        os.mkdir("/backup/compressed")
     toupload = os.listdir("/backup")
-    # adi_backup.info(user, password, region, url, tenant)
     for folder in toupload:
-        swift_conn.put_object('adi_backup', folder, "/backup/" + folder)
-        adi_backup.info(folder + " is backed up")
+        if folder != "torestore" and folder != "compressed":
+            tar = tarfile.TarFile.gzopen("/backup/compressed/" + folder + ".gz", mode="w")
+            tar.add("/backup/" + folder, arcname=folder)
+            tar.close()
+            with open('/backup/compressed/' + folder + '.gz', 'rb') as f:
+                file_data = f.read()
+            
+            swift_conn.put_object('adi_backup', folder + ".gz", file_data)
+            adi_backup.info(folder + " is backed up")
     swift_conn.close() 
 
-while True:
-    adi_backup.debug("Still Alive")
-    if path.exists("/backup"):
-        adi_backup.info("Backup Directory contains: " + str(os.listdir("/backup")))
-        
-        loadcreds()
-        upload()
-    else:
-        adi_backup.info("Backup folder does not exist")
-    sleep(60)
+
+def download(file):
+    if not path.exists("/backup/torestore"):
+        os.mkdir("/backup/torestore")
+
+    getfile = swift_conn.get_object(container='adi_backup', obj=file)
+    with open("/backup/torestore/" + file, 'wb') as f:
+        f.write(getfile[1])
+    return os.listdir("/backup/torestore")
+
+    
+if argument:
+    if argument == "list":
+        for item in list():
+            print(item['name']) 
+    elif argument == "restore":
+        restorefile = argv[2]
+        print(download(restorefile))
+    elif argument == "backup":
+        while True:
+            if path.exists("/backup"):
+                # adi_backup.info("Backup Directory contains: " + str(os.listdir("/backup")))
+                upload()
+            else:
+                adi_backup.info("Backup folder does not exist")
+            sleep(60)
+
+# while True:
+#     adi_backup.debug("Still Alive")
+#     if path.exists("/backup"):
+#         adi_backup.info("Backup Directory contains: " + str(os.listdir("/backup")))
+#         
+#         loadcreds()
+#         upload()
+#     else:
+#         adi_backup.info("Backup folder does not exist")
+#     sleep(60)
 
