@@ -1,3 +1,4 @@
+#! /usr/local/bin/python3
 import logging
 from os import walk, environ
 import logging.handlers
@@ -59,9 +60,18 @@ swift_conn = swiftclient.client.Connection(authurl=url, user=user, key=password,
 
 
 def list():
+    """
+    List backups
+    :returns: A list of the available backup names (.gz files)
+    """
     return swift_conn.get_container('adi_backup')[1]
 
 def upload():
+    """
+    Upload Backups - Finds all backup folders in /backup and compresses each folder, storing it in /compressed, and uploads them to swift.
+    :returns: nothing. It does, however, create a log entry stating what backups were sent.
+    """
+    
     if not path.exists("/backup/compressed"):
         os.mkdir("/backup/compressed")
     toupload = os.listdir("/backup")
@@ -79,12 +89,27 @@ def upload():
 
 
 def download(file):
+    """
+    Download Backup - downloads the .gz file requested and stors it in /backup/torestore/ and decompresses it.
+    Example: ./backup.py restore [filename] 
+    Get the list of files by running ./backup.py list
+    :param file: File to be downloaded
+    :return: List of files in the /backup/torestore folder.
+    """
+    # Ensure the restore folder is available
     if not path.exists("/backup/torestore"):
         os.mkdir("/backup/torestore")
-
+    # Get the backup from Swift
     getfile = swift_conn.get_object(container='adi_backup', obj=file)
     with open("/backup/torestore/" + file, 'wb') as f:
         f.write(getfile[1])
+    # Extract the .gz file to the restore directory
+    os.chdir("/backup/torestore")
+    tar = tarfile.open("/backup/torestore/" + file)
+    tar.extractall()
+    tar.close()
+    # Delete the .gz file
+    os.remove("/backup/torestore/" + file)
     return os.listdir("/backup/torestore")
 
     
@@ -103,15 +128,4 @@ if argument:
             else:
                 adi_backup.info("Backup folder does not exist")
             sleep(60)
-
-# while True:
-#     adi_backup.debug("Still Alive")
-#     if path.exists("/backup"):
-#         adi_backup.info("Backup Directory contains: " + str(os.listdir("/backup")))
-#         
-#         loadcreds()
-#         upload()
-#     else:
-#         adi_backup.info("Backup folder does not exist")
-#     sleep(60)
 
