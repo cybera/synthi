@@ -158,7 +158,7 @@ class Dataset extends Base {
       }
 
       try {
-        await waitFor(downloadReady, { interval: 2000, timeout: 30000 })
+        await waitFor(downloadReady, { interval: 2000, timeout: 100000 })
       } catch (e) {
         logger.error(`Error waiting for download preparation on dataset ${this.debugSummary()}:`)
         logger.error(e)

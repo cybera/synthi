@@ -124,7 +124,7 @@ class Transformation extends Base {
 
   async waitForReady(): Promise<boolean> {
     try {
-      await waitFor(async () => (await this.refresh()).state === 'ready', { interval: 1000, timeout: 30000 })
+      await waitFor(async () => (await this.refresh()).state === 'ready', { interval: 1000, timeout: 100000 })
     } catch (e) {
       return false
     }

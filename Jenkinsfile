@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    node { label 'docker' }
+    node { label 'adi' }
   }
 
    environment {
@@ -74,8 +74,8 @@ pipeline {
 
     stage('Import testing environment configuration') {
       steps {
-        configFileProvider([configFile(fileId: '476375ce-f8fb-497e-b83d-459083303bf5', targetLocation: 'config/testing.toml')]) {
-        }
+        configFileProvider([configFile(fileId: '476375ce-f8fb-497e-b83d-459083303bf5', targetLocation: 'config/testing.toml')]) {}
+        configFileProvider([configFile(fileId: '055ed06d-c0d7-4e78-809e-e4addfb93b60', targetLocation: 'config/kubeconfig')]) {}
       }
     }
 
