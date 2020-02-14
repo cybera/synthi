@@ -5,7 +5,7 @@ description: Learn how to upload a dataset from a CSV file and troubleshoot comm
 # Uploading a Dataset
 
 {% hint style='info' %}
-There are three different methods of adding datasets to an account. This section will cover how to upload a dataset from a file. For information on how to generate a dataset from existing data on your account, visit the **[Computed Datasets](./ComputedDatasets.md)** section.
+There are two different methods of adding datasets to an account. This section will cover how to upload a dataset from a file. For information on how to generate a dataset from existing data on your account, visit the **[Computed Datasets](./ComputedDatasets.md)** section.
 {% endhint %}
 
 To begin, select the green **Add New Dataset** button from the sidebar on the left. ADI will automatically navigate to the new dataset.
