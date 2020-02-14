@@ -20,5 +20,9 @@
 * [Exporting and Importing Data](sections/ExportingAndImporting.md)
 * [Connections](sections/Connections.md)
 
+### Communicating with ADI
+
+* [Using the Python API](sections/PythonAPI.md)
+
 ### Addendum
 * [Limitations](sections/Limitations.md)
