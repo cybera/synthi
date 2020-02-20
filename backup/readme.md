@@ -8,9 +8,12 @@ swift post adi_backup
 ```
 * Create a cron job on the Docker host to run the backups hourly on the Neo4j container:
 ```
+# First, get the name of the backups container:
+docker ps --filter "name=backups" --format "{{.Names}}"
+# Then add it to the crontab entry:
 crontab -e
 # add this to the bottom of your crontab 
-0 * * * * docker exec adi_neo4j_1 /var/lib/neo4j/bin/neo4j-admin backup --backup-dir=/backup --pagecache=4G --name=neo4j_$(date +%m_%d_%Y).db-backup
+0 * * * * docker exec [backup Container] /var/lib/neo4j/bin/neo4j-admin backup --backup-dir=/backup --pagecache=4G --name=neo4j_$(date +%m_%d_%Y).db-backup
 # Then save and quit vi
 ```
 ** TODO: get container name from Docker in case it changes **
