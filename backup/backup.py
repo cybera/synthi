@@ -11,9 +11,9 @@ from sys import argv
 import toml
 import tarfile
 
-
+swift_backup = "adi_backup"
 argument = argv[1]
-
+backup_folder = "/backup"
 # Set up logging
 adi_backup = logging.getLogger('ADIBackup')
 adi_backup.setLevel(logging.DEBUG)
@@ -64,27 +64,27 @@ def list():
     List backups
     :returns: A list of the available backup names (.gz files)
     """
-    return swift_conn.get_container('adi_backup')[1]
+    return swift_conn.get_container(swift_backup)[1]
 
 def upload():
     """
     Upload Backups - Finds all backup folders in /backup and compresses each folder, storing it in /compressed, and uploads them to swift.
     :returns: nothing. It does, however, create a log entry stating what backups were sent.
     """
-    
-    if not path.exists("/backup/compressed"):
-        os.mkdir("/backup/compressed")
-    toupload = os.listdir("/backup")
+    compress_folder = os.path.join(backup_folder, "compressed")
+    if not path.exists(compress_folder):
+        os.mkdir(compress_folder)
+    toupload = os.listdir(backup_folder)
     for folder in toupload:
         if folder != "torestore" and folder != "compressed":
-            tar = tarfile.TarFile.gzopen("/backup/compressed/" + folder + ".gz", mode="w")
-            tar.add("/backup/" + folder, arcname=folder)
+            tar = tarfile.TarFile.gzopen(os.path.join(compress_folder, f"{folder}.gz"), mode="w")
+            tar.add(os.path.join(backup_folder, folder), arcname=folder)
             tar.close()
-            with open('/backup/compressed/' + folder + '.gz', 'rb') as f:
+            with open(os.path.join(compress_folder, f"{folder}.gz"), 'rb') as f:
                 file_data = f.read()
             
-            swift_conn.put_object('adi_backup', folder + ".gz", file_data)
-            adi_backup.info(folder + " is backed up")
+            swift_conn.put_object(swift_backup, f"{folder}.gz", file_data)
+            adi_backup.info(f"{folder} is backed up")
     swift_conn.close() 
 
 
@@ -97,20 +97,21 @@ def download(file):
     :return: List of files in the /backup/torestore folder.
     """
     # Ensure the restore folder is available
-    if not path.exists("/backup/torestore"):
-        os.mkdir("/backup/torestore")
+    restore_folder = os.path.join(backup_folder, "torestore")
+    if not path.exists(restore_folder):
+        os.mkdir(restore_folder)
     # Get the backup from Swift
-    getfile = swift_conn.get_object(container='adi_backup', obj=file)
-    with open("/backup/torestore/" + file, 'wb') as f:
+    getfile = swift_conn.get_object(container=swift_backup, obj=file)
+    with open(os.path.join(restore_folder, file), 'wb') as f:
         f.write(getfile[1])
     # Extract the .gz file to the restore directory
-    os.chdir("/backup/torestore")
-    tar = tarfile.open("/backup/torestore/" + file)
+    os.chdir(restore_folder)
+    tar = tarfile.open(os.path.join(restore_folder, file))
     tar.extractall()
     tar.close()
     # Delete the .gz file
-    os.remove("/backup/torestore/" + file)
-    return os.listdir("/backup/torestore")
+    os.remove(os.path.join(restore_folder, file))
+    return os.listdir(restore_folder)
 
     
 if argument:
@@ -122,10 +123,10 @@ if argument:
         print(download(restorefile))
     elif argument == "backup":
         while True:
-            if path.exists("/backup"):
-                # adi_backup.info("Backup Directory contains: " + str(os.listdir("/backup")))
+            if path.exists(backup_folder):
+                # adi_backup.info("Backup Directory contains: " + str(os.listdir(backup_folder)))
                 upload()
             else:
-                adi_backup.info("Backup folder does not exist")
+                adi_backup.info("Backup folder not mounted in container, please check your configuration")
             sleep(60)
 
