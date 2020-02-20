@@ -21,20 +21,64 @@
 
 ### Setup
 
+#### Kubernetes
+
+##### macOS
+
+On macOS, we recommend using the standard [Docker Desktop for Mac](https://download.docker.com/mac/stable/Docker.dmg) application. You will need to explicitly enable Kubernetes in **Preferences...**.
+
+![macos-kubernetes-enable](docs/images/macos-kubernetes-enable.png)
+
+It may take a while to restart with kubernetes, so it's a good time for a coffee break. Once enabled, your status bar dropdown should look like this.
+
+![macos-kubernetes-enabled](docs/images/macos-kubernetes-enabled.png)
+
+Once this is setup, you should find a new directory with a config file in your account: **~/.kube/config**. You'll want to copy this into your local ADI project config directory as 'kubeconfig':
+
+```bash
+# Assuming you're in the root project directory
+cp ~/.kube/config ./config/kubeconfig
+```
+
+#### Application configuration
+
 To create the initial configuration, copy the example config:
 
 ```bash
 cp config/development.toml.example config/development.toml
 ```
 
-Use your OpenStack credentials to populate the values in `[storage.object.creds]`.
+Make sure to read the comments in this file. In many cases, you can just use the defaults
+for development, but depending on your operating system and certain settings that don't have
+a reasonable default, you'll have to follow the instructions given there.
 
-Now source your OpenStack credentials and create the Swift containers:
+Use your OpenStack credentials to populate the values in `[storage.object.creds]`. Note that,
+for tempurls to work properly, you'll need to set `tenantId` *in addition to* `tenantName`, even
+though, for basic swift usage, one or the other is usually sufficient.
+
+#### OpenStack project
+
+Source your OpenStack credentials and create the Swift containers:
 
 ```bash
 swift post adi_datasets
 swift post adi_scripts
 ```
+
+If multiple people are using the same project and running their own ADI instances, you'll
+need to come up with unique names for your set of the above containers. Whatever containers
+you create here need to be referenced under the appropriate settings (for datasets and for
+scripts) in your *development.toml* file.
+
+For tempurls to work, you'll also need to set a secret key. This can be pretty much anything
+you want. It's used to actually sign the tempurl access tokens, so you'll want to make sure
+it's long and random enough that it can't easily be guessed.
+
+```bash
+swift post -m "Temp-URL-Key:your_secret_key_here"
+```
+
+#### Building application Docker images
 
 Now build the Docker images and launch the application:
 
@@ -43,11 +87,15 @@ docker-compose build
 docker-compose up -d
 ```
 
+#### Migrations
+
 After that's done, run the database migrations:
 
 ```bash
 bin/migrate
 ```
+
+#### Creating users
 
 Finally, create the first user:
 

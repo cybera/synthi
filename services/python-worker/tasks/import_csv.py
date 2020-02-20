@@ -3,13 +3,13 @@
 import os, sys, json, re
 
 import pandas as pd
+import requests
 
 # get around sibling import problem
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(script_dir,'..'))
 
-from utils import get_status_channel, parse_params
-status_channel = get_status_channel()
+from utils import parse_params
 from lib import data_import
 
 import common.storage as storage
@@ -48,6 +48,7 @@ def import_csv(params):
   task_status = "success"
   columns = []
   error_log_output = None
+  imported_bytes = 0
 
   with redirect_stderr(error_log):
     try:
@@ -61,7 +62,7 @@ def import_csv(params):
       # anything reading this data, as it can assume a single way of storing
       # CSV files that we can't assume during the import process.
       sample_size = min(df.shape[0], SAMPLE_SIZE)
-      storage.write_csv(df, params['paths']['imported'])
+      imported_bytes = storage.write_csv(df, params['paths']['imported'])
       storage.write_csv(df.sample(sample_size), params['paths']['sample'])
       error_log_output = error_log.getvalue().strip()
       error_log.close()
@@ -75,18 +76,21 @@ def import_csv(params):
     "type": "task-updated",
     "task": "import_csv",
     "taskid": params["taskid"],
+    "token": params["token"],
     "status": task_status,
     "message": task_message,
     "data": {
-      "columns": columns
+      "columns": columns,
+      "format": "csv",
+      "bytes": imported_bytes
     }
   }
-  
+
   if error_log_output:
     storage.write_raw(error_log_output, os.path.join(os.path.dirname(params['paths']['original']), 'error.log'))
     body['import_errors'] = True
 
-  status_channel.basic_publish(exchange='task-status', routing_key='', body=json.dumps(body))
+  requests.post(params['callback'], json=body)
 
 if __name__ == "__main__":
   params = parse_params()

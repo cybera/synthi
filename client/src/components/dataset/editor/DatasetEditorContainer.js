@@ -9,8 +9,9 @@ import DatasetGenerator from './DatasetGenerator'
 import { ToggleVisibility } from '../../layout'
 import { DownloadButton, UploadButton, ImportButton } from './buttons'
 import { TransformationEditor, SaveTransformationButton } from '../transformation'
+import { datasetProptype } from '../../../lib/adiProptypes'
 
-const styles = theme => ({
+const styles = (theme) => ({
   editorButton: {
     marginRight: theme.spacing(1)
   },
@@ -20,15 +21,6 @@ const styles = theme => ({
 })
 
 class DatasetEditor extends React.Component {
-  static propTypes = {
-    dataset: PropTypes.object,
-    dataExists: PropTypes.bool // eslint-disable-line react/forbid-prop-types
-  }
-
-  static defaultProps = {
-    dataset: null
-  }
-
   constructor() {
     super()
     this.transformationEditor = React.createRef()
@@ -46,7 +38,7 @@ class DatasetEditor extends React.Component {
       <div className={classes.root}>
         <ToggleVisibility visible={!dataset.computed}>
           <span className={classes.editorButton}>
-            <UploadButton uuid={dataset.uuid} type={dataset.type} />
+            <UploadButton dataset={dataset} type={dataset.type} />
           </span>
         </ToggleVisibility>
 
@@ -65,14 +57,16 @@ class DatasetEditor extends React.Component {
 
         <ToggleVisibility visible={dataExists}>
           <span className={classes.editorButton}>
-            <DownloadButton dataset={dataset} />
+            <DownloadButton dataset={dataset} fullText />
           </span>
         </ToggleVisibility>
 
         <div className={classes.buttonsRight}>
-          <span className={classes.editorButton}>
-            <ImportButton dataset={dataset} />
-          </span>
+          {(dataset.type !== 'other' && !dataset.computed) && (
+            <span className={classes.editorButton}>
+              <ImportButton dataset={dataset} />
+            </span>
+          )}
 
           <ToggleVisibility visible={dataset.computed && !virtualTransformation}>
             <span className={classes.editorButton}>
@@ -84,7 +78,8 @@ class DatasetEditor extends React.Component {
             {({ generateDataset }) => dataset.computed && (
               <span>
                 <ADIButton
-                  disabled={dataset.generating || !codeExists || (dataset.inputTransformation.error)}
+                  disabled={dataset.generating || !codeExists
+                            || (dataset.inputTransformation.error)}
                   onClick={() => generateDataset(dataset.uuid)}
                 >
                   Generate!
@@ -97,5 +92,18 @@ class DatasetEditor extends React.Component {
     )
   }
 }
+
+
+DatasetEditor.propTypes = {
+  dataset: datasetProptype,
+  classes: PropTypes.objectOf(PropTypes.any).isRequired,
+  dataExists: PropTypes.bool // eslint-disable-line react/forbid-prop-types
+}
+
+DatasetEditor.defaultProps = {
+  dataset: null,
+  dataExists: false,
+}
+
 
 export default withStyles(styles)(DatasetEditor)

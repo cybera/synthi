@@ -16,13 +16,15 @@ import {
   debugTransformationInputObjs
 } from './util'
 
+import Formats from '../../lib/formats'
+
 import Query from '../../neo4j/query'
 import logger from '../../config/winston'
 
 export async function updateDatasetMetadata(datasetUuid, metadata) {
   const dataset = await Dataset.getByUuid(datasetUuid)
   await dataset.updateMetadata(metadata)
-  return metadata
+  return dataset
 }
 
 export async function processDatasetUpdate(uuid, datasetProps) {
@@ -34,7 +36,7 @@ export async function processDatasetUpdate(uuid, datasetProps) {
   } = datasetProps
 
   // TODO: access control
-  const dataset = await ModelFactory.getByUuid(uuid)
+  let dataset = await ModelFactory.getByUuid(uuid)
 
   if (file) {
     /*
@@ -68,6 +70,16 @@ export async function processDatasetUpdate(uuid, datasetProps) {
       during upload, and larger files once again work.
     */
     const uploadInfo = await file
+    dataset.setFormatFromFilename(uploadInfo.filename)
+    // Setting the format may turn the dataset into a different subclass. While it's really
+    // inefficient to reload from the database, it's probably better than some of the other
+    // weird ideas of dynamically changing classes that I was coming up with. Maybe the
+    // inefficiency will be painful enough to force us to come up with a better way to model
+    // the differences between datasets given how they're now being used.
+    await dataset.save()
+
+    dataset = await ModelFactory.getByUuid(dataset.uuid)
+
     await dataset.upload(uploadInfo)
   }
 
@@ -127,9 +139,6 @@ export async function createDataset(owner, name, type) {
   const org = await findOrganization(owner)
 
   const dataset = await org.createDataset({ name, type: datasetType })
-  // Initialize metadata (this will set some dates to when the dataset is created)
-  const metadata = await dataset.metadata()
-  await metadata.save()
 
   return dataset
 }
@@ -323,3 +332,9 @@ export async function uniqueDefaultDatasetName(organizationRef) {
   const organization = await findOrganization(organizationRef)
   return organization.uniqueDefaultDatasetName()
 }
+
+export const SUPPORTED_FORMATS = [
+  ...Formats.csv,
+  ...Formats.document,
+  ...Formats.other,
+]

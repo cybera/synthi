@@ -5,4 +5,4 @@ PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 
 NAME=$1
 
-docker-compose run python-worker /usr/src/app/create_org.py $NAME
+docker-compose run server npx ts-node tasks/create-org.ts $NAME

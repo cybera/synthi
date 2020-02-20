@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    node { label 'docker' }
+    node { label 'adi' }
   }
 
    environment {
@@ -12,6 +12,7 @@ pipeline {
                 returnStdout: true,
                 script: 'echo -n "$(git log -1 --pretty="%an (%ce)")"'
             )}"""
+     COMPOSE_HTTP_TIMEOUT = 300
    }
 
   stages {
@@ -73,8 +74,8 @@ pipeline {
 
     stage('Import testing environment configuration') {
       steps {
-        configFileProvider([configFile(fileId: '476375ce-f8fb-497e-b83d-459083303bf5', targetLocation: 'config/testing.toml')]) {
-        }
+        configFileProvider([configFile(fileId: '476375ce-f8fb-497e-b83d-459083303bf5', targetLocation: 'config/testing.toml')]) {}
+        configFileProvider([configFile(fileId: '055ed06d-c0d7-4e78-809e-e4addfb93b60', targetLocation: 'config/kubeconfig')]) {}
       }
     }
 
@@ -109,8 +110,8 @@ pipeline {
       steps {
         withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
           sh 'docker push cybera/adi-server:${TAG}'
-          sh 'docker push cybera/adi-python-worker:${TAG}'
-          sh 'docker push cybera/adi-tika-worker:${TAG}'
+          /* sh 'docker push cybera/adi-python-worker:${TAG}' */
+          /* sh 'docker push cybera/adi-tika-worker:${TAG}' */
           sh 'docker push cybera/adi-neo4j:${TAG}'
         }
       }
@@ -129,19 +130,19 @@ pipeline {
           sh 'docker stack deploy --with-registry-auth -c deploy/stack.yml adi'
           sh 'docker service update adi_server --image cybera/adi-server:$TAG --with-registry-auth'
           sh 'docker service update adi_neo4j --image cybera/adi-neo4j:$TAG --with-registry-auth'
-          sh 'docker service update adi_python-worker --image cybera/adi-python-worker:$TAG --with-registry-auth'
-          sh 'docker service update adi_tika-worker --image cybera/adi-tika-worker:$TAG --with-registry-auth'
+          /* sh 'docker service update adi_python-worker --image cybera/adi-python-worker:$TAG --with-registry-auth' */
+          /* sh 'docker service update adi_tika-worker --image cybera/adi-tika-worker:$TAG --with-registry-auth' */
 
           // Wait for container to become available
           retry(10) {
-              sh 'docker exec adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) true'
+              sh 'docker exec adi_server.1.$(docker service ps adi_server -q --no-trunc | head -n1) true'
               sleep 5
           }
 
           // Wait for neo4j to be available
-          sh 'docker exec adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) /wait-for-it.sh  -t 45 -h neo4j -p 7474'
+          sh 'docker exec adi_server.1.$(docker service ps adi_server -q --no-trunc | head -n1) ./wait-for-it.sh  -t 45 -h neo4j -p 7474'
 
-          sh 'docker exec adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) ./run_migrations.py'
+          sh 'docker exec adi_server.1.$(docker service ps adi_server -q --no-trunc | head -n1) npm run migrate'
         }
        }
       }

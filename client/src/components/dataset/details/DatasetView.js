@@ -118,13 +118,22 @@ class DatasetView extends React.Component {
     const dataExists = dataset.columns.length > 0
 
     if (!dataset.computed) {
-      if (dataset.type != 'csv') {
+      // Need to come up with a better check for data existing to account for the possibility of
+      // a dataset without column data
+      if (dataset.type !== 'csv') {
+        const datasetTypeDescription = dataset.type === 'document' ? 'document' : 'dataset'
+
         return (
           <div className={classes.root}>
+            <TaskStatus task={dataset.importTask} />
             <div className={classes.empty}>
               <div className={classes.text}>
                 <Typography variant="h5">
-                  You've uploaded a document that cannot be previewed right now.
+                  You've uploaded a
+                  {' '}
+                  {datasetTypeDescription}
+                  {' '}
+                  that cannot be previewed right now.
                 </Typography>
                 <Typography variant="subtitle1" className={classes.subheader}>
                   ...but you can download it or upload a new one!
@@ -151,11 +160,11 @@ class DatasetView extends React.Component {
                   Add some data to your dataset
                 </Typography>
                 <Typography variant="subtitle1" className={classes.subheader}>
-                  Upload a CSV file containing the underlying data
-                  or generate it from existing datasets.
+                  Upload a file containing the underlying data or generate it from 
+                  existing datasets.
                 </Typography>
               </div>
-              <UploadButton uuid={uuid} type={dataset.type} />
+              <UploadButton dataset={dataset} type={dataset.type} />
               <DatasetComputeModeButton uuid={uuid} />
             </div>
           </div>
@@ -192,7 +201,7 @@ const ConnectedDatasetView = (props) => {
             return (
               <SubscribedWarningBanner
                 classes={classes}
-                uuid={uuid}
+                dataset={data.dataset}
                 error={error}
                 subscribeToDatasetGenerated={(handleStatus) => {
                   return subscribeToMore({

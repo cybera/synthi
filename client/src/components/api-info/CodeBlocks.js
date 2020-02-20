@@ -43,22 +43,20 @@ EOS`
       id
       uuid
       name
-      metadata {
-        title
-        contributor
-        contact
-        dateAdded
-        dateCreated
-        dateUpdated
-        updates
-        updateFrequencyAmount
-        updateFrequencyUnit
-        format
-        description
-        source
-        identifier
-        topic
-      }
+      title
+      dateAdded
+      dateCreated
+      dateUpdated
+      format
+      description
+      ext_contributor
+      ext_contact
+      ext_updates
+      ext_updateFrequencyAmount
+      ext_updateFrequencyUnit
+      ext_source
+      ext_identifier
+      ext_topic
     }
   }"
 }

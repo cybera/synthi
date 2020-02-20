@@ -11,9 +11,14 @@ import config
 # the tasks sent by the server in terms of what storage type to use. Then it
 # wouldn't need to be configured at all.
 
-storage_type = config.storage.type
+try:
+  storage_type = config.storage.type
+except AttributeError:
+  storage_type = "url"
 
 if storage_type == "object":
   from .object import *
 elif storage_type == "legacy":
   from .legacy import *
+elif storage_type == "url":
+  from .url import *
