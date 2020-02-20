@@ -12,6 +12,7 @@
 ### Managing Datasets
 * [Uploading a Dataset](sections/UploadingADataset.md)
 * [Computed Datasets](sections/ComputedDatasets.md)
+* [Transformation Examples](sections/TransformationExamples.md)
 * [Metadata](sections/Metadata.md)
 * [Search](sections/Search.md)
 
