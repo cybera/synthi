@@ -139,10 +139,6 @@ class Dataset extends Base {
     return this.relatedOne('<-[:OUTPUT]-', 'Transformation')
   }
 
-  fullPath() {
-    return fullDatasetPath(this.path)
-  }
-
   readStream(type = 'imported') {
     logger.info(`Reading ${this.paths[type]}`)
     return Storage.createReadStream('datasets', this.paths[type])
@@ -162,7 +158,7 @@ class Dataset extends Base {
       }
 
       try {
-        await waitFor(downloadReady, { interval: 2000, timeout: 30000 })
+        await waitFor(downloadReady, { interval: 2000, timeout: 100000 })
       } catch (e) {
         logger.error(`Error waiting for download preparation on dataset ${this.debugSummary()}:`)
         logger.error(e)

@@ -22,9 +22,10 @@ services:
     build: ./server
     image: cybera/adi-server:${TAG}
     ports:
-      - "3000:3000"
+       - "3000:3000"
     volumes:
       - ./server:/usr/src/app
+      - ./config/kubeconfig:/usr/src/app/config/kubeconfig
       - ./config/development.toml:/usr/src/app/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
@@ -42,10 +43,6 @@ services:
       - client_node_modules:/usr/src/app/node_modules
     networks:
       - default
-  queue:
-    image: rabbitmq:3.7
-    networks:
-      - default
   python-worker:
     build:
       context: ./services
@@ -59,8 +56,7 @@ services:
       - ./config/development.toml:/usr/src/app/common/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
-    depends_on:
-      - queue
+    command: /bin/true
   tika-worker:
     build:
       context: ./services
@@ -74,14 +70,7 @@ services:
       - ./config/development.toml:/usr/src/app/common/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
-    depends_on:
-      - queue
-  tika:
-    image: logicalspark/docker-tikaserver
-    ports:
-      - "9998:9998"
-    networks:
-      - default
+    command: /bin/true
   manual:
     build: ./manual
     image: cybera/adi-manual:${TAG}

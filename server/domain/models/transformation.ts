@@ -1,7 +1,6 @@
 import shortid from 'shortid'
 import waitFor from 'p-wait-for'
 
-import { fullScriptPath } from '../../lib/util'
 import { memberOfOwnerOrg } from '../util'
 import Storage from '../../storage'
 import Base, { ModelPromise } from './base'
@@ -40,10 +39,6 @@ class Transformation extends Base {
     }
 
     return transformation as InstanceType<T>
-  }
-
-  fullPath(): string {
-    return fullScriptPath(this.script)
   }
 
   async realScript(): Promise<string> {
@@ -129,7 +124,7 @@ class Transformation extends Base {
 
   async waitForReady(): Promise<boolean> {
     try {
-      await waitFor(async () => (await this.refresh()).state === 'ready', { interval: 1000, timeout: 30000 })
+      await waitFor(async () => (await this.refresh()).state === 'ready', { interval: 1000, timeout: 100000 })
     } catch (e) {
       return false
     }

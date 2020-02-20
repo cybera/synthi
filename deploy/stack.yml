@@ -25,6 +25,8 @@ services:
     configs:
       - source: production.toml
         target: /usr/src/app/config/production.toml
+      - source: kubeconfig
+        target: /usr/src/app/config/kubeconfig
     volumes:
       - uploads:/mnt/data
       - scripts:/mnt/scripts
@@ -32,34 +34,6 @@ services:
       - default
     environment:
       NODE_ENV: production
-  queue:
-    image: rabbitmq:3.7
-    networks:
-      - default
-  python-worker:
-    image: cybera/adi-python-worker:$TAG
-    configs:
-      - source: production.toml
-        target: /usr/src/app/common/config/development.toml
-    volumes:
-      - uploads:/mnt/data
-      - scripts:/mnt/scripts
-    networks:
-     - default
-    depends_on:
-      - queue
-  tika-worker:
-    image: cybera/adi-tika-worker:$TAG
-    configs:
-      - source: production.toml
-        target: /usr/src/app/common/config/development.toml
-    volumes:
-      - uploads:/mnt/data
-      - scripts:/mnt/scripts
-    networks:
-     - default
-    depends_on:
-      - queue
   redis:
     image: redis:4.0
     networks:
@@ -67,6 +41,8 @@ services:
 
 configs:
   production.toml:
+    external: true
+  kubeconfig:
     external: true
 
 volumes:

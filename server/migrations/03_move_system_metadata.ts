@@ -1,7 +1,8 @@
-# Merge DatasetMetadata properties into Dataset
+import Transaction from 'neo4j-driver/types/v1/transaction'
 
-def migrate(tx):
-  tx.run('''
+// Merge DatasetMetadata properties into Dataset
+export default async function migrate(tx: Transaction): Promise<void> {
+  await tx.run(`
     MATCH (dataset:Dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)
     SET dataset.title = metadata.title
     SET dataset.dateAdded = metadata.dateAdded
@@ -18,11 +19,12 @@ def migrate(tx):
     SET dataset.ext_identifier = metadata.identifier
     SET dataset.ext_topic = metadata.topic
     DETACH DELETE metadata
-  ''')
+  `)
 
-  tx.run('''
+  await tx.run(`
     CALL apoc.index.addAllNodes("DefaultDatasetSearchIndex", {
       Column: ["name"],
       Dataset: ["name", "title", "description", "ext_contributor", "ext_contact", "ext_source", "ext_identifier", "ext_topic"]
       }, { autoUpdate: true })
-  ''')
+  `)
+}

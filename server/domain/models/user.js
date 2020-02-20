@@ -47,7 +47,7 @@ class User extends Base {
     `, { id, apikey })
   }
 
-  canAccess(user, field) {
+  async canAccess(user, field) {
     const protectedFields = ['apikey', 'password']
     if (protectedFields.includes(field)) {
       return user.uuid === this.uuid
