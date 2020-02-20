@@ -10,6 +10,17 @@
 * Logged in to the VPN ([more info](#vpn))
 * Security Groups ([more info](#security))
 
+## Local Machine setup (macOS)
+
+1. `brew install ansible`
+2. Install Docker
+3. [Install Docker Machine](https://github.com/docker/machine/releases/) (not installed by default):
+
+```bash
+curl -L https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine && \
+chmod +x /usr/local/bin/docker-machine
+```
+
 ## Creating a Docker Host
 
 1. Launch an Ubuntu 16.04 instance in RAC in the `Data Science` project ([more info](#instance))
