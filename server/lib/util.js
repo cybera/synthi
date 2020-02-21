@@ -1,27 +1,9 @@
-import pathlib from 'path'
-import fs from 'fs'
 import waitOn from 'wait-on'
-import AMQP from 'amqplib'
 import shortid from 'shortid'
 import csvParse from 'csv-parse'
-import config from 'config'
 
 import Storage from '../storage'
 import logger from '../config/winston'
-
-export const datasetExists = dataset => dataset.path && fs.existsSync(dataset.fullPath())
-
-export const fullDatasetPath = (relPath) => {
-  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
-  const fullPath = pathlib.join(dataDir, 'datasets', relPath || '')
-  return fullPath
-}
-
-export const fullScriptPath = (relPath) => {
-  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
-  const fullPath = pathlib.join(dataDir, 'scripts', relPath || '')
-  return fullPath
-}
 
 export const waitForFile = relPath => new Promise((resolve, reject) => {
   // TODO: This will need to change when using non-local storage

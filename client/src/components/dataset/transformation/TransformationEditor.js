@@ -110,7 +110,7 @@ class TransformationEditor extends React.Component {
     return (
       <div>
         <StyledMUIEditor {...this.props} code={this.state.code} onChange={this.onChange}/>
-        <ToggleVisibility visible={error} key={dataset.uuid}>
+        <ToggleVisibility visible={Boolean(error)} key={dataset.uuid}>
           <div style={{ color: 'red', marginBottom: 10 }}><b>Transformation Code Error:</b> {error}</div>
         </ToggleVisibility>
       </div>

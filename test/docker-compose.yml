@@ -16,19 +16,18 @@ services:
   server:
     build: ../server
     image: cybera/adi-server:latest
+    ports:
+      - "3000:3000"
     volumes:
       - ../server:/usr/src/app
       - ../config/testing.toml:/usr/src/app/config/development.toml
+      - ../config/kubeconfig:/usr/src/app/config/kubeconfig
       - ../data/uploads:/mnt/data
       - ../data/scripts:/mnt/scripts
       - server_node_modules:/usr/src/app/node_modules
     networks:
       - default
     command: npm run devStart
-  queue:
-    image: rabbitmq:3.7
-    networks:
-      - default
   python-worker:
     build:
       context: ../services
@@ -42,8 +41,7 @@ services:
       - ../config/testing.toml:/usr/src/app/common/config/development.toml
       - ../data/uploads:/mnt/data
       - ../data/scripts:/mnt/scripts
-    depends_on:
-      - queue
+    command: /bin/true
   tika-worker:
     build:
       context: ../services
@@ -52,17 +50,12 @@ services:
     networks:
       - default
     volumes:
-      - ../services/tika-worker:/usr/src/app
-      - ../services/common:/usr/src/app/common
-      - ../config/testing.toml:/usr/src/app/common/config/development.toml
-      - ../data/uploads:/mnt/data
-      - ../data/scripts:/mnt/scripts
-    depends_on:
-      - queue
-  tika:
-    image: logicalspark/docker-tikaserver
-    networks:
-      - default
+      - ./services/tika-worker:/usr/src/app
+      - ./services/common:/usr/src/app/common
+      - ./config/development.toml:/usr/src/app/common/config/development.toml
+      - ./data/uploads:/mnt/data
+      - ./data/scripts:/mnt/scripts
+    command: /bin/true
   redis:
     image: redis:4.0
     networks:

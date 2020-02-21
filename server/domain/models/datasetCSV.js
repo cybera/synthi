@@ -10,8 +10,8 @@ class DatasetCSV extends Dataset {
   constructor(node) {
     super(node)
 
-    if (!this.type) {
-      this.type = 'csv'
+    if (!this.format) {
+      this.format = 'csv'
     }
 
     this.paths = {
@@ -57,7 +57,7 @@ class DatasetCSV extends Dataset {
   }
 
   async handleUpdate(data) {
-    super.handleUpdate(data)
+    await super.handleUpdate(data)
 
     const { columns } = data;
 
@@ -68,7 +68,7 @@ class DatasetCSV extends Dataset {
     }
   }
 
-  downloadName() {
+  downloadName(variant) {
     return `${this.name}.csv`
   }
 

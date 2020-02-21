@@ -220,7 +220,7 @@ class Base {
   // and auto insert the reference, or we could make the user spell out the relation
   // in a more explicit way. If we start to need this in more than a few places, we
   // should rethink this solution.
-  async saveRelation(left: Base, relation: string, right = this, relationName: string, relationProps: Indexable): Promise<void> {
+  async saveRelation(left: Base, relation: string, right = this, relationName = '', relationProps = {}): Promise<void> {
     let query = `
       MATCH (right:${right.classLabel()} { uuid: $right.uuid })
       MATCH (left:${left.classLabel()} { uuid: $left.uuid })

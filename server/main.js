@@ -32,10 +32,10 @@ import logger from './config/winston'
 // registered without having to directly import them in places where that could cause
 // dependency cycles.
 import { ModelFactory } from './domain/models'
-import DefaultQueue from './lib/queue'
 import { NonAsyncRedisClient } from './lib/redisClient'
 import User from './domain/models/user'
 import { checkConfig } from './lib/startup-checks'
+import { updateTask } from './domain/contexts/task'
 
 
 const main = async () => {
@@ -114,6 +114,7 @@ const main = async () => {
   // Apollo doesn't need bodyParser anymore, but this seems like it's still needed for
   // logging in.
   app.use(bodyParser.urlencoded({ extended: true }))
+  app.use(express.json())
 
   const RedisStore = require('connect-redis')(session)
   const sessionMiddleware = session({
@@ -208,6 +209,11 @@ const main = async () => {
     }
   })
 
+  app.post('/updateTask', async (req, res) => {
+    updateTask(req.body)
+    res.send('')
+  })
+
   const httpServer = http.createServer(app)
 
   SubscriptionServer.create(
@@ -271,8 +277,6 @@ const main = async () => {
     logger.info(`Subscriptions ready at ws://server:${PORT}${apolloServer.subscriptionsPath}`)
   })
 
-  DefaultQueue.start()
-
   // TODO: Somehow SIGTERM is being ignored, this is a hack to make it
   // trigger onExit()
   process.on('SIGTERM', () => {
@@ -284,7 +288,6 @@ const main = async () => {
   onExit(() => {
     logger.info('Shutting down...')
     server.close()
-    DefaultQueue.close()
   }, { alwaysLast: true })
 }
 

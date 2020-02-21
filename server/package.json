@@ -4,6 +4,7 @@
   "description": "server for adi",
   "main": "main.js",
   "dependencies": {
+    "@kubernetes/client-node": "^0.11.0",
     "@types/bcrypt": "^3.0.0",
     "@types/config": "0.0.34",
     "@types/connect-redis": "0.0.11",
@@ -15,8 +16,6 @@
     "@types/passport-strategy": "^0.2.35",
     "@types/shortid": "0.0.29",
     "@types/signal-exit": "^3.0.0",
-    "amqp-connection-manager": "^2.3.0",
-    "amqplib": "^0.5.2",
     "apollo-server-express": "^2.9.3",
     "async-redis": "^1.1.7",
     "bcrypt": "^3.0.2",
@@ -79,6 +78,7 @@
     "typescript": "^3.6.2"
   },
   "scripts": {
+    "migrate": "ts-node tasks/run-migrations.ts",
     "test": "jest",
     "build": "tsc",
     "start": "ts-node main.js",

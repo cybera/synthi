@@ -1,7 +1,8 @@
 import { AuthenticationError } from 'apollo-server-express'
 
 import Base from '../base'
-import DefaultQueue from '../../../lib/queue'
+import runTask from '../../../k8s/k8s'
+import Storage from '../../../storage'
 
 import { safeQuery } from '../../../neo4j/connection';
 import { canTransform } from '../../util'
@@ -25,7 +26,8 @@ export const datasetStorageMap = async (transformation, user) => {
   const ioNodes = results.map(({ dataset, org, ioEdge }) => ({
     dataset: Base.ModelFactory.derive(dataset),
     org: new Organization(org),
-    alias: ioEdge.type === 'INPUT' ? ioEdge.properties.alias : undefined
+    alias: ioEdge.type === 'INPUT' ? ioEdge.properties.alias : undefined,
+    ioEdge
   }))
 
   // This is probably going to be overly restrictive once we start allowing organizations to
@@ -40,8 +42,14 @@ export const datasetStorageMap = async (transformation, user) => {
   }
 
   const mapping = {}
-  ioNodes.forEach(({ dataset, org, alias }) => {
-    mapping[`${org.name}:${alias || dataset.name}`] = dataset.paths
+  ioNodes.forEach(({ dataset, org, alias, ioEdge }) => {
+    const method = ioEdge.type === 'INPUT' ? 'GET' : 'PUT'
+    const paths = {
+      original: Storage.createTempUrl('datasets', dataset.paths.original, method),
+      imported: Storage.createTempUrl('datasets', dataset.paths.imported, method),
+      sample: Storage.createTempUrl('datasets', dataset.paths.sample, method)
+    }
+    mapping[`${org.name}:${alias || dataset.name}`] = paths
   })
 
   return mapping
@@ -72,19 +80,21 @@ export default class TransformTask extends Task {
     const owner = await outputDataset.owner()
 
     const script = await transformation.realScript()
+    const scriptUrl = Storage.createTempUrl('scripts', script, 'GET')
 
     const taskTransformationInfo = {
       id: transformation.id,
-      script,
+      script: scriptUrl,
       output_name: outputDataset.name,
       owner: owner.id,
     }
 
-    await DefaultQueue.sendToPythonWorker({
+    await runTask({
       task: 'transform',
       // TODO: We really shouldn't need to be passing this in anymore
       ownerName: owner.name,
       taskid: this.uuid,
+      token: this.token,
       state: this.state,
       transformation: taskTransformationInfo,
       storagePaths,
