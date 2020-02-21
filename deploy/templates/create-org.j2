@@ -2,4 +2,4 @@
 
 ORGANIZATION_NAME=$1
 
-docker exec -ti adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) ./create_org.py $ORGANIZATION_NAME
+docker exec -ti adi_server.1.$(docker service ps adi_server -q --no-trunc | head -n1) npx ts-node tasks/create-org.ts $ORGANIZATION_NAME

@@ -3,4 +3,4 @@
 USER_NAME=$1
 ORGANIZATION_NAME=$2
 
-docker exec -ti adi_python-worker.1.$(docker service ps adi_python-worker -q --no-trunc | head -n1) ./add_user_to_org.py $USER_NAME $ORGANIZATION_NAME
+docker exec -ti adi_server.1.$(docker service ps adi_server -q --no-trunc | head -n1) npx ts-node tasks/add-user-to-org.ts $USER_NAME $ORGANIZATION_NAME
