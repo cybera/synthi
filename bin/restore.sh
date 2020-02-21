@@ -1,6 +1,5 @@
 #!/bin/bash
-# docker exec -it adi_backups_1 ./backup.py list
-clear
+set -eo pipefail
 PS3='Backup Container: '
 echo "Please select the container used to run backups (ctl-d to exit)"
 select backup_cont in $(docker ps --format "{{.Names}}")

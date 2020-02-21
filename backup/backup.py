@@ -50,7 +50,7 @@ else:
 file = "/config/development.toml"
 with open(file, 'r') as myfile:
     data = myfile.read()
-settings = toml.loads(data) 
+settings = toml.loads(data)
 user = settings['storage']['object']['creds']['username']
 password = settings['storage']['object']['creds']['password']
 region = settings['storage']['object']['creds']['region']
@@ -77,21 +77,20 @@ def upload():
     toupload = os.listdir(backup_folder)
     for folder in toupload:
         if folder != "torestore" and folder != "compressed":
-            tar = tarfile.TarFile.gzopen(os.path.join(compress_folder, f"{folder}.gz"), mode="w")
-            tar.add(os.path.join(backup_folder, folder), arcname=folder)
-            tar.close()
+            with tarfile.TarFile.gzopen(os.path.join(compress_folder, f"{folder}.gz"), mode="w") as tar:
+                tar.add(os.path.join(backup_folder, folder), arcname=folder)
+
             with open(os.path.join(compress_folder, f"{folder}.gz"), 'rb') as f:
                 file_data = f.read()
-            
+
             swift_conn.put_object(swift_backup, f"{folder}.gz", file_data)
             adi_backup.info(f"{folder} is backed up")
-    swift_conn.close() 
 
 
 def download(file):
     """
     Download Backup - downloads the .gz file requested and stors it in /backup/torestore/ and decompresses it.
-    Example: ./backup.py restore [filename] 
+    Example: ./backup.py restore [filename]
     Get the list of files by running ./backup.py list
     :param file: File to be downloaded
     :return: List of files in the /backup/torestore folder.
@@ -113,11 +112,11 @@ def download(file):
     os.remove(os.path.join(restore_folder, file))
     return os.listdir(restore_folder)
 
-    
+
 if argument:
     if argument == "list":
         for item in list():
-            print(item['name']) 
+            print(item['name'])
     elif argument == "restore":
         restorefile = argv[2]
         print(download(restorefile))
@@ -129,4 +128,4 @@ if argument:
             else:
                 adi_backup.info("Backup folder not mounted in container, please check your configuration")
             sleep(60)
-
+swift_conn.close()
