@@ -36,8 +36,13 @@ class DatasetOther extends Dataset {
   }
 
   downloadOptions() {
-    const options = super.downloadOptions()
-    return options.filter(opt => opt.variant !== 'imported')
+    let options = super.downloadOptions()
+
+    if (!this.computed) {
+      options = options.filter(opt => opt.variant !== 'imported')
+    }
+
+    return options
   }
 
   async deleteStorage() {
