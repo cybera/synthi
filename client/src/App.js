@@ -26,6 +26,7 @@ import { TransformationFilterProvider } from './contexts/TransformationFilterCon
 import { DatasetSidebar } from './components/dataset'
 import { DatasetFilterProvider } from './contexts/DatasetFilterContext'
 import * as DatasetBrowser from './components/dataset/browser'
+import ErrorBoundary, { withErrorBoundary } from './components/ErrorBoundary'
 
 
 let uri
@@ -97,18 +98,21 @@ const styles = () => ({
 
 function MainComponent(props) {
   const { mode, dataset } = props
+  let component = <div>Empty</div>
 
-  if (mode === 'datasets' || mode === 'chart-editor') return <DatasetDetails uuid={dataset} />
-  if (mode === 'scenarios') return <Scenarios />
-  if (mode === 'transformations') return <TransformationMain />
-  if (mode === 'dataset_browser') return <DatasetBrowser.DetailPanel />
+  if (mode === 'datasets' || mode === 'chart-editor') component = <DatasetDetails uuid={dataset} />
+  if (mode === 'scenarios') component = <Scenarios />
+  if (mode === 'transformations') component = <TransformationMain />
+  if (mode === 'dataset_browser') component = <DatasetBrowser.DetailPanel />
 
-  return <div>Empty</div>
+  return <ErrorBoundary>{component}</ErrorBoundary>
 }
 
 const StyledMainComponent = withStyles(styles)(props => (
   <div className={props.classes.root}>
-    <MainComponent {...props} />
+    <ErrorBoundary>
+      <MainComponent {...props} />
+    </ErrorBoundary>
   </div>
 ))
 
