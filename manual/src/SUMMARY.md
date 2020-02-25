@@ -20,6 +20,8 @@
 * [Visualizing Data](sections/Visualizing.md)
 * [Exporting and Importing Data](sections/ExportingAndImporting.md)
 * [Connections](sections/Connections.md)
+* [Browsing Transformations](sections/TransformationBrowser.md)
+* [Browsing Datasets](sections/DatasetBrowser.md)
 
 ### Communicating with ADI
 
