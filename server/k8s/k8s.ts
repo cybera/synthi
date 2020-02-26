@@ -17,7 +17,11 @@ export default function runTask(message: any): any {
   // We don't want minikube trying to pull the production image in development
   // because it will fail if not logged in to docker hub and if it is logged in,
   // it will overwrite the development image.
-  container.imagePullPolicy = 'IfNotPresent'
+  if (process.env.NODE_ENV === 'production') {
+    container.imagePullPolicy = 'Always'
+  } else {
+    container.imagePullPolicy = 'IfNotPresent'
+  }
 
   const podSpec = new k8s.V1PodSpec()
   podSpec.containers = [container]
