@@ -50,7 +50,7 @@ def transform_dataset(params):
     path = params["storagePaths"][full_name]["imported"]
 
     update_info = dict(
-      format = os.path.splitext(path)[1].lstrip('.'),
+      format = os.path.splitext(path)[1].lstrip('.').split('?')[0],
       columns = []
     )
 
