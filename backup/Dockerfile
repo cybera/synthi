@@ -1,9 +1,12 @@
-FROM python:3
+FROM graphfoundation/ongdb:3.4.7
+
+RUN apk update && apk add python3 gcc python3-dev musl-dev libffi-dev libffi openssl openssl-dev
 
 WORKDIR /usr/src/app
 COPY REQUIREMENTS.TXT ./
-RUN pip install --no-cache-dir -r REQUIREMENTS.TXT
+RUN pip3 install --no-cache-dir -r REQUIREMENTS.TXT
 
 COPY . .
 RUN chmod +x ./backup.py
-CMD [ "python", "./backup.py", "backup" ]
+ENTRYPOINT ["/sbin/tini", "-g", "--"]
+CMD [ "./backup.py", "backup" ]

@@ -1,4 +1,4 @@
-#! /usr/local/bin/python3
+#! /usr/bin/python3
 import logging
 from os import walk, environ
 import logging.handlers
@@ -10,6 +10,8 @@ import swiftclient
 from sys import argv
 import toml
 import tarfile
+import subprocess
+from datetime import datetime
 
 swift_backup = "adi_backup"
 argument = argv[1]
@@ -58,6 +60,15 @@ url = settings['storage']['object']['creds']['authUrl']
 tenant = settings['storage']['object']['creds']['tenantName']
 swift_conn = swiftclient.client.Connection(authurl=url, user=user, key=password, tenant_name=tenant, auth_version='2.0', os_options={'region_name': region})
 
+def runcommand (cmd):
+    proc = subprocess.Popen(cmd,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            shell=True,
+                            universal_newlines=True)
+    std_out, std_err = proc.communicate()
+    return proc.returncode, std_out, std_err
+
 
 def list():
     """
@@ -84,6 +95,7 @@ def upload():
                 file_data = f.read()
 
             swift_conn.put_object(swift_backup, f"{folder}.gz", file_data)
+            os.remove(f"{folder}.gz")
             adi_backup.info(f"{folder} is backed up")
 
 
@@ -121,11 +133,22 @@ if argument:
         restorefile = argv[2]
         print(download(restorefile))
     elif argument == "backup":
+        current_hour = datetime.now().hour
         while True:
             if path.exists(backup_folder):
                 # adi_backup.info("Backup Directory contains: " + str(os.listdir(backup_folder)))
-                upload()
+                adi_backup.info(f"The time is {datetime.now().hour}:{datetime.now().minute}")
+                if(datetime.now().minute == 00):
+                    if(datetime.now().hour != current_hour and datetime.now().hour != 6): # check if it has already run this hour and that it is not 23:00 MST (06:00 UST)
+                        code, out, err = runcommand(f"neo4j-admin backup --backup-dir={backup_folder} --pagecache=4G --name=neo4j_$(date +%m_%d_%Y).db-backup --from=neo4j")
+                        if(code != 0):
+                            adi_backup.error(f"Neo4j backup failed:\nCode: {str(code)}\nOutput: {out}\nError: {err}" )
+                        else:
+                            adi_backup.info("Neo4j backed up successfully")
+                        current_hour = datetime.now().hour
+                    elif(datetime.now().hour == 6): # If it is 23:00 MST (06:00 UST) back the container up to swift
+                        upload()
             else:
-                adi_backup.info("Backup folder not mounted in container, please check your configuration")
+                adi_backup.error("Backup folder not mounted in container, please check your configuration")
             sleep(60)
 swift_conn.close()
