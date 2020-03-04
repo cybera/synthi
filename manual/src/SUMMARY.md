@@ -7,6 +7,7 @@
 ### Managing Users
 * [Logging In](sections/LoggingIn.md)
 * [Signing Out](sections/SigningOut.md)
+* [Changing Password](sections/ChangingPassword.md)
 * [Creating Users & Organizations](sections/CreatingUsersAndOrganizations.md)
 
 ### Managing Datasets
