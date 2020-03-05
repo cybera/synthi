@@ -23,6 +23,25 @@ Under the checkboxes is the 'Format' dropdown that allows a user to select a fil
 
 ![filter-format](../images/filter-format.png)
 
+Clicking on the 'Format' dropdown opens up a list of file types that a user can select from.
+
 ![filter-format-open](../images/filter-format-open.png)
 
+Under the Format dropdown is the option for a user to select a file size to filter the datasets down the size of their choice. 
+
+The user is able to manually enter the minimum and maximum file size they are looking for while selecting the unit of measurement in KB/MB/GB from the dropdown below the min/max boxes. 
+
+![filter-size-open](../images/filter-size-minmax.png)
+
+Finally, the user can also filter down the datasets using a list of pre-populated Topics. 
+
+![topic-filter](../images/topic-filter.png)
+
+Selecting the topic dropdown opens a list of topics that a user can select. A user has the option of selecting more than one topic for the filtering purpose.
+
+![topic-filter-open](../images/topic-open.png)
+
+{% hint type="info" %}
+Click on the Filter button at the bottom of the Filter Options sidebar to ensure filter selections show up on the dataset browser.
+{% endhint %}
 
