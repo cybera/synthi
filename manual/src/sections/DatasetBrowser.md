@@ -49,9 +49,9 @@ Click on the Filter button at the bottom of the Filter Options sidebar to ensure
 The filters work together. A user can deploy multiple filter options at the same time and the result will be a combination of all the filters that have been applied.
 {% endhint %}
 
-Upon making the filter selections, a user will find their choices being reflected on the Browse Datasets page. From here, a user has the option of scrolling through multiple datasets, previewing them, opening them on the Dataset Workbench, publishing them (if the dataset belongs to their organization), as well as downloading them.
+### Accessing a Dataset
 
-### Reviewing a Dataset
+Upon making the filter selections, a user will find their choices being reflected on the Browse Datasets page. From here, a user has the option of scrolling through multiple datasets, previewing them, opening them on the Dataset Workbench, publishing them (if the dataset belongs to their organization),  as well as downloading them.
 
 ![dataset-browser](../images/dataset-browser.png)
 
@@ -59,20 +59,7 @@ Clicking on the SHOW PREVIEW button at the bottom of each dataset opens up a pre
 
 ![dataset-preview](../images/dataset-preview.png)
 
-Apart from this, a user can also look at the list of columns that is shown on each dataset. Clicking on the Columns dropdown opens up a table that shows the variable type (integer/string/boolean etc.) of the column.
+Apart from this, a user can also look at the list of columns that is shown on each dataset. Clicking on the Columns dropdown opens up a table that shows the variable type of the column.
 
 ![column-dropdown](../images/column-dropdown.png)
 
-### Managing a Dataset
-
-The Browse Dataset page allows a user to publish their datasets, move a dataset to the Dataset Workbench and download the dataset in the imported or original format.
-
-![publish-download-workbench](../images/publish-download-workbench-dataset.png)
-
-{% hint type="info" %}
-For more inforamtion on the Dataset Workbench, visit the [Workbench](/sections/DatasetWorkbench.md) section.
-{% endhint %}
-
-{% hint style='danger' %}
-Selecting the 'Publish' option allows a user to share a dataset with anyone who has access to the ADI platform.
-{% endhint %}
