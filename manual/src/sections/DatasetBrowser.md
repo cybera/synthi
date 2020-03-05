@@ -17,7 +17,7 @@ Right under the search bar, there are multiple filter options that allow users t
 1) Unselecting both 'Published Only' and 'From other organizations' checkboxes and selecting the filter button returns both published and unpublished datasets from your organization.
 2) Selecting both 'Published Only' and 'From other organizations' checkboxes and selecting the filter button returns only published datasets from your organzaition and all shared datasets from other organizations.
 3) Selecting only 'Published Only' checkbox and selecting the filter button returns only published datasets from your organziation.
-4) Selecting only 'From other organziations' checkbox and selecting the filter button returns all the datasets - published and unpublished form your orgazation and all shared datasets from other organizations.
+4) Selecting only 'From other organziations' checkbox and selecting the filter button returns all the datasets - published and unpublished form your orgazation and all shared datasets from other organizations. This is the default state of the filter options side bar.
 
 Under the checkboxes is the 'Format' dropdown that allows a user to select a file format and filter datasets based on the format of the file. 
 
@@ -44,4 +44,22 @@ Selecting the topic dropdown opens a list of topics that a user can select. A us
 {% hint type="info" %}
 Click on the Filter button at the bottom of the Filter Options sidebar to ensure filter selections show up on the dataset browser.
 {% endhint %}
+
+{% hint type="info" %}
+The filters work together. A user can deploy multiple filter options at the same time and the result will be a combination of all the filters that have been applied.
+{% endhint %}
+
+### Accessing a Dataset
+
+Upon making the filter selections, a user will find their choices being reflected on the Browse Datasets page. From here, a user has the option of scrolling through multiple datasets, previewing them, opening them on the Dataset Workbench, publishing them (if the dataset belongs to their organization),  as well as downloading them.
+
+![dataset-browser](../images/dataset-browser.png)
+
+Clicking on the SHOW PREVIEW button at the bottom of each dataset opens up a preview window that provides a glimpse of the dataset you have selected. Clicking on HIDE PREVIEW collapses this preview window. 
+
+![dataset-preview](../images/dataset-preview.png)
+
+Apart from this, a user can also look at the list of columns that is shown on each dataset. Clicking on the Columns dropdown opens up a table that shows the variable type of the column.
+
+![column-dropdown](../images/column-dropdown.png)
 
