@@ -64,10 +64,8 @@ export default class Task extends Base {
       await this.onSuccess(msg)
       this.state = 'done'
       await this.save()
-      const nextTask = await this.next()
-      if (nextTask) {
-        await nextTask.run()
-      }
+      const nextTasks = await this.next()
+      await Promise.all(nextTasks.map(nextTask => nextTask.run()))
     } else if (msg.status === 'error') {
       logger.error(`Task ${this.uuid} failed with message: ${msg.message}`)
       await this.onError(msg)
@@ -86,13 +84,13 @@ export default class Task extends Base {
     pubsub.publish(TASK_UPDATED, { taskUpdated: { task: this } });
   }
 
-  async addNext(task: Task): Promise<void> {
-    await this.saveRelation(task, '<-[:NEXT]-')
+  async addDependentTask(task: Task): Promise<void> {
+    await this.saveRelation(task, '-[:DEPENDS_ON]->')
   }
 
   // Will return null if there is no NEXT task
-  async next(): Promise<Task|null> {
-    return this.relatedOne<typeof Task>('-[:NEXT]->', 'Task')
+  async next(): Promise<Task[]> {
+    return this.relatedMany<typeof Task>('<-[:DEPENDS_ON]-', 'Task')
   }
 
   async user(): Promise<User|null> {

@@ -313,7 +313,7 @@ class Dataset extends Base {
     )))
 
     if (tasks.length > 1) {
-      await Promise.all(withNext(tasks, (task, nextTask) => task.addNext(nextTask)))
+      await Promise.all(withNext(tasks, (task, nextTask) => task.addDependentTask(nextTask)))
     }
 
     if (tasks.length > 0) {
