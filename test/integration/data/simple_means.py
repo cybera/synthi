@@ -1,6 +1,8 @@
-simple_data = dataset_input("simple_data")
+from adi.dev.transformation import dataset, transformation
 
-def transform():
-  return (simple_data
-          .mean()
-          .reset_index())
+@transformation(inputs=dict(
+  df=dataset("simple_data")
+))
+def simple_means(df):
+  return (df.mean()
+            .reset_index())
