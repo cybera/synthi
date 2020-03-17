@@ -17,7 +17,7 @@ services:
     build: ../server
     image: cybera/adi-server:latest
     ports:
-      - "3000:3000"
+      - "3020:3000"
     volumes:
       - ../config/testing.toml:/usr/src/app/config/development.toml
       - ../config/kubeconfig:/usr/src/app/config/kubeconfig
