@@ -41,7 +41,9 @@ export const datasetStorageMap = async (transformation, user) => {
     throw new AuthenticationError('Cannot run a transformation without access to all the datasets involved.')
   }
 
-  const mapping = {}
+  const input = {}
+  const output = {}
+
   ioNodes.forEach(({ dataset, org, alias, ioEdge }) => {
     const method = ioEdge.type === 'INPUT' ? 'GET' : 'PUT'
     const paths = {
@@ -49,10 +51,20 @@ export const datasetStorageMap = async (transformation, user) => {
       imported: Storage.createTempUrl('datasets', dataset.paths.imported, method),
       sample: Storage.createTempUrl('datasets', dataset.paths.sample, method)
     }
-    mapping[`${org.name}:${alias || dataset.name}`] = paths
+
+    const mapping = ioEdge.type === 'INPUT' ? input : output
+    mapping[alias || `${org.name}:${dataset.name}`] = {
+      value: paths,
+      storage: 'swift-tempurl',
+      format: dataset.format
+    }
   })
 
-  return mapping
+  if (output.length > 1) {
+    throw new Error('Transformations currently can have only one output')
+  }
+
+  return { input, output: Object.values(output)[0] }
 }
 
 export default class TransformTask extends Task {
@@ -75,7 +87,8 @@ export default class TransformTask extends Task {
 
     await transformation.waitForReady()
 
-    const storagePaths = await datasetStorageMap(transformation, user)
+    const { input, output } = await datasetStorageMap(transformation, user)
+
     const outputDataset = await transformation.outputDataset()
     const owner = await outputDataset.owner()
 
@@ -97,7 +110,8 @@ export default class TransformTask extends Task {
       token: this.token,
       state: this.state,
       transformation: taskTransformationInfo,
-      storagePaths,
+      input,
+      output,
     })
   }
 

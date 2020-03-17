@@ -37,29 +37,25 @@ export default class RegisterTask extends Task {
     const user = await this.user()
     const transformation = await this.transformation()
     const outputDataset = await transformation.outputDataset()
-    const { inputs, outputs } = msg.data
+    let { inputs } = msg.data
 
-    const nearestDataset = async name => ([
-      name, await Dataset.getNearestByName(user, name, outputDataset)
-    ])
+    const withNearestDataset = async item => ({
+      ...item,
+      dataset: await Dataset.getNearestByName(user, item.name, outputDataset)
+    })
 
-    const inputPairs = await Promise.all(inputs.map(nearestDataset))
-    const outputPairs = await Promise.all(outputs.map(nearestDataset))
+    inputs = await Promise.all(inputs.map(withNearestDataset))
 
-    const extractName = pair => pair[0]
-    const extractDataset = pair => pair[1]
-    const datasetFound = pair => !pair[1]
-    const notFound = pairs => filter(pairs, datasetFound).map(extractName)
+    const extractName = item => item.name
+    const datasetFound = item => !item.dataset
+    const notFound = items => filter(items, datasetFound).map(extractName)
 
-    const datasetsNotFound = [...notFound(inputPairs), ...notFound(outputPairs)]
-
-    const inputObjs = inputPairs.map(extractDataset)
-    const outputObjs = outputPairs.map(extractDataset)
+    const datasetsNotFound = [...notFound(inputs)]
 
     if (datasetsNotFound.length > 0) {
       await transformation.recordError(`Could not find: ${datasetsNotFound.join(', ')}`)
     } else {
-      await outputDataset.registerTransformation(inputObjs, outputObjs)
+      await outputDataset.registerTransformation(inputs)
     }
 
     outputDataset.sendUpdateNotification();
