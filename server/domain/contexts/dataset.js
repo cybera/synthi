@@ -261,28 +261,17 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
       if (range.max) conditions.push(`dataset.bytes <= ($filter.sizeRange.max * ${multiplier})`)
     }
 
-    return `WHERE ${conditions.join(' AND ')}`
-  })
-
-  // metadata filtering
-  query.addPart(({ filter }) => {
-    let conditions = []
+    //Condition to filter based on dataset format
     if (filter.format) {
-      conditions.push('metadata.format = $filter.format')
+      conditions.push('dataset.format = $filter.format')
     }
     
+    //Condition to filter based on dataset topic
     if (filter.topics && filter.topics.length > 0) {
-      conditions.push('SIZE(apoc.coll.intersection($filter.topics, metadata.topic)) > 0')
+      conditions.push('SIZE(apoc.coll.intersection($filter.topics, dataset.ext_topic)) > 0')
     }
-
-    if (conditions.length > 0) {
-      return `
-        MATCH (dataset)-[:HAS_METADATA]->(metadata:DatasetMetadata)
-        WHERE ${conditions.join(' AND \n')}
-      `
-    }
-
-    return ''
+    
+    return `WHERE ${conditions.join(' AND ')}`
   })
 
   // Query for one more than we actually asked for, just to test if there ARE more
