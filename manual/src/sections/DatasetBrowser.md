@@ -70,7 +70,7 @@ The Browse Dataset page allows a user to publish their datasets, move a dataset 
 ![publish-download-workbench](../images/publish-download-workbench-dataset.png)
 
 {% hint type="info" %}
-For more inforamtion on the Dataset Workbench, visit the **[Workbench](/sections/DatasetWorkbench.md)** section.
+For more inforamtion on the Dataset Workbench, visit the [Workbench](/sections/DatasetWorkbench.md) section.
 {% endhint %}
 
 {% hint style='danger' %}
