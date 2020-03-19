@@ -7,11 +7,13 @@
 ### Managing Users
 * [Logging In](sections/LoggingIn.md)
 * [Signing Out](sections/SigningOut.md)
+* [Changing Password](sections/ChangingPassword.md)
 * [Creating Users & Organizations](sections/CreatingUsersAndOrganizations.md)
 
 ### Managing Datasets
 * [Uploading a Dataset](sections/UploadingADataset.md)
 * [Computed Datasets](sections/ComputedDatasets.md)
+* [Transformation Examples](sections/TransformationExamples.md)
 * [Metadata](sections/Metadata.md)
 * [Search](sections/Search.md)
 
@@ -19,6 +21,12 @@
 * [Visualizing Data](sections/Visualizing.md)
 * [Exporting and Importing Data](sections/ExportingAndImporting.md)
 * [Connections](sections/Connections.md)
+* [Browsing Transformations](sections/TransformationBrowser.md)
+* [Browsing Datasets](sections/DatasetBrowser.md)
+
+### Communicating with ADI
+
+* [Using the Python API](sections/PythonAPI.md)
 
 ### Addendum
 * [Limitations](sections/Limitations.md)
