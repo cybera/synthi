@@ -30,13 +30,6 @@ class DocumentDataset extends Dataset {
     return paths
   }
 
-  upload({ stream, filename, mimetype }) {
-    const extension = pathlib.extname(filename)
-    this.paths.original = `${this.uuid}/original${extension}`
-
-    super.upload({ stream, filename, mimetype })
-  }
-
   async import(removeExisting = false, options = {}) {
     const ImportDocumentTask = Base.ModelFactory.getClass('ImportDocumentTask')
     const task = await ImportDocumentTask.create({ dataset: this, removeExisting, options })
