@@ -36,6 +36,10 @@ class DocumentDataset extends Dataset {
     await task.run()
   }
 
+  async get lastImportTask() {
+    return this.lastTask(['import_document'])
+  }
+
   downloadName(variant) {
     let extension = pathlib.extname(this.originalFilename || '')
     if (variant === 'imported') {

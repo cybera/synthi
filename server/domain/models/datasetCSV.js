@@ -75,6 +75,10 @@ class DatasetCSV extends Dataset {
     return `${this.name}.csv`
   }
 
+  async get lastImportTask() {
+    return this.lastTask(['import_csv'])
+  }
+
   async import(removeExisting = false, options = {}) {
     const ImportCSVTask = Base.ModelFactory.getClass('ImportCSVTask')
     const importCSVTask = await ImportCSVTask.create({ dataset: this, removeExisting, options })
