@@ -26,13 +26,6 @@ class DatasetOther extends Dataset {
     return paths
   }
 
-  async upload({ stream, filename, mimetype }) {
-    const extension = pathlib.extname(filename)
-    this.paths.original = `${this.uuid}/original${extension}`
-
-    return paths
-  }
-
   downloadName(variant) {
     return `${this.name}.${this.format}`
   }
