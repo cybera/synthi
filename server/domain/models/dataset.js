@@ -250,16 +250,17 @@ class Dataset extends Base {
   async upload({ stream, filename, mimetype }) {
     try {
       logger.info(`Uploading: ${filename}`)
-      const { path, bytes } = await storeFS({ stream, filename: this.paths.original })
-
-      this.path = path
-      this.computed = false
       this.originalFilename = filename
+      this.computed = false
       this.mimetype = mimetype
-      this.bytes = bytes
-      logger.debug('Saving upload info')
       this.setFormatFromFilename(filename)
 
+      const { path, bytes } = await storeFS({ stream, filename: this.paths.original })
+
+      this.bytes = bytes
+      this.path = path
+
+      logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
       await this.import()
