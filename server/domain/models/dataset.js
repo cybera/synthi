@@ -109,6 +109,7 @@ class Dataset extends Base {
   constructor(node) {
     super(node)
     this.paths = {
+      error: `${this.uuid}/error.log`
     }
 
   }

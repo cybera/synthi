@@ -22,6 +22,7 @@ export default class ImportCSVTask extends ImportTask {
       original: Storage.createTempUrl('datasets', dataset.paths.original, 'GET'),
       imported: Storage.createTempUrl('datasets', dataset.paths.imported, 'PUT'),
       sample: Storage.createTempUrl('datasets', dataset.paths.sample, 'PUT'),
+      error: Storage.createTempUrl('datasets', dataset.paths.error, 'PUT'),
     }
 
     const {

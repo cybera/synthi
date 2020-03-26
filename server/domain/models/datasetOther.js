@@ -15,6 +15,7 @@ class DatasetOther extends Dataset {
       const extension = pathlib.extname(this.originalFilename || '')
 
       this.paths = {
+        ...this.paths,
         original: `${this.uuid}/original${extension}`,
       }
 

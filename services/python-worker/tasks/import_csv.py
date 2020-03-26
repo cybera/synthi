@@ -87,7 +87,7 @@ def import_csv(params):
   }
 
   if error_log_output:
-    storage.write_raw(error_log_output, os.path.join(os.path.dirname(params['paths']['original']), 'error.log'))
+    storage.write_raw(error_log_output, params['paths']['error'])
     body['import_errors'] = True
 
   requests.post(params['callback'], json=body)
