@@ -166,10 +166,10 @@ class Dataset extends Base {
     if (await this.canAccess(req.user)) {
       res.attachment(this.downloadName(type))
 
-      const lastPrepTask = await this.lastDownloadPrepTask(req)
+      const lastPrepTask = await this.lastDownloadPrepTask(req, type)
 
       const downloadReady = async () => {
-        const storageReady = await Storage.exists('datasets', this.paths.imported)
+        const storageReady = await Storage.exists('datasets', this.paths[type])
         const tasksRun = lastPrepTask ? (await lastPrepTask.isDone()) : true
 
         return storageReady && tasksRun
