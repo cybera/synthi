@@ -65,7 +65,7 @@ const exists = async (area, relativePath) => {
 }
 
 const createTempUrl = (area, relativePath, method) => {
-  const container = config.get('storage.object.containers')[area],
+  const container = config.get('storage.object.containers')[area]
   const tenant = config.get('storage.object.creds.tenantId')
   const key = config.get('storage.object.creds.tempUrlKey')
   // TODO: Can use keystone client to get swift url from service catalog
