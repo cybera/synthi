@@ -16,7 +16,11 @@ class DatasetOther extends Dataset {
     const paths = super.paths
     if (this.uuid) {
       const extension = pathlib.extname(this.originalFilename || '')
-      paths.original = `${this.uuid}/original${extension}`
+
+      this.paths = {
+        ...this.paths,
+        original: `${this.uuid}/original${extension}`,
+      }
 
       // This dataset doesn't do any importing for you. The file you upload is
       // what you have to work with in subsequent transformations, etc.

@@ -106,8 +106,9 @@ class Dataset extends Base {
     return organization.datasetByName(datasetName)
   }
 
-  get paths() {
-    return {
+  constructor(node) {
+    super(node)
+    this.paths = {
       error: `${this.uuid}/error.log`
     }
   }

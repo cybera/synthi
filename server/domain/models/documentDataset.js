@@ -15,8 +15,11 @@ class DocumentDataset extends Dataset {
   get paths() {
     const paths = super.paths
 
-    if (this.uuid) {
-      paths.imported = `${this.uuid}/imported.txt`
+      this.paths = {
+        ...this.paths,
+        original: `${this.uuid}/original${extension}`,
+        imported: `${this.uuid}/imported.txt`,
+      }
 
       // If we're computed, the original is the same as the imported
       if (this.computed) {
@@ -25,7 +28,7 @@ class DocumentDataset extends Dataset {
         const extension = pathlib.extname(this.originalFilename || '')
         paths.original = `${this.uuid}/original${extension}`
       }
-    }
+   
 
     return paths
   }

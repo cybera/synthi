@@ -15,9 +15,8 @@ class DatasetCSV extends Dataset {
     }
   }
 
-  get paths() {
-    return {
-      ...super.paths,
+    this.paths = {
+      ...this.paths,
       original: `${this.uuid}/original.csv`,
       imported: `${this.uuid}/imported.csv`,
       sample: `${this.uuid}/sample.csv`
