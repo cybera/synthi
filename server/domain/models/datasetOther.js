@@ -10,19 +10,20 @@ class DatasetOther extends Dataset {
     super(node)
 
     this.importTask = null
+  }
 
+  get paths() {
+    const paths = super.paths
     if (this.uuid) {
       const extension = pathlib.extname(this.originalFilename || '')
-
-      this.paths = {
-        ...this.paths,
-        original: `${this.uuid}/original${extension}`,
-      }
+      paths.original = `${this.uuid}/original${extension}`
 
       // This dataset doesn't do any importing for you. The file you upload is
       // what you have to work with in subsequent transformations, etc.
-      this.paths.imported = this.paths.original
+      paths.imported = this.paths.original
     }
+
+    return paths
   }
 
   async upload({ stream, filename, mimetype }) {

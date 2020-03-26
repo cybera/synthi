@@ -13,9 +13,11 @@ class DatasetCSV extends Dataset {
     if (!this.format) {
       this.format = 'csv'
     }
+  }
 
-    this.paths = {
-      ...this.paths,
+  get paths() {
+    return {
+      ...super.paths,
       original: `${this.uuid}/original.csv`,
       imported: `${this.uuid}/imported.csv`,
       sample: `${this.uuid}/sample.csv`

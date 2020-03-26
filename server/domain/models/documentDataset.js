@@ -10,21 +10,24 @@ class DocumentDataset extends Dataset {
     super(node)
 
     this.importTask = 'import_document'
+  }
+
+  get paths() {
+    const paths = super.paths
 
     if (this.uuid) {
-      const extension = pathlib.extname(this.originalFilename || '')
-
-      this.paths = {
-        ...this.paths,
-        original: `${this.uuid}/original${extension}`,
-        imported: `${this.uuid}/imported.txt`,
-      }
+      paths.imported = `${this.uuid}/imported.txt`
 
       // If we're computed, the original is the same as the imported
       if (this.computed) {
-        this.paths.original = this.paths.imported
+        paths.original = paths.imported
+      } else {
+        const extension = pathlib.extname(this.originalFilename || '')
+        paths.original = `${this.uuid}/original${extension}`
       }
     }
+
+    return paths
   }
 
   upload({ stream, filename, mimetype }) {
