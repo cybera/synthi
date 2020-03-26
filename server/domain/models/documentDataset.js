@@ -10,33 +10,34 @@ class DocumentDataset extends Dataset {
     super(node)
 
     this.importTask = 'import_document'
+  }
+
+  get paths() {
+    const paths = super.paths
 
     if (this.uuid) {
-      const extension = pathlib.extname(this.originalFilename || '')
-
-      this.paths = {
-        original: `${this.uuid}/original${extension}`,
-        imported: `${this.uuid}/imported.txt`,
-      }
+      paths.imported = `${this.uuid}/imported.txt`
 
       // If we're computed, the original is the same as the imported
       if (this.computed) {
-        this.paths.original = this.paths.imported
+        paths.original = paths.imported
+      } else {
+        const extension = pathlib.extname(this.originalFilename || '')
+        paths.original = `${this.uuid}/original${extension}`
       }
     }
-  }
 
-  upload({ stream, filename, mimetype }) {
-    const extension = pathlib.extname(filename)
-    this.paths.original = `${this.uuid}/original${extension}`
-
-    super.upload({ stream, filename, mimetype })
+    return paths
   }
 
   async import(removeExisting = false, options = {}) {
     const ImportDocumentTask = Base.ModelFactory.getClass('ImportDocumentTask')
     const task = await ImportDocumentTask.create({ dataset: this, removeExisting, options })
     await task.run()
+  }
+
+  async get lastImportTask() {
+    return this.lastTask(['import_document'])
   }
 
   downloadName(variant) {

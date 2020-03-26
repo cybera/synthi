@@ -13,8 +13,11 @@ class DatasetCSV extends Dataset {
     if (!this.format) {
       this.format = 'csv'
     }
+  }
 
-    this.paths = {
+  get paths() {
+    return {
+      ...super.paths,
       original: `${this.uuid}/original.csv`,
       imported: `${this.uuid}/imported.csv`,
       sample: `${this.uuid}/sample.csv`
@@ -70,6 +73,10 @@ class DatasetCSV extends Dataset {
 
   downloadName(variant) {
     return `${this.name}.csv`
+  }
+
+  async get lastImportTask() {
+    return this.lastTask(['import_csv'])
   }
 
   async import(removeExisting = false, options = {}) {

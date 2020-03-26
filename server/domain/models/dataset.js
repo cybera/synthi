@@ -106,11 +106,10 @@ class Dataset extends Base {
     return organization.datasetByName(datasetName)
   }
 
-  constructor(node) {
-    super(node)
-    this.paths = {
+  get paths() {
+    return {
+      error: `${this.uuid}/error.log`
     }
-
   }
 
   beforeSave() {
@@ -144,14 +143,33 @@ class Dataset extends Base {
     return Storage.createReadStream('datasets', this.paths[type])
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async get lastImportTask() {
+    return undefined
+  }
+
+  async lastDownloadPrepTask(req, type) {
+    // TODO: We always assume we need to run the transformation here. We will want to
+    // determine whether it actually needs to be run.
+    if (this.computed) {
+      return this.runTransformation(req.user)
+    } else if (type !== 'original') {
+      // If it's not simply the original uploaded file, we have to make, there will
+      // be an import task that needs to be done
+      return this.lastImportTask
+    }
+
+    return undefined
+  }
+
   async download(req, res, type = 'imported') {
     if (await this.canAccess(req.user)) {
       res.attachment(this.downloadName(type))
 
-      const lastPrepTask = this.computed ? (await this.runTransformation(req.user)) : undefined
+      const lastPrepTask = await this.lastDownloadPrepTask(req, type)
 
       const downloadReady = async () => {
-        const storageReady = await Storage.exists('datasets', this.paths.imported)
+        const storageReady = await Storage.exists('datasets', this.paths[type])
         const tasksRun = lastPrepTask ? (await lastPrepTask.isDone()) : true
 
         return storageReady && tasksRun
@@ -251,16 +269,17 @@ class Dataset extends Base {
   async upload({ stream, filename, mimetype }) {
     try {
       logger.info(`Uploading: ${filename}`)
-      const { path, bytes } = await storeFS({ stream, filename: this.paths.original })
-
-      this.path = path
-      this.computed = false
       this.originalFilename = filename
+      this.computed = false
       this.mimetype = mimetype
-      this.bytes = bytes
-      logger.debug('Saving upload info')
       this.setFormatFromFilename(filename)
 
+      const { path, bytes } = await storeFS({ stream, filename: this.paths.original })
+
+      this.bytes = bytes
+      this.path = path
+
+      logger.debug('Saving upload info')
       await this.save()
       logger.debug('Triggering import...')
       await this.import()
