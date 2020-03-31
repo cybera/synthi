@@ -165,6 +165,7 @@ class Dataset extends Base {
 
   async download(req, res, type = 'imported') {
     if (await this.canAccess(req.user)) {
+      
       res.attachment(this.downloadName(type))
 
       const lastPrepTask = await this.lastDownloadPrepTask(req, type)
@@ -307,8 +308,27 @@ class Dataset extends Base {
   async runTransformation(user) {
     const TransformTask = Base.ModelFactory.getClass('TransformTask')
 
-    const transformations = await this.transformationChain()
-    const tasks = await Promise.all(transformations.map(async transformation => (
+    const { datasets, transformations } = await this.transformationChain()
+  // This logic helps in ensuring we don't run all the transformations to access a dataset in a pipeline
+  // by comparing the dateUpdated on a dataset to datasets prior to it. This way we can figure out if
+  // the transformations linked to these datasets needs to be re-run or not.
+
+    let newTransformations = []
+    for (const [i, dataset] of datasets.entries()) {
+      if (datasets[i + 1]) {
+        if (dataset.dateUpdated > datasets[i + 1].dateUpdated) {
+          for (let j = i; j < datasets.length; j++) {
+            newTransformations.push(transformations[j])
+          }
+          break
+        }
+      } else {
+        newTransformations.push(transformations[i])
+
+      }
+    }
+    
+    const tasks = await Promise.all(newResults.map(async transformation => (
       TransformTask.create({ transformation, user })
     )))
 
@@ -503,16 +523,19 @@ class Dataset extends Base {
       MATCH individual_path = (output)<-[*]-(t)
       WHERE t IN nodes(full_path)
       WITH DISTINCT(individual_path), t
-      MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
+      MATCH (individual_input:Dataset)-[:INPUT]-(t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
       RETURN
+        individual_input AS dataset,
         t AS transformation,
         length(individual_path) AS distance
       ORDER BY distance DESC
     `
 
     const results = await safeQuery(query, { output_id: this.id })
-
-    return Promise.all(results.map(r => Base.ModelFactory.derive(r.transformation)))
+    
+    const datasets = results.map(t => Base.ModelFactory.derive(t.dataset))
+    const transformations = results.map(r => Base.ModelFactory.derive(r.transformation))
+    return { datasets, transformations}
   }
 
   // eslint-disable-next-line class-methods-use-this
