@@ -33,8 +33,14 @@
         dest: /etc/docker/daemon.json
       notify:
         - restart docker
+    - name: Check if swarm has already been initialized
+      shell: docker node ls
+      register: swarm_status
+      ignore_errors: true
     - name: initialize docker swarm
       command: docker swarm init
+      when: swarm_status.rc != 0
+      run_once: true
     - name: create create-user script
       template:
         src: templates/create-user.j2
