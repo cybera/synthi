@@ -33,7 +33,7 @@ const safeQuery = async (query: string, params: object): Promise<Indexable[]> =>
   } catch (err) {
     logger.error(err)
   } finally {
-    await session.close()  
+    session.close()
   }
 
   return records
