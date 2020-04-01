@@ -72,7 +72,7 @@ export const isOwner = ({ uuid: uuidField } = { uuid: 'uuid' }) => (
       logger.debug(`checking isOwner for uuid: ${uuid}`)
 
       if (uuid) {
-        const obj = await ModelFactory.getByUuid(uuid)
+        const obj = await ctx.loader.load(uuid)
         return obj.canAccess(ctx.user)
       }
 
@@ -83,13 +83,13 @@ export const isOwner = ({ uuid: uuidField } = { uuid: 'uuid' }) => (
 
 export const isPublished = ({ uuid: uuidField } = { uuid: 'uuid' }) => (
   rule({ cache: 'strict' })(
-    async (parent, args, /* ctx, info */) => {
+    async (parent, args, ctx, /* info */) => {
       const uuid = args[uuidField] || (parent ? parent[uuidField] : undefined)
 
-      logger.debug(`checking isOwner for uuid: ${uuid}`)
+      logger.debug(`checking isPublished for uuid: ${uuid}`)
 
       if (uuid) {
-        const obj = await ModelFactory.getByUuid(uuid)
+        const obj = await ctx.loader.load(uuid)
         return obj.isPublished()
       }
 

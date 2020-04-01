@@ -27,8 +27,8 @@ const DATASET_UPDATED = 'DATASET_UPDATED'
 
 export const resolvers = {
   Query: {
-    dataset: (_, props) => filterDatasets(props),
-    listDatasets: (_, { org, filter, offset, limit }) => listDatasets(org, filter, offset, limit),
+    dataset: (_, props, context) => filterDatasets(context, props),
+    listDatasets: (_, { org, filter, offset, limit }, context) => listDatasets(context, org, filter, offset, limit),
     uniqueDefaultDatasetName: (_, { org }) => uniqueDefaultDatasetName(org),
     topics: () => TOPICS,
     supportedFormats: () => SUPPORTED_FORMATS,
