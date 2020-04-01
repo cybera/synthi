@@ -15,7 +15,11 @@ class Organization extends Base {
   }
 
   async datasets(searchString, searchIndex = 'DefaultDatasetSearchIndex') {
-    return this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
+    // return this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
+    const datasets = await this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
+    // eslint-disable-next-line no-param-reassign
+    datasets.forEach((d) => { d._owner = this })
+    return datasets
   }
 
   async datasetByName(name) {
@@ -86,9 +90,11 @@ class Organization extends Base {
   }
 
   async members() {
-    const User = Base.ModelFactory.getClass('User')
+    if (!this._members) {
+      this._members = await this.relatedMany('<-[:MEMBER]-', 'User')
+    }
 
-    return this.relatedMany('<-[:MEMBER]-', 'User')
+    return this._members
   }
 
   async canCreateDatasets(user) {

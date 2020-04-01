@@ -26,6 +26,8 @@ class DatasetCSV extends Dataset {
 
   async columns() {
     const columns = await this.relatedMany('<-[:BELONGS_TO]-', 'Column')
+    // eslint-disable-next-line no-param-reassign
+    columns.forEach((c) => { c._dataset = this })
     return columns.sort((c1, c2) => c1.order - c2.order)
   }
 
