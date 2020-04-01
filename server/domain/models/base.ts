@@ -176,7 +176,7 @@ class Base {
 
   /* eslint-disable class-methods-use-this, @typescript-eslint/no-unused-vars,
    @typescript-eslint/require-await, @typescript-eslint/no-explicit-any */
-   async isPublished(): Promise<boolean> {
+  async isPublished(): Promise<boolean> {
     logger.warn('This should be implemented in a subclass')
     return false
   }
