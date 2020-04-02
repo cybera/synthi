@@ -89,7 +89,7 @@ pipeline {
 
     stage('Bring up integration test environment') {
       steps {
-        sh 'bin/testenv start'
+        sh 'bin/testenv jenkins_start'
       }
     }
 

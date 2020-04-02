@@ -5,11 +5,17 @@ PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 
 cd $PROJECT_DIR/test
 
-action=$1
+if [[ $1 == 'jenkins_start' ]]; then
+  action='start'
+  args=''
+else
+  action=$1
+  args='-f docker-compose.yml -f docker-compose.local.yml'
+fi
 
 if [[ $action == 'start' ]]; then
-  docker-compose up -d
-  docker-compose exec -T neo4j bash -c '
+  docker-compose $args up -d
+  docker-compose $args exec -T neo4j bash -c '
     echo "Waiting for Neo4J to start up"
     end="$((SECONDS+60))"
     while true; do
@@ -19,15 +25,15 @@ if [[ $action == 'start' ]]; then
     done
   '
 
-  docker-compose run server npx ts-node tasks/create-user.ts test password test-token
-  docker-compose run --rm server npx ts-node tasks/create-user.ts test2 password test-token2
-  docker-compose run --rm server npx ts-node tasks/create-org.ts shared-test-org
-  docker-compose run --rm server npx ts-node tasks/add-user-to-org.ts test shared-test-org
-  docker-compose run --rm server npx ts-node tasks/add-user-to-org.ts test2 shared-test-org
-  docker-compose run --rm server npm run migrate
+  docker-compose $args run server npx ts-node tasks/create-user.ts test password test-token
+  docker-compose $args run --rm server npx ts-node tasks/create-user.ts test2 password test-token2
+  docker-compose $args run --rm server npx ts-node tasks/create-org.ts shared-test-org
+  docker-compose $args run --rm server npx ts-node tasks/add-user-to-org.ts test shared-test-org
+  docker-compose $args run --rm server npx ts-node tasks/add-user-to-org.ts test2 shared-test-org
+  docker-compose $args run --rm server npm run migrate
 elif [[ $action == 'stop' ]]; then
-  docker-compose down -v
-  docker-compose rm -v
+  docker-compose $args down -v
+  docker-compose $args rm -v
 else
     echo "\"$action\" is not a valid subcommand for $0"
     exit 1

@@ -19,7 +19,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ../server:/usr/src/app
       - ../config/testing.toml:/usr/src/app/config/development.toml
       - ../config/kubeconfig:/usr/src/app/config/kubeconfig
       - ../data/uploads:/mnt/data
