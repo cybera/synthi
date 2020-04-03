@@ -30,6 +30,8 @@
 
 ### Transforming Data
 * [Transformations](sections/Transformations.md)
+* [Stream Transformations](sections/StreamTransformations.md)
+* [Creating a Custom Transformation Class](sections/CustomTransformationClass.md)
 
 ### Addendum
 * [Limitations](sections/Limitations.md)
