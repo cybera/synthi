@@ -328,7 +328,7 @@ class Dataset extends Base {
       }
     }
     
-    const tasks = await Promise.all(newResults.map(async transformation => (
+    const tasks = await Promise.all(newTransformations.map(async transformation => (
       TransformTask.create({ transformation, user })
     )))
 
