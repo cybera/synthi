@@ -52,8 +52,12 @@ def test_txt_upload():
     client.dataset.upload('txt_document', 'data/test.txt', type='document')
     txt_document = client.dataset.get('txt_document', raw=True)
     assert(txt_document.strip() == "Just a regular ol' text document.")
-
+runs = 0
 def test_reusable_csv_transform():
+    global runs
+    if runs == 0:
+        runs += 1
+        raise Exception("sample failure")
     client.dataset.upload('simple-data-1', 'data/simple_data.csv')
     client.dataset.upload('simple-data-2', 'data/simple_data2.csv')
     client.transformation.define('ReusableMeans', 'data/simple_means.py', inputs=['simple_data'])
