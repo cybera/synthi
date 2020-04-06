@@ -5,4 +5,4 @@ PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 
 cd $PROJECT_DIR/test
 
-docker-compose run test-runner pytest main.py $@
+docker-compose run test-runner pytest --reruns 3 --reruns-delay 1 main.py $@
