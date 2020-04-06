@@ -18,7 +18,6 @@ ADD common ./common
 FROM base as tika-worker
 RUN apt-get update && apt-get install default-jre tesseract-ocr -y
 RUN pip install python-magic
-RUN wget https://www-eu.apache.org/dist/tika/tika-app-1.23.jar -O /tika-app.jar
 RUN wget https://archive.apache.org/dist/tika/tika-app-1.23.jar -O /tika-app.jar
 ADD tika-worker ./
 ADD common ./common

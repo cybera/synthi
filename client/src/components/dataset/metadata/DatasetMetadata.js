@@ -350,15 +350,10 @@ class DatasetMetadata extends React.Component {
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>
                 <TopicInput
-<<<<<<< HEAD
-                  value={fields.topic}
-                  onChange={(_, chips) => this.handleChipsChange('topic')(chips)}
+                  value={fields.ext_topic}
+                  onChange={(_, chips) => this.handleChipsChange('ext_topic')(chips)}
                   style={{ marginLeft: 10 }}
                   variant="standard"
-=======
-                  defaultValue={fields.ext_topic}
-                  onChange={(_, chips) => this.handleChipsChange('ext_topic')(chips)}
->>>>>>> 49a9578... remove artificial metadata separation
                 />
               </Grid>
               <Grid item xs={12} style={{ paddingRight: 120 }}>
