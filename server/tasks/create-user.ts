@@ -1,4 +1,4 @@
-import bcrypt = require('bcrypt')
+import bcrypt = require('bcryptjs')
 
 import { safeQuery } from '../neo4j/connection'
 

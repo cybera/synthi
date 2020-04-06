@@ -106,7 +106,7 @@ export async function processDatasetUpdate(uuid, datasetProps) {
   return dataset
 }
 
-export async function filterDatasets({
+export async function filterDatasets({ loader }, {
   uuid,
   name,
   searchString,
@@ -126,6 +126,9 @@ export async function filterDatasets({
   }
 
   datasets = uniqBy(compact(datasets), (dataset) => dataset.uuid)
+
+  // Cache datasets for graphql-shield checks
+  datasets.forEach(d => loader.prime(d.uuid, d))
 
   return datasets
 }
@@ -206,7 +209,7 @@ export async function setPublished(uuid, published) {
   return dataset
 }
 
-export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
+export async function listDatasets({ loader }, orgRef, filter={}, offset=0, limit=10) {
   const query = new Query('dataset')
   const searchIndex = 'DefaultDatasetSearchIndex'
 
@@ -265,12 +268,12 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
     if (filter.format) {
       conditions.push('dataset.format = $filter.format')
     }
-    
+
     //Condition to filter based on dataset topic
     if (filter.topics && filter.topics.length > 0) {
       conditions.push('SIZE(apoc.coll.intersection($filter.topics, dataset.ext_topic)) > 0')
     }
-    
+
     return `WHERE ${conditions.join(' AND ')}`
   })
 
@@ -286,6 +289,9 @@ export async function listDatasets(orgRef, filter={}, offset=0, limit=10) {
   }
 
   const datasets = await query.run(params)
+
+  // Cache datasets for graphql-shield checks
+  datasets.forEach(d => loader.prime(d.uuid, d))
 
   // Don't return the one extra, but last should be true if we don't get it
   return { datasets: datasets.slice(0, limit), last: datasets.length < limit + 1 }

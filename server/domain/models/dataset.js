@@ -131,7 +131,8 @@ class Dataset extends Base {
   }
 
   async owner() {
-    return this.relatedOne('<-[:OWNER]-', 'Organization')
+    // return this.relatedOne('<-[:OWNER]-', 'Organization')
+    return this._owner || this.relatedOne('<-[:OWNER]-', 'Organization')
   }
 
   async inputTransformation() {

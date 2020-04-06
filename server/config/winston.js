@@ -39,7 +39,7 @@ const myFormat = format.printf((info) => {
 });
 
 const logger = createLogger({
-  level: 'debug',
+  level: 'info',
   format: format.combine(
     format.colorize(),
     format.timestamp(),

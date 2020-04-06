@@ -70,7 +70,7 @@ class Column extends Base {
   }
 
   async dataset() {
-    return this.relatedOne('-[:BELONGS_TO]->', 'Dataset')
+    return this._dataset || this.relatedOne('-[:BELONGS_TO]->', 'Dataset')
   }
 
   async canAccess(user) {

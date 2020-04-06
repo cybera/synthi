@@ -37,6 +37,7 @@ import User from './domain/models/user'
 import { checkConfig } from './lib/startup-checks'
 import { updateTask } from './domain/contexts/task'
 
+const DataLoader = require('dataloader')
 
 const main = async () => {
   const passed = await checkConfig()
@@ -143,13 +144,28 @@ const main = async () => {
     authenticate(req, res, next)
   })
 
+  // We're currently use one loader that covers all model classes since using
+  // UUIDS means we don't have to worry about collisions. In the future we may
+  // want to create more specific loaders, but for now this is good enough.
+  function createLoader() {
+    return new DataLoader((uuids) => {
+      // Our model layer doesn't currently support finding multiple UUIDs in a
+      // single query, but the only places we actually use the loaders right
+      // now are in graphql-shield guards which only query a single UUID at a
+      // time anyways. If that changes in the future we'll probably want to add
+      // that functionality to the model layer to make this more efficient.
+      const data = uuids.map(uuid => ModelFactory.getByUuid(uuid))
+      return Promise.all(data)
+    })
+  }
+
   const apolloServer = new ApolloServer({
     schema,
     context: ({ req }) => {
       if (req) {
         const { user } = req
         if (!user) throw new ForbiddenError('Not logged in')
-        return { user }
+        return { user, loader: createLoader() }
       }
       return ({})
     },

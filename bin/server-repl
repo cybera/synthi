@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker-compose exec server npx ts-node repl.js
+docker-compose exec server npx node --experimental-repl-await -r ts-node/register repl.js

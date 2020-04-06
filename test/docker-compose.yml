@@ -19,12 +19,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ../server:/usr/src/app
       - ../config/testing.toml:/usr/src/app/config/development.toml
       - ../config/kubeconfig:/usr/src/app/config/kubeconfig
       - ../data/uploads:/mnt/data
       - ../data/scripts:/mnt/scripts
-      - server_node_modules:/usr/src/app/node_modules
     networks:
       - default
     command: npm run devStart
@@ -70,7 +68,4 @@ services:
 
 volumes:
   neo4j_data:
-  server_node_modules:
-  client_node_modules:
-  manual_node_modules:
   manual_gitbook_comp:
