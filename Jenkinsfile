@@ -27,10 +27,9 @@ pipeline {
     }
 
     stage('Clean docker environment') {
-      // Wipe out all named volumes so leftovers from previous builds don't
-      // affect the current build.
+      // Make sure any leftovers from a previous build are cleaned up
       steps {
-        sh 'docker-compose down -v'
+        sh 'bin/testenv stop'
       }
     }
 
