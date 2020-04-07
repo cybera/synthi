@@ -6,5 +6,6 @@ PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 rm -rf "$PROJECT_DIR/client/dist"
 rm -rf "$PROJECT_DIR/server/dist"
 
-docker-compose run --rm client npm run dist
+# docker-compose -f "$PROJECT_DIR/docker-compose.yml" run --rm client npm run dist
+docker run --rm -v "$PROJECT_DIR/client/dist:/usr/src/app/client/dist" adi_client:${TAG:-latest} npm run dist
 cp -r client/dist "$PROJECT_DIR/server/"
