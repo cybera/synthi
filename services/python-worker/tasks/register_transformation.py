@@ -35,20 +35,10 @@ def transformation_error(error):
   requests.post(params['callback'], json=body)
   raise error
 
-def dataset_input(name, raw=False, original=False):
-  inputs.append(name)
-
-def dataset_output(name):
-  if len(outputs) == 0:
-    inputs.append(name)
-  else:
-    print("Transformations can currently only have one output")
-    exit(0)
-
 try:
-  transform_mod = load_transform(transformation_script,
-                                dataset_input,
-                                dataset_output)
+  transform_mod = load_transform(transformation_script)
+  transformation = transform_mod.entrypoint
+  inputs = [{ 'name': v['ref'], 'alias': k } for k,v in transformation.inputs.items() if v['reftype'] == 'dataset']
 except Exception as error:
   transformation_error(error)
 

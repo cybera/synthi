@@ -33,12 +33,6 @@ services:
     image: cybera/adi-python-worker:latest
     networks:
       - default
-    volumes:
-      - ../services/python-worker:/usr/src/app
-      - ../services/common:/usr/src/app/common
-      - ../config/testing.toml:/usr/src/app/common/config/development.toml
-      - ../data/uploads:/mnt/data
-      - ../data/scripts:/mnt/scripts
     command: /bin/true
   tika-worker:
     build:
@@ -47,12 +41,6 @@ services:
     image: cybera/adi-tika-worker:latest
     networks:
       - default
-    volumes:
-      - ./services/tika-worker:/usr/src/app
-      - ./services/common:/usr/src/app/common
-      - ./config/development.toml:/usr/src/app/common/config/development.toml
-      - ./data/uploads:/mnt/data
-      - ./data/scripts:/mnt/scripts
     command: /bin/true
   redis:
     image: redis:4.0

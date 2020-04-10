@@ -24,53 +24,6 @@ SAMPLE_SIZE = 100
 def transform_dataset(params):
   owner_name = params["ownerName"]
 
-  def dataset_input(name, raw=False, original=False):
-    full_name = get_full_name(name, owner_name)
-    if full_name in params['storagePaths']:
-      if original:
-        path = params['storagePaths'][full_name]['original']
-      else:
-        path = params['storagePaths'][full_name]['imported']
-      if raw:
-        return storage.read_raw(path)
-      else:
-        return storage.read_csv(path)
-
-    # If we don't have the dataset in our list of inputs, not much we can do
-    raise Exception(f"Dataset {full_name} not found")
-
-  def dataset_output(name):
-    # This is only needed so things don't break if this function is in a transformation
-    # It's only really relevant when registering the transformation. By the time we get
-    # here, we have enough hooked up in the graph to figure out the output node.
-    pass
-
-  def write_output(output, owner, output_name):
-    full_name = get_full_name(output_name, owner_name)
-    path = params["storagePaths"][full_name]["imported"]
-
-    update_info = dict(
-      format = os.path.splitext(path)[1].lstrip('.').split('?')[0],
-      columns = []
-    )
-
-    if type(output) is pd.DataFrame:
-      columns = data_import.column_info(output)
-
-      print(f"Updating calculated '{output_name}' dataset: {path}")
-      size = store_csv(output, path, params["storagePaths"][full_name]["sample"])
-      update_info['type'] = 'csv'
-      update_info['columns'] = columns
-    elif type(output) is str:
-      size = storage.write_raw(output.encode('utf-8'), path)
-    else:
-      size = storage.write_raw(output, path)
-      update_info['type'] = 'document'
-
-    update_info['bytes'] = size
-
-    return update_info
-
   body = {
     "type": "task-updated",
     "task": "transform",
@@ -85,9 +38,10 @@ def transform_dataset(params):
     transformation = params["transformation"]
     transform_script = transformation['script']
     print(f"Running {transform_script}")
-    transform_mod = load_transform(transform_script, dataset_input, dataset_output)
-    transform_result = transform_mod.transform()
-    body['data'] = write_output(transform_result, transformation['owner'], transformation['output_name'])
+    transform_mod = load_transform(transform_script)
+    run_params = { 'input': params['input'], 'output': params['output'] }
+    transform_mod.entrypoint.run(run_params)
+    body['data'] = transform_mod.entrypoint.metadata
   except Exception as e:
     body["status"] = "error"
     body["message"] = repr(e)

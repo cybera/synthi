@@ -313,7 +313,7 @@ class Dataset extends Base {
     )))
 
     if (tasks.length > 1) {
-      await Promise.all(withNext(tasks, (task, nextTask) => task.addNext(nextTask)))
+      await Promise.all(withNext(tasks, (task, nextTask) => task.addDependentTask(nextTask)))
     }
 
     if (tasks.length > 0) {
@@ -463,11 +463,7 @@ class Dataset extends Base {
     return ext
   }
 
-  async registerTransformation(inputs, outputs) {
-    if (outputs.length > 0) {
-      throw new Error('Specifying outputs other than the original dataset not supported')
-    }
-
+  async registerTransformation(inputs) {
     const baseQuery = `
       MATCH (outputDataset:Dataset { uuid: $dataset.uuid })
       MATCH (transformation:Transformation)-[:OUTPUT]->(outputDataset)
@@ -482,12 +478,11 @@ class Dataset extends Base {
 
     const inputsQuery = `
       ${baseQuery}
-      UNWIND $inputUuids AS inputUuid
-      MATCH (inputDataset:Dataset { uuid: inputUuid })
-      MERGE (inputDataset)-[:INPUT]->(transformation)
+      UNWIND $inputs AS input
+      MATCH (inputDataset:Dataset { uuid: input.dataset.uuid })
+      MERGE (inputDataset)-[:INPUT { alias: input.alias }]->(transformation)
     `
-    const inputUuids = inputs.map(input => input.uuid)
-    await safeQuery(inputsQuery, { dataset: this, inputUuids })
+    await safeQuery(inputsQuery, { dataset: this, inputs })
 
     const transformationReadyQuery = `
       MATCH (:Dataset { uuid: $dataset.uuid })<-[:OUTPUT]-(t:Transformation)

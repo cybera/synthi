@@ -12,6 +12,8 @@ FROM base as python-worker
 RUN pip install neo4j-driver \
                 bcrypt \
                 python-magic
+COPY ./pkg /usr/src/pkg
+RUN pip install -e /usr/src/pkg/python-adi
 ADD python-worker ./
 ADD common ./common
 

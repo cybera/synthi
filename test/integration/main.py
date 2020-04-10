@@ -36,10 +36,12 @@ def clean_environment():
 
 def test_basic_upload_and_compute():
     client.dataset.upload('simple_data', 'data/simple_data.csv')
+    time.sleep(5)
     simple_data = client.dataset.get('simple_data')
     assert(simple_data['x'].tolist() == [4, 8])
 
     client.dataset.define('simple_means', 'data/simple_means.py')
+    time.sleep(5)
     simple_means = client.dataset.get('simple_means')
     assert(simple_means['0'].tolist() == [6.0])
 
@@ -64,7 +66,7 @@ def test_reusable_csv_transform():
             f'simple-data-transformed-{i}',
             template = 'ReusableMeans',
             inputs = {
-                'simple_data': f'simple-data-{i}'
+                'df': f'simple-data-{i}'
             }
         )
 
@@ -81,7 +83,7 @@ def test_reusable_csv_transform():
             f'simple-data-transformed-{i}',
             template = 'ReusableMax',
             inputs = {
-                'simple_data': f'simple-data-{i}'
+                'df': f'simple-data-{i}'
             }
         )
 
@@ -122,7 +124,7 @@ def test_define_and_use_transformation_in_shared_organization():
     result = client_test1_shared_org.transformation.define(
         'SharedSimpleMeans',
         'data/simple_means.py',
-        inputs=['simple_data']
+        inputs=['df']
     )
     assert(result['name'] == 'SharedSimpleMeans')
 
@@ -131,7 +133,7 @@ def test_define_and_use_transformation_in_shared_organization():
         'simple_data-means-shared-1',
         template = 'SharedSimpleMeans',
         inputs = {
-            'simple_data': 'simple_data-shared'
+            'df': 'simple_data-shared'
         }
     )
 
@@ -140,7 +142,7 @@ def test_define_and_use_transformation_in_shared_organization():
         'simple_data-means-shared-2',
         template = 'SharedSimpleMeans',
         inputs = {
-            'simple_data': 'simple_data-shared'
+            'df': 'simple_data-shared'
         }
     )
 
@@ -153,7 +155,7 @@ def test_incorrect_reusable_transformation_definition():
         result = client_test2_bad_org.transformation.define(
             'SharedSimpleMeans2',
             'data/simple_means.py',
-            inputs=['simple_data']
+            inputs=['df']
         )
 
 def test_incorrect_property_access_on_dataset():
@@ -171,7 +173,7 @@ def test_transformation_publishing():
     result = client_test1.transformation.define(
         'PublishedSimpleMeans',
         'data/simple_means.py',
-        inputs=['simple_data']
+        inputs=['df']
     )
     uuid = result['uuid']
 
@@ -204,7 +206,7 @@ def test_create_transformation():
     name = 'Test'
     code='import foo from bar'
     description='My test transformation'
-    inputs=['simple_data']
+    inputs=['df']
 
     result = client.transformation.define(
         name=name,
@@ -223,7 +225,7 @@ def test_update_transformation():
         'SimpleMeans',
         'data/simple_means.py',
         description='My simple means transformation',
-        inputs=['simple_data']
+        inputs=['df']
     )
     uuid = result['uuid']
 
@@ -277,14 +279,14 @@ def test_transformation_tags():
     result = client.transformation.define(
         'SimpleMeans',
         'data/simple_means.py',
-        inputs=['simple_data']
+        inputs=['df']
     )
     assert result['tags'] == []
 
     result = client.transformation.define(
         'SimpleMeans2',
         'data/simple_means.py',
-        inputs=['simple_data'],
+        inputs=['df'],
         tags=['Integer', 'Float', 'String']
     )
     uuid = result['uuid']

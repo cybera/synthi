@@ -51,5 +51,16 @@ def read_script_module(url):
 
   return transform_module
 
+def __metadata(url):
+  res = requests.head(url)
+  if res.status_code != 200:
+    raise Exception(f"Failed to read metadata for dataset {url} got {res.status_code}")
+
+  return res.headers
+
+def bytes(url):
+  metadata = __metadata(url)
+  return int(metadata['Content-Length'])
+
 def cleanup_script_module(module):
   pass
