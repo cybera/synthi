@@ -1,11 +1,9 @@
 #! /usr/bin/python3
-import logging
-from os import walk, environ
+from os import environ
 import logging.handlers
 from time import sleep
 import os.path
 from os import path
-from os.path import join
 import swiftclient
 from sys import argv
 import toml
@@ -58,9 +56,11 @@ password = settings['storage']['object']['creds']['password']
 region = settings['storage']['object']['creds']['region']
 url = settings['storage']['object']['creds']['authUrl']
 tenant = settings['storage']['object']['creds']['tenantName']
-swift_conn = swiftclient.client.Connection(authurl=url, user=user, key=password, tenant_name=tenant, auth_version='2.0', os_options={'region_name': region})
+swift_conn = swiftclient.client.Connection(authurl=url, user=user, key=password, tenant_name=tenant,
+                                           auth_version='2.0', os_options={'region_name': region})
 
-def runcommand (cmd):
+
+def runcommand(cmd):
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
@@ -70,16 +70,18 @@ def runcommand (cmd):
     return proc.returncode, std_out, std_err
 
 
-def list():
+def listall():
     """
     List backups
     :returns: A list of the available backup names (.gz files)
     """
     return swift_conn.get_container(swift_backup)[1]
 
+
 def upload():
     """
-    Upload Backups - Finds all backup folders in /backup and compresses each folder, storing it in /compressed, and uploads them to swift.
+    Upload Backups - Finds all backup folders in /backup and compresses each folder, storing it in /compressed,
+    and uploads them to swift.
     :returns: nothing. It does, however, create a log entry stating what backups were sent.
     """
     compress_folder = os.path.join(backup_folder, "compressed")
@@ -99,12 +101,12 @@ def upload():
             adi_backup.info(f"{folder} is backed up")
 
 
-def download(file):
+def download(filename):
     """
     Download Backup - downloads the .gz file requested and stors it in /backup/torestore/ and decompresses it.
     Example: ./backup.py restore [filename]
     Get the list of files by running ./backup.py list
-    :param file: File to be downloaded
+    :param filename: File to be downloaded
     :return: List of files in the /backup/torestore folder.
     """
     # Ensure the restore folder is available
@@ -112,12 +114,12 @@ def download(file):
     if not path.exists(restore_folder):
         os.mkdir(restore_folder)
     # Get the backup from Swift
-    getfile = swift_conn.get_object(container=swift_backup, obj=file)
-    with open(os.path.join(restore_folder, file), 'wb') as f:
+    getfile = swift_conn.get_object(container=swift_backup, obj=filename)
+    with open(os.path.join(restore_folder, filename), 'wb') as f:
         f.write(getfile[1])
     # Extract the .gz file to the restore directory
     os.chdir(restore_folder)
-    tar = tarfile.open(os.path.join(restore_folder, file))
+    tar = tarfile.open(os.path.join(restore_folder, filename))
     tar.extractall()
     tar.close()
     # Delete the .gz file
@@ -127,7 +129,7 @@ def download(file):
 
 if argument:
     if argument == "list":
-        for item in list():
+        for item in listall():
             print(item['name'])
     elif argument == "restore":
         restorefile = argv[2]
@@ -138,15 +140,20 @@ if argument:
             if path.exists(backup_folder):
                 # adi_backup.info("Backup Directory contains: " + str(os.listdir(backup_folder)))
                 adi_backup.info(f"The time is {datetime.now().hour}:{datetime.now().minute}")
-                if(datetime.now().minute == 00):
-                    if(datetime.now().hour != current_hour and datetime.now().hour != 6): # check if it has already run this hour and that it is not 23:00 MST (06:00 UST)
-                        code, out, err = runcommand(f"neo4j-admin backup --backup-dir={backup_folder} --pagecache=4G --name=neo4j_$(date +%m_%d_%Y).db-backup --from=neo4j")
-                        if(code != 0):
-                            adi_backup.error(f"Neo4j backup failed:\nCode: {str(code)}\nOutput: {out}\nError: {err}" )
+                if datetime.now().minute == 00:
+                    # check if it has already run this hour and that it is not 23:00 MST (06:00 UST)
+                    if datetime.now().hour != current_hour and datetime.now().hour != 6:
+                        code, out, err = runcommand(f"neo4j-admin backup "
+                                                    f"--backup-dir={backup_folder} "
+                                                    f"--pagecache=4G "
+                                                    f"--name=neo4j_$(date +%m_%d_%Y).db-backup "
+                                                    f"--from=neo4j")
+                        if code != 0:
+                            adi_backup.error(f"Neo4j backup failed:\nCode: {str(code)}\nOutput: {out}\nError: {err}")
                         else:
                             adi_backup.info("Neo4j backed up successfully")
                         current_hour = datetime.now().hour
-                    elif(datetime.now().hour == 6): # If it is 23:00 MST (06:00 UST) back the container up to swift
+                    elif datetime.now().hour == 6:  # If it is 23:00 MST (06:00 UST) back the container up to swift
                         upload()
             else:
                 adi_backup.error("Backup folder not mounted in container, please check your configuration")

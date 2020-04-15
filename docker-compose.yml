@@ -1,5 +1,14 @@
 version: '3.4'
 services:
+  backups:
+    build: ./backup
+    image: cybera/backups:${TAG}
+    volumes:
+      - backup:/backup
+      - ./config/development.toml:/config/development.toml
+    environment:
+      BACKUP_DIR: /backup
+      SWIFT_CONTAINER: "adi_backup"
   neo4j:
     build: ./neo4j
     image: cybera/adi-neo4j:${TAG}
@@ -96,3 +105,4 @@ volumes:
   client_node_modules:
   manual_node_modules:
   manual_gitbook_comp:
+  backup:
