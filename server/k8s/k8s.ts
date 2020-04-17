@@ -36,12 +36,22 @@ export default function runTask(message: any): any {
   const podTemplateSpec = new k8s.V1PodTemplateSpec()
   podTemplateSpec.spec = podSpec
 
+  podTemplateSpec.metadata = podTemplateSpec.metadata || {};
+  podTemplateSpec.metadata.labels = {
+    task: message.task,
+    foo: 'foo'
+  }
+
   const jobSpec = new k8s.V1JobSpec()
   jobSpec.template = podTemplateSpec
   jobSpec.backoffLimit = 0
 
   const metadata = new k8s.V1ObjectMeta()
-  metadata.generateName = 'adi-'
+  metadata.generateName = `adi-${message.task.replace('_', '-')}`
+  metadata.labels = {
+    task: message.task,
+    foo: 'foo'
+  }
 
   const job = new k8s.V1Job()
   job.spec = jobSpec
