@@ -205,6 +205,15 @@ class App extends React.Component {
         <StyledCircularProgress />
       )
     } else if (user) {
+      // Hack to set parse dataset links (dataset-link-hack)
+      const path = window.location.pathname
+      const re = /^\/workbench\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/
+      const match = re.exec(path)
+      if (match && (currentMode !== 'datasets' || currentDataset !== match[1])) {
+        this.setState({ currentMode: 'datasets', currentDataset: match[1] })
+        window.history.pushState('', '', '/')
+      }
+
       const leftComponent = (<SidebarComponent mode={currentMode} />)
       const rightComponent = (<StyledMainComponent mode={currentMode} dataset={currentDataset} />)
 

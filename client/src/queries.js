@@ -25,6 +25,9 @@ query($uuid: String) {
     type
     name
     format
+    owner {
+      uuid
+    }
     downloadOptions {
       variant
       format
