@@ -309,6 +309,7 @@ class Dataset extends Base {
     const TransformTask = Base.ModelFactory.getClass('TransformTask')
 
     const { datasets, transformations } = await this.transformationChain()
+
   // This logic helps in ensuring we don't run all the transformations to access a dataset in a pipeline
   // by comparing the dateUpdated on a dataset to datasets prior to it. This way we can figure out if
   // the transformations linked to these datasets needs to be re-run or not.
@@ -523,7 +524,8 @@ class Dataset extends Base {
       MATCH individual_path = (output)<-[*]-(t)
       WHERE t IN nodes(full_path)
       WITH DISTINCT(individual_path), t
-      MATCH (individual_input:Dataset)-[:INPUT]-(t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
+      MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
+      OPTIONAL MATCH (individual_input:Dataset)-[:INPUT]-(t)
       RETURN
         individual_input AS dataset,
         t AS transformation,
@@ -532,12 +534,23 @@ class Dataset extends Base {
     `
 
     const results = await safeQuery(query, { output_id: this.id })
-    
-    const datasets = results.map(t => Base.ModelFactory.derive(t.dataset))
-    const transformations = results.map(r => Base.ModelFactory.derive(r.transformation))
-    return { datasets, transformations}
-  }
+   
+    let datasets = new Object();
+    let transformations = new Object();
+  
+    datasets = results.map(function (t){
+        if(t.dataset){
+          t => Base.ModelFactory.derive(t.dataset)
+        }
+        else{
+          return null
+        }
+      })
 
+    transformations = results.map(r => Base.ModelFactory.derive(r.transformation))
+    return { datasets, transformations}
+  
+    }
   // eslint-disable-next-line class-methods-use-this
   async columns() {
     return []
