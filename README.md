@@ -234,3 +234,17 @@ bin/testenv stop
 ```
 
 This will also get rid of the volumes Docker creates for the test instances, so you'll be starting from a completely clean slate the next time around (one exception: anything still residing in your swift storage containers isn't deleted at the moment).
+
+### Debugging Jenkins failures
+
+When the integration tests fail on a Jenkins run, why they failed can be rather mysterious because it's not easy to see
+any actual errors that may have been triggered on the server, only the ones that flow through to the test.
+
+There's already a change in place that stores any Docker output from the server, database, etc. after executing the
+tests, so it may be helpful in diagnosing problems that don't seem to appear in a devleopment environment.
+
+Here's how you navigate to the logs that are now being written:
+
+1. Click the Jenkins classic icon if you're not already there
+2. Go to the workspace (it should have the entire code branch that was part of this Jenkins build)
+3. Check test/log/integration-test.log
