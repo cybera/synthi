@@ -40,6 +40,7 @@ def test_basic_upload_and_compute():
     assert(simple_data['x'].tolist() == [4, 8])
 
     client.dataset.define('simple_means', 'data/simple_means.py')
+    time.sleep(5)
     simple_means = client.dataset.get('simple_means')
     assert(simple_means['0'].tolist() == [6.0])
 
