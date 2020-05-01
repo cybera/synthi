@@ -36,6 +36,7 @@ def clean_environment():
 
 def test_basic_upload_and_compute():
     client.dataset.upload('simple_data', 'data/simple_data.csv')
+    time.sleep(5)
     simple_data = client.dataset.get('simple_data')
     assert(simple_data['x'].tolist() == [4, 8])
 
