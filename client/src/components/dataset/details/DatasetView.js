@@ -16,6 +16,8 @@ import GeneratingProgress from '../layout/GeneratingProgress'
 import SubscribedWarningBanner from './SubscribedWarningBanner'
 import Preview from './Preview'
 import TaskStatus from './TaskStatus'
+import { withNavigation } from '../../../contexts/NavigationContext'
+import { compose } from '../../../lib/common'
 
 const DATASET_GENERATION_SUBSCRIPTION = gql`
   subscription onDatasetGenerated($uuid: String!) {
@@ -90,7 +92,7 @@ class DatasetView extends React.Component {
   }
 
   componentDidMount() {
-    const { subscribeToDatasetGenerated, uuid } = this.props
+    const { dataset, navigation, subscribeToDatasetGenerated, uuid } = this.props
     this.unsubscribe = subscribeToDatasetGenerated(({status, message}) => {
       const { errors } = this.state
       if (status === 'error') {
@@ -99,6 +101,9 @@ class DatasetView extends React.Component {
         this.setState({ errors: Object.assign({}, errors, { [uuid]: '' }) })
       }
     })
+
+    // TODO: Hack to set correct when following dataset link (dataset-link-hack)
+    navigation.setOrg(dataset.owner.uuid)
   }
 
   componentWillUnmount() {
@@ -252,4 +257,8 @@ const ConnectedDatasetView = (props) => {
   )
 }
 
-export default withStyles(styles)(ConnectedDatasetView)
+// export default withStyles(styles)(ConnectedDatasetView)
+export default compose(
+  withStyles(styles),
+  withNavigation
+)(ConnectedDatasetView)
