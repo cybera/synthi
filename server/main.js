@@ -38,6 +38,7 @@ import { checkConfig } from './lib/startup-checks'
 import { updateTask } from './domain/contexts/task'
 
 const DataLoader = require('dataloader')
+const path=require('path')
 
 const main = async () => {
   const passed = await checkConfig()
@@ -223,6 +224,16 @@ const main = async () => {
     } else {
       res.status(404).send('Not found')
     }
+  })
+
+  // Route to load dataset url
+  app.get('/workbench/:uuid', function (req, res) {
+
+      res.sendFile(__dirname + '/dist/index.html', function (err) {
+        if (err) {
+          res.status(404).send('Not found')
+        }
+      })
   })
 
   app.post('/updateTask', async (req, res) => {
