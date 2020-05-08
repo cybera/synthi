@@ -1,33 +1,41 @@
 import gql from 'graphql-tag';
 
 export const datasetListQuery = gql`
-query($searchString: String, $org: OrganizationID) {
+query($searchString: String, $org: OrganizationRef) {
   dataset(searchString: $searchString, org: $org) {
-    id,
-    name,
+    uuid
+    name
     owner {
-      id
+      uuid
     }
   }
 }
 `
 
 export const deleteDatasetMutation = gql`
-mutation DeleteDataset($id: Int!) {
-  deleteDataset(id: $id) {
-    id
-    name
-  }
+mutation DeleteDataset($uuid: String!) {
+  deleteDataset(uuid: $uuid)
 }
 `
 
 export const datasetViewQuery = gql`
-query($id: Int) {
-  dataset(id: $id) {
-    id
+query($uuid: String) {
+  dataset(uuid: $uuid) {
+    uuid
+    type
     name
+    format
+    owner {
+      uuid
+    }
+    downloadOptions {
+      variant
+      format
+      filename
+      uri
+    }
     columns {
-      id
+      uuid
       name
       order
       visible
@@ -37,9 +45,16 @@ query($id: Int) {
     generating
     samples
     inputTransformation {
-      id
+      uuid
       code
       error
+      virtual
+    }
+    importTask: lastTask(types: ["import_csv", "import_document"]) {
+      uuid
+      state
+      message
+      type
     }
   }
 }
@@ -48,16 +63,17 @@ query($id: Int) {
 export const plotsRetrieveQuery = gql`
 {
   plots {
-    id
+    uuid
     jsondef
   }
 }
 `
 
 export const datasetConnectionsQuery = gql`
-  query($id: Int!) {
-    dataset(id: $id) {
+  query($uuid: String!) {
+    dataset(uuid: $uuid) {
      id
+     uuid
      name
      connections
    }
@@ -66,10 +82,9 @@ export const datasetConnectionsQuery = gql`
 
 
 export const datasetColumnTagsQuery = gql`
-  query($id: Int!) {
-    dataset(id: $id) {
+  query($uuid: String!) {
+    dataset(uuid: $uuid) {
       columns {
-        id
         uuid
         name
         tags {

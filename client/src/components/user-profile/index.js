@@ -1,7 +1,9 @@
-import Dialog from './Dialog'
-import ConnectedDialog from './ConnectedDialog'
+import UserProfileDialog from './UserProfileDialog'
+import UserProfileContainer from './UserProfileContainer'
+
+export default UserProfileContainer
 
 export {
-  Dialog,
-  ConnectedDialog
+  UserProfileDialog,
+  UserProfileContainer
 }

@@ -6,14 +6,26 @@
 * OpenStack ([website](http://www.openstack.org), [more info](#openstack))
 * Docker, Docker Machine, Docker Compose
 * Logged in to Docker Hub locally (`docker login`) ([more info](#docker))
+  * And have your Docker Hub account given the appropriate permissions (e.g, added to the "owners" team in the Cybera organization, or similar
 * Logged in to the VPN ([more info](#vpn))
 * Security Groups ([more info](#security))
+
+## Local Machine setup (macOS)
+
+1. `brew install ansible`
+2. Install Docker
+3. [Install Docker Machine](https://github.com/docker/machine/releases/) (not installed by default):
+
+```bash
+curl -L https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine && \
+chmod +x /usr/local/bin/docker-machine
+```
 
 ## Creating a Docker Host
 
 1. Launch an Ubuntu 16.04 instance in RAC in the `Data Science` project ([more info](#instance))
 	* Give it the `adi` and `vpn_all` security groups
-	* Attach a floating IP
+	* Attach a floating IP (or rely on IPv6))
 3. Create a domain `<environment>.adi2.data.cybera.ca` pointing to that floating IP ([more detailed instructions](#domain))
 3. Use Docker Machine to install Docker:
 ```
@@ -32,6 +44,8 @@ adi-<environment>
 ansible-playbook -i hosts -l <environment> playbook.yml
 ```
 
+6. Create Swift containers in RAC, one for datasets, and one for scripts
+
 ## Deploying the Stack
 
 Switch to the remote Docker host:
@@ -47,9 +61,20 @@ cp ../config/development.toml.example production.toml
 docker config create production.toml production.toml
 ```
 
+In particular make sure you:
+* Change your listed `username`, `password`, `region`, `tenant`, and `authURL`
+* Set the `datasets` and `scripts` containers names to the names of the containers you created earlier
+* Set the `[neo4j]` password to something safe and secure
+
 Also run `cp neo4j.env.example neo4j.env` and change `password` to the value from `production.toml`:
 
 Now deploy the stack:
+
+You'll want to set the TAG variable to ensure that the images get tagged appropriately. You can use `latest` if you want to update the latest available version of the containers, or something else if you'd like:
+
+```
+export TAG=latest
+```
 
 ```
 docker stack deploy --with-registry-auth -c stack.yml adi
@@ -88,7 +113,7 @@ Then services can be updated to the new images:
 eval "$(docker-machine env adi-<environment>)"
 docker service update adi_server --image cybera/adi-server --with-registry-auth
 docker service update adi_neo4j --image cybera/adi-neo4j --with-registry-auth
-docker service update adi_python-worker --image cybera/adi_python-worker --with-registry-auth
+docker service update adi_python-worker --image cybera/adi-python-worker --with-registry-auth
 ```
 # <a name="instance"></a>Starting an Instance on RAC
 

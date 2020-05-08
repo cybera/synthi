@@ -1,27 +1,9 @@
-import pathlib from 'path'
-import fs from 'fs'
 import waitOn from 'wait-on'
-import AMQP from 'amqplib'
 import shortid from 'shortid'
 import csvParse from 'csv-parse'
-import config from 'config'
 
 import Storage from '../storage'
 import logger from '../config/winston'
-
-export const datasetExists = dataset => dataset.path && fs.existsSync(dataset.fullPath())
-
-export const fullDatasetPath = (relPath) => {
-  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
-  const fullPath = pathlib.join(dataDir, 'datasets', relPath || '')
-  return fullPath
-}
-
-export const fullScriptPath = (relPath) => {
-  const dataDir = pathlib.resolve(config.get('storage.legacy.dataRoot'))
-  const fullPath = pathlib.join(dataDir, 'scripts', relPath || '')
-  return fullPath
-}
 
 export const waitForFile = relPath => new Promise((resolve, reject) => {
   // TODO: This will need to change when using non-local storage
@@ -32,10 +14,13 @@ export const waitForFile = relPath => new Promise((resolve, reject) => {
   }, err => (err ? reject(err) : resolve()))
 })
 
-export const storeFS = ({ stream, filename }, unique = false) => {
+export const storeFS = async ({ stream, filename }, unique = false) => {
   const id = shortid.generate()
   const uniqueFilename = unique ? `${id}-${filename}` : filename
   logger.info(`Storing ${filename}`)
+
+  let bytes = 0
+
   return new Promise(
     (resolve, reject) => stream
       .on('error', (error) => {
@@ -47,14 +32,17 @@ export const storeFS = ({ stream, filename }, unique = false) => {
         }
         reject(error)
       })
+      .on('data', (chunk) => {
+        bytes += chunk.length
+      })
       .pipe(Storage.createWriteStream('datasets', uniqueFilename))
       .on('error', (error) => {
         logger.error(`Error piping to write stream: ${error}`)
         reject(error)
       })
       .on('finish', () => {
-        logger.info(`Finishing upload of ${filename}`)
-        return resolve({ id, path: uniqueFilename })
+        logger.info(`Finishing upload of ${filename} (${bytes} bytes)`)
+        return resolve({ id, path: uniqueFilename, bytes })
       })
   )
 }
@@ -84,4 +72,26 @@ export const csvFromStream = async (stream, from, to) => {
   stream.pipe(parser)
 
   return parseStream.then(() => output)
+}
+
+/*
+  Return true if all properties in the 2nd parameter
+  exist in the first and are equal.
+
+  Note that this assumes a relatively flat map. Equality
+  depends on whatever Javascript thinks it is using the
+  === operator. This works well enough for the current
+  intended purpose, but if you want deeper comparisons
+  you might need to do some more testing and modifications.
+*/
+export const containsProperties = (obj, properties) => {
+  let contained = true
+
+  Object.keys(properties).forEach((key) => {
+    if (!(key in obj && obj[key] === properties[key])) {
+      contained = false
+    }
+  })
+
+  return contained
 }

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$(dirname $SCRIPT_DIR)"
+
+cd $PROJECT_DIR/test
+
+if [[ $1 == 'jenkins_start' ]]; then
+  action='start'
+  args=''
+else
+  action=$1
+  args='-f docker-compose.yml -f docker-compose.local.yml'
+fi
+
+if [[ $action == 'start' ]]; then
+  docker-compose $args up -d
+  docker-compose $args exec -T neo4j bash -c '
+    echo "Waiting for Neo4J to start up"
+    end="$((SECONDS+60))"
+    while true; do
+      [[ "200" = "$(curl --silent --write-out %{http_code} --output /dev/null http://localhost:7474)" ]] && break
+      [[ "${SECONDS}" -ge "${end}" ]] && exit 1
+      sleep 1
+    done
+  '
+
+  docker-compose $args run server npx ts-node tasks/create-user.ts test password test-token
+  docker-compose $args run --rm server npx ts-node tasks/create-user.ts test2 password test-token2
+  docker-compose $args run --rm server npx ts-node tasks/create-org.ts shared-test-org
+  docker-compose $args run --rm server npx ts-node tasks/add-user-to-org.ts test shared-test-org
+  docker-compose $args run --rm server npx ts-node tasks/add-user-to-org.ts test2 shared-test-org
+  docker-compose $args run --rm server npm run migrate
+elif [[ $action == 'stop' ]]; then
+  docker-compose $args down -v
+  docker-compose $args rm -v
+else
+    echo "\"$action\" is not a valid subcommand for $0"
+    exit 1
+fi

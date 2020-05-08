@@ -3,6 +3,8 @@ import config from 'config'
 
 import logger from '../config/winston'
 
+const crypto = require('crypto')
+
 let openstack
 
 const connection = () => {
@@ -12,6 +14,25 @@ const connection = () => {
   }
 
   return openstack
+}
+
+const testConnection = async () => {
+  const containers = config.get('storage.object.containers')
+  const promises = []
+
+  Object.keys(containers).forEach((key) => {
+    promises.push(new Promise((resolve, reject) => {
+      connection().getFiles(containers[key], (err, file) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(file)
+        }
+      })
+    }))
+  })
+
+  return Promise.all(promises)
 }
 
 const createWriteStream = (area, relativePath) => connection().upload({
@@ -30,7 +51,7 @@ const remove = (area, relativePath) => connection().removeFile(
   (err) => logger.error(err)
 )
 
-const exists = (area, relativePath) => {
+const exists = async (area, relativePath) => {
   return new Promise((resolve, reject) => {
     connection().getFile(
       config.get('storage.object.containers')[area],
@@ -43,10 +64,27 @@ const exists = (area, relativePath) => {
   })
 }
 
+const createTempUrl = (area, relativePath, method) => {
+  const container = config.get('storage.object.containers')[area]
+  const tenant = config.get('storage.object.creds.tenantId')
+  const key = config.get('storage.object.creds.tempUrlKey')
+  // TODO: Can use keystone client to get swift url from service catalog
+  const swiftUrl = config.get('storage.object.creds.swiftUrl')
+
+  const path = `/v1/AUTH_${tenant}/${container}/${relativePath}`
+  const expires = Math.floor(Date.now() / 1000) + 12 * 60 * 60 // 12 hours in seconds
+  const hmacBody = `${method}\n${expires}\n${path}`
+  const sig = crypto.createHmac('sha1', key).update(hmacBody).digest('hex')
+
+  return swiftUrl + encodeURI(`${path}?temp_url_sig=${sig}&temp_url_expires=${expires}`)
+}
+
 // Object storage won't have the file in the first place if there was a failure
 const cleanupOnError = (area, relativePath) => logger.info(`Object storage cleanup: ${area}:${relativePath} (doing nothing)`)
 
 export {
+  testConnection,
+  createTempUrl,
   createWriteStream,
   createReadStream,
   remove,

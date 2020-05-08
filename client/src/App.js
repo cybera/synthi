@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types'
 import { hot } from 'react-hot-loader'
 
 import { withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import CircularProgress from '@material-ui/core/CircularProgress';
-import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
-import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns'
 
 import ApolloClient from 'apollo-client';
 import { InMemoryCache, ApolloLink } from 'apollo-boost';
@@ -14,12 +15,19 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 
-import DatasetDetails from './components/DatasetDetails'
-import Scenarios from './components/Scenarios'
-import StyledLogin from './components/Login'
-import Notifier from './components/Notifier'
-import AppBar from './components/AppBar'
-import NavigationContext from './context/NavigationContext'
+import { DatasetDetails } from './components/dataset/layout'
+import { Scenarios } from './components/scenarios'
+import { TransformationMain, TransformationSidebar } from './components/transformations'
+import { Login } from './components/auth'
+import { Notifier } from './components/layout'
+import { AppBar } from './components/layout/appbar'
+import NavigationContext from './contexts/NavigationContext'
+import { TransformationFilterProvider } from './contexts/TransformationFilterContext'
+import { DatasetSidebar } from './components/dataset'
+import { DatasetFilterProvider } from './contexts/DatasetFilterContext'
+import * as DatasetBrowser from './components/dataset/browser'
+import ErrorBoundary, { withErrorBoundary } from './components/ErrorBoundary'
+
 
 let uri
 
@@ -36,17 +44,6 @@ const wsLink = new WebSocketLink({
   }
 });
 
-const subscriptionMiddleware = {
-  applyMiddleware: async (options, next) => {
-    const user = JSON.parse(localStorage.getItem('user'))
-    const apikey = user ? user.apikey : null
-    options.authToken = apikey
-    next()
-  },
-}
-
-wsLink.subscriptionClient.use([subscriptionMiddleware])
-
 const httpLink = ApolloLink.from([createUploadLink({ uri: '/graphql', credentials: 'include' })])
 
 // using the ability to split links, you can send data to each link
@@ -62,7 +59,9 @@ const link = split(
 );
 
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    dataIdFromObject: object => object.uuid || null
+  }),
   // Apparently "new HttpLink()" isn't necessary anymore:
   // https://stackoverflow.com/questions/49507035/how-to-use-apollo-link-http-with-apollo-upload-client
   link
@@ -99,18 +98,37 @@ const styles = () => ({
 
 function MainComponent(props) {
   const { mode, dataset } = props
+  let component = <div>Empty</div>
 
-  if (mode === 'datasets' || mode === 'chart-editor') return <DatasetDetails id={dataset} />
-  if (mode === 'scenarios') return <Scenarios />
+  if (mode === 'datasets' || mode === 'chart-editor') component = <DatasetDetails uuid={dataset} />
+  if (mode === 'scenarios') component = <Scenarios />
+  if (mode === 'transformations') component = <TransformationMain />
+  if (mode === 'dataset_browser') component = <DatasetBrowser.DetailPanel />
 
-  return <div>Empty</div>
+  return <ErrorBoundary>{component}</ErrorBoundary>
 }
 
 const StyledMainComponent = withStyles(styles)(props => (
   <div className={props.classes.root}>
-    <MainComponent {...props} />
+    <ErrorBoundary>
+      <MainComponent {...props} />
+    </ErrorBoundary>
   </div>
 ))
+
+const SidebarComponent = (props) => {
+  const { mode } = props
+
+  if (mode === 'datasets') return <div><DatasetSidebar /></div>
+  if (mode === 'transformations') return <TransformationSidebar />
+  if (mode === 'dataset_browser') return <DatasetBrowser.FilterPanel />
+
+  return <div />
+}
+
+SidebarComponent.propTypes = {
+  mode: PropTypes.string.isRequired
+}
 
 const StyledCircularProgress = withStyles(styles)((props) => {
   const { classes } = props;
@@ -129,7 +147,7 @@ class App extends React.Component {
     this.state = {
       currentDataset: null,
       currentMode: 'datasets',
-      currentOrg: 0,
+      currentOrg: '',
       user: null,
       loading: false
     }
@@ -140,7 +158,7 @@ class App extends React.Component {
         const org = user.orgs.find(o => o.name === user.username)
 
         this.state.user = user
-        this.state.currentOrg = org.id
+        this.state.currentOrg = org.uuid
       }
     } catch (error) {
       console.log(error)
@@ -172,7 +190,7 @@ class App extends React.Component {
 
   switchMode = mode => this.setState({ currentMode: mode })
 
-  selectDataset = (id, name) => this.setState({ currentDataset: id, currentName: name })
+  selectDataset = (uuid, name) => this.setState({ currentDataset: uuid, currentName: name })
 
   setUser = user => this.setState({ user })
 
@@ -187,16 +205,27 @@ class App extends React.Component {
         <StyledCircularProgress />
       )
     } else if (user) {
+      // Hack to set parse dataset links (dataset-link-hack)
+      const path = window.location.pathname
+      const re = /^\/workbench\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/
+      const match = re.exec(path)
+      if (match && (currentMode !== 'datasets' || currentDataset !== match[1])) {
+        this.setState({ currentMode: 'datasets', currentDataset: match[1] })
+        window.history.pushState('', '', '/')
+      }
+
+      const leftComponent = (<SidebarComponent mode={currentMode} />)
+      const rightComponent = (<StyledMainComponent mode={currentMode} dataset={currentDataset} />)
+
       mainComponent = (
-        <AppBar>
-          <StyledMainComponent
-            mode={currentMode}
-            dataset={currentDataset}
-          />
-        </AppBar>
+        <AppBar
+          leftContent={leftComponent}
+          rightContent={rightComponent}
+          key={currentMode}
+        />
       )
     } else {
-      mainComponent = <StyledLogin />
+      mainComponent = <Login />
     }
 
     return (
@@ -214,12 +243,16 @@ class App extends React.Component {
             setOrg: this.setOrg
           }}
         >
-          <MuiThemeProvider theme={theme}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <Notifier />
-              {mainComponent}
-            </MuiPickersUtilsProvider>
-          </MuiThemeProvider>
+          <DatasetFilterProvider>
+            <TransformationFilterProvider>
+              <MuiThemeProvider theme={theme}>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <Notifier />
+                  {mainComponent}
+                </MuiPickersUtilsProvider>
+              </MuiThemeProvider>
+            </TransformationFilterProvider>
+          </DatasetFilterProvider>
         </NavigationContext.Provider>
       </ApolloProvider>
     )

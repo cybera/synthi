@@ -7,7 +7,6 @@ import FormGroup from '@material-ui/core/FormGroup'
 import FormControl from '@material-ui/core/FormControl'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormLabel from '@material-ui/core/FormLabel'
-import Grid from '@material-ui/core/Grid'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import Switch from '@material-ui/core/Switch'
@@ -16,12 +15,12 @@ import LoopIcon from '@material-ui/icons/Loop'
 
 import { withStyles } from '@material-ui/core/styles'
 
-import ToggleVisibility from '../ToggleVisibility'
-import ADIButton from '../ADIButton'
+import { ToggleVisibility } from '../layout'
+import { ADIButton } from '../layout/buttons'
 
 const styles = theme => ({
   icon: {
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   }
 })
 
@@ -59,7 +58,7 @@ class CSVOptions extends React.Component {
   }
 
   render() {
-    const { importHandler, id, classes } = this.props
+    const { importHandler, uuid, classes } = this.props
     const { delimiter, header, customDelimiter } = this.state
 
     return (
@@ -106,7 +105,7 @@ class CSVOptions extends React.Component {
               onClick={
                 () => importHandler({
                   variables: {
-                    id,
+                    uuid,
                     options: { delimiter, header, customDelimiter }
                   }
                 })
@@ -123,9 +122,9 @@ class CSVOptions extends React.Component {
 }
 
 export const importCSVGQL = gql`
-  mutation ImportCSV($id: Int!, $options: CSVImportOptions) {
-    importCSV(id:$id, removeExisting: true, options: $options) {
-      id
+  mutation ImportCSV($uuid: String!, $options: CSVImportOptions) {
+    importCSV(uuid:$uuid, removeExisting: true, options: $options) {
+      uuid
       name
     }
   }

@@ -1,0 +1,59 @@
+version: '3.4'
+services:
+  neo4j:
+    build: ../neo4j
+    image: cybera/adi-neo4j:latest
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - default
+    environment:
+      NEO4J_AUTH: neo4j/password
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_apoc_autoIndex_enabled: "true"
+      NEO4J_com_graphaware_runtime_enabled: "true"
+      NEO4J_com_graphaware_module_UIDM_1: "com.graphaware.module.uuid.UuidBootstrapper"
+  server:
+    build: ../server
+    image: cybera/adi-server:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../config/testing.toml:/usr/src/app/config/development.toml
+      - ../config/kubeconfig:/usr/src/app/config/kubeconfig
+      - ../data/uploads:/mnt/data
+      - ../data/scripts:/mnt/scripts
+    networks:
+      - default
+    command: npm run devStart
+  python-worker:
+    build:
+      context: ../services
+      target: python-worker
+    image: cybera/adi-python-worker:latest
+    networks:
+      - default
+    command: /bin/true
+  tika-worker:
+    build:
+      context: ../services
+      target: tika-worker
+    image: cybera/adi-tika-worker:latest
+    networks:
+      - default
+    command: /bin/true
+  redis:
+    image: redis:4.0
+    networks:
+      - default
+  test-runner:
+    build: .
+    command: "true"
+    image: cybera/adi-test-runner:latest
+    volumes:
+      - ./integration:/usr/src/app
+      - ./integration/pkg:/usr/src/pkg
+
+volumes:
+  neo4j_data:
+  manual_gitbook_comp:

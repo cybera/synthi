@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "outDir": "./built",
+        "sourceMap": true,
+        "allowJs": true,
+        "target": "es6",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "noEmitOnError": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noImplicitReturns": true,
+        "strictNullChecks": true
+    },
+    "include": [
+        "./**/*"
+    ],
+    "exclude": [
+        "built",
+        "node_modules"
+    ]
+}

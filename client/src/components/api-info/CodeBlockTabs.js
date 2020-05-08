@@ -34,7 +34,7 @@ const styles = theme => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
-    marginRight: theme.spacing.unit
+    marginRight: theme.spacing(1)
   },
   tabRoot: {
     minWidth: 72,

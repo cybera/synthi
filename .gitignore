@@ -1,6 +1,7 @@
 .DS_Store
-.env
 docs/examples/__pycache__
 __pycache__
 
 development.toml
+testing.toml
+config/kubeconfig

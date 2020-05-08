@@ -3,4 +3,4 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$(dirname $SCRIPT_DIR)"
 
-docker-compose run python-worker /usr/src/app/run_migrations.py
+docker-compose run server npm run migrate

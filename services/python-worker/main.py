@@ -1,39 +1,32 @@
 #!/usr/bin/env python
 import sys
 import os
-from subprocess import Popen
+from subprocess import run, CalledProcessError
 import json
 
-import pika
+import requests
 
 WORKER_ROOT = os.path.dirname(os.path.realpath(__file__))
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='queue', heartbeat=60))
-channel = connection.channel()
+params = json.loads(sys.argv[1])
+process_path = os.path.join(WORKER_ROOT, 'tasks', f"{params['task']}.py")
 
+body = {
+  "type": "task-updated",
+  "task": "transform",
+  "taskid": params["taskid"],
+  "token": params["token"],
+  "status": "error",
+  "message": "",
+  "data": {}
+}
 
-channel.queue_declare(queue='python-worker')
-
-def callback(ch, method, properties, body):
-  msg = body.decode('utf8')
-  print(f"Received: {msg}")
-  sys.stdout.flush()
-
-  params = json.loads(msg)
-  process_path = os.path.join(WORKER_ROOT, 'tasks', f"{params['task']}.py")
-
+try:
   # Not really sure we can guarantee that the json we get is safe to pass as a
   # single string, so re-encode the python object before passing to the process
-  encoded_params = json.dumps(params)
+  run([process_path, json.dumps(params)], check=True)
+except (OSError, CalledProcessError) as err:
+  body["message"] = "An unknown error occurred, please try again later."
+  requests.post(params["callback"], json=body)
 
-  Popen([process_path, json.dumps(params)])
-
-  sys.stdout.flush()
-
-channel.basic_consume(callback,
-                      queue='python-worker',
-                      no_ack=True)
-
-print(' [*] Waiting for messages. To exit press CTRL+C')
 sys.stdout.flush()
-channel.start_consuming()

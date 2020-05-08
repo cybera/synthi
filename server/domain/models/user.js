@@ -1,8 +1,7 @@
 import { safeQuery } from '../../neo4j/connection'
 import Base from './base'
-import Organization from './organization'
 
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const crypto = require('crypto')
 
 class User extends Base {
@@ -23,7 +22,13 @@ class User extends Base {
   }
 
   async orgs() {
-    return this.relatedMany('-[:MEMBER]->', Organization, 'organization')
+    const Organization = Base.ModelFactory.getClass('Organization')
+
+    if (!this._orgs) {
+      this._orgs = this.relatedMany('-[:MEMBER]->', 'Organization')
+    }
+
+    return this._orgs
   }
 
   async hashPassword(password) {
@@ -34,19 +39,19 @@ class User extends Base {
     return bcrypt.compare(password, this.password)
   }
 
-  regenerateAPIKey() {
+  async regenerateAPIKey() {
     this.apikey = crypto.randomBytes(64).toString('base64').replace(/[^A-Za-z0-9]/g, '').substring(0, 32)
 
     const { apikey, id } = this
 
-    safeQuery(`
+    await safeQuery(`
       MATCH (u:User)
       WHERE ID(u) = toInteger($id)
       SET u.apikey = $apikey
     `, { id, apikey })
   }
 
-  canAccess(user, field) {
+  async canAccess(user, field) {
     const protectedFields = ['apikey', 'password']
     if (protectedFields.includes(field)) {
       return user.uuid === this.uuid
@@ -57,5 +62,7 @@ class User extends Base {
 
 User.label = 'User'
 User.saveProperties = ['apikey', 'username', 'password']
+
+Base.ModelFactory.register(User)
 
 export default User

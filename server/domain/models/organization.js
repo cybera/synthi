@@ -1,30 +1,51 @@
 import Base from './base'
-import Dataset from './dataset'
-import User from './user'
 
 import { safeQuery } from '../../neo4j/connection'
 import Query from '../../neo4j/query'
 
 class Organization extends Base {
-  constructor(node) {
-    super(node)
+  name
+
+  static async getByName(name) {
+    const query = `
+      MATCH (node:${this.label} { name: $name })
+      RETURN node
+    `
+    return this.getByUniqueMatch(query, { name })
   }
 
   async datasets(searchString, searchIndex = 'DefaultDatasetSearchIndex') {
-    return this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
+    // return this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
+    const datasets = await this.allDatasetsQuery().run({ organization: this, searchString, searchIndex })
+    // eslint-disable-next-line no-param-reassign
+    datasets.forEach((d) => { d._owner = this })
+    return datasets
   }
 
-  datasetByName(name) {
-    return this.relatedOne('-[:OWNER]->', Dataset, 'dataset', { name })
+  async datasetByName(name) {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
+    return this.relatedOne('-[:OWNER]->', 'Dataset', { name })
+  }
+
+  async transformationTemplateByName(name) {
+    const Transformation = Base.ModelFactory.getClass('Transformation')
+
+    return this.relatedOne('-[:OWNER]->', 'Transformation', { name })
   }
 
   async createDataset(initialProperties = {}) {
+    const Dataset = Base.ModelFactory.getClass('Dataset')
+
     let { name } = initialProperties
     if (!name) {
       name = await this.uniqueDefaultDatasetName()
+    } else if (await this.datasetByName(name)) {
+      throw new Error('Dataset names must be unique within an organization')
     }
 
     const datasetProperties = {
+      type: 'csv',
       computed: false,
       generating: false
     }
@@ -33,17 +54,18 @@ class Organization extends Base {
 
     const query = [`
       MATCH (o:Organization { uuid: $organization.uuid })
-      CREATE (o)-[:OWNER]->(d:Dataset { name: $datasetProperties.name })
-      SET d += $datasetProperties
-      RETURN ID(d) AS id
+      CREATE (o)-[:OWNER]->(dataset:Dataset { name: $datasetProperties.name })
+      SET dataset += $datasetProperties
+      RETURN dataset
     `, { datasetProperties, organization: this }]
 
     const result = await safeQuery(...query)
-    const datasetId = result[0].id
 
-    // Normally we shouldn't use the raw id value, but a uuid doesn't get
-    // created until the first transaction completes.
-    const dataset = await Dataset.get(datasetId)
+    // We have to actually reload this. We can't just derive it from the return results.
+    // Why? The package in Neo4J that adds the uuid doesn't execute until the transaction
+    // completes. And so the properties returned by the result of the last query won't
+    // contain the uuid.
+    const dataset = await Dataset.ModelFactory.get(result[0].dataset.identity)
     // Re-save the dataset to trigger any automatic value setting
     await dataset.save()
     return dataset
@@ -68,7 +90,11 @@ class Organization extends Base {
   }
 
   async members() {
-    return this.relatedMany('<-[:MEMBER]-', User, 'user')
+    if (!this._members) {
+      this._members = await this.relatedMany('<-[:MEMBER]-', 'User')
+    }
+
+    return this._members
   }
 
   async canCreateDatasets(user) {
@@ -81,6 +107,36 @@ class Organization extends Base {
     return results.length === 1
   }
 
+  async transformations() {
+    return this.relatedMany('-[:OWNER]->', 'Transformation')
+  }
+
+  async canCreateTransformationTemplates(user) {
+    // Right now, if a user can create datasets for an organization, they can create
+    // standalone transformations for it too.
+    return this.canCreateDatasets(user)
+  }
+
+  async createTransformationTemplate(name, description, inputs, code, tags) {
+    const Transformation = Base.ModelFactory.getClass('Transformation')
+
+    if (await this.transformationTemplateByName(name)) {
+      throw new Error('Reusable transformation names must be unique within an organization')
+    }
+
+    const transformation = await Transformation.create({
+      name,
+      description,
+      inputs,
+      code,
+      tags
+    })
+
+    await super.saveRelation(transformation, '<-[:OWNER]-')
+
+    return transformation
+  }
+
   async canAccess(user) {
     const orgs = await user.orgs()
     const match = orgs.find(org => org.uuid === this.uuid)
@@ -89,13 +145,13 @@ class Organization extends Base {
 
   /* eslint-disable class-methods-use-this */
   allDatasetsQuery() {
-    const allDatasetsQuery = new Query(Dataset, 'dataset')
+    const allDatasetsQuery = new Query('dataset')
     allDatasetsQuery.addPart(({ searchString }) => {
       if (searchString) {
         return `
           CALL apoc.index.search($searchIndex, $searchString)
           YIELD node AS searchResult
-          MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO]-(dataset:Dataset)
+          MATCH (searchResult)-[:HAS_METADATA|:BELONGS_TO*0..1]-(dataset:Dataset)
           MATCH (dataset)<-[:OWNER]-(:Organization { uuid: $organization.uuid })
         `
       }
@@ -109,5 +165,7 @@ class Organization extends Base {
 
 Organization.label = 'Organization'
 Organization.saveProperties = []
+
+Base.ModelFactory.register(Organization)
 
 export default Organization

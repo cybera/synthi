@@ -1,8 +1,8 @@
-version: '3'
+version: '3.4'
 services:
   neo4j:
     build: ./neo4j
-    image: cybera/adi-neo4j:latest
+    image: cybera/adi-neo4j:${TAG}
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -20,15 +20,15 @@ services:
       NEO4J_com_graphaware_module_UIDM_1: "com.graphaware.module.uuid.UuidBootstrapper"
   server:
     build: ./server
-    image: cybera/adi-server:latest
+    image: cybera/adi-server:${TAG}
     ports:
-      - "3000:3000"
+       - "3000:3000"
     volumes:
       - ./server:/usr/src/app
+      - ./config/kubeconfig:/usr/src/app/config/kubeconfig
       - ./config/development.toml:/usr/src/app/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
-      - server_node_modules:/usr/src/app/node_modules
     networks:
       - default
     command: npm run devStart
@@ -39,28 +39,39 @@ services:
       - "8888:8888"
     volumes:
       - ./client:/usr/src/app
-      - client_node_modules:/usr/src/app/node_modules
-    networks:
-      - default
-  queue:
-    image: rabbitmq:3.7
     networks:
       - default
   python-worker:
-    build: ./services/python-worker
-    image: cybera/adi-python-worker:latest
+    build:
+      context: ./services
+      target: python-worker
+    image: cybera/adi-python-worker:${TAG}
     networks:
       - default
     volumes:
       - ./services/python-worker:/usr/src/app
-      - ./config/development.toml:/usr/src/app/config/development.toml
+      - ./services/common:/usr/src/app/common
+      - ./config/development.toml:/usr/src/app/common/config/development.toml
       - ./data/uploads:/mnt/data
       - ./data/scripts:/mnt/scripts
-    depends_on:
-      - queue
+    command: /bin/true
+  tika-worker:
+    build:
+      context: ./services
+      target: tika-worker
+    image: cybera/adi-tika-worker:${TAG}
+    networks:
+      - default
+    volumes:
+      - ./services/tika-worker:/usr/src/app
+      - ./services/common:/usr/src/app/common
+      - ./config/development.toml:/usr/src/app/common/config/development.toml
+      - ./data/uploads:/mnt/data
+      - ./data/scripts:/mnt/scripts
+    command: /bin/true
   manual:
     build: ./manual
-    image: cybera/adi-manual:latest
+    image: cybera/adi-manual:${TAG}
     ports:
       - "4000:4000"
       - "35729:35729"
@@ -69,7 +80,6 @@ services:
     volumes:
       - ./manual/src:/usr/src/app
       - ./manual/outputs:/usr/src/outputs
-      - manual_node_modules:/usr/src/app/node_modules
       - manual_gitbook_comp:/usr/src/app/_book
     command: gitbook serve
   redis:
@@ -79,7 +89,4 @@ services:
 
 volumes:
   neo4j_data:
-  server_node_modules:
-  client_node_modules:
-  manual_node_modules:
   manual_gitbook_comp:

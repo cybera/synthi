@@ -1,0 +1,25 @@
+FROM continuumio/anaconda3:5.3.0 as base
+RUN apt-get update && \
+    apt-get install gcc -y && \
+    pip install --upgrade pip && \
+    pip install pika \
+                openstacksdk \
+                toml
+WORKDIR /usr/src/app
+CMD ["/usr/src/app/main.py"]
+
+FROM base as python-worker
+RUN pip install neo4j-driver \
+                bcrypt \
+                python-magic
+COPY ./pkg /usr/src/pkg
+RUN pip install -e /usr/src/pkg/python-adi
+ADD python-worker ./
+ADD common ./common
+
+FROM base as tika-worker
+RUN apt-get update && apt-get install default-jre tesseract-ocr -y
+RUN pip install python-magic
+RUN wget https://archive.apache.org/dist/tika/tika-app-1.23.jar -O /tika-app.jar
+ADD tika-worker ./
+ADD common ./common

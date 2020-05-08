@@ -1,0 +1,9 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$(dirname $SCRIPT_DIR)"
+
+cd $PROJECT_DIR/test
+
+docker-compose run test-runner pytest --reruns 3 --reruns-delay 1 main.py $@
+docker-compose logs >log/integration-test.log

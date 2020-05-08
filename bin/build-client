@@ -2,10 +2,11 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$(dirname $SCRIPT_DIR)"
+IMAGE_PREFIX="$(basename $PROJECT_DIR)"
 
 rm -rf "$PROJECT_DIR/client/dist"
 rm -rf "$PROJECT_DIR/server/dist"
 
-cd $PROJECT_DIR/client
-npm run dist
-cp -r dist "$PROJECT_DIR/server/"
+# docker-compose -f "$PROJECT_DIR/docker-compose.yml" run --rm client npm run dist
+docker run --rm -v "$PROJECT_DIR/client/dist:/usr/src/app/dist" ${IMAGE_PREFIX}_client:latest npm run dist
+cp -r client/dist "$PROJECT_DIR/server/"

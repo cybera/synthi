@@ -16,9 +16,6 @@ module.exports = {
         datasets: undefined,
         scripts: undefined
       }
-    },
-    legacy: {
-      dataRoot: '/mnt/data'
     }
   },
   neo4j: {
