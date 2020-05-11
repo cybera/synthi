@@ -192,6 +192,10 @@ const DatasetDetail = ({ dataset }) => {
     navigation.selectDataset(uuid)
     navigation.switchMode('datasets')
   }
+  const handleSubmit = () => {
+    const datasetUrl = window.location.href + "workbench/" + uuid
+    alert("Dataset URL:  " + datasetUrl)
+  }
 
   return (
     <Card className={classes.card}>
@@ -256,6 +260,12 @@ const DatasetDetail = ({ dataset }) => {
           <Grid item>
             <DownloadButton size="small" dataset={dataset} className={classes.opButton} />
           </Grid>
+          <Grid item>
+              <ADIButton size="small" onClick={handleSubmit} className={classes.opButton}>
+                Share Dataset
+              </ADIButton>
+          </Grid>
+
         </Grid>
       </CardContent>
     </Card>
