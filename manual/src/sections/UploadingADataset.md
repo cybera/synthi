@@ -15,7 +15,7 @@ To begin, select the green **Add New Dataset** button from the sidebar on the le
 From the **Preview Data** tab, select the green **Upload** button. A file browser will appear on your screen. Select the CSV file that you wish to import into ADI.
 
 {% hint style='info' %}
-The file extension of your uploaded will determine the type of dataset it is interpreted as. If the extension is
+The extension of your uploaded file will determine the type of dataset it is interpreted as. If the extension is
 .csv, it will be seen as structured data and ADI will attempt to extract column metadata. If it is a document type
 (such as .doc or .pdf), ADI will attempt to extract raw text data. If it is any other format, ADI does nothing but
 store the original file.
@@ -24,9 +24,13 @@ store the original file.
 If the upload is a CSV file and there are no issues with the CSV's format, a sample of the data should load on 
 the screen after it's imported.
 
-Note that the uploaded dataset will be available to anyone in the active organization. The drop down menu on the top right of the next image displays the active organization. There is always a default organization for every user with the same name as the username. However, they can be added to other organizations by a system administrator.
+Note that the uploaded dataset will be available to anyone in the active organization. The drop down menu on the top right of the next image displays the active organization.
 
 ![Upload completed successfully](../images/new-dataset-uploaded.png)
+
+{% hint style='info' %}
+Before uploading a dataset, make sure you switch to the organization that you want to own the dataset.
+{% endhint %}
 
 ## Troubleshooting
 

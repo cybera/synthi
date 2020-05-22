@@ -12,13 +12,12 @@ ADI currently supports making a computed dataset by supplying a Python code bloc
 
 ## The simplest transformation you could write
 
-A transformation needs to produce a dataset as the return value of a `transform()` function. The simplest transformation you could write does nothing, simply making a duplicate of the dataset you have:
+A transformation needs to produce a dataset as the return value of the transformation function. The simplest transformation you could write does nothing, simply making a duplicate of the dataset you have:
 
 ```python
-dataset = dataset_input('Your Dataset Name')
-
-def transform():
-  return dataset
+@transformation(inputs=dict(df = dataset('iris')))
+def iris_duplicate(df):
+  return (df)  
 ```
 
 While that's not very interesting, it's a good way to start, even with more complex transformations. But first, let's look at how this very basic transformation works.
@@ -26,15 +25,15 @@ While that's not very interesting, it's a good way to start, even with more comp
 Let's start at the first line:
 
 ```python
-dataset = dataset_input('Your Dataset Name')
+@transformation(inputs=dict(df = dataset('iris')))
 ```
 
-This line sets the `dataset` variable to a [Pandas Dataframe](https://pandas.pydata.org/pandas-docs/stable/dsintro.html) representing the dataset in ADI with the name `'Your Dataset Name'`. It handles figuring out where the original dataset is stored and properly loading it.
+This line maps the dataset named `iris` in ADI to a [Pandas Dataframe](https://pandas.pydata.org/pandas-docs/stable/dsintro.html). It handles figuring out where the original dataset is stored and properly loading it.
 
-The return value of `transform` is expected to also be a [Pandas Dataframe](https://pandas.pydata.org/pandas-docs/stable/dsintro.html). The transformation engine will handle storing this dataset properly for you.
+The return value of `iris_duplicate` is expected to also be a [Pandas Dataframe](https://pandas.pydata.org/pandas-docs/stable/dsintro.html). The transformation engine will handle storing this dataset properly for you.
 
 {% hint style='info' %}
-It's important to make your `dataset_input` assignments outside of the `transform` function. When saving the transformation, the `dataset_input` calls are used to correctly establish relationships between datasets, which in turn is used to figure out dependencies when running transformations that depend on other transformations.
+It's important to make your `dataset('yourDatasetName')` assignments outside of the transformation function. When saving the transformation, the `dataset('yourDatasetName')` calls are used to correctly establish relationships between datasets, which in turn is used to figure out dependencies when running transformations that depend on other transformations.
 {% endhint %}
 
 ### Name addressing
@@ -42,7 +41,7 @@ It's important to make your `dataset_input` assignments outside of the `transfor
 Under each organization, dataset names are required to be unique. If you have access to more than one organization, you can reference a dataset from the other organization in your transformations. Simply put the organization name first, followed by a colon (`:`) when referencing the dataset. For example:
 
 ```python
-dataset = dataset_input('Organization 1:Your Dataset Name')
+@transformation(inputs=dict(df = dataset('Organization 1:Your Dataset Name')))
 ```
 
 references the dataset with `'Your Dataset Name'` under `'Organization 1'`.
@@ -57,7 +56,7 @@ Cases involving computed datasets that use input datasets spanning organizations
 
 ### Pandas
 
-Before they're given to the `transform` function, the raw datasets are read into [Pandas](https://pandas.pydata.org) dataframes. Pandas is a Python library that provides functionality to manipulate data structures in a fast and efficient manner.
+Before they're given to the transformation function, the raw datasets are read into [Pandas](https://pandas.pydata.org) dataframes. Pandas is a Python library that provides functionality to manipulate data structures in a fast and efficient manner.
 
 Please refer to the [pandas documentation](http://pandas.pydata.org/pandas-docs/stable/) if you need help understanding how to do particular data manipulations. However, here are a few common manipulations you're likely to want to do:
 

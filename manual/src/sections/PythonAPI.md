@@ -2,18 +2,17 @@
 
 ### Installation
 
-At the moment, you will need to get a zip file of the package from one of the maintainers.
-Unzip that to a directory and then run:
+Git clone the [python-adi](https://github.com/cybera/python-adi.git) repository. 
 
 ```bash
-pip install -e /your-unzipped-package
+pip install -e python-adi
 ```
 
 from the same environment that you'll be running Jupyter Lab. You can also run the following
 from a notebook cell to ensure the pip package is installed in the right environment:
 
 ```bash
-!pip install -e /your-unzipped-package
+!pip install -e python-adi
 ```
 
 In either case, you'll need to restart any running Jupyter kernels to be able to access

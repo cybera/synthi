@@ -10,6 +10,7 @@ tenantId = "your-openstack-tenant-id"
 authUrl = "https://your-auth-endpoint:5000"
 swiftUrl = 'https://your-swift-endpoint:8080'
 tempUrlKey = "your-swift-temp-url-key"
+projectDomainName="Default"
 
 [storage.object.containers]
 

@@ -1,5 +1,9 @@
 ## Browsing Transformations
 
+{% hint style="danger" %}
+  This section is only a proof of concept. Creating and running transformation functions have changed since this feature was initially built so this needs to be modified to reflect those changes.
+  {% endhint %}
+  
 ### Creating a Computed Dataset
 
 You can create a computed dataset directly from the transformation browsing screen once you've found

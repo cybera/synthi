@@ -1,13 +1,16 @@
-FROM node:10
+FROM node:12
 
 WORKDIR /usr/src/app
 
 COPY ./src ./
 
 RUN apt-get update && \
-    apt-get install libglu1 libxcomposite-dev -y
+    apt-get install libglu1 libnss3 libxcomposite-dev -y
 RUN wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sh /dev/stdin
 RUN npm install gitbook-cli -g
+
+
+
 RUN gitbook install
 
 EXPOSE 4000

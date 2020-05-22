@@ -14,37 +14,6 @@ INCLUDE SCREENSHOTS WHEN INTERFACE IS FINALIZED
 ### Uploading Via an API
 Is this something we'll have?
 
-
-## Defining a Transformation
-
-In order to have the server run your transformation, you need to first need to create a script which runs the transformation on your data set. Inside that script you need to define a function called `transform()` which returns the transformed data set you would like to upload.
-
-You will also need to tell ADI which data set you're running the transformation off of using the `dataset_input()` function, and the new transformed data set using the `dataset_output()` function. For example, your transformation file should have the following basic structure
-
-```python
-ADI_dataset = dataset_input("dataset_name")
-transformedDataset = dataset_output("transformed_dataset")
-
-def transform():
-  # Transform ADI_dataset here
-  #
-  #
-  new_dataset = ADI_dataset_transform
-
-  return new_dataset
-```
-
-In this example a dataset called `dataset_name`  in the ADI data base will be loaded. Using that data set, your custom transformation is applied to that dataset via your custom `transform` function. Once the transformation is complete, the transformed data set `transformed_dataset` as specified by `dataset_output()` will be uploaded to the ADI database. The transformation your data won't be immediately available on ADI until you generate the new dataset using your transformation.
-
-
-
-## Registering Your Transformation
-Use the thing that gets done this sprint. Currently run
-
-```bash
-bin/register USERNAME PATH_TO_TRANSFORMATION_SCRIPT
-```
-
 ## Getting Your Transformed Data
 ### Using an API
 Is this something we'll do?

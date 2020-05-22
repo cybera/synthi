@@ -27,6 +27,7 @@
 ### Communicating with ADI
 
 * [Using the Python API](sections/PythonAPI.md)
+* [Using the JupyterLab API](sections/JupyterLabAPI.md)
 
 ### Transforming Data
 * [Transformations](sections/Transformations.md)

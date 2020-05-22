@@ -257,10 +257,10 @@ const DatasetDetail = ({ dataset }) => {
               Dataset Workbench
             </ADIButton>
           </Grid>
-          <Grid item>
+          <Grid item style={{ zIndex: 999 }}>
             <DownloadButton size="small" dataset={dataset} className={classes.opButton} />
           </Grid>
-          <Grid item>
+          <Grid item style={{ zIndex: 100 }}>
               <ADIButton size="small" onClick={handleSubmit} className={classes.opButton}>
                 Share Dataset
               </ADIButton>

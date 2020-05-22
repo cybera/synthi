@@ -22,7 +22,8 @@ def object_store():
       project_name=config.storage.object.creds.tenantName,
       username=config.storage.object.creds.username,
       password=config.storage.object.creds.password,
-      region_name=config.storage.object.creds.region
+      region_name=config.storage.object.creds.region,
+      project_domain_name=config.storage.object.creds.projectDomainName
     )
 
   return conn.object_store

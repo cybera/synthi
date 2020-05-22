@@ -1,5 +1,7 @@
 # Search
 
+Use the search feature on the ADI interface to find a dataset in the ADI instance.
+
 ## Syntax
 
 ADI's search functionality follows [Apache's lucene syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html). This allows various ways of searching from simple "across all fields" searches to very specific searches on individual fields and/or combinations of them.

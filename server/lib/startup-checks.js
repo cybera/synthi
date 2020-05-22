@@ -15,6 +15,8 @@ const checkConfig = async () => {
     'storage.object.creds.region',
     'storage.object.creds.tenantName',
     'storage.object.creds.authUrl',
+    'storage.object.creds.keystoneAuthVersion',
+    'storage.object.creds.domainName',
     // neo4j
     'neo4j.username',
     'neo4j.password',
