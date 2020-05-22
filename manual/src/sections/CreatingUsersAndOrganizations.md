@@ -2,7 +2,7 @@
 
 **User**: You need an user account to access datasets from ADI. Datasets can be created, edited, searched and shared by users with appropriate permissions.
 
-**Orgnaization**: Each dataset is owned by an organization and there can be any number of organizations within an ADI instance. Every ADI user always has a default organization with the same name as the username. However, they can be added to other organizations by a system administrator. 
+**Organization**: Each dataset is owned by an organization and there can be any number of organizations within an ADI instance. Every ADI user always has a default organization with the same name as the username. However, they can be added to other organizations by a system administrator. 
 
 
 

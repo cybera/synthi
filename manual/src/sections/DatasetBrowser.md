@@ -3,7 +3,8 @@
 ### Finding a Dataset
 
 The Filter Options sidebar on the Browse Datasets page allows a user to find a dataset through multiple methods. 
-![filter-options](../images/filter-options-datasetbrowser.png)
+
+![filter-options alt ><](../images/filter-options-datasetbrowser.png)
 
 {% hint type="info" %}
 For more information about the search bar, visit the **[Search](/sections/Search.md)** section.

@@ -1,6 +1,6 @@
 # Search
 
-Use the search feature to find a dataset in the ADI instance.
+Use the search feature on the ADI interface to find a dataset in the ADI instance.
 
 ## Syntax
 
