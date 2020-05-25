@@ -118,7 +118,7 @@ pipeline {
 
       steps {
        withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
-        withDockerServer(server: [uri: 'tcp://staging.adi2.data.cybera.ca:2376', credentialsId: 'adi-staging']) {
+        withDockerServer(server: [uri: 'staging-docker-uri', credentialsId: 'adi-staging']) {
           sh 'touch deploy/neo4j.env'
           sh 'docker stack deploy --with-registry-auth -c deploy/stack.yml adi'
           sh 'docker service update adi_server --image cybera/adi-server:$TAG --with-registry-auth'
