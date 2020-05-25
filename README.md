@@ -248,3 +248,8 @@ Here's how you navigate to the logs that are now being written:
 1. Click the Jenkins classic icon if you're not already there
 2. Go to the workspace (it should have the entire code branch that was part of this Jenkins build)
 3. Check test/log/integration-test.log
+
+### Jenkins 
+
+The following environment variables need to be set in Jenkins:
+* **staging-docker-uri**: The Docker server uri for the project.
