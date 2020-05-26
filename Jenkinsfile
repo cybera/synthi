@@ -119,7 +119,7 @@ pipeline {
 
       steps {
        withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
-        withDockerServer(server: [uri: '${STAGING_DOCKER_URI}', credentialsId: 'adi-staging']) {
+        withDockerServer(server: [uri: '$STAGING_DOCKER_URI', credentialsId: 'adi-staging']) {
          
           sh 'touch deploy/neo4j.env'
           sh 'docker stack deploy --with-registry-auth -c deploy/stack.yml adi'
