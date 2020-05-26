@@ -110,17 +110,17 @@ pipeline {
       }
     }
 
-       stage('Deploy new image to staging') {
+    stage('Deploy new image to staging') {
       when { anyOf { branch 'development'} }
       environment {
         DOCKER_MACHINE_NAME="adi-staging"
-        DOCKER_HOST="staging-docker-uri"
+        STAGING_DOCKER_URI=credentials('staging-docker-uri')
       }
 
       steps {
        withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
-        withDockerServer(server: [uri: 'tcp://$DOCKER_HOST/2376', credentialsId: 'adi-staging']) {
-          echo '${DOCKER_HOST}'
+        withDockerServer(server: [uri: '${STAGING_DOCKER_URI}', credentialsId: 'adi-staging']) {
+         
           sh 'touch deploy/neo4j.env'
           sh 'docker stack deploy --with-registry-auth -c deploy/stack.yml adi'
           sh 'docker service update adi_server --image cybera/adi-server:$TAG --with-registry-auth'
