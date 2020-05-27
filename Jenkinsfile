@@ -101,7 +101,7 @@ pipeline {
     stage('Push images to dockerhub') {
       when { anyOf { branch 'development'} }
       steps {
-        withCredentials(string(credentialsId: 'server-image', variable: 'ADI_SERVER_IMAGE'),
+        withCredentials([string(credentialsId: 'server-image', variable: 'ADI_SERVER_IMAGE'),
                        string(credentialsId: 'neo4j-image', variable: 'ADI_NEO4J_IMAGE')]) {
         withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
           sh 'docker push $ADI_SERVER_IMAGE:${TAG}'
