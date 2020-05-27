@@ -251,5 +251,11 @@ Here's how you navigate to the logs that are now being written:
 
 ### Jenkins 
 
-The following environment variables need to be set in Jenkins:
-* **staging-docker-uri**: The Docker server uri for the project.
+To get the Jenkins pipeline working the following credentials need to be set in Jenkins:
+
+* **staging-docker-uri**: The Docker server uri for the project. It's usually: `tcp://<your-server-url>:2356`.
+* **adidockerhub**: DockerHub login credentials. 
+* **adi-staging**: Docker host key for ADI environment.
+* **server-image**: Name of the ADI server docker image.
+* **neo4j-image**: Name of the ADI neo4j docker image. 
+* **adi-slack-channel**: Slack channel name to send Jenkins pipeline run failure messages to.

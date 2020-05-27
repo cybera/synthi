@@ -101,11 +101,14 @@ pipeline {
     stage('Push images to dockerhub') {
       when { anyOf { branch 'development'} }
       steps {
+        withCredentials(string(credentialsId: 'server-image', variable: 'ADI_SERVER_IMAGE'),
+                       string(credentialsId: 'neo4j-image', variable: 'ADI_NEO4J_IMAGE')]) {
         withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
-          sh 'docker push cybera/adi-server:${TAG}'
-          /* sh 'docker push cybera/adi-python-worker:${TAG}' */
-          /* sh 'docker push cybera/adi-tika-worker:${TAG}' */
-          sh 'docker push cybera/adi-neo4j:${TAG}'
+          sh 'docker push $ADI_SERVER_IMAGE:${TAG}'
+          /* sh 'docker push $ADI_PYTHON_WORKER:${TAG}' */
+          /* sh 'docker push $ADI_NEO4J_WORKER:${TAG}' */
+          sh 'docker push $ADI_NEO4J_IMAGE:${TAG}'
+          }
         }
       }
     }
@@ -114,19 +117,22 @@ pipeline {
       when { anyOf { branch 'development'} }
       environment {
         DOCKER_MACHINE_NAME="adi-staging"
-        STAGING_DOCKER_URI=credentials('staging-docker-uri')
       }
 
       steps {
-       withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
-        withDockerServer(server: [uri: '$STAGING_DOCKER_URI', credentialsId: 'adi-staging']) {
+  
+      withCredentials([string(credentialsId: 'staging-docker-uri', variable: 'STAGING_DOCKER_URI'),
+                       string(credentialsId: 'server-image', variable: 'ADI_SERVER_IMAGE'),
+                       string(credentialsId: 'neo4j-image', variable: 'ADI_NEO4J_IMAGE')]) {
+        withDockerRegistry(registry: [credentialsId: 'adidockerhub']) {
+          withDockerServer(server: [uri: STAGING_DOCKER_URI, credentialsId: 'adi-staging']) {
          
           sh 'touch deploy/neo4j.env'
           sh 'docker stack deploy --with-registry-auth -c deploy/stack.yml adi'
-          sh 'docker service update adi_server --image cybera/adi-server:$TAG --with-registry-auth'
-          sh 'docker service update adi_neo4j --image cybera/adi-neo4j:$TAG --with-registry-auth'
-          /* sh 'docker service update adi_python-worker --image cybera/adi-python-worker:$TAG --with-registry-auth' */
-          /* sh 'docker service update adi_tika-worker --image cybera/adi-tika-worker:$TAG --with-registry-auth' */
+          sh 'docker service update adi_server --image $ADI_SERVER_IMAGE:$TAG --with-registry-auth'
+          sh 'docker service update adi_neo4j --image $ADI_NEO4J_IMAGE:$TAG --with-registry-auth'
+          /* sh 'docker service update adi_python-worker --image $ADI_PYTHON_WORKER:$TAG --with-registry-auth' */
+          /* sh 'docker service update adi_tika-worker --image $ADI_TIKA_WORKER:$TAG --with-registry-auth' */
 
           // Wait for container to become available
           retry(10) {
@@ -141,6 +147,7 @@ pipeline {
         }
        }
       }
+      }
     }
   }
 
@@ -152,8 +159,10 @@ pipeline {
        sh 'bin/testenv stop'
      }
 
-     failure {
-         slackSend(channel:'#adi-cybera', color: '#FFF4444', message: "Build ${env.BUILD_NUMBER} for ${env.AUTHOR} on branch ${env.BRANCH_NAME} failed. Logs: ${env.BUILD_URL}console")
+      failure {
+         withCredentials([string(credentialsId: 'adi-slack-channel', variable: 'ADI_SLACK_CHANNEL')]) {
+          slackSend(channel: ADI_SLACK_CHANNEL, color: '#FFF4444', message: "Build ${env.BUILD_NUMBER} for ${env.AUTHOR} on branch ${env.BRANCH_NAME} failed. Logs: ${env.BUILD_URL}console")
+         }
      }
   }
 }
