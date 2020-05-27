@@ -14,6 +14,7 @@ import { safeQuery } from '../../neo4j/connection'
 import Query from '../../neo4j/query'
 import logger from '../../config/winston'
 import { memberOfOwnerOrg } from '../util'
+import { zip, groupBy, values, filter } from 'lodash'
 
 const DATASET_UPDATED = 'DATASET_UPDATED'
 
@@ -165,6 +166,7 @@ class Dataset extends Base {
 
   async download(req, res, type = 'imported') {
     if (await this.canAccess(req.user)) {
+      
       res.attachment(this.downloadName(type))
 
       const lastPrepTask = await this.lastDownloadPrepTask(req, type)
@@ -307,8 +309,38 @@ class Dataset extends Base {
   async runTransformation(user) {
     const TransformTask = Base.ModelFactory.getClass('TransformTask')
 
-    const transformations = await this.transformationChain()
-    const tasks = await Promise.all(transformations.map(async transformation => (
+    const results = await this.transformationChain()
+
+    // This logic helps in ensuring we don't run all the transformations to access a dataset in a pipeline
+    // by comparing the dateUpdated on a dataset to datasets prior to it. This way we can figure out if
+    // the transformations linked to these datasets needs to be re-run or not.
+    // Note: This may not work for a number of edge cases: one big example would for a transformation that uses datasets 
+    // from multiple transformations as inputs. We may have to think of a better way of doing this.
+
+    const namedResults = results.map(p => ({ transformation: p[0], dataset: p[1] }))
+    const groupedResults = groupBy(namedResults, x => x.transformation.uuid)
+    let newResults = values(groupedResults).map(e => ({ transformation: e[0].transformation, datasets: e.map(x => x.dataset) }))
+
+    let newTransformations = []
+
+    newResults.forEach(function (item, index) {
+
+      if (newResults[index + 1]) {
+
+        const currentDates = newResults[index].datasets.map(x => x.dateUpdated)
+        const nextDates = newResults[index + 1].datasets.map(x => x.dateUpdated)
+        const filteredDates = currentDates.filter(x => !nextDates.some(y => y > x))
+
+        if (filteredDates.length > 0) {
+          newTransformations.push(item.transformation)
+        }
+      } else {
+        newTransformations.push(item.transformation)
+      }
+
+    })
+
+    const tasks = await Promise.all(newTransformations.map(async transformation => (
       TransformTask.create({ transformation, user })
     )))
 
@@ -504,17 +536,27 @@ class Dataset extends Base {
       WHERE t IN nodes(full_path)
       WITH DISTINCT(individual_path), t
       MATCH (t)-[:OUTPUT]->(individual_output:Dataset)<-[:OWNER]-(o:Organization)
+      OPTIONAL MATCH (individual_input:Dataset)-[:INPUT]-(t)
       RETURN
+        individual_input AS dataset,
         t AS transformation,
         length(individual_path) AS distance
       ORDER BY distance DESC
     `
 
     const results = await safeQuery(query, { output_id: this.id })
+   
+    let datasets = new Object();
+    let transformations = new Object();
+    
+    datasets = results.map(t => t.dataset ? Base.ModelFactory.derive(t.dataset) : null)
+    transformations = results.map(r => Base.ModelFactory.derive(r.transformation))
 
-    return Promise.all(results.map(r => Base.ModelFactory.derive(r.transformation)))
-  }
-
+    const zipped_results = zip(transformations,datasets)
+   
+    return zipped_results
+      
+    }
   // eslint-disable-next-line class-methods-use-this
   async columns() {
     return []

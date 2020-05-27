@@ -268,12 +268,12 @@ export async function listDatasets({ loader }, orgRef, filter={}, offset=0, limi
     if (filter.format) {
       conditions.push('dataset.format = $filter.format')
     }
-
+    
     //Condition to filter based on dataset topic
     if (filter.topics && filter.topics.length > 0) {
       conditions.push('SIZE(apoc.coll.intersection($filter.topics, dataset.ext_topic)) > 0')
     }
-
+    
     return `WHERE ${conditions.join(' AND ')}`
   })
 

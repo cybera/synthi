@@ -34,5 +34,9 @@
 * [Stream Transformations](sections/StreamTransformations.md)
 * [Creating a Custom Transformation Class](sections/CustomTransformationClass.md)
 
+### Communicating with ADI
+
+* [Using the Python API](sections/PythonAPI.md)
+
 ### Addendum
 * [Limitations](sections/Limitations.md)

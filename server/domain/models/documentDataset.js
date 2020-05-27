@@ -29,7 +29,7 @@ class DocumentDataset extends Dataset {
 
     return paths
   }
-
+  
   async import(removeExisting = false, options = {}) {
     const ImportDocumentTask = Base.ModelFactory.getClass('ImportDocumentTask')
     const task = await ImportDocumentTask.create({ dataset: this, removeExisting, options })
