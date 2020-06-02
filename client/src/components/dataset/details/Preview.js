@@ -7,7 +7,7 @@ import Paper from '@material-ui/core/Paper'
 
 import DataTableView from './DataTableView'
 import DatasetColumnChips from './DatasetColumnChips'
-import { datasetProptype } from '../../../lib/adiProptypes'
+import { datasetProptype } from '../../../lib/synthiProptypes'
 import PanelLoadingState from '../../layout/PanelLoadingState'
 
 const Preview = ({ dataset }) => {

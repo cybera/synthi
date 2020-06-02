@@ -5,7 +5,7 @@ import { Mutation } from 'react-apollo'
 
 import { datasetViewQuery } from '../../../../queries'
 import UploadFile from './UploadFile'
-import { datasetProptype } from '../../../../lib/adiProptypes'
+import { datasetProptype } from '../../../../lib/synthiProptypes'
 
 const uploadDatasetGQL = gql`
   mutation UploadDataset($uuid: String!, $file: Upload!) {

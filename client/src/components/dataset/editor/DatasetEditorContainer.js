@@ -4,12 +4,12 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 
-import { ADIButton } from '../../layout/buttons'
+import { SynthiButton } from '../../layout/buttons'
 import DatasetGenerator from './DatasetGenerator'
 import { ToggleVisibility } from '../../layout'
 import { DownloadButton, UploadButton, ImportButton } from './buttons'
 import { TransformationEditor, SaveTransformationButton } from '../transformation'
-import { datasetProptype } from '../../../lib/adiProptypes'
+import { datasetProptype } from '../../../lib/synthiProptypes'
 
 const styles = (theme) => ({
   editorButton: {
@@ -77,13 +77,13 @@ class DatasetEditor extends React.Component {
           <DatasetGenerator>
             {({ generateDataset }) => dataset.computed && (
               <span>
-                <ADIButton
+                <SynthiButton
                   disabled={dataset.generating || !codeExists
                             || (dataset.inputTransformation.error)}
                   onClick={() => generateDataset(dataset.uuid)}
                 >
                   Generate!
-                </ADIButton>
+                </SynthiButton>
               </span>
             )}
           </DatasetGenerator>

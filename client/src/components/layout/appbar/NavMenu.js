@@ -6,7 +6,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { makeStyles } from '@material-ui/styles'
 
 import NavigationContext from '../../../contexts/NavigationContext'
-import { ADIButton } from '../buttons'
+import { SynthiButton } from '../buttons'
 
 function modeToLabel(mode) {
   switch (mode) {
@@ -53,10 +53,10 @@ const NavMenu = () => {
 
   return (
     <>
-      <ADIButton onClick={handleClick} className={classes.menuButton}>
+      <SynthiButton onClick={handleClick} className={classes.menuButton}>
         { modeToLabel(navigation.currentMode) }
         <ExpandMoreIcon className={classes.expandIcon} />
-      </ADIButton>
+      </SynthiButton>
       <Menu
         id="simple-menu"
         anchorEl={anchorEl}

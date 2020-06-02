@@ -6,7 +6,7 @@ import { Mutation } from 'react-apollo'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { withStyles } from '@material-ui/core/styles'
 
-import { ADIButton } from '../../layout/buttons'
+import { SynthiButton } from '../../layout/buttons'
 import { ToggleVisibility } from '../../layout'
 import { datasetViewQuery } from '../../../queries'
 
@@ -38,7 +38,7 @@ const GeneratingProgress = (props) => {
             { query: datasetViewQuery, variables: { uuid } }
           ]}
         >
-            { mutation => <ADIButton onClick={mutation}>Reset Generating Flag</ADIButton>}
+            { mutation => <SynthiButton onClick={mutation}>Reset Generating Flag</SynthiButton>}
         </Mutation>
       </div>
     </ToggleVisibility>

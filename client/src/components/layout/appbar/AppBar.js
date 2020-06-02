@@ -8,11 +8,11 @@ import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import Typography from '@material-ui/core/Typography'
 
 import OrgSelector from './OrgSelector'
 import { withNavigation } from '../../../contexts/NavigationContext'
 import { compose } from '../../../lib/common'
-import ADILogo from '../../../images/ckan-logo.png'
 import UserMenu from './UserMenu'
 import NavMenu from './NavMenu'
 import { Sidebar } from '../sidebar'
@@ -67,7 +67,10 @@ const styles = theme => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginLeft: drawerWidth
-  }
+  },
+  title: {
+    color: '#000',
+  },
 });
 
 class ButtonAppBar extends React.Component {
@@ -115,7 +118,9 @@ class ButtonAppBar extends React.Component {
             >
               <MenuIcon />
             </IconButton>
-            <img alt="" src={ADILogo} />
+            <Typography variant="h4" component="h2" className={classes.title}>
+              Synthi
+            </Typography>
             <span className={classes.spacer} />
             <NavMenu />
             <span className={classes.flex} />

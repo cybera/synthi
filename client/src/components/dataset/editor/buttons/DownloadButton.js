@@ -5,7 +5,7 @@ import PropTypes from 'prop-types'
 import Button from '@material-ui/core/Button'
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload'
 import SplitButton from '../../../layout/buttons/SplitButton'
-import { datasetProptype } from '../../../../lib/adiProptypes'
+import { datasetProptype } from '../../../../lib/synthiProptypes'
 
 const SingleDownloadButton = ({ dataset, fullText, ...rest }) => {
   const { downloadOptions } = dataset

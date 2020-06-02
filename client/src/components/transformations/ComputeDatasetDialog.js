@@ -15,9 +15,9 @@ import { useQuery, useMutation, useLazyQuery } from 'react-apollo'
 import { debounce, pick } from 'lodash'
 
 import { AutocompleteInput } from '../layout/form-fields/AutocompleteInput'
-import ADIButton from '../layout/buttons/ADIButton'
+import SynthiButton from '../layout/buttons/SynthiButton'
 import NavigationContext from '../../contexts/NavigationContext'
-import { transformationProptype, transformationInputMappingProptype } from '../../lib/adiProptypes'
+import { transformationProptype, transformationInputMappingProptype } from '../../lib/synthiProptypes'
 import { openSnackbar } from '../layout/Notifier'
 
 const DATASET_LIST = gql`
@@ -171,9 +171,9 @@ export default function ComputeDatasetDialog({ transformation, buttonClass }) {
 
   return (
     <div>
-      <ADIButton size="small" onClick={handleClickOpen} className={buttonClass}>
+      <SynthiButton size="small" onClick={handleClickOpen} className={buttonClass}>
         Compute Dataset
-      </ADIButton>
+      </SynthiButton>
       <Dialog open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Create Computed Dataset</DialogTitle>
         <DialogContent>

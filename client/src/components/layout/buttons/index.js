@@ -1,9 +1,9 @@
-import ADIButton from './ADIButton'
-import ADILongOpButton from './ADILongOpButton'
+import SynthiButton from './SynthiButton'
+import SynthiLongOpButton from './SynthiLongOpButton'
 
-export default ADIButton
+export default SynthiButton
 
 export {
-  ADIButton,
-  ADILongOpButton
+  SynthiButton,
+  SynthiLongOpButton
 }
