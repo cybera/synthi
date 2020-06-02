@@ -1,7 +1,7 @@
 {
-  "name": "adi-server",
+  "name": "synthi-server",
   "version": "1.0.0",
-  "description": "server for adi",
+  "description": "server for synthi",
   "main": "main.js",
   "dependencies": {
     "@kubernetes/client-node": "^0.11.0",

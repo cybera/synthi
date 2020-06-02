@@ -41,7 +41,7 @@ export default function runTask(message: any): any {
   jobSpec.backoffLimit = 0
 
   const metadata = new k8s.V1ObjectMeta()
-  metadata.generateName = 'adi-'
+  metadata.generateName = 'synthi-'
 
   const job = new k8s.V1Job()
   job.spec = jobSpec
