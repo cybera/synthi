@@ -62,9 +62,9 @@ def set_default_org(name=None, uuid=None, id=None):
 # https://github.com/jaydenseric/graphql-multipart-request-spec
 def gql_query(query, variables=dict(), file=None, host=None, api_key=None):
   if api_key is None:
-    api_key = os.environ.get('ADI_API_KEY')
+    api_key = os.environ.get('SYNTHI_API_KEY')
   if host is None:
-    host = os.environ.get('ADI_API_HOST')
+    host = os.environ.get('SYNTHI_API_HOST')
   
   headers = {
     'Authorization': f"Api-Key {api_key}"
@@ -95,7 +95,7 @@ def gql_query(query, variables=dict(), file=None, host=None, api_key=None):
   else:
     fileName = os.path.basename(file)
     mimetype, encoding = mimetypes.guess_type(file)
-    # See: https://github.com/cybera/adi/blob/master/manual/src/sections/ExportingAndImporting.md
+    # See: https://github.com/cybera/synthi/blob/master/manual/src/sections/ExportingAndImporting.md
     # for the curl command this is based off of.
     files = {
       'operations': (None, json_data, 'application/json'),
@@ -128,9 +128,9 @@ def default_org(host=None, api_key=None):
 
 def get(uuid_or_name, raw=False, as_text=True, host=None, api_key=None):
   if api_key is None:
-    api_key = os.environ.get('ADI_API_KEY')
+    api_key = os.environ.get('SYNTHI_API_KEY')
   if host is None:
-    host = os.environ.get('ADI_API_HOST')
+    host = os.environ.get('SYNTHI_API_HOST')
 
   uuid = uuid_or_name
 

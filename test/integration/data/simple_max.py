@@ -1,4 +1,4 @@
-from adi.dev.transformation import dataset, transformation
+from synthi.dev.transformation import dataset, transformation
 
 @transformation(inputs=dict(
   df=dataset("simple_data")
