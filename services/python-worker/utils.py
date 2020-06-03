@@ -8,7 +8,7 @@ import pika
 import common.storage as storage
 import common.config as config
 
-from adi.dev.transformation import Transformation
+from synthi.dev.transformation import Transformation
 
 def get_queue_conn():
   queue_conn = pika.BlockingConnection(pika.ConnectionParameters(host='queue'))
