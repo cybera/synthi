@@ -10,7 +10,7 @@ if [[ $action == 'start' ]]; then
 elif [[ $action == 'stop' ]]; then
   docker-compose -f $PROJECT_DIR/docker-compose.yml stop manual
 elif [[ $action == 'pdf' ]]; then
-  docker-compose run --user="node" manual gitbook pdf ./ ../outputs/adi.pdf
+  docker-compose run --user="node" manual gitbook pdf ./ ../outputs/synthi.pdf
 elif [[ $action == 'epub' ]]; then
-  docker-compose run manual gitbook epub ./ ../outputs/adi.epub
+  docker-compose run manual gitbook epub ./ ../outputs/synthi.epub
 fi

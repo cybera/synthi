@@ -1,13 +1,13 @@
-# ADI 2.0
+# Synthi
 
 ## Getting Started
 
 ### Technologies
 
 - [React](https://reactjs.org) is used for the front end client.
-- [GraphQL](https://graphql.org) is being used in lieu of REST to provide a rich API that the browser client and other potential 3rd party services can use to interact with ADI.
+- [GraphQL](https://graphql.org) is being used in lieu of REST to provide a rich API that the browser client and other potential 3rd party services can use to interact with Synthi.
 - [Apollo](https://www.apollographql.com) provides the actual implememtation of GraphQL on the client and server side.
-- [Neo4J](https://neo4j.com) is used to store metadata about ADI datasets in a graph structure.
+- [Neo4J](https://neo4j.com) is used to store metadata about Synthi datasets in a graph structure.
 - [ExpressJS](https://expressjs.com) is the classic web server, often forwarding requests to the Apollo GraphQL API, but it can also handle typical web requests.
 - [Material UI](https://material-ui.com) is a UI framework of ready made React components for common UI elements.
 - [Webpack](https://webpack.js.org) and [Babel](https://babeljs.io) are used mainly behind the scenes to compile and bundle client side code in a way that is compatible with most modern browsers.
@@ -17,7 +17,7 @@
 * Docker and Docker Compose
 * OpenStack credentials for object storage
 * Node.js for your local development environment
-* Ensure your docker environment has 4 gigabytes or more of memory for running ADI
+* Ensure your docker environment has 4 gigabytes or more of memory for running Synthi
 
 ### Setup
 
@@ -33,7 +33,7 @@ It may take a while to restart with kubernetes, so it's a good time for a coffee
 
 ![macos-kubernetes-enabled](docs/images/macos-kubernetes-enabled.png)
 
-Once this is setup, you should find a new directory with a config file in your account: **~/.kube/config**. You'll want to copy this into your local ADI project config directory as 'kubeconfig':
+Once this is setup, you should find a new directory with a config file in your account: **~/.kube/config**. You'll want to copy this into your local Synthi project config directory as 'kubeconfig':
 
 ```bash
 # Assuming you're in the root project directory
@@ -65,7 +65,7 @@ swift post adi_datasets
 swift post adi_scripts
 ```
 
-If multiple people are using the same project and running their own ADI instances, you'll
+If multiple people are using the same project and running their own Synthi instances, you'll
 need to come up with unique names for your set of the above containers. Whatever containers
 you create here need to be referenced under the appropriate settings (for datasets and for
 scripts) in your *development.toml* file.
@@ -140,7 +140,7 @@ There are a number of useful helper scripts in the `bin` directory:
 
 ### Neo4J plugins
 
-ADI uses the following community libraries:
+Synthi uses the following community libraries:
 
 - [APOC](https://github.com/neo4j-contrib/neo4j-apoc-procedures): a bunch of useful procedures. We use the advanced search functionality APOC exposes.
 - [GraphAware Framework](https://github.com/graphaware/neo4j-framework/): Framework required for GraphAware UUID
@@ -254,8 +254,8 @@ Here's how you navigate to the logs that are now being written:
 To get the Jenkins pipeline working the following credentials need to be set in Jenkins:
 
 * **staging-docker-uri**: The Docker server uri for the project. It's usually: `tcp://<your-server-url>:2356`.
-* **adidockerhub**: DockerHub login credentials. 
-* **adi-staging**: Docker host key for ADI environment.
-* **server-image**: Name of the ADI server docker image.
-* **neo4j-image**: Name of the ADI neo4j docker image. 
-* **adi-slack-channel**: Slack channel name to send Jenkins pipeline run failure messages to.
+* **synthidockerhub**: DockerHub login credentials. 
+* **synthi-staging**: Docker host key for Synthi environment.
+* **server-image**: Name of the Synthi server docker image.
+* **neo4j-image**: Name of the Synthi neo4j docker image. 
+* **synthi-slack-channel**: Slack channel name to send Jenkins pipeline run failure messages to.
