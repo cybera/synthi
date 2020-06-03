@@ -8,11 +8,11 @@ It may end up being simpler to just do everything yourself.
 
 ### What is a Transformation again?
 
-All ADI requires in your transformation code is something that extends Transformation
+All Synthi requires in your transformation code is something that extends Transformation
 with a `run` method that takes a single variable which represents a map of parameters:
 
 ```python
-from adi.dev.transformation import Transformation
+from synthi.dev.transformation import Transformation
 
 class CustomTransformation(Transformation):
   def run(self, params):
@@ -20,7 +20,7 @@ class CustomTransformation(Transformation):
 ```
 
 The above transformation would do absolutely nothing, but it would run. The key to
-using this is in understanding what gets passed into `params` from ADI. The basic
+using this is in understanding what gets passed into `params` from Synthi. The basic
 structure is as follows:
 
 ```json
@@ -55,6 +55,6 @@ you would need to have written to the `'imported'` path of your output datamap.
 ### Helper functions
 
 Much of the basics of reading from and writing to storage already have helper functions that you
-may want to use in `adi.dev.storage`. You may also want to look at how we created `StreamTransformation`
+may want to use in `synthi.dev.storage`. You may also want to look at how we created `StreamTransformation`
 to see an example of creating a brand new `Transformation` class. Keep in mind that these are early
 stages in this library, and these helper functions may still shift around a bit.

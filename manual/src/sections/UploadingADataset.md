@@ -8,16 +8,16 @@ description: Learn how to upload a dataset from a CSV file and troubleshoot comm
 There are two different methods of adding datasets to an account. This section will cover how to upload a dataset from a file. For information on how to generate a dataset from existing data on your account, visit the **[Computed Datasets](./ComputedDatasets.md)** section.
 {% endhint %}
 
-To begin, select the green **Add New Dataset** button from the sidebar on the left. ADI will automatically navigate to the new dataset.
+To begin, select the green **Add New Dataset** button from the sidebar on the left. Synthi will automatically navigate to the new dataset.
 
 ![New dataset screen](../images/new-dataset.png)
 
-From the **Preview Data** tab, select the green **Upload** button. A file browser will appear on your screen. Select the CSV file that you wish to import into ADI.
+From the **Preview Data** tab, select the green **Upload** button. A file browser will appear on your screen. Select the CSV file that you wish to import into Synthi.
 
 {% hint style='info' %}
 The extension of your uploaded file will determine the type of dataset it is interpreted as. If the extension is
-.csv, it will be seen as structured data and ADI will attempt to extract column metadata. If it is a document type
-(such as .doc or .pdf), ADI will attempt to extract raw text data. If it is any other format, ADI does nothing but
+.csv, it will be seen as structured data and Synthi will attempt to extract column metadata. If it is a document type
+(such as .doc or .pdf), Synthi will attempt to extract raw text data. If it is any other format, Synthi does nothing but
 store the original file.
 {% endhint %}
 
@@ -34,11 +34,11 @@ Before uploading a dataset, make sure you switch to the organization that you wa
 
 ## Troubleshooting
 
-Sometimes a CSV file might be in a format that ADI doesn't expect. When this happens, an error message will appear on the screen or your data will be poorly formatted.
+Sometimes a CSV file might be in a format that Synthi doesn't expect. When this happens, an error message will appear on the screen or your data will be poorly formatted.
 
 #### Uploading a CSV without headers
 
-If the first line of your CSV file contains raw data instead of headers, ADI will display an error page and offer the option to automatically generate headers for you (you can rename them later).
+If the first line of your CSV file contains raw data instead of headers, Synthi will display an error page and offer the option to automatically generate headers for you (you can rename them later).
 
 Ensure that the toggle button for **Does your file contain a header row?** is deselected (moved to the left, it should turn white instead of green) and click the **Rescan Metadata** button to resubmit the CSV file to our servers.
 
@@ -47,10 +47,10 @@ Ensure that the toggle button for **Does your file contain a header row?** is de
 #### Using an unexpected delimiter
 
 {% hint style='info' %}
-You will be able to define custom CSV delimiters in a future version of ADI. Until then, you'll need to handle this issue manually.
+You will be able to define custom CSV delimiters in a future version of Synthi. Until then, you'll need to handle this issue manually.
 {% endhint %}
 
-ADI expects CSV files to have column values separated by commas. If you use a different delimiter, such as a semicolon, your dataset may appear in a single-column table once it has finished uploading.
+Synthi expects CSV files to have column values separated by commas. If you use a different delimiter, such as a semicolon, your dataset may appear in a single-column table once it has finished uploading.
 
 ![Example of using a different delimiter](../images/new-dataset-delimiter.png)
 

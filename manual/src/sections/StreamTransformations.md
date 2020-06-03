@@ -3,7 +3,7 @@
 As long as your data isn't too big, you should prefer basic Transformations. They
 have enough flexibility to allow you to read/write the data any way you need (via
 custom `loaders` and `writers`, and in most cases, all you will need to do is map
-your input parameters to ADI datasets.
+your input parameters to Synthi datasets.
 
 But what happens if your dataset is too big to fit in memory? You could write a
 specialized Transformation class that processes the data in a way that you don't
@@ -49,8 +49,8 @@ datasets for all your other datasets.
 Here is a working `StreamTransformation` of the iris dataset:
 
 ```python
-from adi.dev.transformation import dataset, transformation
-from adi.dev.stream_transformation import StreamTransformation, create_stream_loader
+from synthi.dev.transformation import dataset, transformation
+from synthi.dev.stream_transformation import StreamTransformation, create_stream_loader
 
 @transformation(
   StreamTransformation,
@@ -74,7 +74,7 @@ it to use the `StreamTransformation` class in the first parameter.
 This needs to be written in a way that it doesn't need to load the entire dataset. If you can load
 the entire dataset, just use a basic `Transformation`. For convenience, we've added a `create_stream_loader`
 function that, given a chunk size, will create a loader much like our basic default loaders that knows
-how to grab data stored in ADI in chunks of that size.
+how to grab data stored in Synthi in chunks of that size.
 
 In the above example, we'll be reading the iris dataset 20 rows at a time.
 

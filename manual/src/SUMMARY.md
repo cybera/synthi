@@ -24,7 +24,7 @@
 * [Browsing Transformations](sections/TransformationBrowser.md)
 * [Browsing Datasets](sections/DatasetBrowser.md)
 
-### Communicating with ADI
+### Communicating with Synthi
 
 * [Using the Python API](sections/PythonAPI.md)
 * [Using the JupyterLab API](sections/JupyterLabAPI.md)

@@ -8,7 +8,7 @@ This manual was created using [GitBook](https://toolchain.gitbook.com). It can b
 
 ### Serving the manual as a website
 
-If you have access to the ADI codebase, you can run the manual's site in a similar way as you run the ADI site. Make sure port 4000 is open on your server and start the manual with the following command:
+If you have access to the Synthi codebase, you can run the manual's site in a similar way as you run the Synthi site. Make sure port 4000 is open on your server and start the manual with the following command:
 
 ```bash
 bin/manual start

@@ -11,7 +11,7 @@ and returns the data you want to represent your computed dataset. This data shou
 a pandas dataframe (for structured data), a string representing text data, or raw bytes.
 
 You can use `dataset(<DATASET_NAME>)` function calls before the transformation function (as
-calls in the global space) and map it to the `inputs` parameter to load datasets from ADI to use in your transformations.
+calls in the global space) and map it to the `inputs` parameter to load datasets from Synthi to use in your transformations.
 
 ### Identity transformation
 
@@ -28,7 +28,7 @@ def duplicate(df):
 
 ```python
 import pandas as pd
-from adi.dev.transformation import dataset, transformation
+from synthi.dev.transformation import dataset, transformation
 
 @transformation(inputs=dict(df1=dataset("iris-means"),df2=dataset("iris-colors")))
 def mergeDatasets(df1,df2):
@@ -44,7 +44,7 @@ from zipfile import ZipFile
 from tempfile import mkstemp
 from io import BytesIO
 import pandas as pd
-from adi.dev.transformation import dataset, transformation
+from synthi.dev.transformation import dataset, transformation
 
 # Since this is a zip file, we need to make sure we're retrieving the
 # raw bytes.
@@ -75,7 +75,7 @@ def readZippedDataset(zipped):
 If your source data is in the form of spreadsheets made for humans to read easily, you
 may have to do a fair bit of work to turn it into good structured data. If the spreadsheet
 is very basic 2D data without extra formatting, you may be able to just export a .csv file
-that you can directly import to ADI. But often, for presentation purposes, a spreadsheet
+that you can directly import to Synthi. But often, for presentation purposes, a spreadsheet
 will put values in some strange places that don't allow you to just export to .csv.
 
 In the following example, we have an Excel spreadsheet with 40 values stored in 2 columns, where
@@ -114,7 +114,7 @@ Here is the code you would write to perform this transformation:
 from tempfile import mkstemp
 import pandas as pd
 import os
-from adi.dev.transformation import dataset, transformation
+from synthi.dev.transformation import dataset, transformation
 
 @transformation(inputs=dict(xlsx=dataset("xlsx")))
 def transformExcelData():

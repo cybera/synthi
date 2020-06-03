@@ -6,7 +6,7 @@ We refer to these code blocks as transformations. Transformations can take any n
 
 ## Python transformations
 
-ADI currently supports making a computed dataset by supplying a Python code block. Other languages may be supported in the future. Here's what a transformation looks like on the platform:
+Synthi currently supports making a computed dataset by supplying a Python code block. Other languages may be supported in the future. Here's what a transformation looks like on the platform:
 
 ![transformation-example](../images/transformation-example.png)
 
@@ -28,7 +28,7 @@ Let's start at the first line:
 @transformation(inputs=dict(df = dataset('iris')))
 ```
 
-This line maps the dataset named `iris` in ADI to a [Pandas Dataframe](https://pandas.pydata.org/pandas-docs/stable/dsintro.html). It handles figuring out where the original dataset is stored and properly loading it.
+This line maps the dataset named `iris` in Synthi to a [Pandas Dataframe](https://pandas.pydata.org/pandas-docs/stable/dsintro.html). It handles figuring out where the original dataset is stored and properly loading it.
 
 The return value of `iris_duplicate` is expected to also be a [Pandas Dataframe](https://pandas.pydata.org/pandas-docs/stable/dsintro.html). The transformation engine will handle storing this dataset properly for you.
 

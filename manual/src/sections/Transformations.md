@@ -8,7 +8,7 @@ another, more focused dataset. We start with raw data and we continually refine 
 ready to stick into a chart or use to train a machine learning model.
 
 We have far too much data in most datasets to do this sort of thing by hand. So we write code to
-programatically refine the data. ADI encourages you to think of that code as discrete steps or
+programatically refine the data. Synthi encourages you to think of that code as discrete steps or
 transformations. And every transformation is really just a way of defining a new dataset with
 code and some raw inputs.
 
@@ -17,7 +17,7 @@ code and some raw inputs.
 Here's how you define a very basic transformation:
 
 ```python
-from adi.dev.transformation import transformation
+from synthi.dev.transformation import transformation
 
 @transformation
 def species_means(df):
@@ -49,9 +49,9 @@ you often already have the dataset loaded up that you want to run a function on.
 to work directly with whatever the output of your function is, so you don't need to put any thougt into
 where to put it.
 
-When we push this code up to a transformation pipeline in ADI, it also needs to figure out how to
+When we push this code up to a transformation pipeline in Synthi, it also needs to figure out how to
 get the data from where it's being stored into the format your function is expecting. How does it
-do this? And what about that return value? How does ADI know what to do with the results?
+do this? And what about that return value? How does Synthi know what to do with the results?
 
 This is where the following decorator comes in:
 
@@ -67,7 +67,7 @@ To create a computed dataset directly, you need to also indicate the mappings of
 when defining the transformation:
 
 ```python
-from adi.dev.transformation import dataset, transformation
+from synthi.dev.transformation import dataset, transformation
 
 @transformation(inputs=dict(df = dataset('iris')))
 def iris_means(df):
@@ -75,8 +75,8 @@ def iris_means(df):
             .mean())
 ```
 
-The above code maps the dataset named 'iris' in ADI to the `df` parameter. The `dataset` function used
-will also accept an `org` and a `variant`. By default the `org` will not be defined (and ADI will look
+The above code maps the dataset named 'iris' in Synthi to the `df` parameter. The `dataset` function used
+will also accept an `org` and a `variant`. By default the `org` will not be defined (and Synthi will look
 for a dataset under the same organization as the defined transformation) and `variant` will be `'imported'`.
 
 #### Loaders and Writers
@@ -122,7 +122,7 @@ It does not return anything. It's expected to write directly to one of the stora
 locations given in the `datamap`.
 
 When writing either a loader or a writer, you should use the `variant` passed in to
-ultimately decide the storage location to use, allowing ADI to pick the right one.
+ultimately decide the storage location to use, allowing Synthi to pick the right one.
 Thus a call to get the actual storage location should look like this:
 
 ```python
@@ -134,9 +134,9 @@ The entire datamap will look like this:
 ```json
 {
   "value": {
-    "original": "https://swift-yeg.cloud.cybera.ca:8080/v1/AUTH_<your_account_id>/adi-datasets/<your-dataset.original.csv>?temp_url_sig=<random-string>",
-    "imported": "https://swift-yeg.cloud.cybera.ca:8080/v1/AUTH_<your_account_id>/adi-datasets/<your-dataset.imported.csv>?temp_url_sig=<random-string>",
-    "sample": "https://swift-yeg.cloud.cybera.ca:8080/v1/AUTH_<your_account_id>/adi-datasets/<your-dataset.sample.csv>?temp_url_sig=<random-string>"
+    "original": "https://swift-yeg.cloud.cybera.ca:8080/v1/AUTH_<your_account_id>/synthi-datasets/<your-dataset.original.csv>?temp_url_sig=<random-string>",
+    "imported": "https://swift-yeg.cloud.cybera.ca:8080/v1/AUTH_<your_account_id>/synthi-datasets/<your-dataset.imported.csv>?temp_url_sig=<random-string>",
+    "sample": "https://swift-yeg.cloud.cybera.ca:8080/v1/AUTH_<your_account_id>/synthi-datasets/<your-dataset.sample.csv>?temp_url_sig=<random-string>"
   },
   "storage": "swift-tempurl",
   "format": "csv"
@@ -145,7 +145,7 @@ The entire datamap will look like this:
 
 - **value**: a representation of the data itself. This will only make sense in the context of a particular
 `'storage'` value. Whenever `'storage'` is `'swift-tempurl'`, the `'value'` will be a string representing
-a secure tempurl to a location on ADI's object storage where the dataset can be read using a simple `GET`
+a secure tempurl to a location on Synthi's object storage where the dataset can be read using a simple `GET`
 request from any http client (when it is an input dataset) or a simple `PUT` request (when it is an output
 dataset).
 - **storage**: a string respresenting the way in which the data is stored. Right now the only value this

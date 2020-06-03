@@ -74,5 +74,5 @@ For more inforamtion on the Dataset Workbench, visit the [Workbench](/sections/D
 {% endhint %}
 
 {% hint style='danger' %}
-Selecting the 'Publish' option allows a user to share a dataset with anyone who has access to the ADI platform.
+Selecting the 'Publish' option allows a user to share a dataset with anyone who has access to the Synthi platform.
 {% endhint %}

@@ -1,13 +1,13 @@
 # Users & Organizations
 
-**User**: You need an user account to access datasets from ADI. Datasets can be created, edited, searched and shared by users with appropriate permissions.
+**User**: You need an user account to access datasets from Synthi. Datasets can be created, edited, searched and shared by users with appropriate permissions.
 
-**Organization**: Each dataset is owned by an organization and there can be any number of organizations within an ADI instance. Every ADI user always has a default organization with the same name as the username. However, they can be added to other organizations by a system administrator. 
+**Organization**: Each dataset is owned by an organization and there can be any number of organizations within an Synthi instance. Every Synthi user always has a default organization with the same name as the username. However, they can be added to other organizations by a system administrator. 
 
 
 
 {% hint style="info" %}
-This section requires SSH and server access for your ADI instance. Please contact the administrator if you require assistance with this.
+This section requires SSH and server access for your Synthi instance. Please contact the administrator if you require assistance with this.
 {% endhint %}
 
 ## Creating a New User

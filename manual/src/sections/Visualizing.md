@@ -1,10 +1,10 @@
 # Visualizing data
 
-The ADI platform uses [Plot.ly](https://plot.ly) to provide easy, interactive, customizable visualizations. Plot.ly itself has some [great tutorials](https://help.plot.ly/tutorials/) and [API documentation](https://plot.ly/javascript/), but we'll go through some of the basics here.
+The Synthi platform uses [Plot.ly](https://plot.ly) to provide easy, interactive, customizable visualizations. Plot.ly itself has some [great tutorials](https://help.plot.ly/tutorials/) and [API documentation](https://plot.ly/javascript/), but we'll go through some of the basics here.
 
-## Visualizing data within ADI
+## Visualizing data within Synthi
 
-Under every dataset, you can switch to a Chart Editor tab that allows you to create visualizations within ADI:
+Under every dataset, you can switch to a Chart Editor tab that allows you to create visualizations within Synthi:
 
 ![getting-to-the-chart-editor](../images/getting-to-the-chart-editor.png)
 
@@ -42,7 +42,7 @@ Or if you only have a handful of cities/towns you want to compare, you may opt f
 
 ### Types of traces
 
-ADI uses [Plot.ly's](https://plot.ly) open source visualization package to create these charts. The underlying technology also power's Plot.ly's Chart Studio.
+Synthi uses [Plot.ly's](https://plot.ly) open source visualization package to create these charts. The underlying technology also power's Plot.ly's Chart Studio.
 
 ![trace-types](../images/trace-types.png)
 
@@ -50,7 +50,7 @@ A great place to get more information on all of the ways you could customize a c
 
 ### Transforms
 
-Not to be confused with  *Transformations* in ADI, *Transforms* in the Chart Editor allow you to manipulate the data in your chart further. There are four basic transforms you can do at this level:
+Not to be confused with  *Transformations* in Synthi, *Transforms* in the Chart Editor allow you to manipulate the data in your chart further. There are four basic transforms you can do at this level:
 
 1. Filter: remove some data points from being plotted (great for removing outliers in a particular visualization).
 2. Split: create multiple traces depending on a variable in your data, which can be styled differently. This is great if you want to represent an extra dimension, but the number of categories is large enough (or more likely to change) that you don't want to create each individually. You don't have quite as much control over the individual styling as if you created each trace yourself.
@@ -75,7 +75,7 @@ The 'Save Plot' button at the bottom of the chart editor will allow you to save 
 
 
 {% hint style='info' %}
-Note that the 'Scenarios' area is largely unfinished. When you save plots to this area, they are not attached to a specific user or organization. Anyone who can log into ADI can see all the charts saved by going to the 'Scenarios' area of ADI.
+Note that the 'Scenarios' area is largely unfinished. When you save plots to this area, they are not attached to a specific user or organization. Anyone who can log into Synthi can see all the charts saved by going to the 'Scenarios' area of Synthi.
 
 As well, there's currently no ability to re-open a chart in the Chart Editor if you want to change something. However, you could open the chart in Plot.ly's chart editor service to edit it further.
 

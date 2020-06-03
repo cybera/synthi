@@ -1,6 +1,6 @@
 # Exporting
 
-The ADI platform allows you to export your data in a variety of ways so that you can work with the data using tools you're familiar with while still using the collaborative aspects and transformation pipeline of the platform.
+The Synthi platform allows you to export your data in a variety of ways so that you can work with the data using tools you're familiar with while still using the collaborative aspects and transformation pipeline of the platform.
 
 ## User interface
 
@@ -11,7 +11,7 @@ The simplest way to export a dataset is to use the *Download* button that is inc
 This will trigger a download of the dataset in a normalized CSV format: comma delimiters and a column name header. It will also re-run any transformations the current dataset might depend on, if it is a computed dataset.
 
 {% hint style='danger' %}
-Under current functionality, the column names exported will be whatever they were when they were imported. Or in the case where the original data did not have column names, they will be 'Column_1', 'Column_2', and so on. You can query changed column names by an API call, discussed below, and replace them externally, or you could create a transformation within the ADI platform to change the column names in a new computed dataset to work around this limitation.
+Under current functionality, the column names exported will be whatever they were when they were imported. Or in the case where the original data did not have column names, they will be 'Column_1', 'Column_2', and so on. You can query changed column names by an API call, discussed below, and replace them externally, or you could create a transformation within the Synthi platform to change the column names in a new computed dataset to work around this limitation.
 
 *Computed Datasets*: All transformations that a computed dataset depends on will be re-run when a download is triggered, even if the underlying data has not been changed. Functionality would need to be added to the transformation engine to skip transformations where their input datasets have not been changed since the last run.
 {% endhint %}
@@ -42,7 +42,7 @@ You may want to consider setting up individual user accounts for the sole purpos
 
 ## cURL snippets
 
-While we're not expecting you to use the ADI platform from a terminal window, the *cURL* snippet section may be the most important section of the API examples to help integrate 3rd party tools with the platform. cURL is a command line utility, installed by default on MacOS and 'nix systems, but also [available for Windows](https://curl.haxx.se/windows/)! With it, you can make pretty much any kind of web request, and it's easy to script. But more importantly, it is one of the most direct and well documented ways of making programmatic web requests. If you have trouble understanding any of the examples we've included, there is plenty of documentation available online to help you understand. And if you can make it work with cURL, you can easily translate the command into any programming language or tool that has a web request API.
+While we're not expecting you to use the Synthi platform from a terminal window, the *cURL* snippet section may be the most important section of the API examples to help integrate 3rd party tools with the platform. cURL is a command line utility, installed by default on MacOS and 'nix systems, but also [available for Windows](https://curl.haxx.se/windows/)! With it, you can make pretty much any kind of web request, and it's easy to script. But more importantly, it is one of the most direct and well documented ways of making programmatic web requests. If you have trouble understanding any of the examples we've included, there is plenty of documentation available online to help you understand. And if you can make it work with cURL, you can easily translate the command into any programming language or tool that has a web request API.
 
 Here are some of the common flags that we use:
 

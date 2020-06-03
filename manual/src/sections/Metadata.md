@@ -1,6 +1,6 @@
 # Metadata
 
-The ADI platform allows you to store several pieces of general metadata about a dataset. Once you have made changes to the metadata, you'll need to click the *Save Changes* button at the bottom of the section.
+The Synthi platform allows you to store several pieces of general metadata about a dataset. Once you have made changes to the metadata, you'll need to click the *Save Changes* button at the bottom of the section.
 
 ![general-metadata](../images/general-metadata.png)
 
@@ -9,11 +9,11 @@ The ADI platform allows you to store several pieces of general metadata about a 
 | Field        | Description        | Defaults     |
 | ------------ |:-------------------|:-------------|
 |Title|Title for the dataset. Note that, right now, this is not the same as the dataset name that can be used to access the dataset in scripts and shows up at the top of the dataset. It also does not have to be unique like the dataset name does.|None|
-|Identifier|A URL that points to where the dataset can be found outside of ADI.|None|
+|Identifier|A URL that points to where the dataset can be found outside of Synthi.|None|
 |Contributor|Person or organization responsible for making significant contributions to the dataset.|None|
 |Contact|Person or organization to contact about the dataset.|None|
-|Date Added|The date the dataset was added to the ADI platform.|The timestamp of when the dataset record was created|
-|Date Created|The date the dataset was orginally created. This date may be before the dataset was entered into ADI.|The timestamp of when the dataset record was created|
+|Date Added|The date the dataset was added to the Synthi platform.|The timestamp of when the dataset record was created|
+|Date Created|The date the dataset was orginally created. This date may be before the dataset was entered into Synthi.|The timestamp of when the dataset record was created|
 |Date Updated|The last updated date of the dataset.|The timestamp of the last upload or generate action|
 |Updates (flag)|A flag to set whether or not the dataset gets regular updates|false|
 |Update Frequency Amount|A number of days, weeks, or months from the last update to expect another|0|
@@ -25,7 +25,7 @@ The ADI platform allows you to store several pieces of general metadata about a 
 
 ## API Access to Metadata
 
-The cURL tab of the API shows how you can access metadata information as JSON, programatically, from a tool outside of the ADI platform:
+The cURL tab of the API shows how you can access metadata information as JSON, programatically, from a tool outside of the Synthi platform:
 
 ```bash
 curl -s http://localhost:8080/graphql \

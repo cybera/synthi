@@ -1,18 +1,18 @@
-## Using the python-adi package
+## Using the python-synthi package
 
 ### Installation
 
-Git clone the [python-adi](https://github.com/cybera/python-adi.git) repository. 
+Git clone the [python-synthi](https://github.com/cybera/python-synthi.git) repository. 
 
 ```bash
-pip install -e python-adi
+pip install -e python-synthi
 ```
 
 from the same environment that you'll be running Jupyter Lab. You can also run the following
 from a notebook cell to ensure the pip package is installed in the right environment:
 
 ```bash
-!pip install -e python-adi
+!pip install -e python-synthi
 ```
 
 In either case, you'll need to restart any running Jupyter kernels to be able to access
@@ -21,15 +21,15 @@ the package.
 ### Creating a connection
 
 To create a client connection, you'll need your API token (read more about API tokens
-[here](ExportingAndImporting.md#api-exports)) and the URL of the ADI server.
+[here](ExportingAndImporting.md#api-exports)) and the URL of the Synthi server.
 
 Here's an example code block:
 
 ```python
-from adi import Connection
+from synthi import Connection
 
 client = Connection(
-  'https://staging.adi2.data.cybera.ca',
+  'https://<synthi-host-url>',
   api_key='???????????????????????????'
 )
 ```
@@ -59,7 +59,7 @@ client.organization.set_default('myorg')
 
 ### Uploading and downloading datasets
 
-The following code will upload a local file at *./path/to/your/dataset.csv* to ADI. It will
+The following code will upload a local file at *./path/to/your/dataset.csv* to Synthi. It will
 be named *My New Dataset* in the interface. Just as using the interface to create a dataset,
 the name has to be unique within your organization.
 
@@ -67,7 +67,7 @@ the name has to be unique within your organization.
 client.dataset.upload('My New Dataset', './path/to/your/dataset.csv')
 ```
 
-The following code will retrieve the dataset you just stored in ADI and return it as a Pandas
+The following code will retrieve the dataset you just stored in Synthi and return it as a Pandas
 dataframe.
 
 ```python
@@ -285,4 +285,4 @@ client.query(publish_query, dict(uuid=uuid, published=True))
 
 We hope you don't have much use for this, and you should let us know if there's
 functionality that you'd like us to add to the Python API. But in the meantime,
-this will allow you to drive ADI externally in ways we haven't thought of.
+this will allow you to drive Synthi externally in ways we haven't thought of.
