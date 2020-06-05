@@ -1,6 +1,6 @@
-[submodule "test/integration/pkg/python-adi"]
-	path = test/integration/pkg/python-adi
-	url = git@github.com:cybera/python-adi.git
-[submodule "services/pkg/python-adi"]
-	path = services/pkg/python-adi
-	url = git@github.com:cybera/python-adi.git
+[submodule "services/pkg/python-synthi"]
+	path = services/pkg/python-synthi
+	url = https://cmann@github.com/cybera/python-synthi
+[submodule "test/integration/pkg/python-synthi"]
+	path = test/integration/pkg/python-synthi
+	url = https://cmann@github.com/cybera/python-synthi
