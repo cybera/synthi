@@ -1,6 +1,6 @@
 ##  JupyterLab API
 
-  A JupyterLab extension to interact with the Synthi platform. 
+  These instructions relate to providing a JupyterLab extension to interact with the Synthi platform. 
 
   ### Installation
   
@@ -15,12 +15,12 @@
   ![dataset-link](../images/dataset-link.png)
 
   * The link icon next to each dataset will take you to the dataset in the Synthi platform. 
-  * The "Filters" field, "Include Shared" and "Published Only" checkboxes allows you to search a dataset of interest by filtering based on various dataset metadata. See [Search](sections/Search.md) section for more details on how to use it.
+  * The *Filters* field, *Include Shared* and *Published Only* checkboxes allows you to search a dataset of interest by filtering based on various dataset metadata. See the *[Search](sections/Search.md)* section for more details on how to use it.
 
 
   ### Connecting to Synthi
 
-  Install the [python-synthi](sections/PythonAPI.md) package, then import the environment variables by running this in a notebook cell.
+  Install the [python-synthi](sections/PythonAPI.md) package, then import the environment variables by running this in a notebook cell:
 
   ```python
     import os
@@ -30,7 +30,7 @@
 
   ![connecting-to-synthi](../images/connecting-to-synthi.png)
 
-  Now you can use the python-synthi package to connect to synthi and work with the datasets and organizations that are accessible to you within Synthi in addition to full capabilities of the JupyterLab. 
+  Now you can use the python-synthi package to connect to synthi and work with the datasets and organizations that are accessible to you there, in addition to having the full capabilities of JupyterLab. 
 
 
   ### Transformation
@@ -40,17 +40,17 @@
   {% endhint %}
   
 
-  You can write reusable transformation functions here in a notebook, save it, run it and import it into Synthi to use them later with other datasets.
+  You can write reusable transformation functions in a Jupyter notebook, save it, run it, and import it into Synthi to use with other datasets.
 
   The JupyterLab widget will recognize regular Python methods and turn them into transformations with a few simple rules:
-  * any top level method is a possible transformation.
-  * the method parameters get turned into dataset's input references.
+  * Any top level method is a possible transformation.
+  * The method parameters will be turned into the dataset's input references.
 
   ![jupyterlab-transformation](../images/jupyterlab-transformation.png)
 
-  When you click on Create transformation button, the widget saves the code to Synthi. You can add description and tags to your transformation code to make it easy to filter while searching for them in the Browse transformations page in Synthi interface.
+  When you click on the *Create Transformation* button, the widget saves the code to Synthi. You can add description and tags to your transformation code to make it easy to search for them in the *Browse Transformations* page in the Synthi interface.
 
-  To view the transformation that you just created open up Synthi interface and go to the Browse transformations page.
+  To view the transformation you just created, open the Synthi interface and go to the browse transformations page.
 
   ![jupyterlab-browse-transformation](../images/jupyterlab-browse-transformation.png)
 

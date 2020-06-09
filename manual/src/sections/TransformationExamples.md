@@ -1,21 +1,20 @@
 ## Transformation Examples
 
-Computed datasets are created from transformations. Deep down, transformations are just code
-that defines how to go from zero or more input datasets to an output dataset (the computed
+Computed datasets are created from transformations. At their core, transformations are just code
+that define how to go from zero or more input datasets to an output dataset (the computed
 dataset).
 
 ### Requirements for transformations
 
-To be a valid transformation, you need to have a transformation function that takes no parameters
+To have a valid transformation, you need a transformation function that takes no parameters,
 and returns the data you want to represent your computed dataset. This data should either be
 a pandas dataframe (for structured data), a string representing text data, or raw bytes.
 
-You can use `dataset(<DATASET_NAME>)` function calls before the transformation function (as
-calls in the global space) and map it to the `inputs` parameter to load datasets from Synthi to use in your transformations.
+To load datasets from ADI to use in your transformations, you can use the `dataset(<DATASET_NAME>)` function calls before the transformation function (as calls in the global space), and map it to the `inputs` parameter.
 
 ### Identity transformation
 
-The simplest possible transformation you could do is one that simply returns the dataset passed
+The simplest possible transformation you can do is one that simply returns the dataset passed
 in. In other words, it's a transformation that does absolutely nothing. Here's how you define it:
 
 ```python
@@ -72,15 +71,15 @@ def readZippedDataset(zipped):
 
 ### Extracting Excel data
 
-If your source data is in the form of spreadsheets made for humans to read easily, you
-may have to do a fair bit of work to turn it into good structured data. If the spreadsheet
-is very basic 2D data without extra formatting, you may be able to just export a .csv file
+If your source data is in the form of spreadsheets which were made for humans to easily read, you
+may have to do a fair amount of work to turn it into "good" structured data. If the spreadsheet
+has very basic 2D data without extra formatting, you may be able to just export a .csv file
 that you can directly import to Synthi. But often, for presentation purposes, a spreadsheet
-will put values in some strange places that don't allow you to just export to .csv.
+will put values in some strange places that prevent you from exporting it to a .csv file.
 
 In the following example, we have an Excel spreadsheet with 40 values stored in 2 columns, where
 the field names are beside the values they represent. Each sheet of the spreadsheet (conveniently
-named "Sheet 1", "Sheet 2", and so on, up to "Sheet 100") has a copy of this structure, but
+named "Sheet 1", "Sheet 2", and so on, up to "Sheet 100") copies this structure, but
 represents a different observation.
 
 | Sheet 1  |
@@ -99,7 +98,7 @@ represents a different observation.
 | ...      | ... | ...       | ... |   |
 | Field 20 | 48  | Field 40  | 31  |   |
 
-We want to turn each sheet into a single row of data so that our CSV would look like:
+We want to turn each sheet into a single row of data, so our .csv would look like:
 
 ```csv
 "Field 1","Field 2","Field 3",...,"Field 20","Field 21","Field 22","Field 23","Field 40"
@@ -108,7 +107,7 @@ We want to turn each sheet into a single row of data so that our CSV would look 
 ...
 ```
 
-Here is the code you would write to perform this transformation:
+Here is the code you would use to perform this transformation:
 
 ```python
 from tempfile import mkstemp

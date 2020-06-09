@@ -2,20 +2,19 @@
 
 ### Installation
 
-Git clone the [python-synthi](https://github.com/cybera/python-synthi.git) repository. 
+Git clone the [python-synthi](https://github.com/cybera/python-synthi.git) repository from the same environment that you'll be running Jupyter Lab.
 
 ```bash
 pip install -e python-synthi
 ```
 
-from the same environment that you'll be running Jupyter Lab. You can also run the following
-from a notebook cell to ensure the pip package is installed in the right environment:
+You can also run the following from a notebook cell to ensure the pip package is installed in the right environment:
 
 ```bash
 !pip install -e python-synthi
 ```
 
-In either case, you'll need to restart any running Jupyter kernels to be able to access
+In either case, you'll need to restart any running Jupyter kernels in order to access
 the package.
 
 ### Creating a connection
@@ -36,7 +35,7 @@ client = Connection(
 
 ### Overview
 
-The client connection object that you create above will have 3 main namespaces for function
+The client connection object that you create will have three main namespaces for function
 calls:
 
 - organization
@@ -45,13 +44,12 @@ calls:
 
 These correspond to equivalent areas of the application. For example, `client.dataset.define`
 will define a computed dataset, which uses transformation code that only relates to that
-dataset. `client.transformation.define` will allow you to create a transformatin that can
+dataset. `client.transformation.define` will allow you to create a transformation that can
 be applied later to any compatible dataset.
 
 ### Setting an organization
 
-You can belong to multiple organizations. When using the Python API, you need to set the
-organization you want API requests to apply to:
+You can belong to multiple organizations. However, when using the Python API, you will need to set the organization you want the API requests to apply to:
 
 ```python
 client.organization.set_default('myorg')
@@ -60,7 +58,7 @@ client.organization.set_default('myorg')
 ### Uploading and downloading datasets
 
 The following code will upload a local file at *./path/to/your/dataset.csv* to Synthi. It will
-be named *My New Dataset* in the interface. Just as using the interface to create a dataset,
+be named *My New Dataset* in the interface. Just as when you are using the interface to create a dataset,
 the name has to be unique within your organization.
 
 ```python
@@ -74,7 +72,7 @@ dataframe.
 df = client.dataset.get('My New Dataset')
 ```
 
-#### Working with non-structured data
+#### Working with unstructured data
 
 If you want to retrieve a dataset without automatically converting it to a Pandas dataframe,
 you can pass in `raw=True` as a parameter:
@@ -83,14 +81,14 @@ you can pass in `raw=True` as a parameter:
 mytext = client.dataset.get('My New Dataset', raw=True)
 ```
 
-By default, this will attempt to retreive the data as text. If you are dealing with binary
-data or a text encoding other than utf-8, you will likely need to go one step further:
+By default, this will attempt to retrieve the data as text. If you are dealing with binary
+data, or a text encoding other than utf-8, you will likely need to go one step further:
 
 ```python
 mydata = client.dataset.get('My New Dataset', raw=True, as_text=False)
 ```
 
-This will give you the data as raw bytes and leave it up to you to convert it into what you
+This will give you the data as raw bytes, and leave it up to you to convert it into what you
 need.
 
 {% hint style="danger" %}
@@ -138,7 +136,7 @@ This is very similar to uploading a dataset, except instead of a path to raw dat
 provide a path to a file containing code.
 
 The primary requirement for the code you supply is that it contains a `transform` function.
-You can run any Python code and import any libraries that we have pre-installed.
+You can run any Python code and import any libraries that Synthi has pre-installed.
 
 Here's an example of a very simple transformation:
 
@@ -149,8 +147,8 @@ def transform():
   return df.head(10)
 ```
 
-This transformation will retrieve the *'My New Dataset'* dataset and create a new dataset
-based off of it containing only the first 10 rows.
+This transformation will retrieve the *'My New Dataset'* and create a new dataset
+based on it containing only the first 10 rows.
 
 {% hint style="info" %}
 We're using the `continuumio/anaconda3` Docker image as the basis of the container that runs
@@ -166,7 +164,7 @@ TODO: Insert an operations email here to receive requests.
 
 ### Other dataset operations
 
-Here are some other commands you can run for datasets.
+Here are some other commands you can run for datasets:
 
 List the datasets in your organization:
 
@@ -174,13 +172,13 @@ List the datasets in your organization:
 client.dataset.list()
 ```
 
-Generate a computed dataset (this will generate any computed datasets it depends on as well):
+Generate a computed dataset (this will also generate any computed datasets it depends on):
 
 ```python
 client.dataset.generate('My Computed Dataset')
 ```
 
-Get basic metadata information about the dataset (right now, just name and uuid):
+Get basic metadata information about the dataset (right now, just the name and uuid):
 
 ```python
 client.dataset.meta('My Dataset')
@@ -200,8 +198,8 @@ client.dataset.delete('My Dataset')
 
 ### Defining transformations
 
-If you want to define a transformation that can be used to define a dataset without explicitly
-writing new code, you call a similar `define` function in the transformation namespace:
+If you want to define a transformation that can be used to define a dataset, without explicitly
+writing new code, you can call a similar `define` function in the transformation namespace:
 
 ```python
 client.transformation.define('My Transformation', '/path/to/reusable.py', inputs=['input1'])
@@ -221,11 +219,8 @@ def transformation():
 
 ### Using defined transformations
 
-To use a defined transformation, you use the same function that you used to define a computed
-dataset (after all, you're still making a computed dataset). The difference is, instead of providing
-a path to some local code, you provide the name of a transformation you've defined, through the
-`template` parameter, and you also supply a mapping of input aliases (the same strings supplied
-above when defining the transformation) to their real dataset names:
+To use a defined transformation, use the same function that you used to define a computed
+dataset (after all, you're still making a computed dataset). The difference is, instead of providing a path to some local code, you provide the name of a transformation you've defined through the `template` parameter, and you also supply a mapping of input aliases (the same strings supplied above when defining the transformation) to the real dataset names:
 
 ```python
 client.dataset.define(
@@ -238,7 +233,7 @@ client.dataset.define(
 ### Other transformation operations
 
 Just as with datasets, you can do some other basic operations that are specific to reusable
-transformations.
+transformations:  
 
 List the transformations in your organization:
 
@@ -246,7 +241,7 @@ List the transformations in your organization:
 client.transformation.list()
 ```
 
-Get basic metadata information about the transformation (right now, just name and uuid):
+Get basic metadata information about the transformation (right now, just the name and uuid):
 
 ```python
 client.transformation.meta('My Transformation')
@@ -260,12 +255,12 @@ client.transformation.delete('My Transformation')
 
 ### Running arbitrary API commands
 
-Anything you can do when logged into the website, you can trigger through an API
+Anything you can do when logged into the website, you can also trigger through an API
 call. However, we haven't directly included all possible commands in the Python
 API. If you want to run an operation programmatically that we have not included,
 there's a function you can use to send the direct GraphQL query (called `query`).
-For example, if you wanted to publish a transformation you have access to, you 
-could run:
+For example, if you want to publish a transformation that you have access to, you 
+can run:
 
 ```python
 publish_query = '''
@@ -283,6 +278,6 @@ uuid='your-transformation-uuid'
 client.query(publish_query, dict(uuid=uuid, published=True))
 ```
 
-We hope you don't have much use for this, and you should let us know if there's
+We hope you don't have much use for this. Please let us know if there's
 functionality that you'd like us to add to the Python API. But in the meantime,
 this will allow you to drive Synthi externally in ways we haven't thought of.

@@ -5,7 +5,7 @@
 * [About this manual](sections/Manual.md)
 
 ### Managing Users
-* [Logging In](sections/LoggingIn.md)
+* [Singing In](sections/SigningIn.md)
 * [Signing Out](sections/SigningOut.md)
 * [Changing Password](sections/ChangingPassword.md)
 * [Creating Users & Organizations](sections/CreatingUsersAndOrganizations.md)

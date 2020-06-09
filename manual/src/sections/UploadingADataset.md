@@ -24,7 +24,7 @@ store the original file.
 If the upload is a CSV file and there are no issues with the CSV's format, a sample of the data should load on 
 the screen after it's imported.
 
-Note that the uploaded dataset will be available to anyone in the active organization. The drop down menu on the top right of the next image displays the active organization.
+Note that the uploaded dataset will be available to anyone in the active organization. The drop down menu on the top right of the next image displays the active organization. In this case **`demo`** is the active organization.
 
 ![Upload completed successfully](../images/new-dataset-uploaded.png)
 
@@ -34,13 +34,13 @@ Before uploading a dataset, make sure you switch to the organization that you wa
 
 ## Troubleshooting
 
-Sometimes a CSV file might be in a format that Synthi doesn't expect. When this happens, an error message will appear on the screen or your data will be poorly formatted.
+Sometimes a CSV file might be in a format that Synthi doesn't accept. When this happens, an error message will appear on the screen or your data will be poorly formatted.
 
 #### Uploading a CSV without headers
 
-If the first line of your CSV file contains raw data instead of headers, Synthi will display an error page and offer the option to automatically generate headers for you (you can rename them later).
+If the first line of your CSV file contains raw data, instead of headers, Synthi will display an error page and offer the option to automatically generate headers for you (which you can rename later).
 
-Ensure that the toggle button for **Does your file contain a header row?** is deselected (moved to the left, it should turn white instead of green) and click the **Rescan Metadata** button to resubmit the CSV file to our servers.
+Ensure the toggle button for **Does your file contain a header row?** is deselected (moved to the left, it should turn white instead of green) and click the **Rescan Metadata** button to resubmit the CSV file to our servers.
 
 ![Example of a headerless error](../images/new-dataset-headerless.png)
 
@@ -54,6 +54,6 @@ Synthi expects CSV files to have column values separated by commas. If you use a
 
 ![Example of using a different delimiter](../images/new-dataset-delimiter.png)
 
-In order for your dataset to appear correctly, you'll need to edit your CSV in the text editor of your choice and replace all delimiters with a comma (most text editors have a "Find & Replace" tool that can handle this task automatically). 
+In order for your dataset to appear correctly, you'll need to edit your CSV, in the text editor of your choice, and replace all delimiters with a comma (most text editors have a "Find & Replace" tool that can handle this task automatically). 
 
 Once you've saved the comma-delimited version of your CSV in the text editor, select the **Upload** button on the **Preview Data** tab to upload it. After a few moments, the tab will load the new version and the data will be properly formatted in the table.

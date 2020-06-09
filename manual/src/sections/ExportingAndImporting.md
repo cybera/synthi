@@ -1,6 +1,6 @@
 # Exporting
 
-The Synthi platform allows you to export your data in a variety of ways so that you can work with the data using tools you're familiar with while still using the collaborative aspects and transformation pipeline of the platform.
+The Synthi platform allows you to export your data in a variety of ways. This enables you to work with the data using tools you're familiar with, while still using the collaborative aspects and transformation pipeline of the platform.
 
 ## User interface
 
@@ -8,7 +8,7 @@ The simplest way to export a dataset is to use the *Download* button that is inc
 
 ![download-button](../images/download-button.png)
 
-This will trigger a download of the dataset in a normalized CSV format: comma delimiters and a column name header. It will also re-run any transformations the current dataset might depend on, if it is a computed dataset.
+This will trigger a download of the dataset in a normalized .csv format: comma delimiters and a column name header. It will also re-run any transformations the current dataset might depend on, if it is a computed dataset.
 
 {% hint style='danger' %}
 Under current functionality, the column names exported will be whatever they were when they were imported. Or in the case where the original data did not have column names, they will be 'Column_1', 'Column_2', and so on. You can query changed column names by an API call, discussed below, and replace them externally, or you could create a transformation within the Synthi platform to change the column names in a new computed dataset to work around this limitation.
@@ -18,7 +18,7 @@ Under current functionality, the column names exported will be whatever they wer
 
 ## API Exports
 
-You do not need to use the user interface to import and export data. However, you can find some of the other options through the interface. The *API Info* tab lists many of these in easy to use code snippets that you can copy and paste into other popular environments.
+You do not need to use the user interface to import and export data. However, you can find some of the other options through the interface. The *API Info* tab lists many of these in easy-to-use code snippets that you can copy and paste into other popular environments.
 
 ![api-info](../images/api-info.png)
 
@@ -30,7 +30,7 @@ If you click the ![copy-icon](../images/copy-icon.png) icon to the right of the 
 
 ### API Keys
 
-An important piece of any of the code snippets is the API Key. This key is tied to your user account and gives access to any of the information you would have if you were logged in. It is important to keep it out of untrusted environments. However, if it is compromised for a particular user, you can regenerate the key for that user.
+An important piece of any code snippet is the API Key. This key is tied to your user account and gives access to any of the information you would have if you were logged in. It is important to keep it safe and out of untrusted environments. However, if it is compromised for a particular user, you can regenerate the key for that user.
 
 To regenerate an API key (or to generate one for the first time), go to your user profile under the ![user-profile-icon](../images/user-profile-icon.png) icon in the top right of the screen:
 
@@ -42,7 +42,7 @@ You may want to consider setting up individual user accounts for the sole purpos
 
 ## cURL snippets
 
-While we're not expecting you to use the Synthi platform from a terminal window, the *cURL* snippet section may be the most important section of the API examples to help integrate 3rd party tools with the platform. cURL is a command line utility, installed by default on MacOS and 'nix systems, but also [available for Windows](https://curl.haxx.se/windows/)! With it, you can make pretty much any kind of web request, and it's easy to script. But more importantly, it is one of the most direct and well documented ways of making programmatic web requests. If you have trouble understanding any of the examples we've included, there is plenty of documentation available online to help you understand. And if you can make it work with cURL, you can easily translate the command into any programming language or tool that has a web request API.
+While we're not expecting you to use the Synthi platform from a terminal window, the *cURL* snippet section may be the most important section of the API to help integrate third party tools within the platform. cURL is a command line utility, installed by default on MacOS and 'nix systems, but also [available for Windows](https://curl.haxx.se/windows/). With it, you can make pretty much any kind of web request, and it's easy to script. More importantly, it is one of the most direct and well documented ways of making programmatic web requests. If you have trouble understanding any of the examples we've included, there is plenty of documentation available online to help you understand. And if you can make it work with cURL, you can easily translate the command into any programming language or tool that has a web request API.
 
 Here are some of the common flags that we use:
 
@@ -59,7 +59,7 @@ Here are some of the common flags that we use:
 EOS
 ```
 
-allows us to send a multiline string in the body of our request. Many API requests are backed by a [GraphQL](https://graphql.org/learn/) service it receives structured requests like the following, and will return data in the same structure. For example, the following, which is being run on a classic [iris](https://www.kaggle.com/uciml/iris) dataset:
+allows us to send a multiline string in the body of our request. Many API requests are backed by a [GraphQL](https://graphql.org/learn/) service that receives structured requests, and returns data in the same structure. For example, this request which is run on a classic [iris](https://www.kaggle.com/uciml/iris) dataset:
 
 ```bash
 curl -s http://localhost:8080/graphql \
@@ -142,15 +142,20 @@ curl 'http://localhost:8080/graphql' \
 -F 0=@/path/on/your/computer/new-data.csv
 ```
 
-Importing is one area where a non-cURL implementation via a true programming language, is probably much simpler, as most of the complexity here deals with creating multi-line strings in a shell environment like bash, and also passing those strings in the correct order to the cURL command.
+Importing is one area where a non-cURL implementation, via a true programming language, is probably much simpler. This is because most of the complexity here deals with creating multi-line strings in a shell environment like bash, and also passing those strings in the correct order to the cURL command.
 
-There are two key pieces here. The first is the GraphQL query to tell the API what we want to do and where we want to do it (that's where we specify the dataset ID). The second is actually passing the file along in the way it's expected as part of a multi-part web request. This is about the most complicated style of web request you can make, where you want to send whole files along with some structured information. However, with a few changes, you could turn this into a script that you could run like this:
+There are two key pieces here:
+
+1. The GraphQL query to tell the API what you want to do and where you want to do it (that's where you specify the dataset ID). 
+2. Passing the file along in the way it's expected as part of a multi-part web request. 
+
+This is about the most complicated style of web request you can make, where you want to send whole files along with some structured information. However, with a few changes, you could turn this into a script:
 
 ```bash
 upload-dataset.sh your-api-key 123 /path/on/your/computer/new-data.csv
 ```
 
-Here's what upload-dataset.sh would look like (note that it's currently hard coded to the development URL of the site):
+Here's what the upload-dataset.sh would look like (note that it's currently hard-coded to the development URL of the site):
 
 ```bash
 #!/bin/bash

@@ -6,8 +6,7 @@
   
 ### Creating a Computed Dataset
 
-You can create a computed dataset directly from the transformation browsing screen once you've found
-a transformation you would like to use.
+You can create a computed dataset directly from the transformation browsing screen once you've found a transformation you would like to use.
 
 ![compute-dataset-01-browsing](../images/transformation-browser/compute-dataset-01-browsing-transformations.png)
 
