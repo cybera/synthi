@@ -10,4 +10,4 @@ Visit the root URL for your Synthi instance. If you are not signed in, you will 
 
 If your login is successful, Synthi will navigate to its main dashboard where you'll be able to manage your datasets.
 
-![Login form](/images/login-form.png) 
+![Login form](/images/login-form.png)

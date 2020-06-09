@@ -21,8 +21,7 @@ The extension of your uploaded file will determine the type of dataset it is int
 store the original file.
 {% endhint %}
 
-If the upload is a CSV file and there are no issues with the CSV's format, a sample of the data should load on 
-the screen after it's imported.
+If the upload is a CSV file and there are no issues with the CSV's format, a sample of the data should load on the screen after it's imported.
 
 Note that the uploaded dataset will be available to anyone in the active organization. The drop down menu on the top right of the next image displays the active organization. In this case **`demo`** is the active organization.
 
