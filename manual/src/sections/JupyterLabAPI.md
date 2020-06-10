@@ -28,10 +28,12 @@
     os.environ['SYNTHI_API_KEY'] = your_api_key
   ```
 
-  ![connecting-to-synthi](../images/connecting-to-synthi.png)
-
   Now you can use the python-synthi package to connect to synthi and work with the datasets and organizations that are accessible to you there, in addition to having the full capabilities of JupyterLab. 
 
+  ```python
+  from synthi import Connection
+  client = Connection()
+  ```
 
   ### Transformation
 
