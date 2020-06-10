@@ -188,8 +188,8 @@ With a little setup, you can run integration tests in a completely separate envi
 
 ```bash
 source YOUR_SWIFT_CREDENTIALS.sh
-swift post adi-YOURNAME-testing-datasets
-swift post adi-YOURNAME-testing-scripts
+swift post <swift-datasets-container-name>
+swift post <swift-scripts-container-name>
 ```
 
 Now create a copy of your _development.toml_ file called _testing.toml_:
@@ -203,8 +203,8 @@ Finally, edit the object storage section to point to the containers you just cre
 ```toml
 [storage.object.containers]
 
-datasets = "adi-YOURNAME-testing-datasets"
-scripts = "adi-YOURNAME-testing-scripts"
+datasets = "<swift-datasets-container-name>"
+scripts = "<swift-scripts-container-name>"
 ```
 
 The test environment does take a bit of time to set up and tear down, so you may want to leave it running between test runs (though then you'll have to make sure to clean up after a test run).
@@ -234,28 +234,3 @@ bin/testenv stop
 ```
 
 This will also get rid of the volumes Docker creates for the test instances, so you'll be starting from a completely clean slate the next time around (one exception: anything still residing in your swift storage containers isn't deleted at the moment).
-
-### Debugging Jenkins failures
-
-When the integration tests fail on a Jenkins run, why they failed can be rather mysterious because it's not easy to see
-any actual errors that may have been triggered on the server, only the ones that flow through to the test.
-
-There's already a change in place that stores any Docker output from the server, database, etc. after executing the
-tests, so it may be helpful in diagnosing problems that don't seem to appear in a devleopment environment.
-
-Here's how you navigate to the logs that are now being written:
-
-1. Click the Jenkins classic icon if you're not already there
-2. Go to the workspace (it should have the entire code branch that was part of this Jenkins build)
-3. Check test/log/integration-test.log
-
-### Jenkins 
-
-To get the Jenkins pipeline working the following credentials need to be set in Jenkins:
-
-* **staging-docker-uri**: The Docker server uri for the project. It's usually: `tcp://<your-server-url>:2356`.
-* **synthidockerhub**: DockerHub login credentials. 
-* **synthi-staging**: Docker host key for Synthi environment.
-* **server-image**: Name of the Synthi server docker image.
-* **neo4j-image**: Name of the Synthi neo4j docker image. 
-* **synthi-slack-channel**: Slack channel name to send Jenkins pipeline run failure messages to.
