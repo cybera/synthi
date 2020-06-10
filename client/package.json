@@ -1,7 +1,7 @@
 {
-  "name": "adi-client",
+  "name": "synti-client",
   "version": "1.0.0",
-  "description": "frontend client for adi",
+  "description": "frontend client for synthi",
   "main": "webpack.config.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.config.dev.js",

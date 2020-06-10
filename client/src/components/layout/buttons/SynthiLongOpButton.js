@@ -4,8 +4,8 @@ import clsx from 'clsx'
 import { makeStyles } from '@material-ui/core/styles'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { green } from '@material-ui/core/colors'
-import ADIButton from './ADIButton'
-import { childrenProptype } from '../../../lib/adiProptypes'
+import SynthiButton from './SynthiButton'
+import { childrenProptype } from '../../../lib/synthiProptypes'
 
 const useStyles = makeStyles({
   root: {
@@ -64,13 +64,13 @@ const LongOpButton = ({ children, handler }) => {
   return (
     <div className={classes.root}>
       <div className={classes.wrapper}>
-        <ADIButton
+        <SynthiButton
           className={buttonClassname}
           disabled={loading}
           onClick={handleButtonClick}
         >
           { children }
-        </ADIButton>
+        </SynthiButton>
         {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
       </div>
     </div>

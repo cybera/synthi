@@ -2,9 +2,9 @@ import os
 import time
 import pytest
 
-os.environ['ADI_API_HOST'] = 'http://server:3000'
+os.environ['SYNTHI_API_HOST'] = 'http://server:3000'
 
-from adi import Connection, APIError
+from synthi import Connection, APIError
 
 # Basic test user connection
 client = Connection(api_key='test-token')

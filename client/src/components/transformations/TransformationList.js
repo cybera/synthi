@@ -5,7 +5,7 @@ import * as R from 'ramda'
 
 import { makeStyles } from '@material-ui/styles'
 
-import { ADILongOpButton } from '../layout/buttons'
+import { SynthiLongOpButton } from '../layout/buttons'
 
 import NavigationContext from '../../contexts/NavigationContext'
 import TransformationFilterContext from '../../contexts/TransformationFilterContext'
@@ -140,9 +140,9 @@ const TransformationList = () => {
         <TransformationDetail transformation={transformation} key={transformation.uuid} />
       ))}
       <div className={last ? classes.loadMoreHidden : classes.loadMoreVisible}>
-        <ADILongOpButton handler={handleFetchMore}>
+        <SynthiLongOpButton handler={handleFetchMore}>
           Load More...
-        </ADILongOpButton>
+        </SynthiLongOpButton>
       </div>
     </div>
   )

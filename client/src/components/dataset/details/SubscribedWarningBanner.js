@@ -10,7 +10,7 @@ import { WarnSvg } from '../../layout/svg'
 import DatasetUploadButton from '../editor/buttons/UploadFile'
 
 import UploadButton from '../editor/buttons/UploadButton'
-import { datasetProptype } from '../../../lib/adiProptypes'
+import { datasetProptype } from '../../../lib/synthiProptypes'
 
 export default class SubscribedWarningBanner extends React.Component {
   constructor(props) {

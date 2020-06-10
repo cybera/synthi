@@ -16,7 +16,7 @@ import LoopIcon from '@material-ui/icons/Loop'
 import { withStyles } from '@material-ui/core/styles'
 
 import { ToggleVisibility } from '../layout'
-import { ADIButton } from '../layout/buttons'
+import { SynthiButton } from '../layout/buttons'
 
 const styles = theme => ({
   icon: {
@@ -100,7 +100,7 @@ class CSVOptions extends React.Component {
         </ToggleVisibility>
         <FormGroup style={{ marginTop: 20 }}>
           <div>
-            <ADIButton
+            <SynthiButton
               fullWidth={false}
               onClick={
                 () => importHandler({
@@ -113,7 +113,7 @@ class CSVOptions extends React.Component {
             >
               <LoopIcon className={classes.icon} />
               Rescan Metadata
-            </ADIButton>
+            </SynthiButton>
           </div>
         </FormGroup>
       </div>

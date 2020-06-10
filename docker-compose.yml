@@ -2,7 +2,7 @@ version: '3.4'
 services:
   neo4j:
     build: ./neo4j
-    image: cybera/adi-neo4j:${TAG}
+    image: synthi-neo4j:${TAG}
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -20,7 +20,7 @@ services:
       NEO4J_com_graphaware_module_UIDM_1: "com.graphaware.module.uuid.UuidBootstrapper"
   server:
     build: ./server
-    image: cybera/adi-server:${TAG}
+    image: synthi-server:${TAG}
     ports:
        - "3000:3000"
     volumes:
@@ -45,7 +45,7 @@ services:
     build:
       context: ./services
       target: python-worker
-    image: cybera/adi-python-worker:${TAG}
+    image: synthi-python-worker:${TAG}
     networks:
       - default
     volumes:
@@ -59,7 +59,7 @@ services:
     build:
       context: ./services
       target: tika-worker
-    image: cybera/adi-tika-worker:${TAG}
+    image: synthi-tika-worker:${TAG}
     networks:
       - default
     volumes:
@@ -71,7 +71,7 @@ services:
     command: /bin/true
   manual:
     build: ./manual
-    image: cybera/adi-manual:${TAG}
+    image: synthi-manual:${TAG}
     ports:
       - "4000:4000"
       - "35729:35729"

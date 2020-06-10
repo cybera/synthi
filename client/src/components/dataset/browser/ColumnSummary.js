@@ -15,7 +15,7 @@ import {
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
-import { columnsProptype } from '../../../lib/adiProptypes'
+import { columnsProptype } from '../../../lib/synthiProptypes'
 
 const useStyles = makeStyles((theme) => ({
   showDetailsButton: {

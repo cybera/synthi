@@ -3,7 +3,7 @@ import React from 'react'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 
-import { ADIButton } from '../../layout/buttons'
+import { SynthiButton } from '../../layout/buttons'
 import { datasetViewQuery } from '../../../queries'
 
 const saveInputTransformationGQL = gql`
@@ -22,7 +22,7 @@ const SaveTransformationButton = (props) => {
       refetchQueries={[{ query: datasetViewQuery, variables: { uuid: dataset.uuid } }]}
     >
       { saveMutation => (
-        <ADIButton
+        <SynthiButton
           onClick={
             () => saveMutation({
               variables: {
@@ -33,7 +33,7 @@ const SaveTransformationButton = (props) => {
           }
         >
           Save
-        </ADIButton>
+        </SynthiButton>
       )}
     </Mutation>
   )

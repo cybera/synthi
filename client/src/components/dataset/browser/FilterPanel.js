@@ -14,7 +14,7 @@ import DatasetFilterContext from '../../../contexts/DatasetFilterContext'
 import FormatSelector from '../metadata/FormatSelector'
 
 import FileSizeFilter from './FileSizeFilter'
-import ADIButton from '../../layout/buttons/ADIButton'
+import SynthiButton from '../../layout/buttons/SynthiButton'
 import TopicInput from '../metadata/TopicInput'
 
 const useStyles = makeStyles((theme) => ({
@@ -129,12 +129,12 @@ const FilterPanel = () => {
           />
         </Grid>
         <Grid item className={classes.filterRow}>
-          <ADIButton
+          <SynthiButton
             onClick={() => updateFilter(filter)}
             className={classes.filterButton}
           >
             Filter
-          </ADIButton>
+          </SynthiButton>
         </Grid>
       </Grid>
     </div>

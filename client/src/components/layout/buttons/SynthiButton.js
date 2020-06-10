@@ -11,7 +11,7 @@ const styles = (theme) => ({
   }
 })
 
-const ADIButton = props => <Button variant={props.variant || 'contained'} color='primary' {...props}/>
+const SynthiButton = props => <Button variant={props.variant || 'contained'} color='primary' {...props}/>
 
 
-export default withStyles(styles)(ADIButton)
+export default withStyles(styles)(SynthiButton)

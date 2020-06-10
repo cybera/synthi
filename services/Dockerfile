@@ -13,7 +13,7 @@ RUN pip install neo4j-driver \
                 bcrypt \
                 python-magic
 COPY ./pkg /usr/src/pkg
-RUN pip install -e /usr/src/pkg/python-adi
+RUN pip install -e /usr/src/pkg/python-synthi
 ADD python-worker ./
 ADD common ./common
 

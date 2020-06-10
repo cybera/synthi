@@ -16,7 +16,7 @@ import { Query, Mutation } from 'react-apollo'
 import gql from 'graphql-tag'
 import * as Ramda from 'ramda'
 
-import { ADIButton } from '../../layout/buttons'
+import { SynthiButton } from '../../layout/buttons'
 import DatasetColumnTagsContainer from './DatasetColumnTagsContainer'
 import FormatSelector from './FormatSelector'
 import { PanelLoadingState } from '../../layout'
@@ -371,13 +371,13 @@ class DatasetMetadata extends React.Component {
             </Grid>
           </form>
         </Paper>
-        <ADIButton
+        <SynthiButton
           onClick={() => this.handleSave(saveMutation)}
           disabled={!edited}
           className={classes.saveButton}
         >
           Save Changes
-        </ADIButton>
+        </SynthiButton>
         <DatasetColumnTagsContainer uuid={uuid} />
       </div>
     )

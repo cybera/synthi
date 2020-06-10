@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import { withNavigation } from '../../contexts/NavigationContext'
-import { ADIButton } from '../layout/buttons'
+import { SynthiButton } from '../layout/buttons'
 
 class LogoutButton extends React.Component {
   static propTypes = {
@@ -28,7 +28,7 @@ class LogoutButton extends React.Component {
   render() {
     return (
       <div>
-        <ADIButton variant="outlined" onClick={this.handleClick}>Logout</ADIButton>
+        <SynthiButton variant="outlined" onClick={this.handleClick}>Logout</SynthiButton>
       </div>
     );
   }

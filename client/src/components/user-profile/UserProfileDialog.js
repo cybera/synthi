@@ -11,7 +11,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 
-import { ADIButton } from '../layout/buttons'
+import { SynthiButton } from '../layout/buttons'
 import { openSnackbar } from '../layout/Notifier'
 
 const styles = {
@@ -92,7 +92,7 @@ function UpdatePassword() {
           onChange={verify}
         />
         <Grid item xs={12}>
-          <ADIButton type="submit" disabled={disabled}>Update Password</ADIButton>
+          <SynthiButton type="submit" disabled={disabled}>Update Password</SynthiButton>
         </Grid>
       </form>
     </div>
@@ -150,7 +150,7 @@ class UserProfileDialog extends React.Component {
               />
             </Grid>
             <Grid item xs={12}>
-              <ADIButton onClick={regenerateAPIKey}>Regenerate API Key</ADIButton>
+              <SynthiButton onClick={regenerateAPIKey}>Regenerate API Key</SynthiButton>
             </Grid>
           </Grid>
         </DialogContent>

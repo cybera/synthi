@@ -4,8 +4,8 @@ import gql from 'graphql-tag'
 
 import { useMutation } from 'react-apollo'
 
-import ADIButton from '../../../layout/buttons/ADIButton'
-import { datasetProptype } from '../../../../lib/adiProptypes'
+import SynthiButton from '../../../layout/buttons/SynthiButton'
+import { datasetProptype } from '../../../../lib/synthiProptypes'
 
 const IMPORT_MUTATION = gql`
   mutation ImportDataset($uuid: String!) {
@@ -25,9 +25,9 @@ const IMPORT_MUTATION = gql`
 export default function ImportButton({ dataset }) {
   const [importDataset] = useMutation(IMPORT_MUTATION, { variables: { uuid: dataset.uuid } })
   return (
-    <ADIButton onClick={importDataset}>
+    <SynthiButton onClick={importDataset}>
       { dataset.importTask ? 'Reimport' : 'Import' }
-    </ADIButton>
+    </SynthiButton>
   )
 }
 

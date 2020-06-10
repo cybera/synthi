@@ -20,8 +20,8 @@ import ColumnSummary from './ColumnSummary'
 
 import Preview from '../details/Preview'
 import { formatBytes } from '../../../lib/common'
-import { datasetProptype } from '../../../lib/adiProptypes'
-import { ADIButton } from '../../layout/buttons'
+import { datasetProptype } from '../../../lib/synthiProptypes'
+import { SynthiButton } from '../../layout/buttons'
 import NavigationContext from '../../../contexts/NavigationContext'
 import { DownloadButton } from '../editor/buttons'
 
@@ -253,17 +253,17 @@ const DatasetDetail = ({ dataset }) => {
             )}
           </Grid>
           <Grid item>
-            <ADIButton size="small" onClick={handleDatasetNavigation} className={classes.opButton}>
+            <SynthiButton size="small" onClick={handleDatasetNavigation} className={classes.opButton}>
               Dataset Workbench
-            </ADIButton>
+            </SynthiButton>
           </Grid>
           <Grid item style={{ zIndex: 999 }}>
             <DownloadButton size="small" dataset={dataset} className={classes.opButton} />
           </Grid>
           <Grid item style={{ zIndex: 100 }}>
-              <ADIButton size="small" onClick={handleSubmit} className={classes.opButton}>
+              <SynthiButton size="small" onClick={handleSubmit} className={classes.opButton}>
                 Share Dataset
-              </ADIButton>
+              </SynthiButton>
           </Grid>
 
         </Grid>

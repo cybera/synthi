@@ -114,7 +114,7 @@ class DatasetDetails extends React.Component {
       return (
         <Placeholder>
           <Typography variant="h4" className={classes.placeholderHeading}>
-            Welcome to ADI
+            Welcome to Synthi
           </Typography>
           <Typography variant="subtitle1">
             Select a dataset or create a new dataset to get started.

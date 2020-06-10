@@ -15,7 +15,7 @@ import {
 
 import { AutocompleteChipInput } from '../layout/form-fields/AutocompleteInput'
 import TransformationFilterContext from '../../contexts/TransformationFilterContext'
-import ADIButton from '../layout/buttons/ADIButton'
+import SynthiButton from '../layout/buttons/SynthiButton'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -140,12 +140,12 @@ const FilterPanel = () => {
           />
         </Grid>
         <Grid item className={classes.filterRow}>
-          <ADIButton
+          <SynthiButton
             onClick={() => updateFilter(filter)}
             className={classes.filterButton}
           >
             Filter
-          </ADIButton>
+          </SynthiButton>
         </Grid>
       </Grid>
     </div>

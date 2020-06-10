@@ -3,7 +3,7 @@ import { useSubscription } from 'react-apollo'
 import gql from 'graphql-tag'
 import { Alert, AlertTitle } from '@material-ui/lab'
 
-import { taskProptype } from '../../../lib/adiProptypes'
+import { taskProptype } from '../../../lib/synthiProptypes'
 
 const TASK_UPDATED_SUBSCRIPTION = gql`
   subscription onTaskUpdated($uuid: String) {

@@ -14,8 +14,8 @@ projectDomainName="Default"
 
 [storage.object.containers]
 
-datasets = "adi_datasets"
-scripts = "adi_scripts"
+datasets = "synthi_datasets"
+scripts = "synthi_scripts"
 
 [storage]
 
@@ -42,7 +42,7 @@ baseUrl = "http://host.docker.internal:3000"
 
 [k8s.images]
 
-import_csv = "cybera/adi-python-worker"
-transform = "cybera/adi-python-worker"
-register_transformation = "cybera/adi-python-worker"
-import_document = "cybera/adi-tika-worker"
+import_csv = "<your_org>/synthi-python-worker"
+transform = "<your_org>/synthi-python-worker"
+register_transformation = "<your_org>/synthi-python-worker"
+import_document = "<your_org>/synthi-tika-worker"

@@ -15,8 +15,7 @@ import gql from 'graphql-tag'
 import { compose } from '../../lib/common'
 import { withNavigation } from '../../contexts/NavigationContext'
 import { openSnackbar } from '../layout/Notifier'
-import { ADIButton } from '../layout/buttons'
-import ADILogo from '../../images/ckan-logo.png'
+import { SynthiButton } from '../layout/buttons'
 
 const currentUserQuery = gql`
   query CurrentUser {
@@ -140,13 +139,8 @@ class Login extends React.Component {
         <CssBaseline />
         <main className={classes.layout}>
           <Paper className={classes.paper}>
-            <img
-              src={ADILogo}
-              alt=""
-              className={classes.img}
-            />
             <Typography component="h1" variant="h6" gutterBottom>
-              Welcome to the ADI Platform
+              Welcome to the Synthi Platform
             </Typography>
             <Typography component="h1" variant="body1">
              Please sign in
@@ -177,7 +171,7 @@ class Login extends React.Component {
                 label="Remember me"
                 className={classes.hidden}
               />
-              <ADIButton
+              <SynthiButton
                 type="submit"
                 fullWidth
                 variant="contained"
@@ -186,7 +180,7 @@ class Login extends React.Component {
                 disabled={state.disabled}
               >
                 Sign in
-              </ADIButton>
+              </SynthiButton>
             </form>
           </Paper>
         </main>
