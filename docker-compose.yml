@@ -1,17 +1,30 @@
 version: '3.4'
 services:
+  backups:
+    build: ./backup
+    image: cybera/backups:${TAG}
+    volumes:
+      - backup:/backup
+      - ./config/development.toml:/config/development.toml
+    environment:
+      BACKUP_DIR: /backup
+      SWIFT_CONTAINER: "adi_backup"
   neo4j:
     build: ./neo4j
     image: synthi-neo4j:${TAG}
     ports:
       - "7474:7474"
       - "7687:7687"
+      - "6362"
     volumes:
       - neo4j_data:/data
+      - backup:/backup
     networks:
       - default
     environment:
+      NOW: date +"%m_%d_%Y"
       NEO4J_AUTH: neo4j/password
+      NEO4J_dbms_backup_address: "0.0.0.0:6362"
       NEO4J_dbms_memory_heap_maxSize: 2048
       NEO4J_dbms_memory_pagecache_size: 1048576
       NEO4J_dbms_security_procedures_unrestricted: apoc.*
@@ -90,3 +103,4 @@ services:
 volumes:
   neo4j_data:
   manual_gitbook_comp:
+  backup:

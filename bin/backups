@@ -1,0 +1,2 @@
+crontab -l | { cat; echo "0 * * * * docker exec adi_neo4j_1 /var/lib/neo4j/bin/neo4j-admin backup --backup-dir=/backup --pagecache=4G --name=neo4j_$(date +%m_%d_%Y).db-backup"; } | crontab -
+
